@@ -1,0 +1,26 @@
+{
+	"nodes":[
+		{"id":"pawn-extension","type":"text","text":"[Lyra 自定义]\n文件：Source/LyraGame/Character/LyraPawnExtensionComponent.cpp\n函数：InitializeAbilitySystem\n作用：处理旧 Avatar，调用 ASC 初始化","x":1350,"y":80,"width":400,"height":200},
+		{"id":"uninitialize","type":"text","text":"[Lyra 自定义]\n文件：Source/LyraGame/Character/LyraPawnExtensionComponent.cpp\n函数：UninitializeAbilitySystem\n作用：取消普通 Ability、清输入并解除 Avatar","x":1350,"y":600,"width":410,"height":200},
+		{"id":"hero-init","type":"text","text":"[Lyra 自定义]\n文件：Source/LyraGame/Character/LyraHeroComponent.cpp\n函数：HandleChangeInitState\n作用：DataInitialized 时触发 ASC/Avatar 绑定","x":1350,"y":-280,"width":390,"height":200},
+		{"id":"ps-init","type":"text","text":"[Lyra 调用 + GAS 原生]\n文件：Source/LyraGame/Player/LyraPlayerState.cpp\n函数：PostInitializeComponents\n作用：早期调用 InitAbilityActorInfo(PlayerState, GetPawn())","x":720,"y":-280,"width":390,"height":200},
+		{"id":"ps-create","type":"text","text":"[Lyra 自定义]\n文件：Source/LyraGame/Player/LyraPlayerState.cpp\n函数：ALyraPlayerState::ALyraPlayerState\n作用：创建并持有 Lyra ASC","x":70,"y":-280,"width":360,"height":200},
+		{"id":"set-pawn-data","type":"text","text":"[Lyra 自定义]\n文件：Source/LyraGame/Player/LyraPlayerState.cpp\n函数：SetPawnData\n作用：在 authority 上授予默认 AbilitySet","x":750,"y":80,"width":360,"height":200},
+		{"id":"gas-init","type":"text","text":"[GAS 原生]\n文件：GameplayAbilities/AbilitySystemComponent\n函数：UAbilitySystemComponent::InitAbilityActorInfo\n作用：维护 Owner、Avatar、Controller、Mesh、Anim、Movement","x":2440,"y":80,"width":410,"height":200},
+		{"id":"controller-refresh","type":"text","text":"[Lyra 自定义]\n文件：Source/LyraGame/Character/LyraPawnExtensionComponent.cpp\n函数：HandleControllerChanged\n作用：Controller 改变时调用 RefreshAbilityActorInfo","x":2440,"y":-280,"width":400,"height":200},
+		{"id":"lyra-post","type":"text","text":"[Lyra 自定义]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：InitAbilityActorInfo 后处理\n作用：OnPawnAvatarSet、RegisterASC、动画初始化、OnSpawn 尝试","x":2440,"y":588,"width":420,"height":200},
+		{"id":"lyra-init","type":"text","text":"[Lyra 自定义]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：InitAbilityActorInfo\n作用：调用 GAS 父类，并执行 Lyra Avatar 后处理","x":1880,"y":80,"width":400,"height":200}
+	],
+	"edges":[
+		{"id":"edge-hero-extension","fromNode":"hero-init","fromSide":"bottom","toNode":"pawn-extension","toSide":"top","label":"绑定 ASC"},
+		{"id":"edge-create-init","fromNode":"ps-create","fromSide":"right","toNode":"ps-init","toSide":"left","label":"初始化"},
+		{"id":"edge-init-hero","fromNode":"ps-init","fromSide":"right","toNode":"hero-init","toSide":"left","label":"Pawn 就绪"},
+		{"id":"edge-pawn-data","fromNode":"ps-init","fromSide":"bottom","toNode":"set-pawn-data","toSide":"top","label":"经验加载"},
+		{"id":"edge-extension-lyra","fromNode":"pawn-extension","fromSide":"right","toNode":"lyra-init","toSide":"left","label":"调用"},
+		{"id":"edge-lyra-gas","fromNode":"lyra-init","fromSide":"right","toNode":"gas-init","toSide":"left","label":"Super"},
+		{"id":"edge-gas-post","fromNode":"gas-init","fromSide":"bottom","toNode":"lyra-post","toSide":"top","label":"返回后"},
+		{"id":"edge-controller-refresh","fromNode":"controller-refresh","fromSide":"bottom","toNode":"gas-init","toSide":"top","label":"刷新"},
+		{"id":"edge-avatar-end","fromNode":"lyra-post","fromSide":"left","toNode":"uninitialize","toSide":"right","label":"解绑"},
+		{"id":"edge-rebind","fromNode":"uninitialize","fromSide":"top","toNode":"pawn-extension","toSide":"bottom","label":"新 Pawn 重绑定"}
+	]
+}

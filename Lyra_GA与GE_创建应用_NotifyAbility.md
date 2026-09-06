@@ -591,3 +591,439 @@ AbilitySet::GiveToAbilitySystem
 - [[Lyra_输入映射_按键到Ability]]
 - [[Lyra_AbilityActorInfo_生命周期]]
 - `Lyra_GA与GE_创建应用_NotifyAbility.canvas`
+
+## 十一、用最简单的方式理解 NotifyAbility
+
+### 它不是用来激活 Ability 的
+
+`NotifyAbility...` 可以理解成：
+
+> GAS 告诉 ASC：某个 Ability 的生命周期状态发生变化了。
+
+它不是：
+
+- 激活 Ability 的函数；
+- 执行技能逻辑的函数；
+- 输入事件函数；
+- GameplayEffect 应用函数。
+
+完整的输入激活链路是：
+
+```text
+按下 Q
+  → InputTag 找到 AbilitySpec
+  → ProcessAbilityInput
+  → TryActivateAbility(SpecHandle)
+  → GAS 检查能否激活
+      ├─ 失败：NotifyAbilityFailed
+      └─ 成功：NotifyAbilityActivated
+                  → ActivateAbility
+                  → 执行技能逻辑
+```
+
+`TryActivateAbility` 是“尝试激活”，`ActivateAbility` 是“激活成功后执行技能”，`NotifyAbilityActivated` 是“GAS 通知 ASC 激活已经成功”。
+
+### 三个阶段通知
+
+| 函数 | 发生时机 | 主要作用 |
+| --- | --- | --- |
+| `NotifyAbilityActivated` | Ability 激活成功后 | GAS 完成通用处理，Lyra 加入激活组 |
+| `NotifyAbilityFailed` | Ability 激活失败后 | 传递失败原因，触发正确客户端的失败表现 |
+| `NotifyAbilityEnded` | Ability 结束或取消后 | GAS 清理状态，Lyra 移出激活组 |
+
+## 十二、`NotifyAbilityActivated` 为什么存在
+
+Lyra 的实现：
+
+```cpp
+void ULyraAbilitySystemComponent::NotifyAbilityActivated(
+    const FGameplayAbilitySpecHandle Handle,
+    UGameplayAbility* Ability)
+{
+    Super::NotifyAbilityActivated(Handle, Ability);
+
+    if (ULyraGameplayAbility* LyraAbility =
+        Cast<ULyraGameplayAbility>(Ability))
+    {
+        AddAbilityToActivationGroup(
+            LyraAbility->GetActivationGroup(),
+            LyraAbility
+        );
+    }
+}
+```
+
+### `Super::NotifyAbilityActivated` 做什么
+
+这不是再次激活 Ability，而是让 GAS 父类完成激活成功后的通用系统处理，例如：
+
+- 维护 AbilitySpec 的活动状态；
+- 维护 Ability 实例相关状态；
+- 处理 Ability 生命周期事件；
+- 配合预测和复制流程。
+
+所以这里的 `Super` 应该理解成：
+
+```text
+让 GAS 原生系统完成“激活成功后的记账”
+```
+
+### Lyra 的额外处理
+
+调用父类后，Lyra 将 Ability 加入激活组：
+
+```text
+Ability 激活成功
+  → GAS 原生 ASC 记账
+  → Lyra 增加 ActivationGroupCounts
+  → 根据激活组决定阻塞或替换关系
+```
+
+Lyra 的激活组包括：
+
+- `Independent`：不阻塞、不取消其他 Ability；
+- `Exclusive_Replaceable`：可以被新的独占 Ability 取消和替换；
+- `Exclusive_Blocking`：阻止其他 Exclusive Ability 激活。
+
+把这段逻辑放到 `NotifyAbilityActivated`，而不是让每个 Ability 自己调用，是为了让所有激活入口统一生效：
+
+```text
+输入激活
+GameplayEvent 激活
+OnSpawn 激活
+其他 Ability 主动激活
+网络同步激活
+        ↓
+统一进入 NotifyAbilityActivated
+```
+
+如果让每个 Ability 自己维护激活组，容易出现某个 Ability 忘记增加计数，或者结束/取消时忘记减少计数的问题。
+
+因此 `NotifyAbilityActivated` 是：
+
+> **Ability 激活成功后的统一系统级扩展点。**
+
+## 十三、`NotifyAbilityFailed` 为什么存在
+
+Ability 激活失败时不会进入：
+
+```cpp
+ActivateAbility()
+```
+
+因此不能在 `ActivateAbility` 中处理失败表现。
+
+`CanActivateAbility` 也不适合直接播放 UI 或音效，因为它只是检查函数，可能被重复调用：
+
+```text
+UI 查询
+输入系统查询
+客户端预测查询
+服务器真正激活时查询
+```
+
+`NotifyAbilityFailed` 表示：
+
+> 这次真正的 Ability 激活尝试已经失败，并且 GAS 已经确定了失败原因。
+
+Lyra 的处理路径是：
+
+```text
+TryActivateAbility 失败
+  → NotifyAbilityFailed
+  → Super::NotifyAbilityFailed
+  → 判断 Avatar 是否由本地控制
+      ├─ 远程控制且支持网络：ClientNotifyAbilityFailed
+      │                         → RPC 到拥有客户端
+      └─ 本地控制或不需要 RPC：HandleAbilityFailed
+                                  → OnAbilityFailedToActivate
+```
+
+`FailureReason` 通常是 GameplayTag，例如：
+
+```text
+Ability.ActivateFail.Cooldown
+Ability.ActivateFail.Cost
+Ability.ActivateFail.TagsBlocked
+Ability.ActivateFail.TagsMissing
+Ability.ActivateFail.IsDead
+Ability.ActivateFail.ActivationGroup
+```
+
+它可以用于：
+
+- 播放失败 Montage；
+- 播放失败音效；
+- 显示冷却或资源不足提示；
+- 给 UI 发送失败原因；
+- 触发本地失败表现。
+
+`NotifyAbilityFailed` 不会重试，也不会强制激活 Ability。它只负责统一处理失败结果。
+
+## 十四、`NotifyAbilityEnded` 是结束后的清理通知
+
+```cpp
+void ULyraAbilitySystemComponent::NotifyAbilityEnded(
+    FGameplayAbilitySpecHandle Handle,
+    UGameplayAbility* Ability,
+    bool bWasCancelled)
+{
+    Super::NotifyAbilityEnded(Handle, Ability, bWasCancelled);
+
+    if (ULyraGameplayAbility* LyraAbility =
+        Cast<ULyraGameplayAbility>(Ability))
+    {
+        RemoveAbilityFromActivationGroup(
+            LyraAbility->GetActivationGroup(),
+            LyraAbility
+        );
+    }
+}
+```
+
+流程是：
+
+```text
+Ability::EndAbility 或 CancelAbility
+  → GAS 清理活动状态
+  → NotifyAbilityEnded
+  → Super::NotifyAbilityEnded
+  → Lyra 减少激活组计数
+```
+
+一定要区分：
+
+```text
+EndAbility
+    让 Ability 结束
+
+NotifyAbilityEnded
+    Ability 结束后通知 ASC 做清理
+```
+
+`NotifyAbilityEnded` 不是调用 `EndAbility`。如果结束后不减少激活组计数，可能发生：
+
+```text
+Ability 实际已经结束
+但 ActivationGroupCounts 仍然认为它在运行
+后续 Ability 被错误阻塞
+```
+
+## 十五、NotifyAbility 和输入事件不是一回事
+
+输入相关函数是：
+
+```cpp
+AbilitySpecInputPressed
+AbilitySpecInputReleased
+InvokeReplicatedEvent
+```
+
+它们关注的是：
+
+```text
+按键是否按下
+按键是否释放
+WaitInputPress 是否收到事件
+WaitInputRelease 是否收到事件
+```
+
+NotifyAbility 关注的是：
+
+```text
+Ability 是否激活成功
+Ability 是否激活失败
+Ability 是否已经结束
+```
+
+| 机制 | 关注点 |
+| --- | --- |
+| `AbilitySpecInputPressed` | 输入按下 |
+| `InvokeReplicatedEvent` | 把输入事件送给 AbilityTask |
+| `NotifyAbilityActivated` | Ability 激活成功 |
+| `NotifyAbilityFailed` | Ability 激活失败 |
+| `NotifyAbilityEnded` | Ability 结束或取消 |
+
+例如第二次按 Q：
+
+```text
+AbilitySpecInputPressed
+  → InputPressed
+  → WaitInputPress
+```
+
+这不代表 Ability 被重新激活。
+
+而第一次按 Q，如果激活成功：
+
+```text
+TryActivateAbility
+  → NotifyAbilityActivated
+  → ActivateAbility
+```
+
+这是 Ability 生命周期发生了变化。
+
+## 十六、GE 有没有 NotifyAbility
+
+没有。
+
+`NotifyAbility...` 是 Ability 生命周期相关的 ASC 通知，GameplayEffect 不是 Ability，因此没有对应的：
+
+```text
+NotifyGameplayEffectActivated
+NotifyGameplayEffectFailed
+NotifyGameplayEffectEnded
+```
+
+GE 使用自己的应用和移除机制：
+
+```text
+MakeOutgoingSpec
+  → 修改 EffectSpec
+  → ApplyGameplayEffectSpecToSelf/Target
+  → 创建或更新 ActiveGameplayEffect
+  → 修改 Attribute、Tag、GameplayCue
+```
+
+### 观察 GE 应用
+
+GAS 提供 GameplayEffect 应用或 ActiveEffect 添加相关的 Delegate，可以观察：
+
+```text
+某个 GE 是否应用到 ASC
+某个 ActiveGameplayEffect 是否被添加
+```
+
+### 观察 GE 移除
+
+可以使用 ActiveGameplayEffect 移除相关的 Delegate，观察：
+
+```text
+Duration GE 到期
+Infinite GE 被主动移除
+GE 因堆叠规则被移除
+```
+
+### 观察属性变化
+
+`AttributeSet` 中常见的回调包括：
+
+```cpp
+PreAttributeChange
+PostGameplayEffectExecute
+```
+
+例如：
+
+```text
+Damage GE
+  → 修改 Health
+  → AttributeSet::PostGameplayEffectExecute
+  → HealthComponent 处理死亡
+```
+
+### GameplayCue
+
+GE 还可以通过 GameplayCue 触发：
+
+- Buff 特效；
+- 受击特效；
+- 音效；
+- 持续状态表现；
+- GE 添加和移除时的表现。
+
+### GE 的句柄
+
+持续 GE 应用后可以保存：
+
+```cpp
+FActiveGameplayEffectHandle ActiveHandle;
+```
+
+之后通过：
+
+```cpp
+ASC->RemoveActiveGameplayEffect(ActiveHandle);
+```
+
+精确移除这个活动效果。
+
+但 GE 句柄和 NotifyAbility 解决的是不同问题：
+
+```text
+NotifyAbility
+    观察和扩展 Ability 生命周期
+
+FActiveGameplayEffectHandle
+    定位和移除 ASC 中的活动 GE
+```
+
+## 十七、GA 和 GE 可以同时存在两条生命周期
+
+一个 Ability 可能执行：
+
+```text
+GA 激活
+  → NotifyAbilityActivated
+  → ActivateAbility
+  → CommitAbility
+      ├─ 应用 Cost GE
+      └─ 应用 Cooldown GE
+  → 应用 Damage GE
+  → EndAbility
+  → NotifyAbilityEnded
+```
+
+这实际上包含两条独立生命周期：
+
+```text
+GA 生命周期：
+激活 → 执行 → 结束
+
+GE 生命周期：
+应用 → 修改属性/提供标签 → 到期或主动移除
+```
+
+因此：
+
+```text
+攻击 Ability 结束
+```
+
+不代表：
+
+```text
+攻击造成的燃烧 GE 也结束
+Cooldown GE 被移除
+```
+
+GA 可以很快结束，但它应用的 GE 仍然可以继续存在。
+
+## 十八、最终记忆方式
+
+```text
+TryActivateAbility
+    申请激活
+
+CanActivateAbility
+    检查资格
+
+ActivateAbility
+    激活后执行技能
+
+NotifyAbilityActivated
+    GAS 告诉 ASC：激活成功，Lyra 做激活组记账
+
+NotifyAbilityFailed
+    GAS 告诉 ASC：激活失败，Lyra 路由失败原因和表现
+
+EndAbility / CancelAbility
+    结束或取消 Ability
+
+NotifyAbilityEnded
+    GAS 告诉 ASC：已经结束，Lyra 清理激活组记账
+
+GameplayEffect
+    不走 NotifyAbility，而是通过 Apply、ActiveEffect、Delegate、AttributeSet 和 GameplayCue 管理自己的生命周期
+```

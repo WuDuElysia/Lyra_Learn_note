@@ -1,0 +1,117 @@
+{
+  "nodes": [
+    {
+      "id": "try-result",
+      "type": "text",
+      "text": "[GAS 原生]\n文件：GameplayAbilities/AbilitySystemComponent\n函数：InternalTryActivateAbility\n作用：执行 Ability 激活检查，产生成功、失败或后续结束路径",
+      "x": 0,
+      "y": 220,
+      "width": 390,
+      "height": 210
+    },
+    {
+      "id": "gas-activated",
+      "type": "text",
+      "text": "[GAS Super]\n文件：Engine/.../Private/AbilitySystemComponent_Abilities.cpp\n函数：UAbilitySystemComponent::NotifyAbilityActivated\n作用：广播 AbilityActivatedCallbacks，通知 GAS 监听者激活成功",
+      "x": 480,
+      "y": -80,
+      "width": 420,
+      "height": 210
+    },
+    {
+      "id": "lyra-activated",
+      "type": "text",
+      "text": "[Lyra override]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：NotifyAbilityActivated\n作用：Super 后加入 ActivationGroup 并维护计数",
+      "x": 970,
+      "y": -80,
+      "width": 410,
+      "height": 210
+    },
+    {
+      "id": "gas-failed",
+      "type": "text",
+      "text": "[GAS Super]\n文件：Engine/.../Private/AbilitySystemComponent_Abilities.cpp\n函数：UAbilitySystemComponent::NotifyAbilityFailed\n作用：广播 AbilityFailedCallbacks 和 FailureReason",
+      "x": 480,
+      "y": 260,
+      "width": 420,
+      "height": 210
+    },
+    {
+      "id": "lyra-failed",
+      "type": "text",
+      "text": "[Lyra override]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：NotifyAbilityFailed\n作用：把失败原因路由到 RPC 或本地失败表现",
+      "x": 970,
+      "y": 260,
+      "width": 410,
+      "height": 210
+    },
+    {
+      "id": "gas-ended",
+      "type": "text",
+      "text": "[GAS Super]\n文件：Engine/.../Private/AbilitySystemComponent_Abilities.cpp\n函数：UAbilitySystemComponent::NotifyAbilityEnded\n作用：广播结束、减少 ActiveCount、清理实例/动画/复制状态",
+      "x": 1460,
+      "y": 80,
+      "width": 440,
+      "height": 230
+    },
+    {
+      "id": "lyra-ended",
+      "type": "text",
+      "text": "[Lyra override]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：NotifyAbilityEnded\n作用：Super 后移出 ActivationGroup，恢复后续激活机会",
+      "x": 1960,
+      "y": 80,
+      "width": 420,
+      "height": 210
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-result-activated",
+      "fromNode": "try-result",
+      "fromSide": "top",
+      "toNode": "gas-activated",
+      "toSide": "bottom",
+      "label": "激活成功"
+    },
+    {
+      "id": "edge-result-failed",
+      "fromNode": "try-result",
+      "fromSide": "right",
+      "toNode": "gas-failed",
+      "toSide": "left",
+      "label": "激活失败"
+    },
+    {
+      "id": "edge-activated-lyra",
+      "fromNode": "gas-activated",
+      "fromSide": "right",
+      "toNode": "lyra-activated",
+      "toSide": "left",
+      "label": "Super 返回"
+    },
+    {
+      "id": "edge-failed-lyra",
+      "fromNode": "gas-failed",
+      "fromSide": "right",
+      "toNode": "lyra-failed",
+      "toSide": "left",
+      "label": "Super 返回"
+    },
+    {
+      "id": "edge-activated-ended",
+      "fromNode": "lyra-activated",
+      "fromSide": "right",
+      "toNode": "gas-ended",
+      "toSide": "left",
+      "label": "End / Cancel"
+    },
+    {
+      "id": "edge-ended-lyra",
+      "fromNode": "gas-ended",
+      "fromSide": "right",
+      "toNode": "lyra-ended",
+      "toSide": "left",
+      "label": "Super 返回"
+    }
+  ]
+}

@@ -1027,3 +1027,8 @@ NotifyAbilityEnded
 GameplayEffect
     不走 NotifyAbility，而是通过 Apply、ActiveEffect、Delegate、AttributeSet 和 GameplayCue 管理自己的生命周期
 ```
+
+## 子笔记：三个 NotifyAbility 回调与 GAS Super
+
+- [[Lyra_NotifyAbility_三个回调_GAS_Super]]：逐个拆解 `NotifyAbilityActivated/Failed/Ended` 的 GAS 父类实现、Lyra override 和三条生命周期路径。
+- `Lyra_NotifyAbility_三个回调_GAS_Super.canvas`：三个回调的简洁调用图。

@@ -1,0 +1,151 @@
+{
+  "nodes": [
+    {
+      "id": "grant",
+      "type": "text",
+      "text": "[Lyra 自定义]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySet.cpp\n函数：GiveToAbilitySystem\n作用：创建 AbilitySpec 授予 GA；固定 GE 直接应用并保存句柄",
+      "x": 0,
+      "y": 0,
+      "width": 380,
+      "height": 190
+    },
+    {
+      "id": "process-input",
+      "type": "text",
+      "text": "[Lyra 自定义]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：ProcessAbilityInput\n作用：用 Handle 找回 Spec，区分激活和已激活输入",
+      "x": 470,
+      "y": 0,
+      "width": 390,
+      "height": 190
+    },
+    {
+      "id": "try-activate",
+      "type": "text",
+      "text": "[GAS 原生]\n文件：GameplayAbilities/AbilitySystemComponent\n函数：TryActivateAbility\n作用：执行激活条件并进入 Ability 激活流程",
+      "x": 940,
+      "y": 0,
+      "width": 360,
+      "height": 190
+    },
+    {
+      "id": "notify-activated",
+      "type": "text",
+      "text": "[Lyra 覆盖 GAS 回调]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：NotifyAbilityActivated\n作用：先调用 Super，再加入 Lyra 激活组并维护计数",
+      "x": 1380,
+      "y": -150,
+      "width": 410,
+      "height": 210
+    },
+    {
+      "id": "ability-activate",
+      "type": "text",
+      "text": "[GAS 原生 / Lyra 派生]\n文件：Source/LyraGame/Weapons/LyraGameplayAbility_RangedWeapon.cpp\n函数：ActivateAbility\n作用：执行技能行为，并按需创建和应用 GE",
+      "x": 1860,
+      "y": -150,
+      "width": 410,
+      "height": 210
+    },
+    {
+      "id": "dynamic-spec",
+      "type": "text",
+      "text": "[Lyra 自定义 + GAS API]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：AddDynamicTagGameplayEffect\n作用：MakeOutgoingSpec 后写入 DynamicGrantedTags",
+      "x": 2340,
+      "y": -150,
+      "width": 420,
+      "height": 210
+    },
+    {
+      "id": "apply-spec",
+      "type": "text",
+      "text": "[GAS 原生]\n文件：GameplayAbilities/AbilitySystemComponent\n函数：ApplyGameplayEffectSpecToSelf\n作用：应用 Spec，ASC 建立或更新 ActiveGameplayEffect",
+      "x": 2820,
+      "y": -150,
+      "width": 400,
+      "height": 210
+    },
+    {
+      "id": "notify-failed",
+      "type": "text",
+      "text": "[Lyra 覆盖 GAS 回调]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：NotifyAbilityFailed\n作用：转发 FailureReason 到本地失败表现，不重试激活",
+      "x": 1380,
+      "y": 240,
+      "width": 410,
+      "height": 210
+    },
+    {
+      "id": "notify-ended",
+      "type": "text",
+      "text": "[Lyra 覆盖 GAS 回调]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：NotifyAbilityEnded\n作用：结束或取消后调用 Super，并移出激活组",
+      "x": 1860,
+      "y": 260,
+      "width": 410,
+      "height": 210
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-grant-process",
+      "fromNode": "grant",
+      "fromSide": "right",
+      "toNode": "process-input",
+      "toSide": "left",
+      "label": "授予后等待输入"
+    },
+    {
+      "id": "edge-process-try",
+      "fromNode": "process-input",
+      "fromSide": "right",
+      "toNode": "try-activate",
+      "toSide": "left",
+      "label": "未激活"
+    },
+    {
+      "id": "edge-try-success",
+      "fromNode": "try-activate",
+      "fromSide": "right",
+      "toNode": "notify-activated",
+      "toSide": "left",
+      "label": "成功"
+    },
+    {
+      "id": "edge-try-failed",
+      "fromNode": "try-activate",
+      "fromSide": "bottom",
+      "toNode": "notify-failed",
+      "toSide": "top",
+      "label": "失败"
+    },
+    {
+      "id": "edge-activated-ability",
+      "fromNode": "notify-activated",
+      "fromSide": "right",
+      "toNode": "ability-activate",
+      "toSide": "left",
+      "label": "进入能力"
+    },
+    {
+      "id": "edge-ability-spec",
+      "fromNode": "ability-activate",
+      "fromSide": "right",
+      "toNode": "dynamic-spec",
+      "toSide": "left",
+      "label": "可选：动态效果"
+    },
+    {
+      "id": "edge-spec-apply",
+      "fromNode": "dynamic-spec",
+      "fromSide": "right",
+      "toNode": "apply-spec",
+      "toSide": "left",
+      "label": "应用"
+    },
+    {
+      "id": "edge-ability-ended",
+      "fromNode": "ability-activate",
+      "fromSide": "bottom",
+      "toNode": "notify-ended",
+      "toSide": "top",
+      "label": "End / Cancel"
+    }
+  ]
+}

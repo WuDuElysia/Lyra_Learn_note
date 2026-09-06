@@ -413,3 +413,7 @@ PlayerState 构造
 
 - [[Lyra_输入映射_按键到Ability]]
 - `Lyra_AbilityActorInfo_生命周期.canvas`
+
+## 相关能力与效果笔记
+
+- [[Lyra_GA与GE_创建应用_NotifyAbility]]：记录 GA/GE 的创建、应用、Handle 区别，以及 ASC 的 `NotifyAbility...` 生命周期回调。

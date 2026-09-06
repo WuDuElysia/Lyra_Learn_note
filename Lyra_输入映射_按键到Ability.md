@@ -267,3 +267,7 @@ InvokeReplicatedEvent
 ```
 
 Lyra 源码明确不使用 `bReplicateInputDirectly`，而是采用 `InvokeReplicatedEvent` 配合 `WaitInputPress`。释放路径完全对应：`AbilitySpecInputReleased` 先调用 GAS 原生 `Ability::InputReleased`，再发送 `InputReleased` 通用事件供 `WaitInputRelease` 消费。
+
+## 相关生命周期笔记
+
+- [[Lyra_GA与GE_创建应用_NotifyAbility]]：记录 AbilitySpec 授予、GE Spec 应用，以及 `NotifyAbilityActivated/Failed/Ended` 如何衔接 Lyra 激活组和失败表现。

@@ -1032,3 +1032,13 @@ GameplayEffect
 
 - [[Lyra_NotifyAbility_三个回调_GAS_Super]]：逐个拆解 `NotifyAbilityActivated/Failed/Ended` 的 GAS 父类实现、Lyra override 和三条生命周期路径。
 - `Lyra_NotifyAbility_三个回调_GAS_Super.canvas`：三个回调的简洁调用图。
+
+## 子笔记：Delegate 与 GAS Gameplay Event
+
+- [[Lyra_Delegate与GameplayEvent_通知链路]]：解释 `AddUObject`、`Broadcast`、`HandleGameplayEvent`、`FAbilityTriggerData` 以及死亡流程中的两层通知链路。
+- `Lyra_Delegate与GameplayEvent_通知链路.canvas`：对比 C++ Delegate 和 GAS Gameplay Event 的简洁流程图。
+
+## 子笔记：Ability 优先级与打断机制
+
+- [[Lyra_Ability优先级与打断机制]]：解释 Lyra 的 `ActivationGroup`、Ability Tag 的 Block/Cancel、`TagRelationshipMapping`，以及普通攻击、技能、闪避的打断配置。
+- `Lyra_Ability优先级与打断机制.canvas`：展示从 `TryActivateAbility` 到激活组取消和 Tag 规则的主链路。

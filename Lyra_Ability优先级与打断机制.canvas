@@ -1,0 +1,134 @@
+{
+  "nodes": [
+    {
+      "id": "try-activate",
+      "type": "text",
+      "text": "[GAS 原生]\n文件：GameplayAbilities/AbilitySystemComponent\n函数：TryActivateAbility\n作用：收到输入或事件后请求激活 Ability",
+      "x": 0,
+      "y": 0,
+      "width": 380,
+      "height": 180
+    },
+    {
+      "id": "can-activate",
+      "type": "text",
+      "text": "[Lyra 自定义 + GAS]\n文件：Source/LyraGame/AbilitySystem/Abilities/LyraGameplayAbility.cpp\n函数：CanActivateAbility\n作用：执行 GAS 基础条件和 Lyra 激活组检查",
+      "x": 450,
+      "y": 0,
+      "width": 420,
+      "height": 190
+    },
+    {
+      "id": "group-check",
+      "type": "text",
+      "text": "[Lyra 自定义]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：IsActivationGroupBlocked\n作用：判断 Independent/Replaceable/Blocking 是否允许激活",
+      "x": 940,
+      "y": 0,
+      "width": 430,
+      "height": 190
+    },
+    {
+      "id": "notify-activated",
+      "type": "text",
+      "text": "[GAS 回调 + Lyra 覆盖]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：NotifyAbilityActivated\n作用：激活成功后维护 Lyra 激活组计数",
+      "x": 1440,
+      "y": 0,
+      "width": 430,
+      "height": 190
+    },
+    {
+      "id": "add-group",
+      "type": "text",
+      "text": "[Lyra 自定义]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：AddAbilityToActivationGroup\n作用：加入组，并让新的 Exclusive Ability 处理替换规则",
+      "x": 1930,
+      "y": 0,
+      "width": 440,
+      "height": 190
+    },
+    {
+      "id": "cancel-replaceable",
+      "type": "text",
+      "text": "[Lyra 自定义 + GAS]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：CancelActivationGroupAbilities\n作用：取消当前的 Exclusive_Replaceable，例如打断普通攻击",
+      "x": 2430,
+      "y": 0,
+      "width": 450,
+      "height": 200
+    },
+    {
+      "id": "tag-rules",
+      "type": "text",
+      "text": "[Lyra 自定义]\n文件：Source/LyraGame/AbilitySystem/LyraAbilityTagRelationshipMapping.cpp\n函数：GetAbilityTagsToBlockAndCancel\n作用：按 AbilityTag 扩展 Block/Cancel 关系",
+      "x": 1930,
+      "y": 330,
+      "width": 430,
+      "height": 190
+    },
+    {
+      "id": "apply-tag-rules",
+      "type": "text",
+      "text": "[GAS 原生 + Lyra 扩展]\n文件：Source/LyraGame/AbilitySystem/LyraAbilitySystemComponent.cpp\n函数：ApplyAbilityBlockAndCancelTags\n作用：把 Tag 规则交给 GAS 应用阻塞和取消",
+      "x": 1440,
+      "y": 330,
+      "width": 440,
+      "height": 190
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-try-can",
+      "fromNode": "try-activate",
+      "fromSide": "right",
+      "toNode": "can-activate",
+      "toSide": "left",
+      "label": "请求检查"
+    },
+    {
+      "id": "edge-can-group",
+      "fromNode": "can-activate",
+      "fromSide": "right",
+      "toNode": "group-check",
+      "toSide": "left",
+      "label": "检查激活组"
+    },
+    {
+      "id": "edge-group-notify",
+      "fromNode": "group-check",
+      "fromSide": "right",
+      "toNode": "notify-activated",
+      "toSide": "left",
+      "label": "通过后激活"
+    },
+    {
+      "id": "edge-notify-add",
+      "fromNode": "notify-activated",
+      "fromSide": "right",
+      "toNode": "add-group",
+      "toSide": "left",
+      "label": "维护组计数"
+    },
+    {
+      "id": "edge-add-cancel",
+      "fromNode": "add-group",
+      "fromSide": "right",
+      "toNode": "cancel-replaceable",
+      "toSide": "left",
+      "label": "取消可替换组"
+    },
+    {
+      "id": "edge-notify-tag-apply",
+      "fromNode": "notify-activated",
+      "fromSide": "bottom",
+      "toNode": "apply-tag-rules",
+      "toSide": "top",
+      "label": "应用 Ability 标签"
+    },
+    {
+      "id": "edge-tag-apply",
+      "fromNode": "apply-tag-rules",
+      "fromSide": "right",
+      "toNode": "tag-rules",
+      "toSide": "left",
+      "label": "查询关系表"
+    }
+  ]
+}

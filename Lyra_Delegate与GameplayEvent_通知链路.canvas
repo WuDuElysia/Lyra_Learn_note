@@ -1,0 +1,113 @@
+{
+  "nodes": [
+    {
+      "id": "delegate-declare",
+      "type": "text",
+      "text": "[C++ Delegate]\n文件：Source/LyraGame/AbilitySystem/Attributes/LyraAttributeSet.h\n函数：FLyraAttributeEvent\n作用：定义六参数多播事件类型",
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 190
+    },
+    {
+      "id": "delegate-bind",
+      "type": "text",
+      "text": "[C++ Delegate]\n文件：Source/LyraGame/Character/LyraHealthComponent.cpp\n函数：InitializeWithAbilitySystem\n作用：AddUObject 注册 HandleOutOfHealth",
+      "x": 470,
+      "y": 0,
+      "width": 410,
+      "height": 190
+    },
+    {
+      "id": "health-broadcast",
+      "type": "text",
+      "text": "[Lyra HealthSet]\n文件：Source/LyraGame/AbilitySystem/Attributes/LyraHealthSet.cpp\n函数：PostGameplayEffectExecute\n作用：Health <= 0 时 Broadcast OnOutOfHealth",
+      "x": 960,
+      "y": 0,
+      "width": 420,
+      "height": 190
+    },
+    {
+      "id": "handle-out-of-health",
+      "type": "Lyra HealthComponent]\n文件：Source/LyraGame/Character/LyraHealthComponent.cpp\n函数：HandleOutOfHealth\n作用：构造死亡 GameplayEvent Payload",
+      "x": 1450,
+      "y": 0,
+      "width": 420,
+      "height": 190
+    },
+    {
+      "id": "handle-gameplay-event",
+      "type": "GAS 原生 API]\n文件：GameplayAbilities/AbilitySystemComponent\n函数：HandleGameplayEvent\n作用：把 EventTag/Payload 交给 GAS 分发",
+      "x": 1940,
+      "y": 0,
+      "width": 400,
+      "height": 190
+    },
+    {
+      "id": "ability-trigger",
+      "type": "Lyra + GAS 配置]\n文件：Source/LyraGame/AbilitySystem/Abilities/LyraGameplayAbility_Death.cpp\n函数：FAbilityTriggerData\n作用：声明 GameplayEvent.Death 可触发死亡 Ability",
+      "x": 2410,
+      "y": 0,
+      "width": 430,
+      "height": 210
+    },
+    {
+      "id": "death-ability",
+      "type": "Lyra Ability]\n文件：Source/LyraGame/AbilitySystem/Abilities/LyraGameplayAbility_Death.cpp\n函数：ActivateAbility\n作用：执行取消能力、阻塞组和死亡状态逻辑",
+      "x": 2910,
+      "y": 0,
+      "width": 420,
+      "height": 210
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-declare-bind",
+      "fromNode": "delegate-declare",
+      "fromSide": "right",
+      "toNode": "delegate-bind",
+      "toSide": "left",
+      "label": "定义后注册"
+    },
+    {
+      "id": "edge-bind-broadcast",
+      "fromNode": "delegate-bind",
+      "fromSide": "right",
+      "toNode": "health-broadcast",
+      "toSide": "left",
+      "label": "监听"
+    },
+    {
+      "id": "edge-broadcast-handle",
+      "fromNode": "health-broadcast",
+      "fromSide": "right",
+      "toNode": "handle-out-of-health",
+      "toSide": "left",
+      "label": "Broadcast 调用回调"
+    },
+    {
+      "id": "edge-handle-event",
+      "fromNode": "handle-out-of-health",
+      "fromSide": "right",
+      "toNode": "handle-gameplay-event",
+      "toSide": "left",
+      "label": "发送 Payload"
+    },
+    {
+      "id": "edge-event-trigger",
+      "fromNode": "handle-gameplay-event",
+      "fromSide": "right",
+      "toNode": "ability-trigger",
+      "toSide": "left",
+      "label": "匹配 TriggerTag"
+    },
+    {
+      "id": "edge-trigger-death",
+      "fromNode": "ability-trigger",
+      "fromSide": "right",
+      "toNode": "death-ability",
+      "toSide": "left",
+      "label": "尝试激活"
+    }
+  ]
+}

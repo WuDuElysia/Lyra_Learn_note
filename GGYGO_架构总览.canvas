@@ -1,0 +1,22 @@
+{
+	"nodes":[
+		{"id":"decisions","type":"text","color":"1","text":"# 已确认的架构决策\n\n**D1** 两级 ASC：每角色 Pawn 一个 + PlayerState 队伍级一个\n**D2** 每个玩家各带一支队伍（4 人房 × 3 角色 = 12 个角色 ASC）\n**D3** 废弃自研 Pipeline，移动回归 CharacterMovementComponent\n**D4** 同优先级 GA 由后来者打断先激活者（比较用 `>`）\n\n三条硬约束：动作游戏 · 队伍多角色 · 多人联机。\n联机是最强约束，一旦有逻辑绕过复制链路，后期改造等于重写。","x":-640,"y":-300,"width":580,"height":280},
+		{"id":"plan","type":"text","color":"3","text":"# 文字版蓝图\n\n[[计划蓝图]]\n\n16 章 + 附录。每层都按\n「Lyra 事实 → GGYGO 诉求 → 方案 → 待决策」组织。\n\n本图只表达模块关系与钻取入口，\n具体取舍理由看蓝图。","x":20,"y":-300,"width":420,"height":280},
+		{"id":"m-input","type":"text","color":"5","text":"# 输入与意图层\n\n[[GGYGO_模块_输入与意图.canvas|▸ 打开子图]]\n\n**职责**：把物理输入解释成语义意图，交给仲裁\n**关键取舍**：意图层只解释、不执行，最终仍走\n`TryActivateAbility` 以保住 GAS 预测\n**Lyra 差异**：新增一层（Lyra 是 InputTag 直连 Ability）\n\n状态：未实现（阶段 7）","x":-640,"y":60,"width":540,"height":280},
+		{"id":"m-gas","type":"text","color":"4","text":"# AbilitySystem 层\n\n[[GGYGO_模块_AbilitySystem.canvas|▸ 打开子图]]\n\n**职责**：状态变更的唯一入口。Ability / Effect /\nAttribute / Cue / 组仲裁\n**关键取舍**：并发控制用组 Tag + 优先级 + 自身策略\n三个正交维度，未照抄 Lyra 的三值激活组枚举\n\n状态：**阶段 1 已实现核心层并通过编译**\n（24 个文件；尚无具体 GA 派生类）","x":20,"y":60,"width":580,"height":300},
+		{"id":"m-character","type":"text","color":"4","text":"# 角色与组件层\n\n[[GGYGO_模块_角色与组件.canvas|▸ 打开子图]]\n\n**职责**：角色 Actor、ASC 宿主、组件拆分与\nInitState 初始化协调\n**关键取舍**：ASC 挂角色自己（D1），主要参考\n`ALyraCharacterWithAbilities` 而非 `ALyraCharacter`\n\n状态：未实现（阶段 4）\n现有 `ABaseCharacter` 是待拆的胖类","x":660,"y":60,"width":540,"height":300},
+		{"id":"m-movement","type":"text","color":"5","text":"# 移动与位移层\n\n[[GGYGO_模块_移动与位移.canvas|▸ 打开子图]]\n\n**职责**：locomotion 走跑转身 + 动作位移（突进、击退）\n**关键取舍**：两者最终都落到 CMC 的 RootMotionSource，\n但 locomotion 不走 GAS、动作位移由 GA 发起\n**风险**：CMC 会累加多个 RootMotionSource，\n攻击期间须用 `Restriction.CantMove` 停掉 locomotion\n\n状态：待重建（阶段 5 / 6 / 9）","x":-640,"y":420,"width":540,"height":300},
+		{"id":"m-presentation","type":"text","color":"6","text":"# 表现层\n\n[[GGYGO_模块_表现层.canvas|▸ 打开子图]]\n\n**职责**：动画、特效、音效、打击感\n**三条通道**：Montage / GameplayCue / AnimInstance 自拉\n**关键取舍**：Lyra 没有专门的「GA 表现类」，\nGameplayCue 就是 GAS 的表现机制\n\n状态：ZZZAnim 已有但需改为自拉（阶段 5b / 8）","x":20,"y":460,"width":580,"height":280},
+		{"id":"retired","type":"text","color":"1","text":"# D3 退役清单（约 25 个文件）\n\n`Pipeline/` 全部（ControlPipeline、ArbiterPipeline、\nIntentPipeline、4 个 Arbiter、Interfaces、\nLocomotion/View/MovementParameter Processor）\n`Drivers/MotionDriver`\n`StateMachine/` 整套\n`Components/GGYGOCharacterRuntimeComponent`\n`Contracts/Pipeline`、`Contracts/State`\n`Data/Runtime` 的五个 Model\n\n连带取消：`ABaseCharacter::Tick` 唯一帧调度入口\n\n**保留算法迁移**：GaitAuthority 与 TurnBackPhase → CMC；\nInputPipeline 缓冲 → 意图层 InputBufferQueue","x":660,"y":420,"width":540,"height":340}
+	],
+	"edges":[
+		{"id":"e-input-gas","fromNode":"m-input","fromSide":"right","toNode":"m-gas","toSide":"left","label":"提交候选请求"},
+		{"id":"e-input-movement","fromNode":"m-input","fromSide":"bottom","toNode":"m-movement","toSide":"top","label":"移动输入直连，不走 GAS"},
+		{"id":"e-character-gas","fromNode":"m-character","fromSide":"left","toNode":"m-gas","toSide":"right","label":"持有 ASC 并协调初始化"},
+		{"id":"e-gas-movement","fromNode":"m-gas","fromSide":"left","toNode":"m-movement","toSide":"right","label":"动作位移由 GA 发起"},
+		{"id":"e-gas-presentation","fromNode":"m-gas","fromSide":"bottom","toNode":"m-presentation","toSide":"top","label":"Montage 与 Cue"},
+		{"id":"e-movement-presentation","fromNode":"m-movement","fromSide":"right","toNode":"m-presentation","toSide":"left","label":"被 AnimInstance 只读读取"},
+		{"id":"e-decisions-retired","fromNode":"decisions","fromSide":"bottom","toNode":"retired","toSide":"left","label":"D3 导致"},
+		{"id":"e-retired-movement","fromNode":"retired","fromSide":"bottom","toNode":"m-movement","toSide":"bottom","label":"职责去向"}
+	]
+}

@@ -1,0 +1,302 @@
+{
+  "nodes": [
+    {
+      "id": "input",
+      "type": "text",
+      "color": "3",
+      "text": "[UE 输入框架]\n物理按键 → UInputAction → InputMappingContext\n\n入口：Enhanced Input\n作用：产生原始输入事件，本身与 GAS 无关",
+      "x": 100,
+      "y": 0,
+      "width": 440,
+      "height": 180
+    },
+    {
+      "id": "native-input",
+      "type": "text",
+      "color": "4",
+      "text": "[照抄 Lyra]\n文件：Input/GGYGOInputComponent\n函数：BindNativeAction\n作用：Move / Look 直连回调，不进 GAS\n\n对照：LyraHeroComponent.cpp:285-289",
+      "x": -450,
+      "y": 240,
+      "width": 440,
+      "height": 200
+    },
+    {
+      "id": "ability-input",
+      "type": "text",
+      "color": "4",
+      "text": "[照抄 Lyra]\n文件：Input/GGYGOInputConfig + GGYGOInputComponent\n函数：BindAbilityActions\n作用：动作类按键 → FGameplayTag(InputTag.*)\n\n对照：LyraHeroComponent.cpp:283",
+      "x": 150,
+      "y": 240,
+      "width": 460,
+      "height": 200
+    },
+    {
+      "id": "locomotion",
+      "type": "text",
+      "color": "6",
+      "text": "[现有代码 · 保留]\n文件：Pipeline/CharacterControlPipeline\n阶段：Capture → Intent → Decision\n作用：ZZZ 曲线步态、TurnBack、速度方向\n\n唯一帧入口仍是 ABaseCharacter::Tick",
+      "x": -450,
+      "y": 500,
+      "width": 440,
+      "height": 200
+    },
+    {
+      "id": "intent",
+      "type": "text",
+      "color": "5",
+      "text": "[GGYGO 自建 · Lyra 无]\n文件：Pipeline/Intents/ActionIntentResolver\n输出：FGGYGOActionIntent + AbilityInputTag\n作用：长按/连按/方向/输入缓冲 → 语义意图\n\n只解释不执行，不碰 ASC 状态",
+      "x": 150,
+      "y": 500,
+      "width": 460,
+      "height": 200
+    },
+    {
+      "id": "arbitration",
+      "type": "text",
+      "color": "5",
+      "text": "[GGYGO 扩展 Lyra]\n文件：AbilitySystem/GGYGOAbilitySystemComponent\n数据：ActiveAbilitiesByGroup + GroupConfig\n作用：GroupTag + Priority + SelfPolicy 三维仲裁\n\n取代 Lyra 的 ActivationGroupCounts[3]",
+      "x": 150,
+      "y": 760,
+      "width": 460,
+      "height": 200
+    },
+    {
+      "id": "motiondriver",
+      "type": "text",
+      "color": "2",
+      "text": "[现有代码 · 待改造]\n文件：Drivers/MotionDriver\n现状：直接写 Actor 位置，绕过 CMC\n问题：联机下无复制、无预测、无法验证\n\n目标：改为构造 FRootMotionSource 交给 CMC",
+      "x": -450,
+      "y": 760,
+      "width": 440,
+      "height": 210
+    },
+    {
+      "id": "asc",
+      "type": "text",
+      "color": "4",
+      "text": "[GAS 原生 + Lyra 照抄]\n文件：AbilitySystem/GGYGOAbilitySystemComponent\n函数：AbilityInputTagPressed → ProcessAbilityInput\n           → TryActivateAbility\n作用：唯一的状态变更入口，承载预测 Key",
+      "x": 150,
+      "y": 1030,
+      "width": 460,
+      "height": 200
+    },
+    {
+      "id": "cmc",
+      "type": "text",
+      "color": "3",
+      "text": "[UE 原生]\n类：UCharacterMovementComponent\n作用：应用位移并负责复制、客户端预测与纠正\n\n移动的权威提交点，locomotion 与动作位移共用",
+      "x": -450,
+      "y": 1030,
+      "width": 440,
+      "height": 190
+    },
+    {
+      "id": "owner-avatar",
+      "type": "text",
+      "color": "2",
+      "text": "[重大架构决策 · 待拍板]\n推荐方案 C：两级 ASC\n\n角色 Pawn：ASC + HealthSet/CombatSet（各自独立 HP/CD/Buff）\nPlayerState：队伍 ASC + TeamAttributeSet（切人能量、连携）\n\nLyra 默认是 PlayerState 单 ASC，队伍多角色下不成立",
+      "x": 760,
+      "y": 1010,
+      "width": 500,
+      "height": 240
+    },
+    {
+      "id": "ga",
+      "type": "text",
+      "color": "4",
+      "text": "[Lyra 照抄 + 扩展]\n文件：AbilitySystem/Abilities/GGYGOGameplayAbility\n新增：GroupTag / Priority / SelfPolicy\n保留：ActivationPolicy / AdditionalCosts / 失败反馈",
+      "x": 150,
+      "y": 1310,
+      "width": 460,
+      "height": 190
+    },
+    {
+      "id": "ge",
+      "type": "text",
+      "color": "4",
+      "text": "[GAS 原生 + Lyra 照抄]\n文件：AbilitySystem/Executions/GGYGODamageExecution\n机制：元属性 Damage → PostGameplayEffectExecute 转扣血\n作用：伤害、硬直、削韧、冷却、无敌帧",
+      "x": 760,
+      "y": 1310,
+      "width": 460,
+      "height": 190
+    },
+    {
+      "id": "montage",
+      "type": "text",
+      "color": "5",
+      "text": "[表现通道 A]\n文件：AbilitySystem/Tasks/\n           AbilityTask_PlayMontageAndWaitForEvent\n作用：播动作本体，同时等 AnimNotify 事件\n\nLyra 没有此 Task，需从 GAS 官方示例移植",
+      "x": -400,
+      "y": 1600,
+      "width": 440,
+      "height": 200
+    },
+    {
+      "id": "cue",
+      "type": "text",
+      "color": "4",
+      "text": "[表现通道 B · GAS 原生]\n文件：AbilitySystem/Cues/GGYGOGameplayCueManager\n机制：GameplayCue.* Tag → Burst / Looping Notify\n作用：特效、音效、震屏、命中反馈",
+      "x": 150,
+      "y": 1600,
+      "width": 440,
+      "height": 200
+    },
+    {
+      "id": "projection",
+      "type": "text",
+      "color": "6",
+      "text": "[表现通道 C · 现有机制]\n文件：Contracts/Animation/ZZZAnimRuntimeModel\n机制：GA 写 ASC Tag / RuntimeData → 单向投影\n作用：受击姿态、上下半身分层、与移动混合的表现",
+      "x": 700,
+      "y": 1600,
+      "width": 460,
+      "height": 200
+    },
+    {
+      "id": "anim",
+      "type": "text",
+      "color": "6",
+      "text": "[现有代码 · 只读消费]\n文件：Animation/zzzAnim/ZZZAnimInstance\n函数：PipelineDrive → 快照 → ZZZ AnimBP\n作用：读快照播动画；禁止反向写逻辑权威字段",
+      "x": 350,
+      "y": 1870,
+      "width": 460,
+      "height": 190
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-input-native",
+      "fromNode": "input",
+      "fromSide": "left",
+      "toNode": "native-input",
+      "toSide": "top",
+      "label": "移动 / 视角"
+    },
+    {
+      "id": "e-input-ability",
+      "fromNode": "input",
+      "fromSide": "bottom",
+      "toNode": "ability-input",
+      "toSide": "top",
+      "label": "动作类按键"
+    },
+    {
+      "id": "e-native-loco",
+      "fromNode": "native-input",
+      "fromSide": "bottom",
+      "toNode": "locomotion",
+      "toSide": "top",
+      "label": "转发"
+    },
+    {
+      "id": "e-ability-intent",
+      "fromNode": "ability-input",
+      "fromSide": "bottom",
+      "toNode": "intent",
+      "toSide": "top",
+      "label": "交给意图层解释"
+    },
+    {
+      "id": "e-intent-arb",
+      "fromNode": "intent",
+      "fromSide": "bottom",
+      "toNode": "arbitration",
+      "toSide": "top",
+      "label": "提交候选请求"
+    },
+    {
+      "id": "e-loco-motion",
+      "fromNode": "locomotion",
+      "fromSide": "bottom",
+      "toNode": "motiondriver",
+      "toSide": "top",
+      "label": "位移命令"
+    },
+    {
+      "id": "e-arb-asc",
+      "fromNode": "arbitration",
+      "fromSide": "bottom",
+      "toNode": "asc",
+      "toSide": "top",
+      "label": "仲裁通过则激活"
+    },
+    {
+      "id": "e-motion-cmc",
+      "fromNode": "motiondriver",
+      "fromSide": "bottom",
+      "toNode": "cmc",
+      "toSide": "top",
+      "label": "改造后提交"
+    },
+    {
+      "id": "e-owner-asc",
+      "fromNode": "owner-avatar",
+      "fromSide": "left",
+      "toNode": "asc",
+      "toSide": "right",
+      "label": "决定 ASC 宿主"
+    },
+    {
+      "id": "e-asc-ga",
+      "fromNode": "asc",
+      "fromSide": "bottom",
+      "toNode": "ga",
+      "toSide": "top",
+      "label": "激活"
+    },
+    {
+      "id": "e-ga-ge",
+      "fromNode": "ga",
+      "fromSide": "right",
+      "toNode": "ge",
+      "toSide": "left",
+      "label": "应用效果"
+    },
+    {
+      "id": "e-ga-montage",
+      "fromNode": "ga",
+      "fromSide": "left",
+      "toNode": "montage",
+      "toSide": "top",
+      "label": "播放动作"
+    },
+    {
+      "id": "e-ge-cue",
+      "fromNode": "ge",
+      "fromSide": "bottom",
+      "toNode": "cue",
+      "toSide": "right",
+      "label": "触发 Cue"
+    },
+    {
+      "id": "e-ga-projection",
+      "fromNode": "ga",
+      "fromSide": "bottom",
+      "toNode": "projection",
+      "toSide": "left",
+      "label": "写状态 Tag"
+    },
+    {
+      "id": "e-montage-anim",
+      "fromNode": "montage",
+      "fromSide": "bottom",
+      "toNode": "anim",
+      "toSide": "left",
+      "label": "驱动"
+    },
+    {
+      "id": "e-projection-anim",
+      "fromNode": "projection",
+      "fromSide": "bottom",
+      "toNode": "anim",
+      "toSide": "right",
+      "label": "读快照"
+    },
+    {
+      "id": "e-ga-motion",
+      "fromNode": "ga",
+      "fromSide": "left",
+      "toNode": "motiondriver",
+      "toSide": "right",
+      "label": "动作位移同走 RootMotionSource"
+    }
+  ]
+}

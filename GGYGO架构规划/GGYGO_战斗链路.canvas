@@ -1,34 +1,20 @@
 {
 	"nodes":[
 		{"id":"title","type":"text","text":"# 一次攻击的完整链路\n\n从玩家按键到敌人掉血，每一步落在哪个类上。\n\n**看这张图能回答**：某个环节出问题该去哪个文件找。\n\n速查：[[模块参考]]　设计依据：[[计划蓝图]]","x":-1300,"y":-520,"width":420,"height":220,"color":"6"},
-
-		{"id":"s1","type":"text","text":"### 1　按键\n\n`UGGYGOInputComponent`\n按 InputTag 批量绑定\n\n→ `UGGYGOHeroComponent::Input_AbilityInputTagPressed`","x":-800,"y":-560,"width":380,"height":180,"color":"4"},
-
-		{"id":"s2","type":"text","text":"### 2　入缓存（不激活）\n\n`ASC::AbilityInputTagPressed`\n放进 pressed 与 held 两个缓存\n\n**为什么不立刻激活**：若 held 先激活了能力，\n随后 pressed 又把同一次按下当输入事件\n发给刚创建的实例，能力会收到一次\n它不该收到的 InputPressed","x":-800,"y":-330,"width":380,"height":250,"color":"4"},
-
 		{"id":"s3","type":"text","text":"### 3　统一消费\n\n`AGGYGOPlayerController::PostProcessInput`\n→ `ASC::ProcessAbilityInput`\n\n**为什么必须在这个时机**：这是引擎保证的\n「本帧输入全部处理完」的点。\n在派发中途消费会让同帧内后到的按下\n推迟一帧，表现为偶发输入延迟","x":-800,"y":-30,"width":380,"height":230,"color":"4"},
-
 		{"id":"s4","type":"text","text":"### 4　组仲裁\n\n`ASC::IsActivationBlockedByGroup`\n\n两层判定：\n① 跨组 `Exclusive` 压制低优先级\n② 查本组规则（`UGGYGOAbilityGroupConfig`）\n\n普攻组配 `SingleInstanceQueued`：\n组内有实例就拒绝、**不取消**已有的 ——\n这是连段不被自己打断的保证","x":-320,"y":-330,"width":400,"height":280,"color":"5"},
-
-		{"id":"s4b","type":"text","text":"### 4b　被拒 → 缓冲重试\n\nASC 广播 `OnAbilityInputRetryable`\n（仅 `GroupOccupiedQueued` 原因）\n\n→ HeroComponent 存进缓冲\n→ `OnAbilityGroupFreed` 时重试\n\n第二段在第一段播放中被拒，\n第一段结束时重试成功 = 连段","x":160,"y":-330,"width":360,"height":260,"color":"3"},
-
-		{"id":"s5","type":"text","text":"### 5　能力激活\n\n`UGGYGOGameplayAbility::ActivateAbility`\n（你写的攻击 GA）\n\n通常做三件事：\n· 施加 `Restriction.CantMove`（防止 locomotion 位移与动作位移叠加）\n· `SetCameraMode`（可选，演出镜头）\n· 启动 Montage 任务","x":-320,"y":0,"width":400,"height":260,"color":"5"},
-
-		{"id":"s6","type":"text","text":"### 6　播动画 + 等事件\n\n`UGGYGOAbilityTask_PlayMontageAndWaitForEvent`\n\n**为什么合成一个 Task**：两个 Task 并联时\nMontage 被打断后事件监听仍在，\n会接到下一个动画的同名事件\n\n四种结束路径语义不同：\n自然结束要结算收招硬直，被打断则不该","x":-320,"y":310,"width":400,"height":260,"color":"1"},
-
-		{"id":"s7","type":"text","text":"### 7　判定窗口\n\nMontage 的 AnimNotify 发 GameplayEvent\n\n`Event.Montage.HitWindowBegin`\n→ `MeleeTraceComponent::BeginTraceWindow`\n\n`Event.Montage.HitWindowEnd`\n→ `EndTraceWindow`","x":180,"y":320,"width":380,"height":240,"color":"1"},
-
-		{"id":"s8","type":"text","text":"### 8　扫掠检测\n\n`UGGYGOMeleeTraceComponent::PerformTrace`\n\n沿武器骨骼线段扫**上一帧到本帧的路径**\n（消除隧穿），分 4 段覆盖武器侧面\n（挥砍是侧面接触）\n\n窗口内去重：一刀只造成一次伤害，\n否则伤害量随帧率变化","x":640,"y":320,"width":400,"height":260,"color":"1"},
-
-		{"id":"s9","type":"text","text":"### 9　应用伤害 GE\n\n命中 → 攻击 GA 构造 GE Spec\n\nGE 来自 `UGGYGOGameData`\n（施加者可能是能力、环境、跌落，\n所以不放在能力上）\n\n物理材质 Tag 被并入 GE 目标 Tag\n（`ApplyAbilityTagsToGameplayEffectSpec`）","x":640,"y":0,"width":400,"height":260,"color":"5"},
-
-		{"id":"s10","type":"text","text":"### 10　伤害结算\n\n`UGGYGODamageExecution`\n\n捕获用 `bSnapshot=true`，记下\n**挥刀那一刻**的攻击力 ——\n判定与落地隔着若干帧，\n否则玩家觉得 Buff 白吃了\n\n写元属性而非直接扣血","x":640,"y":-330,"width":400,"height":260,"color":"5"},
-
-		{"id":"s11","type":"text","text":"### 11　属性变更\n\n`UGGYGOHealthSet::PostGameplayEffectExecute`\n\n消费元属性 → 扣血扣韧性 → Clamp\n→ 广播委托（死亡与破韧有边沿锁存，只播一次）\n\n免疫判定、钳制、死亡边沿**全部集中在这里** ——\n各 Execution 自己扣血就要重复实现这些规则","x":1100,"y":-330,"width":420,"height":280,"color":"5"},
-
-		{"id":"s12","type":"text","text":"### 12　反馈\n\n`UGGYGOHealthComponent`\n原生委托 → 蓝图动态委托 → UI\n\n`UGGYGOGameplayCueNotify_HitImpact`\n按 GE 目标 Tag 里的表面类型分流：\n打金属出火花、打肉出血\n\n生命归零 → 发 `Event.Death` 而非直接改状态\n（死亡演出要由死亡 GA 承载）","x":1100,"y":0,"width":420,"height":300,"color":"1"},
-
-		{"id":"note","type":"text","text":"## 排查指引\n\n| 症状 | 先看哪 |\n|---|---|\n| 按键完全没反应 | InputConfig 的 Tag 配置、`DefaultInputComponentClass` |\n| 单次能触发、连段接不上 | 组规则是否配了 `SingleInstanceQueued`、`InputBufferWindow` |\n| 动画播了但打不到人 | 判定窗口 Notify、`TraceChannel`、骨骼名 |\n| 打到了但不掉血 | AbilitySet 是否含 HealthSet、GameData 的伤害 GE |\n| 掉血但没特效 | Cue 是否在 `Content/GameplayCues/`、是否预热 |\n| 移动与动画不同步 | `RM_Speed` 曲线是否烘焙、`bUseCurveDrivenSpeed` |","x":160,"y":620,"width":880,"height":340,"color":"6"}
+		{"id":"s1","type":"text","text":"### 1　按键\n\n`UGGYGOInputComponent`\n按 InputTag 批量绑定\n\n→ `UGGYGOHeroComponent::Input_AbilityInputTagPressed`","x":-800,"y":-680,"width":380,"height":220,"color":"4"},
+		{"id":"s2","type":"text","text":"### 2　入缓存（不激活）\n\n`ASC::AbilityInputTagPressed`\n放进 pressed 与 held 两个缓存\n\n**为什么不立刻激活**：若 held 先激活了能力，\n随后 pressed 又把同一次按下当输入事件\n发给刚创建的实例，能力会收到一次\n它不该收到的 InputPressed","x":-800,"y":-360,"width":380,"height":250,"color":"4"},
+		{"id":"s6","type":"text","text":"### 6　播动画 + 等事件\n\n`UGGYGOAbilityTask_PlayMontageAndWaitForEvent`\n\n**为什么合成一个 Task**：两个 Task 并联时\nMontage 被打断后事件监听仍在，\n会接到下一个动画的同名事件\n\n四种结束路径语义不同：\n自然结束要结算收招硬直，被打断则不该","x":-320,"y":590,"width":400,"height":260,"color":"1"},
+		{"id":"s5","type":"text","text":"### 5　能力激活\n\n`UGGYGOGameplayAbility::ActivateAbility`\n（你写的攻击 GA）\n\n通常做三件事：\n· 施加 `Restriction.CantMove`（防止 locomotion 位移与动作位移叠加）\n· `SetCameraMode`（可选，演出镜头）\n· 启动 Montage 任务","x":-320,"y":210,"width":400,"height":260,"color":"5"},
+		{"id":"note","type":"text","text":"## 排查指引\n\n| 症状 | 先看哪 |\n|---|---|\n| 按键完全没反应 | InputConfig 的 Tag 配置、`DefaultInputComponentClass` |\n| 单次能触发、连段接不上 | 组规则是否配了 `SingleInstanceQueued`、`InputBufferWindow` |\n| 动画播了但打不到人 | 判定窗口 Notify、`TraceChannel`、骨骼名 |\n| 打到了但不掉血 | AbilitySet 是否含 HealthSet、GameData 的伤害 GE |\n| 掉血但没特效 | Cue 是否在 `Content/GameplayCues/`、是否预热 |\n| 移动与动画不同步 | `RM_Speed` 曲线是否烘焙、`bUseCurveDrivenSpeed` |","x":600,"y":1160,"width":880,"height":340,"color":"6"},
+		{"id":"s7","type":"text","text":"### 7　判定窗口\n\nMontage 的 AnimNotify 发 GameplayEvent\n\n`Event.Montage.HitWindowBegin`\n→ `MeleeTraceComponent::BeginTraceWindow`\n\n`Event.Montage.HitWindowEnd`\n→ `EndTraceWindow`","x":340,"y":600,"width":380,"height":240,"color":"1"},
+		{"id":"s8","type":"text","text":"### 8　扫掠检测\n\n`UGGYGOMeleeTraceComponent::PerformTrace`\n\n沿武器骨骼线段扫**上一帧到本帧的路径**\n（消除隧穿），分 4 段覆盖武器侧面\n（挥砍是侧面接触）\n\n窗口内去重：一刀只造成一次伤害，\n否则伤害量随帧率变化","x":900,"y":590,"width":400,"height":260,"color":"1"},
+		{"id":"s9","type":"text","text":"### 9　应用伤害 GE\n\n命中 → 攻击 GA 构造 GE Spec\n\nGE 来自 `UGGYGOGameData`\n（施加者可能是能力、环境、跌落，\n所以不放在能力上）\n\n物理材质 Tag 被并入 GE 目标 Tag\n（`ApplyAbilityTagsToGameplayEffectSpec`）","x":900,"y":0,"width":400,"height":260,"color":"5"},
+		{"id":"s10","type":"text","text":"### 10　伤害结算\n\n`UGGYGODamageExecution`\n\n捕获用 `bSnapshot=true`，记下\n**挥刀那一刻**的攻击力 ——\n判定与落地隔着若干帧，\n否则玩家觉得 Buff 白吃了\n\n写元属性而非直接扣血","x":900,"y":-350,"width":400,"height":260,"color":"5"},
+		{"id":"s11","type":"text","text":"### 11　属性变更\n\n`UGGYGOHealthSet::PostGameplayEffectExecute`\n\n消费元属性 → 扣血扣韧性 → Clamp\n→ 广播委托（死亡与破韧有边沿锁存，只播一次）\n\n免疫判定、钳制、死亡边沿**全部集中在这里** ——\n各 Execution 自己扣血就要重复实现这些规则","x":1520,"y":-360,"width":420,"height":280,"color":"5"},
+		{"id":"s12","type":"text","text":"### 12　反馈\n\n`UGGYGOHealthComponent`\n原生委托 → 蓝图动态委托 → UI\n\n`UGGYGOGameplayCueNotify_HitImpact`\n按 GE 目标 Tag 里的表面类型分流：\n打金属出火花、打肉出血\n\n生命归零 → 发 `Event.Death` 而非直接改状态\n（死亡演出要由死亡 GA 承载）","x":1520,"y":0,"width":420,"height":300,"color":"1"},
+		{"id":"s4b","type":"text","text":"### 4b　被拒 → 缓冲重试\n\nASC 广播 `OnAbilityInputRetryable`\n（仅 `GroupOccupiedQueued` 原因）\n\n→ HeroComponent 存进缓冲\n→ `OnAbilityGroupFreed` 时重试\n\n第二段在第一段播放中被拒，\n第一段结束时重试成功 = 连段","x":360,"y":-320,"width":360,"height":260,"color":"3"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"s1","fromSide":"bottom","toNode":"s2","toSide":"top"},

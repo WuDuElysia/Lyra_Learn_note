@@ -1,31 +1,20 @@
 {
 	"nodes":[
-		{"id":"title","type":"text","text":"# GGYGO 模块依赖\n\n箭头方向 = 依赖方向（A → B 表示 A 依赖 B）。\n\n**判断一个模块能否独立理解**：看它出边的数量。\n`System/` 零出边，可以先看；`GameModes/` 指向所有人，最后看。\n\n速查：[[模块参考]]　设计依据：[[计划蓝图]]","x":-1240,"y":-660,"width":460,"height":260,"color":"6"},
-
-		{"id":"system","type":"text","text":"## System/\n\n`GGYGOGameplayTags`\n`UGGYGOAssetManager`\n`UGGYGOGameData`\n\n**零依赖**，被所有模块引用。\nTag 是跨模块通信的公共词汇表。","x":-260,"y":-700,"width":360,"height":220,"color":"4"},
-
-		{"id":"physics","type":"text","text":"## Physics/\n\n`UGGYGOPhysicalMaterialWithTags`\n\n零依赖。让「打到什么东西上」\n变成可查询的 Tag。","x":200,"y":-700,"width":300,"height":180,"color":"4"},
-
-		{"id":"input","type":"text","text":"## Input/\n\n`UGGYGOInputConfig`\n`UGGYGOInputComponent`\n\n只依赖 System 的 Tag。\n按键与能力各自只认 Tag，\n两边可独立替换。","x":-680,"y":-700,"width":320,"height":200,"color":"4"},
-
-		{"id":"gas","type":"text","text":"## AbilitySystem/\n\n**中枢**。ASC、能力基类、属性集、\n组仲裁、伤害结算、Cue、Montage 任务。\n\n状态变更的唯一入口 ——\n除移动输入外，任何改变角色状态的\n行为都经 `TryActivateAbility`\n或 `ApplyGameplayEffect`。\n\n子图：[[GGYGO_模块_AbilitySystem.canvas]]","x":-280,"y":-360,"width":400,"height":300,"color":"5"},
-
-		{"id":"character","type":"text","text":"## Character/\n\n角色本体 + 四个组件：\nPawnExtension（协调）\nHealth（生命韧性）\nCMC（移动）\nHero（输入）\n\n依赖 GAS：CMC 读 `Restriction.CantMove`，\nHealth 绑 HealthSet 的委托。\n\n子图：[[GGYGO_模块_角色与组件.canvas]]","x":-280,"y":0,"width":400,"height":300,"color":"5"},
-
-		{"id":"camera","type":"text","text":"## Camera/\n\n相机模式栈。\n\n依赖 Character 取跟随目标；\n被 GAS 依赖（能力可推入模式）。\n\n子图：[[GGYGO_模块_表现层.canvas]]","x":220,"y":30,"width":320,"height":220,"color":"1"},
-
-		{"id":"anim","type":"text","text":"## Animation/zzzAnim/\n\n快照 → 过渡判定 → 表现记忆。\n\n**只读**依赖 Character（读 CMC）。\n唯一反向通道是 AnimNotify，\n只发事件不写状态。\n\n子图：[[GGYGO_模块_移动与位移.canvas]]","x":-760,"y":0,"width":340,"height":260,"color":"1"},
-
-		{"id":"combat","type":"text","text":"## Combat/\n\n`UGGYGOMeleeTraceComponent`\n\n依赖 Character（取骨骼位置）。\n命中结果交给 GAS 应用伤害 GE。","x":220,"y":320,"width":320,"height":180,"color":"1"},
-
-		{"id":"teams","type":"text","text":"## Teams/ · Player/\n\n`UGGYGOSquadComponent`\n`AGGYGOPlayerState`\n`AGGYGOPlayerController`\n\n队伍挂 PlayerState —— 出战角色会换，\n名单不会。Controller 驱动\n`ProcessAbilityInput`。","x":-760,"y":340,"width":340,"height":240,"color":"1"},
-
-		{"id":"gamemodes","type":"text","text":"## GameModes/\n\n`UGGYGOExperienceDefinition`\n`AGGYGOGameMode`\n\n**依赖所有人**。读 Experience，\n生成队伍、注入 PawnData、\n激活 GameFeature。\n\n换玩法模式 = 换一个资产引用。","x":-280,"y":360,"width":400,"height":260,"color":"3"},
-
-		{"id":"rule","type":"text","text":"## 层间铁律\n\n1. 上层只产出请求，不直接改状态\n2. 状态变更的唯一入口是 GAS\n3. 表现层只读\n4. 移动层是唯一例外，权威是 CMC\n5. 不存在第二个帧调度器 ——\n   CMC 自己 Tick、AnimInstance 自己 Update、\n   GAS 自己驱动","x":220,"y":-360,"width":400,"height":280,"color":"6"}
+		{"id":"title","type":"text","text":"# GGYGO 模块依赖\n\n箭头方向 = 依赖方向（A → B 表示 A 依赖 B）。\n\n**判断一个模块能否独立理解**：看它出边的数量。\n`System/` 零出边，可以先看；`GameModes/` 指向所有人，最后看。\n\n速查：[[模块参考]]　设计依据：[[计划蓝图]]","x":-1460,"y":-700,"width":460,"height":260,"color":"6"},
+		{"id":"physics","type":"text","text":"## Physics/\n\n`UGGYGOPhysicalMaterialWithTags`\n\n零依赖。让「打到什么东西上」\n变成可查询的 Tag。","x":220,"y":-810,"width":300,"height":180,"color":"4"},
+		{"id":"rule","type":"text","text":"## 层间铁律\n\n1. 上层只产出请求，不直接改状态\n2. 状态变更的唯一入口是 GAS\n3. 表现层只读\n4. 移动层是唯一例外，权威是 CMC\n5. 不存在第二个帧调度器 ——\n   CMC 自己 Tick、AnimInstance 自己 Update、\n   GAS 自己驱动","x":740,"y":-500,"width":400,"height":280,"color":"6"},
+		{"id":"character","type":"text","text":"## Character/\n\n角色本体 + 四个组件：\nPawnExtension（协调）\nHealth（生命韧性）\nCMC（移动）\nHero（输入）\n\n依赖 GAS：CMC 读 `Restriction.CantMove`，\nHealth 绑 HealthSet 的委托。\n\n子图：[[GGYGO_模块_角色与组件.canvas]]","x":-320,"y":220,"width":400,"height":300,"color":"5"},
+		{"id":"gamemodes","type":"text","text":"## GameModes/\n\n`UGGYGOExperienceDefinition`\n`AGGYGOGameMode`\n\n**依赖所有人**。读 Experience，\n生成队伍、注入 PawnData、\n激活 GameFeature。\n\n换玩法模式 = 换一个资产引用。","x":-300,"y":720,"width":400,"height":260,"color":"3"},
+		{"id":"combat","type":"text","text":"## Combat/\n\n`UGGYGOMeleeTraceComponent`\n\n依赖 Character（取骨骼位置）。\n命中结果交给 GAS 应用伤害 GE。","x":380,"y":580,"width":320,"height":180,"color":"1"},
+		{"id":"camera","type":"text","text":"## Camera/\n\n相机模式栈。\n\n依赖 Character 取跟随目标；\n被 GAS 依赖（能力可推入模式）。\n\n子图：[[GGYGO_模块_表现层.canvas]]","x":780,"y":260,"width":320,"height":220,"color":"1"},
+		{"id":"teams","type":"text","text":"## Teams/ · Player/\n\n`UGGYGOSquadComponent`\n`AGGYGOPlayerState`\n`AGGYGOPlayerController`\n\n队伍挂 PlayerState —— 出战角色会换，\n名单不会。Controller 驱动\n`ProcessAbilityInput`。","x":-1320,"y":720,"width":340,"height":240,"color":"1"},
+		{"id":"anim","type":"text","text":"## Animation/zzzAnim/\n\n快照 → 过渡判定 → 表现记忆。\n\n**只读**依赖 Character（读 CMC）。\n唯一反向通道是 AnimNotify，\n只发事件不写状态。\n\n子图：[[GGYGO_模块_移动与位移.canvas]]","x":-980,"y":0,"width":340,"height":260,"color":"1"},
+		{"id":"system","type":"text","text":"## System/\n\n`GGYGOGameplayTags`\n`UGGYGOAssetManager`\n`UGGYGOGameData`\n\n**零依赖**，被所有模块引用。\nTag 是跨模块通信的公共词汇表。","x":-280,"y":-910,"width":360,"height":220,"color":"4"},
+		{"id":"input","type":"text","text":"## Input/\n\n`UGGYGOInputConfig`\n`UGGYGOInputComponent`\n\n只依赖 System 的 Tag。\n按键与能力各自只认 Tag，\n两边可独立替换。","x":-760,"y":-900,"width":320,"height":200,"color":"4"},
+		{"id":"gas","type":"text","text":"## AbilitySystem/\n\n**中枢**。ASC、能力基类、属性集、\n组仲裁、伤害结算、Cue、Montage 任务。\n\n状态变更的唯一入口 ——\n除移动输入外，任何改变角色状态的\n行为都经 `TryActivateAbility`\n或 `ApplyGameplayEffect`。\n\n子图：[[GGYGO_模块_AbilitySystem.canvas]]","x":-320,"y":-300,"width":400,"height":300,"color":"5"}
 	],
 	"edges":[
-		{"id":"e1","fromNode":"input","fromSide":"bottom","toNode":"gas","toSide":"left","label":"InputTag"},
+		{"id":"e1","fromNode":"input","fromSide":"bottom","toNode":"gas","toSide":"top","label":"InputTag"},
 		{"id":"e2","fromNode":"gas","fromSide":"top","toNode":"system","toSide":"bottom","label":"Tag / 共享 GE"},
 		{"id":"e3","fromNode":"character","fromSide":"top","toNode":"gas","toSide":"bottom","label":"读 Tag / 绑属性委托"},
 		{"id":"e4","fromNode":"camera","fromSide":"left","toNode":"character","toSide":"right","label":"取跟随目标"},
@@ -34,10 +23,10 @@
 		{"id":"e7","fromNode":"combat","fromSide":"left","toNode":"character","toSide":"bottom","label":"取骨骼位置"},
 		{"id":"e8","fromNode":"combat","fromSide":"top","toNode":"gas","toSide":"right","label":"命中 → 伤害 GE"},
 		{"id":"e9","fromNode":"teams","fromSide":"right","toNode":"character","toSide":"bottom","label":"切换 Avatar"},
-		{"id":"e10","fromNode":"teams","fromSide":"top","toNode":"gas","toSide":"left","label":"驱动输入消费"},
+		{"id":"e10","fromNode":"teams","fromSide":"top","toNode":"gas","toSide":"bottom","label":"驱动输入消费"},
 		{"id":"e11","fromNode":"gamemodes","fromSide":"top","toNode":"character","toSide":"bottom","label":"注入 PawnData"},
-		{"id":"e12","fromNode":"gamemodes","fromSide":"left","toNode":"teams","toSide":"bottom","label":"登记成员"},
-		{"id":"e13","fromNode":"gas","fromSide":"bottom","toNode":"physics","toSide":"left","label":"材质 Tag 并入 GE","toEnd":"arrow"},
-		{"id":"e14","fromNode":"input","fromSide":"top","toNode":"system","toSide":"left","label":"Tag"}
+		{"id":"e12","fromNode":"gamemodes","fromSide":"left","toNode":"teams","toSide":"right","label":"登记成员"},
+		{"id":"e13","fromNode":"gas","fromSide":"top","toNode":"physics","toSide":"left","label":"材质 Tag 并入 GE"},
+		{"id":"e14","fromNode":"input","fromSide":"right","toNode":"system","toSide":"left","label":"Tag"}
 	]
 }

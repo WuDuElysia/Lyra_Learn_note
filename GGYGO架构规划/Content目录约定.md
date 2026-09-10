@@ -15,9 +15,9 @@
 | `/Game/GameplayEffects/` | GAS 效果 | 按限制、冷却、伤害等语义分类，不按蓝图来源目录分类 |
 | `/Game/Characters/` | 角色资产 | 角色专属资产按角色聚合；跨角色资产放 `Shared/` |
 | `/Game/Input/` | 输入资产 | InputAction、InputMappingContext 和输入配置分层 |
-| `/Game/PhysicsMaterials/` | 物理表现（预留） | 带表面/Gameplay Tag 的物理材质；当前尚未创建 |
+| `/Game/PhysicsMaterials/` | 物理表现 | 带表面/Gameplay Tag 的物理材质；目录已创建，资产待配置 |
 
-这套结构按游戏概念组织资产。角色专属内容保留角色边界，便于后续按角色拆成 GameFeature；共享玩法内容不依赖原始导出目录的位置。`/Game/PhysicsMaterials/` 当前由 AssetTools 确认为不存在，只有实际出现物理材质资产时再创建。
+这套结构按游戏概念组织资产。角色专属内容保留角色边界，便于后续按角色拆成 GameFeature；共享玩法内容不依赖原始导出目录的位置。`/Game/PhysicsMaterials/` 已由 AssetTools 创建，目录可以先为空，实际出现物理材质资产时再放入内容。
 
 ## 2. 当前目录结构
 
@@ -43,6 +43,7 @@
     Actions/
     Mappings/
     Config/
+  PhysicsMaterials/
 ```
 
 上述目录已经由 Unreal Editor 的 AssetTools 创建或确认。目录本身可以先为空；只有出现对应资产时才放入内容。

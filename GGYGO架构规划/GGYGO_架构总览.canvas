@@ -1,26 +1,26 @@
 {
 	"nodes":[
 		{"id":"plan","type":"text","text":"# 两份文字文档\n\n[[计划蓝图]] —— **为什么这样设计**\n15 章 + 附录，每层按「Lyra 事实 → 诉求 → 方案 → 取舍」组织。\n第 15 章记录与设计的偏离、待配资产、已知缺口。\n\n[[模块参考]] —— **现在有什么**\n按 `Source/GGYGO` 实际目录组织的速查表。\n查「某个类在哪、干什么」看这份。","x":20,"y":-300,"width":520,"height":280,"color":"3"},
-		{"id":"decisions","type":"text","text":"# 已确认的架构决策\n\n**D1** 两级 ASC：每角色 Pawn 一个 + PlayerState 队伍级一个\n**D2** 每个玩家各带一支队伍（4 人房 × 3 角色 = 12 个角色 ASC）\n**D3** 移动权威是 CharacterMovementComponent\n**D4** 同优先级 GA 由后来者打断先激活者（比较用 `>`）\n\n三条硬约束：动作游戏 · 队伍多角色 · 多人联机。\n联机是最强约束，一旦有逻辑绕过复制链路，后期改造等于重写。","x":-880,"y":-300,"width":580,"height":280,"color":"1"},
+		{"id":"decisions","type":"text","text":"# 已确认的架构决策\n\n**D1** ASC 挂队伍位置（Slot），不挂 Pawn；Pawn 只是 Avatar\n**D2** 每个玩家各带一支队伍（4 人房 × 3 角色 = 12 个角色 ASC）\n**D3** 移动权威是 CharacterMovementComponent\n**D4** 同优先级 GA 由后来者打断先激活者（比较用 `>`）\n\n三条硬约束：动作游戏 · 队伍多角色 · 多人联机。\n联机是最强约束，一旦有逻辑绕过复制链路，后期改造等于重写。","x":-880,"y":-300,"width":580,"height":280,"color":"1"},
 		{"id":"othergraphs","type":"text","text":"# 另外两张图\n\n[[GGYGO_模块依赖.canvas|▸ 模块依赖]]\n依赖方向与分层，用来定阅读顺序：\n无依赖的模块先看，依赖全部的最后看。\n\n[[GGYGO_战斗链路.canvas|▸ 战斗链路]]\n一次攻击从按键到掉血的完整流转，\n每一环附「这里断了会看到什么现象」。","x":720,"y":-300,"width":520,"height":280,"color":"3"},
-		{"id":"m-character","type":"text","text":"# 角色与组件层\n\n[[GGYGO_模块_角色与组件.canvas|▸ 打开子图]]\n\n**职责**：角色 Actor、ASC 宿主、组件拆分与\nInitState 初始化协调\n**关键取舍**：ASC 挂角色自己（D1），主要参考\n`ALyraCharacterWithAbilities` 而非 `ALyraCharacter`\n玩家角色单独一个类，AI 不带 HeroComponent","x":900,"y":60,"width":540,"height":300,"color":"4"},
+		{"id":"m-character","type":"text","text":"# 角色与组件层\n\n[[GGYGO_模块_角色与组件.canvas|▸ 打开子图]]\n\n**职责**：角色 Actor、组件拆分与 InitState 初始化协调\n**关键取舍**：角色**不持有 ASC**（D1）——\nASC 与属性集归队伍位置，角色只是 Avatar。\n属性集子对象化的做法参考 `ALyraCharacterWithAbilities`，\n但宿主换成了位置\n玩家角色单独一个类，AI 不带 HeroComponent","x":900,"y":60,"width":540,"height":300,"color":"4"},
 		{"id":"m-input","type":"text","text":"# 输入层\n\n[[GGYGO_模块_输入与意图.canvas|▸ 打开子图]]\n\n**职责**：按键 → InputTag → 能力激活；连段输入缓冲\n**关键取舍**：InputTag 直连能力（照抄 Lyra），\n独立意图层暂不建 —— 缓冲只需两个字段，\n「该不该重试」的判断只有 ASC 知道\n**驱动点**：`PostProcessInput`，不是组件 Tick","x":-1150,"y":60,"width":540,"height":300,"color":"4"},
 		{"id":"m-movement","type":"text","text":"# 移动与位移层\n\n[[GGYGO_模块_移动与位移.canvas|▸ 打开子图]]\n\n**职责**：locomotion 走跑转身 + 动作位移（突进、击退）\n**关键取舍**：两者都落到 CMC；locomotion 不走 GAS，\n动作位移由 GA 发起\n**风险**：CMC 会累加多个 RootMotionSource，\n攻击期间须用 `Restriction.CantMove` 停掉 locomotion","x":-1150,"y":650,"width":540,"height":320,"color":"5"},
 		{"id":"m-presentation","type":"text","text":"# 表现层\n\n[[GGYGO_模块_表现层.canvas|▸ 打开子图]]\n\n**职责**：动画、特效、音效、打击感\n**三条通道**：Montage / GameplayCue / AnimInstance 自拉\n**关键取舍**：Lyra 没有专门的「GA 表现类」，\nGameplayCue 就是 GAS 的表现机制\nZZZAnim 走通道 C，自拉 CMC 与 ASC","x":-160,"y":650,"width":580,"height":320,"color":"5"},
 		{"id":"m-gas","type":"text","text":"# AbilitySystem 层\n\n[[GGYGO_模块_AbilitySystem.canvas|▸ 打开子图]]\n\n**职责**：状态变更的唯一入口。Ability / Effect /\nAttribute / Cue / 组仲裁 / 伤害结算\n**关键取舍**：并发控制用组身份 + 组规则 + 自身策略\n三个正交维度，未照抄 Lyra 的三值激活组枚举\n\n缺口：没有具体的攻击 GA（主体是 Montage 编排）","x":-160,"y":60,"width":580,"height":300,"color":"4"},
-		{"id":"m-team","type":"text","text":"# 队伍与装配层\n\n**`UGGYGOSquadComponent`**（挂 PlayerState）\n换 Avatar 不换 Pawn，待命成员的 ASC **完全不动** ——\n冷却继续走、Buff 继续计时、血量保留。\n这是队伍制成立的前提，也是不用销毁重建的理由。\n\n**`UGGYGOExperienceDefinition` + `AGGYGOGameMode`**\n一局的玩法定义：GameFeature 列表 + 队伍成员配置。\n角色生成由 GameMode 接管。\n\n缺口：队伍级 ASC 未建（等出现共享属性再说）。","x":880,"y":440,"width":580,"height":340,"color":"5"},
+		{"id":"m-team","type":"text","text":"# 队伍与装配层\n\n**`AGGYGOCharacterSlot`** —— 一个位置一个（D1 核心）\n`AInfo` 派生，持有该角色的 ASC 与 HealthSet/CombatSet\n（均为默认子对象，随位置构造即就绪）。\nOwner 必须是 PlayerController，否则预测键失效且不报错。\n\n**`UGGYGOSquadComponent`**（挂 PlayerState）\n名单里装的是位置而非角色。待命角色的冷却与 Buff\n继续走，因为那些状态在位置上而不在 Pawn 上。\n\n**`AGGYGOGameMode`** 两阶段装配：先建位置再建实体。\n\n缺口：队伍级 ASC 未建（等出现共享属性再说）。","x":880,"y":440,"width":580,"height":360,"color":"5"},
 		{"id":"m-camera","type":"text","text":"# 相机层\n\n**职责**：相机模式栈与加权混合\n`UGGYGOCameraComponent` 每帧求值栈顶，\n写回 Controller 的控制朝向\n\n**为什么是栈**：相机状态是叠加的 ——\n锁定期间放大招，结束后应回到锁定而非常规跟随。\n单个「当前模式」变量表达不了嵌套。\n\n能力可临时推入自己的模式，`EndAbility` 自动撤销。","x":880,"y":860,"width":540,"height":320,"color":"5"},
-		{"id":"verify","type":"text","text":"# 验证状态\n\n所有「已落地」都只等于**静态检查与编译通过**。\n运行时行为一次都没有验证过。\n\n原因：项目还缺一批编辑器资产（PawnData、InputConfig、\nMovementSet、AbilitySet、Experience、GameData），\n清单见[[计划蓝图]] 15.2。配齐前起动只是个空场景。\n\n联机也只做了静态推理，没跑过 Dedicated Server。","x":-140,"y":1120,"width":540,"height":340,"color":"1"}
+		{"id":"verify","type":"text","text":"# 验证状态\n\n资产已配齐（GameData、Experience、AbilityGroupConfig、\n命中 Cue、四个能力空壳），装配链已跑通：\n单机下队伍装配成功、角色被附身、属性集正常就位。\n\n**仍未验证**：能力的实际效果（攻击 GA 只有空壳）、\n切人（Experience 只配了 1 个位置）、\n联机预测（Slot 的 Owner 链只做了静态确认，\n错了不报错，必须跑 Dedicated Server 才能确认）。\n\n物理材质需手动创建，MCP 建不出 PhysicalMaterial 实例。","x":-140,"y":1120,"width":540,"height":360,"color":"1"}
 	],
 	"edges":[
 		{"id":"e-input-gas","fromNode":"m-input","fromSide":"right","toNode":"m-gas","toSide":"left","label":"InputTag → 缓存句柄 → 仲裁"},
 		{"id":"e-input-movement","fromNode":"m-input","fromSide":"bottom","toNode":"m-movement","toSide":"top","label":"移动输入直连，不走 GAS"},
-		{"id":"e-character-gas","fromNode":"m-character","fromSide":"left","toNode":"m-gas","toSide":"right","label":"持有 ASC 并协调初始化"},
+		{"id":"e-character-gas","fromNode":"m-character","fromSide":"left","toNode":"m-gas","toSide":"right","label":"作为 Avatar 消费注入的 ASC"},
 		{"id":"e-gas-movement","fromNode":"m-gas","fromSide":"left","toNode":"m-movement","toSide":"right","label":"动作位移由 GA 发起"},
 		{"id":"e-gas-presentation","fromNode":"m-gas","fromSide":"bottom","toNode":"m-presentation","toSide":"top","label":"Montage 与 Cue"},
 		{"id":"e-movement-presentation","fromNode":"m-movement","fromSide":"right","toNode":"m-presentation","toSide":"left","label":"被 AnimInstance 只读读取"},
 		{"id":"e-gas-camera","fromNode":"m-gas","fromSide":"right","toNode":"m-camera","toSide":"left","label":"能力临时接管镜头"},
-		{"id":"e-team-character","fromNode":"m-team","fromSide":"top","toNode":"m-character","toSide":"bottom","label":"装配 PawnData 并切换 Avatar"},
+		{"id":"e-team-character","fromNode":"m-team","fromSide":"top","toNode":"m-character","toSide":"bottom","label":"注入位置的 ASC 并设为 Avatar"},
 		{"id":"e-decisions-plan","fromNode":"decisions","fromSide":"right","toNode":"plan","toSide":"left","label":"依据"}
 	]
 }

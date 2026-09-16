@@ -89,7 +89,7 @@
 - `/Game/BP/Character/Player/BP_PC_Pyrios`
 - `/Game/Characters/Player/055_kuhara/animation/`
 - `/Game/Player/055_kuhara/animation/`
-- `/Game/Characters/Player/Pyrios/Animation/`
+- `/Game/Characters/Player/Pyrios/Animation/`（根下按导出批次平铺，见 §7 的 `Movement/` 例外）
 - `/Game/Model/Miyabi/`
 - `/Game/Resourse/`
 - `/Game/FoggyStreet/`
@@ -124,3 +124,38 @@
 - `Source/GGYGO` 没有本次代码改动。
 
 角色入口蓝图的后续移动应先重新获取完整引用图，再单独保存、PIE 和提交。
+
+## 7. Pyrios 动画目录：按表现域分子目录
+
+`/Game/Characters/Player/Pyrios/Animation/` 下 119 个动画来自同一批 FBX 导出，默认平铺在根目录。已按表现域拆出第一个子目录：
+
+```text
+Animation/
+  Movement/          locomotion 状态机的表现域（13 个资产）
+    Avatar_..._Ani_Idle_Loop            NotMoving
+    Avatar_..._Ani_Walk_Start           EnterMove
+    Avatar_..._Ani_Walk_Loop            WalkRun BlendSpace 样本
+    Avatar_..._Ani_Run_Loop             WalkRun BlendSpace 样本
+    Avatar_..._Ani_Walk_Start_End       Stop / StopValue 0
+    Avatar_..._Ani_Walk_End             Stop / StopValue 1
+    Avatar_..._Ani_Run_End              Stop / StopValue 2
+    Avatar_..._Ani_TurnBack             TurnBack
+    Avatar_..._Ani_Idle_AFK             站立待机（状态机暂未接）
+    Avatar_..._Ani_Idle_AFK_Loop        同上
+    Avatar_..._Ani_MC_Stand_Idle01_Loop 同上
+    Avatar_..._Ani_MC_Stand_Think_Loop  同上
+    BS_Pyrios_WalkRun                   走跑混合（BlendSpace1D）
+  （根目录保留其余 107 个：攻击、受击、闪避、索道、UI 立绘、Gal 演出等）
+```
+
+分子目录的口径是**表现域**而不是命名前缀：`Movement/` 收 locomotion 状态机会用到的表现，加上同属站立待机域的几个变体。索道（`ZipLine_*`）、UI 立绘（`UI_*`）、Gal 演出（`Gal_*`）和战斗类各有自己的状态机，不进来。
+
+移动一律用 `EditorAssetLibrary.rename_asset`（脚本 `AAADocs/Scripts/organize_movement_assets.py`），不在文件系统里搬 `.uasset` —— 前者会自动修正引用者。本次移动后已回读确认 `ABP_Pyrios` 的 7 个 `AnimSet` 引用与 BlendSpace 的 2 个样本引用都跟到了新路径。
+
+### 动画资产的两个必查项
+
+这批导出资产有两个默认值会让表现静默失效，加动画时要核对：
+
+1. **`loop` 标记**。FBX 导入出来的 AnimSequence 一律 `loop = false`。循环动画保持 false 时单独播放看不出问题（播完停在末帧），但作为 BlendSpace 样本时角色一移动动画就播一次然后冻住，表现为「完全没有走跑动画」。哪些该循环看动画自带的 `Cfg_LoopTime` 曲线（Pyrios 共 19 个），脚本 `AAADocs/Scripts/fix_anim_loop_flags.py`。
+
+2. **root motion 是否已扣除**。原资产的 `Bip001` 轨道里带着与 `RootMotion_*` 曲线同一份的整体位移与转身，不扣掉会与移动层的曲线驱动叠加（转身转 360 度、位移走双倍）。用控制台命令 `ZZZStripRootMotion`，详见 [[模块参考]] 4.5。**该操作不幂等**，已处理的资产要记录，目前只有 `Movement/` 下的 7 个走跑转身动画做过。

@@ -1,336 +1,43 @@
 {
-  "nodes": [
-    {
-      "id": "nav",
-      "type": "text",
-      "text": "← [[GGYGO_模块_移动与位移.canvas|返回移动层]]　·　[[GGYGO_架构总览.canvas|总览]]　·　[[GGYGO_模块_表现层.canvas|表现层]]\n\n# 急停转身：曲线驱动的四态相位\n\n**相位边界全部从动画曲线读出**，不配时间点、不用 AnimNotify。\n曲线本身带着「什么时候转完、什么时候开始跑出」这个信息，\n换一版转身动画时相位边界自动跟着变。\n\n从左到右是一次转身的执行顺序。上方是约束，下方是速度、网络与缺口。",
-      "x": -600,
-      "y": -700,
-      "width": 660,
-      "height": 280,
-      "color": "3"
-    },
-    {
-      "id": "inplace",
-      "type": "text",
-      "text": "## 资产的 in-place 化（前置条件）\n\n`UAnimRootMotionTools::StripRootMotionFromBone`（控制台 `ZZZStripRootMotion`）\n\n原资产在 Unity 侧靠 Mecanim 处理：Animator 从 rootMotionBone 提取整体位移与转身，\n姿势里只留局部动作。导出 FBX 时没有这一步 —— 提取前的完整姿势写进 `Bip001`，\n提取出的 root motion 单独写进外部 Null 节点 `Root`（导入 UE 后成为骨架末尾的一根骨骼）。\n两者携带同一份位移，所以不处理的话姿势里的整体位移会与曲线驱动叠加：\n转身转 360 度、位移走双倍。\n\n```text\nStripRootMotionFromBone(Anim, Bip001, Root, bAlignToOrigin):\n    RM(f)  = comp(Root, 0).Inverse() * comp(Root, f)   // 相对首帧的增量\n    RM(f)  = 只保留水平位移与 yaw\n    new(f) = comp(Bip001, f) * RM(f).Inverse() * AlignCompensation\n    写回 Bip001 的 local 轨道\n```\n\n**为什么用 `Root` 骨骼而不是 `RootMotion_*` 曲线**：两根骨骼在同一套 component\n空间里，相减是纯 transform 运算。曲线经过了 FBX→UE 轴变换与 ±180 解折叠，\n拿它去扣骨骼轨道就得把那套变换反推回来 —— 而轴向随骨架而变（见右侧「坐标系分层」），\n手工推映射极易出错且换角色就失效。\n\n**不幂等**：重复执行会把同一份 root motion 扣第二次，动画朝反方向漂。",
-      "x": -2140,
-      "y": -320,
-      "width": 620,
-      "height": 560,
-      "color": "1"
-    },
-    {
-      "id": "bone-space",
-      "type": "text",
-      "text": "## 坐标系分层（in-place 化的依据）\n\nFBX Y-up → UE Z-up 的转换**烘在根骨骼**上，不是逐骨骼做的：\n\n| 骨骼 | local | 说明 |\n|---|---|---|\n| `Avatar_..._Model` | `Roll 90°` | 坐标系转换在这里 |\n| `Bone_Root` | identity | 恒为单位变换 |\n| `Bip001` | FBX 轴向 | 前进落在它的 **Z** 轴 |\n\n所以 `Bip001` 的 **local 轴向仍是 FBX 的**，只有 component 空间才是 UE 轴序：\n\n```text\ncomp Bip001  f0   T=(-0.7,    -0.0, 100.1)\n             f143 T=( 0.7,  -948.1, 100.1)\n             ↑X 左右  ↑Y 前进   ↑Z 高度\n```\n\n`comp Root` 逐帧与 `comp Bip001` 的 Y 完全相同（f143 都是 -948.1），\n差值只剩身体摆动 0.7 与骨盆高度 100.1 —— 这就是「`Root` 承载的正是那份要扣掉的量」。\n\n**扣除量必须取相对首帧的增量**：直接用 component 变换会把首帧那份 `Roll 90°`\n一起扣掉，角色会躺倒。顺序也不能反 —— `comp * 首帧逆` 是「在首帧局部空间里表达」，\n会把水平位移旋到 Z 轴，随后被去高度步骤清零，扣除量整体变成 0。",
-      "x": -2140,
-      "y": -940,
-      "width": 620,
-      "height": 560,
-      "color": "6"
-    },
-    {
-      "id": "data-source",
-      "type": "text",
-      "text": "## 曲线数据从哪来\n\n**逐帧数据来自 FBX 的外部 `Root` 节点**，不是 JSON。\nAnimeStudio 导出的 `anim_settings.json` 里 `rootMotionCurves`\n（`MotionT/MotionQ/RootT/RootQ` 共 14 条、33 万个 key）\n**值全为 0.0**，四元数 w 也没有任何一帧是 ±1 —— 是未填充的占位。\n\n**标量设置来自 per-clip JSON 的 `muscleClip`**，这部分可信：\n`Run_Loop` 的 `averageSpeed.z` = 10.5 m/s → 1050 cm/s；\n`TurnBack` 的 `averageAngularSpeed` × `stopTime` = 180.03°。\n\n烘焙管线在 `AAADocs/Scripts/`：\n`anim_rootmotion_extract.py` 提取 + 轴映射 + 交叉校验\n`bake_anim_rootmotion_curves.py` 写成 27 条 FloatCurve\n`verify_anim_rootmotion_curves.py` 全量回读比对\n\n**`averageAngularSpeed` 无符号**：`TurnBack` -180° 与\n`HitFly_Back` +180° 在 JSON 里都是正值，\n转身方向只能从 `RootMotion_Yaw` 取。",
-      "x": -1420,
-      "y": -320,
-      "width": 600,
-      "height": 520,
-      "color": "4"
-    },
-    {
-      "id": "frame-invariant",
-      "type": "text",
-      "text": "## 两个不变式（整套还原的地基）\n\n`PosX/PosY` 与 `DirX/DirY` 活在**动画段起点坐标系**，\n`Yaw` 是**相对段起点朝向的累计转角**。两者自洽：\n\n```text\n世界移动方向 = Rotate(EntryYaw) × (DirX, DirY)\n角色世界朝向 = EntryYaw + Yaw(t)\n```\n\n轴序是 UE 局部空间（X 前、Y 右、Z 上），单位厘米/度。\n\n**这解释了 B 段的「倒滑」**：`Yaw` 已经 -180（身体转过来了），\n但 `PosX` 还在增大（位移仍沿进入朝向）—— 身体朝后、人往前滑。\n\n**为什么基准必须是 `TurnBackEntryYaw` 而不是当前朝向**：\n曲线分量本来就以段起点为基准，用当前朝向会把角色已经转过的\n角度重复计入一次，位移轨迹变成弧线。\n\n**`RootMotion_Yaw` 已在烘焙阶段解开 ±180 折叠**，是连续累计角，\n差分不会出现从 179 跳到 -179 那种一帧 358° 的假转角。",
-      "x": -700,
-      "y": -320,
-      "width": 620,
-      "height": 460,
-      "color": "6"
-    },
-    {
-      "id": "sample",
-      "type": "text",
-      "text": "## `FGGYGOAnimCurveSampler` · 每帧采样\n\n9 条曲线：`RootMotion_Speed` · `PosX/PosY` · `Dist` ·\n`Yaw` · `DirX/DirY` · `Cfg_ClipLength` · `Cfg_LoopTime`\n\n```text\nCMC::TickComponent(dt):\n    SampleAnimCurves(dt)      // 必须在 Super 之前\n    Super::TickComponent(dt)  // 内部走 GetMaxSpeed /\n                              // UpdateCharacterStateBeforeMovement /\n                              // PhysicsRotation\n```\n\n**采样时机在 `Super` 之前**：移动要用本帧的曲线速度。\n放进 `UpdateCharacterStateBeforeMovement` 会在 sub-stepping 时\n一帧被调多次，而采样器持有跨帧基线，第二次之后差分全为零。\n\n**换段判据是 `RootMotion_Dist` 回退**，不用位移差分：\n路程单调不减，位移会来回摆动 —— 转身后半段位移一路减小，\n拿它判断会每帧都误判成换段。循环动画绕回循环点同样触发，\n代价是每周期丢一帧增量（速度不经差分，所以无实际后果）。\n\n**`YawTotalDegrees` 与 `YawDeltaDegrees` 都要**：差分判断\n「转角是否停止变化」，累计值判断「到底转过没有」。\n只看差分会把基线尚未建立的那一帧误判成转完。",
-      "x": -1420,
-      "y": 280,
-      "width": 600,
-      "height": 560,
-      "color": "5"
-    },
-    {
-      "id": "trigger",
-      "type": "text",
-      "text": "## 触发：纯几何判定\n\n```text\nIsReverseRunInput():\n    if Gait != Run: return false          // 只有跑动才触发\n    InputDir = GetCurrentAcceleration().Normal2D()\n    Forward  = UpdatedComponent->GetForwardVector().Normal2D()\n    return Dot(Forward, InputDir)\n           <= TurnBackReverseInputDotThreshold   // 默认 -0.95，约 162°\n```\n\n用 `GetCurrentAcceleration()` 而非原始摇杆值：\n它被 `FSavedMove_Character` 保存，回放可复现。\n\n**`bTurnBackInputLatched`**：转身结束后玩家往往还按着同一个\n方向键，而那个方向此时已经是角色正前方，不该再触发一次。\n必须等输入离开反向阈值才解闩 —— 所以 `ResetTurnBack()`\n**刻意不清这个标志**，清了会让角色原地反复转身。",
-      "x": -700,
-      "y": 280,
-      "width": 620,
-      "height": 420,
-      "color": "4"
-    },
-    {
-      "id": "phase-turning",
-      "type": "text",
-      "text": "### 1　`Turning` 转身中\n\n**f0–f20 / 0 → 0.333s**\n`Yaw` 0 → **-180**　`PosX` 0 → 423.7（**正向**）\n`Speed` 1182 → 1380\n\n```text\nTurnBackElapsed += dt\nbYawReached = |YawTotalDegrees| >= TurnBackMinYawDegrees    // 90\nbYawSettled = |YawDeltaDegrees| <= TurnBackYawSettleDegrees // 0.05\nif bYawReached and bYawSettled: Phase = Braking\n```\n\n朝向由 `PhysicsRotation` **累加转角增量**驱动，绕过 `Super`：\n绕过就等于这一帧只有曲线在转角色，不必临时关掉\n`bOrientRotationToMovement` 再恢复（那种做法一旦中途异常退出，\n被改掉的旋转模式就永远回不来了）。\n\n累加增量而不是设成 `EntryYaw + YawTotal`：增量对入口朝向的\n误差不敏感，模拟代理那边的入口朝向是近似值，\n用绝对值会让它一进入转身就跳一下。\n\n位移方向同时被曲线接管，沿进入朝向继续滑行。",
-      "x": -60,
-      "y": 280,
-      "width": 600,
-      "height": 520,
-      "color": "5"
-    },
-    {
-      "id": "phase-braking",
-      "type": "text",
-      "text": "### 2　`Braking` 倒滑刹车\n\n**f20–f60 / 0.333 → 1.0s**\n`Yaw` 锁 -180　`PosX` 423.7 → **690.7**（仍正向）\n`Speed` 1380 → **52**\n\n```text\nTurnBackElapsed += dt\nbForwardFlipped = Direction.X <= -TurnBackRunOutForwardThreshold // 0.5\nbFastEnough     = Speed >= TurnBackRunOutMinSpeed               // 150\nif bForwardFlipped and bFastEnough: Phase = RunOut\n```\n\n**这是急停转身最有辨识度的一段**：身体已经转过来了，\n人还在往原方向滑。与 `Turning` 的区别只在转角是否还在变，\n移动行为一致（方向仍由曲线接管），所以网络侧不区分这两个相位。\n\n**速度门限是必要的**：刹车段末速掉到 52 cm/s，\n单帧位移不足 1cm，归一化方向容易抖，\n容易被一帧噪声提前推进相位。\n\n刹车感由动画给出，代码不写减速曲线。",
-      "x": 580,
-      "y": 280,
-      "width": 600,
-      "height": 480,
-      "color": "5"
-    },
-    {
-      "id": "phase-runout",
-      "type": "text",
-      "text": "### 3　`RunOut` 跑出（方向交回输入）\n\n**f60–f142 / 1.0 → 2.367s**\n`Yaw` 锁 -180　`PosX` 690.7 → **-948.1**（**反向**）\n`Speed` 52 → **1039** ≈ `Run_Loop` 的 1050\n\n```text\nTurnBackElapsed += dt\nif !HasMoveInput(): ResetTurnBack()   // 松手即结束\n// 不挂位移源：方向取玩家输入、走 CalcVelocity\n// 朝向交回 Super::PhysicsRotation 的自动对齐\n// 速度仍由 GetMaxSpeed 取曲线值，保证不脚滑\n```\n\n**这一段不用曲线方向，所以不存在「要不要反转」的问题。**\n曲线在这里给出的方向是 `Rotate(EntryYaw) × (-1, 0)`，\n即进入朝向的反方向 —— 恰好等于角色转身后的正前方。\n玩家不改输入时两者一致；改了输入就该跟输入走。\n把它当角色局部方向解释才会倒着跑。\n\n**松手是正常出口**，`TurnBackDurationSeconds`（3.0s）只是兜底：\n相位推进依赖曲线，动画被打断或没烘焙曲线时相位会卡住，\n进而 `bTurnBackInputLatched` 永不解闩，下一次转身再也触发不了。\n\n**AnimBP 的 TurnBack 状态不覆盖这一段**：`WalkRun → TurnBack` 的条件\n（`Locomotion_WalkRun_To_TurnBack`）只认曲线接管段，进入 `RunOut` 即为假，\n状态机自己切回 WalkRun 播跑步循环。若把 `RunOut` 也算进去，\nAnimBP 靠动画播完（`TimeRemaining <= 0.03`）切回 WalkRun 后条件又成立，\n会立刻退回 TurnBack 从头播 —— 转身动画无限循环直到相位超时。",
-      "x": 1220,
-      "y": 220,
-      "width": 620,
-      "height": 640,
-      "color": "1"
-    },
-    {
-      "id": "speed",
-      "type": "text",
-      "text": "## 速度：两条通道\n\n```text\nGetScaledCurveSpeed():\n    if !bUseCurveDrivenSpeed or !CurveMotion.HasUsableSpeed(): return 0\n    return Speed * RootMotionScale        // 本地端无上界钳制\nGetMaxSpeed():\n    CurveSpeed = GetScaledCurveSpeed()\n    if CurveSpeed > 0: return CurveSpeed  // 曲线优先\n    ...回落到 GaitSpeed\n```\n\n| 通道 | 谁定方向 | 谁定速度 |\n|---|---|---|\n| 输入驱动（走、跑） | 玩家输入 | `GetMaxSpeed()` 作上限 |\n| 动画驱动（刹停、转身） | 曲线 | 曲线（Override 源） |\n\n`GetMaxSpeed()` **只服务输入驱动那一条**。动画驱动段\n`CalcVelocity` 被整段跳过，这个函数根本不被查询。\n所以走跑仍需要它 —— 靠它让脚步与位移对齐。\n\n**实测峰值**：走跑 < 1000　转身 2412\n攻击类有瞬移式突进 —— `Attack_Normal_Enhance_03`\n单帧位移 312cm、峰值 **18724 cm/s**（真实设计，不是解析瑕疵）。\n`MaxCurveDrivenSpeed` 设为 **20000**，只在\n「曲线不可用 + 非本地控制端」那条分支起作用，\n不钳本地曲线速度。设得过小会让服务器反复拉回角色。\n\n**禁止 move 合并**：曲线位移源在场时\n`FSavedMove_GGYGO::SetMoveFor` 设 `bForceNoCombine = true`。\n合并会把角色拉回起点重演一次更长的 move，而曲线速度逐帧\n变化（走路刹停 459 → 0），重演只剩最后一帧的值。\n引擎自己的 `CanCombineWith` 只挡 anim montage 不挡 source，\n且刹停期间两帧 `Acceleration` 都是零，正好落在允许合并的分支。",
-      "x": -60,
-      "y": 880,
-      "width": 600,
-      "height": 420,
-      "color": "4"
-    },
-    {
-      "id": "net",
-      "type": "text",
-      "text": "## 网络：一个 bit 够用\n\n`FLAG_Custom_2` = `TurnBackCurveDrivenFlag`\n只发「曲线是否在接管」（`Turning` 或 `Braking`）。\n\n**为什么一个 bit 够**：`Turning` 与 `Braking` 的移动行为完全一致\n（方向与朝向都由曲线接管），`RunOut` 与普通移动一致 ——\n三个相位对接收端只有两种含义。\n\n接收端恢复成 `Turning` 而不是 `Braking`：那一端不知道转角走到哪了，\n而 `Turning` 的行为是两段的超集（照样累加转角增量，\n曲线在 `Braking` 段给的增量本就是 0，不会转多）。\n\n`bReplicatedTurnBackCurveDriven`（`COND_SkipOwner`）补给模拟代理 ——\n压缩标志位只走客户端→服务器一个方向，不转发给其它客户端。\n\n`FSavedMove_GGYGO` 存：相位 · 计时 · 入口朝向 · 输入闩 · 曲线运动量。\n转身期间禁止 move 合并，否则中间帧的方向变化会丢失。",
-      "x": 580,
-      "y": 880,
-      "width": 600,
-      "height": 440,
-      "color": "1"
-    },
-    {
-      "id": "animbp",
-      "type": "text",
-      "text": "## AnimBP 侧的接线（ABP_Pyrios 实际现状）\n\n状态机嵌套 `MainStateMachine → MainGroundState → LocomotionState`，\n最内层五状态 + 一个 Conduit：\n\n```text\nNotMoving ─NotMoving_To_Conduit─┐\nStop ─────Stop_To_Conduit───────┤\n                            Conduit\n            ┌─Conduit_To_EnterMove─→ EnterMove\n            └─Conduit_To_Moving_Direct─→ Moving\nEnterMove ─动画剩余 <= 0.03─→ Moving\nEnterMove ─EnterMove_To_Stop─→ Stop\nMoving ───Moving_To_Stop────→ Stop\nStop ─────动画剩余 <= 0.5───→ NotMoving\n\nMoving 内层：WalkRun ─WalkRun_To_TurnBack─→ TurnBack\n                     ←──动画剩余 <= 0.03──┘\n```\n\n资产取用：`NotMoving`=`IdleLoop`　`EnterMove`=`WalkStart`　`TurnBack`=`TurnBack`\n`Stop` 用 `StopValue` 在 `WalkStartEnd`/`WalkEnd`/`RunEnd` 间 Select\n`WalkRun` 用 `WalkRun` BlendSpace，由 `GaitBlendY` 驱动它的 **X 轴**\n\n**BlendSpace1D 的单轴是 X**，`GaitBlendY` 必须接 X 引脚。接到 Y 不会报错，\n只会表现为「一直走路、跑不起来」，因为值传不进去。\n\n**循环动画的 `loop` 必须为 True**。FBX 导入出来的 AnimSequence 一律 `loop=False`，\n而 BlendSpace 里非循环样本播一次就停在最后一帧 —— 角色一移动动画播 0.65 秒就冻住，\n看起来像「完全没有走跑动画」。哪些该循环看动画自带的 `Cfg_LoopTime` 曲线\n（Pyrios 共 19 个），别靠名字猜。\n\nAnimGraph 顶层在状态机之后还接了作用于 `Bip001` 的 `Transform (Modify) Bone`\n（组件空间、只有 Z 平移 50.802，用于对齐胶囊体）与一个惯性化节点。\n那两个与 root motion 无关 —— in-place 化只扣水平位移与 yaw，不动高度。\n\n**蓝图实际只读两个成员**：`StateMemory.GaitBlendY` 与 `StateMemory.StopValue`。\n`AnimBlend*` / `ActualVelocity*` / `AnimCurveVelocity*` / `bTurnBackRunOut`\n目前都没有节点消费。",
-      "x": -2140,
-      "y": 880,
-      "width": 620,
-      "height": 700,
-      "color": "4"
-    },
-    {
-      "id": "gaps",
-      "type": "text",
-      "text": "## 缺口与待验证\n**⓿ 位移改 Root Motion Source 后未 PIE 实测**　静态检查通过、\nLive Coding 编译通过，但刹停滑行距离与转身轨迹尚未在 PIE 量过。\n参照值：`Walk_End` 约 330cm（2.38s 衰减到 0）；\n`Run_End` 约 447cm，前 0.167s 走掉 296cm（66%），\n首帧速度 2087、峰值 4279、单帧最大位移 71cm —— 急停有明显前冲，\n那是动画本身的设计，不是 bug。\n\n**① Yaw 符号未实测**　曲线末值 -180。轴映射推的是\n`UE_Yaw = FBX_rotY`，但 UE Rotator 的 Yaw 正负方向没在 PIE 验证过。\n若符号反了，角色会朝错的方向转 180°。\n\n**② `_End` 动画是「短动作 + 长静止」结构**　`Walk_End` 标称 5.6167s，\n位移在 2.533s 就结束，之后 3s 是站立姿势；`Run_End` 2.483s 结束；\n`Walk_Start_End` 只走 0.167s（96% 是静止）。\n\n**判据**：位移类动画（走跑循环、起步、转身、攻击本体，共 21 个）\n的尾巴恰好是 -0.017s（即那一帧末尾重复帧），位移一直走到 clip 末尾；\n有长尾巴的 50 个全是 `_End` / `Hit` / `Evade` / `ParryAid`，\n且长度散乱（0.5~4.6s，只有零星同值），不是统一约定。\n所以长静止段只出现在收招/受击类，是这类动作的固有结构。\n\n留长是为了让状态机自己决定何时切走 —— Unity 那边靠 Animator transition 的\n`exitTime` 在中途切走，而 `controllerIsNull=true`，导出时那些时间点丢了。\n播完只是站着不动，不会错位，所以不是 bug，只是浪费。\n\n**③ 末帧重复**　118/119 个 clip 的 FBX 比 `muscleClip` 长恰好一帧，\n末帧位移与前一帧相同。`Cfg_ClipLength` 才是真正的循环周期。",
-      "x": 1220,
-      "y": 880,
-      "width": 620,
-      "height": 760,
-      "color": "6"
-    },
-    {
-      "id": "troubleshoot",
-      "type": "text",
-      "text": "## 排查：现象 → 优先检查\n\n| 现象 | 先查哪里 |\n|---|---|\n| 转身时角色横着滑出去 | 位移源的 `BaseYaw` 是否传了当前朝向而不是 `TurnBackEntryYaw`；以及曲线的 X/Y 有没有被多交换一次（新曲线已是 UE 轴序）|\n| 转身第一帧就直接进 `Braking` | `TurnBackMinYawDegrees` 是否被调到 0。基线未建立那一帧 `YawDelta` 恒为 0，靠这个门槛挡掉 |\n| 相位卡在 `Braking` 出不来 | 曲线 `DirX` 是否真的翻负；`TurnBackRunOutMinSpeed` 是否高于刹车段末速（Pyrios 是 52） |\n| 角色转了 360°、位移走双倍 | 该动画还没做 in-place 化，`Bip001` 里仍带着 root motion。跑 `ZZZStripRootMotion` |\n| 动画朝反方向漂、位移翻倍 | `ZZZStripRootMotion` 对同一资产跑了两次（不幂等）。重导入该动画再跑一次 |\n| 角色在原点后方几米处原地播 | in-place 化时 `bAlignToOrigin` 传了 0，而该动画是「从远处走过来停在原点」的收招类 |\n| 转身后再也不能触发第二次 | `bTurnBackInputLatched` 未解闩 —— 相位卡住导致，看 `TurnBackDurationSeconds` 兜底有没有生效 |\n| 移动完全没速度、脚滑 | 动画有没有烘焙曲线：`Cfg_ClipLength` 是否 > 0。为 0 时 `bHasCurveSource` 为 false，回落固定速度 |\n| 一直播走路、跑不起来 | `GaitBlendY` 接在了 BlendSpacePlayer 的 Y 引脚上。BlendSpace1D 的单轴是 **X** |\n| 移动时动画播一下就冻住 | 循环动画的 `loop` 是 False。FBX 导入出来一律不循环，BlendSpace 里非循环样本播完停在末帧。按 `Cfg_LoopTime` 修 |\n| 转身动画反复从头播 | `WalkRun_To_TurnBack` 把 `RunOut` 也算进转身了 |\n| 联机下角色被反复拉回 | `MaxCurveDrivenSpeed` 是否低于该动画的 `RootMotion_Speed` 峰值 |\n| 循环动画每周期顿一下 | `Cfg_ClipLength` 与资产时长差一帧（末帧重复，见缺口⑤） |\n| 松手后原地刹住、没有滑行 | 刹停源没挂上。查 `bUseCurveDrivenSpeed`、`CurveMotion.HasUsableSpeed()`（`Cfg_ClipLength` 是否 > 0）、以及那一帧是否被判成有输入 |\n| 踏空时角色竖直掉下去、没有前冲 | 位移源退场帧把 `RootMotionParams` 留空了，水平速度被硬清一帧。退场必须原样输出当前速度 |\n| 空中沿地面方向平飘 | 位移源没在离地时退场。Override 源会连 `PhysFalling` 的重力一起顶掉 |\n| 转身中途角色被输入推着走 | 转身源的 `bEndOnZeroSpeed` 被设成了 `true`，曲线速度为 0 的那几帧源自己退场了 |\n| 刹停滑行距离比动画短 | move 被合并了。查 `bForceNoCombine` 有没有在 `SetMoveFor` 里设上 |",
-      "x": -700,
-      "y": 1380,
-      "width": 900,
-      "height": 460,
-      "color": "6"
-    },
-    {
-      "id": "rms",
-      "type": "text",
-      "text": "## 位移怎么落地：Root Motion Source\n\n`FRootMotionSource_GGYGOCurve`（`Character/Components/GGYGOCurveRootMotionSource.h`）\n\n```text\nPrepareRootMotion(SimTime, TickTime, ...):\n    if 离地: FinishPreservingMomentum(); return\n    Speed = CurveMotion.Speed * SpeedScale\n    if Speed ~= 0:\n        if bEndOnZeroSpeed: FinishPreservingMomentum(); return\n        else: RootMotionParams.Set(零速度); return\n    Dir = Rotate(BaseYaw) x CurveMotion.Direction\n    RootMotionParams.Set(Dir * Speed * SimTime/TickTime)\n```\n\n**translation 是速度（cm/s），不是本帧位移** —— 引擎在\n`AccumulateRootMotionVelocityFromSource` 里直接赋给 `Velocity`。\n\n**为什么不能用 `GetMaxSpeed()` 做这件事**：上限只是上限。\n松手后 `Acceleration` 归零，`CalcVelocity` 会按\n`BrakingDecelerationWalking` 主动制动，上限再高也没有东西\n驱动位移，刹停动画那 330cm 滑行整段丢失。\n\nOverride 模式让 `PhysWalking` **整段跳过** `CalcVelocity`\n（判据 `CurrentRootMotion.HasOverrideVelocity()`），\n输入彻底不参与位移；而位移仍走 `MoveAlongFloor`，\n碰撞、斜坡、台阶一个不丢。\n\n| 源 | 优先级 | `BaseYaw` | `bEndOnZeroSpeed` |\n|---|---|---|---|\n| `GGYGO.CurveBrake` | 10 | 松手时朝向 | `true` 自我退场 |\n| `GGYGO.CurveTurnBack` | 20 | `TurnBackEntryYaw` | `false` 相位机管 |\n\n**`bEndOnZeroSpeed` 为什么要分**：转身中间有几帧曲线速度确实为 0，\n退场会让 `CalcVelocity` 恢复，而玩家正按着反方向键 —— 角色被推走。\n输出零速度压住才对。刹停相反，归零就是结束。\n\n**三个坑**\n① 离地必须退场：`PhysFalling` 同样跳过 `CalcVelocity`，\nOverride 源在空中会连重力一起顶掉，角色平飘。\n② 退场帧必须原样输出当前速度。引擎遍历所有源时不看\n`Finished` / `MarkedForRemoval`，仍无条件置 `bHasOverrideSources`，\n留空则 translation 为零 → 水平速度被硬清一帧（踏空时竖直下落）。\n③ `BaseYaw` 自己转，**不能**用基类 `bInLocalSpace` —— 那个用的是\n**当前**组件旋转，转身时差出角色已转过的角度。",
-      "x": -1420,
-      "y": 880,
-      "width": 620,
-      "height": 900,
-      "color": "5"
-    },
-    {
-      "id": "turnback-split",
-      "type": "text",
-      "text": "## 转身：位移与朝向走两条路\n\n```text\nUpdateCharacterStateBeforeMovement(dt):\n    if IsLocallyControlled():\n        ResolveGait(dt); UpdateTurnBack(dt); UpdateCurveBrake()\n    UpdateTurnBackRootMotion()      // 所有角色都要\n    Super::...\n\nUpdateTurnBackRootMotion():\n    if !bUseCurveDrivenSpeed or !IsTurnBackCurveDriven():\n        RemoveRootMotionSource(\"GGYGO.CurveTurnBack\"); return\n    ApplyCurveRootMotionSource(..., TurnBackEntryYaw, false)\n```\n\n**位移** → `GGYGO.CurveTurnBack` 位移源\n**朝向** → 仍在 `PhysicsRotation` 里累加 `RootMotion_Yaw` 增量\n\n`FRootMotionSource` 只有位移通道、没有朝向通道，\n所以这一层没能统一，是已知的设计边界。\n\n**为什么挂在本地控制判断之外**：`UpdateFromCompressedFlags`\n已经在服务器与模拟代理上恢复了相位，不挂源那两端会按\n玩家输入的方向移动，与本地端分歧。\n\n**为什么必须在 `UpdateCharacterStateBeforeMovement` 里挂**：\n引擎在 `PerformMovement` 里的顺序是\n\n```text\nCleanUpInvalidRootMotion            // 摘掉上一帧 Finished 的源\nUpdateCharacterStateBeforeMovement  // ← 挂/摘在这里\nCurrentRootMotion.PrepareRootMotion // 仲裁：按 Priority 取最高的 Override\nStartNewPhysics -> PhysWalking      // 跳过 CalcVelocity、MoveAlongFloor\n```\n\n晚一步挂的源要等下一帧才生效。\n\n**刹停判据只有一条**：无移动输入而曲线仍在给速度。\n除了 `_End` 这类动画，没有别的动画会在无输入时给出非零速度\n（站立与静止兜底姿势 `RootMotion_Speed` 恒为 0），\n所以不需要记「松手那一帧」的下降沿。有输入就摘掉。",
-      "x": 1900,
-      "y": 220,
-      "width": 640,
-      "height": 900,
-      "color": "5"
-    }
-  ],
-  "edges": [
-    {
-      "id": "e-data-sample",
-      "fromNode": "data-source",
-      "fromSide": "bottom",
-      "toNode": "sample",
-      "toSide": "top",
-      "label": "烘焙成 27 条 FloatCurve"
-    },
-    {
-      "id": "e-bonespace-inplace",
-      "fromNode": "bone-space",
-      "fromSide": "left",
-      "toNode": "inplace",
-      "toSide": "top",
-      "label": "确定扣除该在哪个空间做"
-    },
-    {
-      "id": "e-inplace-turning",
-      "fromNode": "inplace",
-      "fromSide": "bottom",
-      "toNode": "sample",
-      "toSide": "left",
-      "label": "资产原地化后曲线才是唯一位移来源"
-    },
-    {
-      "id": "e-invariant-sample",
-      "fromNode": "frame-invariant",
-      "fromSide": "left",
-      "toNode": "sample",
-      "toSide": "right",
-      "label": "轴序与基准约定"
-    },
-    {
-      "id": "e-sample-trigger",
-      "fromNode": "sample",
-      "fromSide": "right",
-      "toNode": "trigger",
-      "toSide": "left",
-      "label": "本帧 CurveMotion"
-    },
-    {
-      "id": "e-trigger-turning",
-      "fromNode": "trigger",
-      "fromSide": "right",
-      "toNode": "phase-turning",
-      "toSide": "left",
-      "label": "反向输入成立且未闩 → 记下 EntryYaw"
-    },
-    {
-      "id": "e-turning-braking",
-      "fromNode": "phase-turning",
-      "fromSide": "right",
-      "toNode": "phase-braking",
-      "toSide": "left",
-      "label": "累计转角到位且本帧增量归零"
-    },
-    {
-      "id": "e-braking-runout",
-      "fromNode": "phase-braking",
-      "fromSide": "right",
-      "toNode": "phase-runout",
-      "toSide": "left",
-      "label": "曲线前向分量翻负且速度过门限"
-    },
-    {
-      "id": "e-runout-trigger",
-      "fromNode": "phase-runout",
-      "fromSide": "top",
-      "toNode": "trigger",
-      "toSide": "top",
-      "label": "松手 → ResetTurnBack（不清输入闩）"
-    },
-    {
-      "id": "e-turning-speed",
-      "fromNode": "phase-turning",
-      "fromSide": "bottom",
-      "toNode": "speed",
-      "toSide": "top",
-      "label": "三段都用曲线速度"
-    },
-    {
-      "id": "e-braking-net",
-      "fromNode": "phase-braking",
-      "fromSide": "bottom",
-      "toNode": "net",
-      "toSide": "top",
-      "label": "与 Turning 合成一个 bit 同步"
-    },
-    {
-      "id": "e-runout-gaps",
-      "fromNode": "phase-runout",
-      "fromSide": "bottom",
-      "toNode": "gaps",
-      "toSide": "top",
-      "label": "表现尚未验收"
-    },
-    {
-      "id": "e-runout-animbp",
-      "fromNode": "phase-runout",
-      "fromSide": "left",
-      "toNode": "animbp",
-      "toSide": "right",
-      "label": "进入 RunOut 即切回 WalkRun 状态"
-    },
-    {
-      "id": "e-animbp-trouble",
-      "fromNode": "animbp",
-      "fromSide": "right",
-      "toNode": "troubleshoot",
-      "toSide": "left",
-      "label": "接线错误的症状"
-    },
-    {
-      "id": "e-invariant-turning",
-      "fromNode": "frame-invariant",
-      "fromSide": "bottom",
-      "toNode": "phase-turning",
-      "toSide": "top",
-      "label": "EntryYaw 换算世界方向"
-    },
-    {
-      "id": "e-sample-trouble",
-      "fromNode": "sample",
-      "fromSide": "bottom",
-      "toNode": "troubleshoot",
-      "toSide": "left",
-      "label": "曲线缺失的症状"
-    },
-    {
-      "id": "e-sample-rms",
-      "fromNode": "sample",
-      "fromSide": "bottom",
-      "toNode": "rms",
-      "toSide": "top",
-      "label": "每帧 CurveMotion.Speed / Direction（源在 PrepareRootMotion 里现取）"
-    },
-    {
-      "id": "e-rms-speed",
-      "fromNode": "rms",
-      "fromSide": "right",
-      "toNode": "speed",
-      "toSide": "left",
-      "label": "Override 源在场时 GetMaxSpeed 不被查询"
-    },
-    {
-      "id": "e-runout-split",
-      "fromNode": "phase-runout",
-      "fromSide": "right",
-      "toNode": "turnback-split",
-      "toSide": "left",
-      "label": "相位机决定挂/摘哪个源"
-    },
-    {
-      "id": "e-split-rms",
-      "fromNode": "turnback-split",
-      "fromSide": "bottom",
-      "toNode": "rms",
-      "toSide": "bottom",
-      "label": "位移交给 GGYGO.CurveTurnBack；朝向留在 PhysicsRotation"
-    }
-  ]
+	"nodes":[
+		{"id":"nav","type":"text","text":"← [[GGYGO_模块_移动与位移.canvas|返回移动层]]　·　[[GGYGO_架构总览.canvas|总览]]　·　[[GGYGO_模块_表现层.canvas|表现层]]\n\n# 急停转身：曲线驱动的四态相位\n\n**相位边界全部从动画曲线读出**，不配时间点、不用 AnimNotify。\n曲线本身带着「什么时候转完、什么时候开始跑出」这个信息，\n换一版转身动画时相位边界自动跟着变。\n\n从左到右是一次转身的执行顺序。上方是约束，下方是速度、网络与缺口。","x":-600,"y":-700,"width":660,"height":280,"color":"3"},
+		{"id":"data-source","type":"text","text":"## 曲线数据从哪来\n\n**逐帧数据来自 FBX 的外部 `Root` 节点**，不是 JSON。\nAnimeStudio 导出的 `anim_settings.json` 里 `rootMotionCurves`\n（`MotionT/MotionQ/RootT/RootQ` 共 14 条、33 万个 key）\n**值全为 0.0**，四元数 w 也没有任何一帧是 ±1 —— 是未填充的占位。\n\n**标量设置来自 per-clip JSON 的 `muscleClip`**，这部分可信：\n`Run_Loop` 的 `averageSpeed.z` = 10.5 m/s → 1050 cm/s；\n`TurnBack` 的 `averageAngularSpeed` × `stopTime` = 180.03°。\n\n烘焙管线在 `AAADocs/Scripts/`：\n`anim_rootmotion_extract.py` 提取 + 轴映射 + 交叉校验\n`bake_anim_rootmotion_curves.py` 写成 27 条 FloatCurve\n`verify_anim_rootmotion_curves.py` 全量回读比对\n\n**`averageAngularSpeed` 无符号**：`TurnBack` -180° 与\n`HitFly_Back` +180° 在 JSON 里都是正值，\n转身方向只能从 `RootMotion_Yaw` 取。","x":-1420,"y":-320,"width":600,"height":520,"color":"4"},
+		{"id":"frame-invariant","type":"text","text":"## 两个不变式（整套还原的地基）\n\n`PosX/PosY` 与 `DirX/DirY` 活在**动画段起点坐标系**，\n`Yaw` 是**相对段起点朝向的累计转角**。两者自洽：\n\n```text\n世界移动方向 = Rotate(EntryYaw) × (DirX, DirY)\n角色世界朝向 = EntryYaw + Yaw(t)\n```\n\n轴序是 UE 局部空间（X 前、Y 右、Z 上），单位厘米/度。\n\n**这解释了 B 段的「倒滑」**：`Yaw` 已经 -180（身体转过来了），\n但 `PosX` 还在增大（位移仍沿进入朝向）—— 身体朝后、人往前滑。\n\n**为什么基准必须是 `TurnBackEntryYaw` 而不是当前朝向**：\n曲线分量本来就以段起点为基准，用当前朝向会把角色已经转过的\n角度重复计入一次，位移轨迹变成弧线。\n\n**`RootMotion_Yaw` 已在烘焙阶段解开 ±180 折叠**，是连续累计角，\n差分不会出现从 179 跳到 -179 那种一帧 358° 的假转角。","x":-700,"y":-320,"width":620,"height":460,"color":"6"},
+		{"id":"trigger","type":"text","text":"## 触发：纯几何判定\n\n```text\nIsReverseRunInput():\n    if Gait != Run: return false          // 只有跑动才触发\n    InputDir = GetCurrentAcceleration().Normal2D()\n    Forward  = UpdatedComponent->GetForwardVector().Normal2D()\n    return Dot(Forward, InputDir)\n           <= TurnBackReverseInputDotThreshold   // 默认 -0.95，约 162°\n```\n\n用 `GetCurrentAcceleration()` 而非原始摇杆值：\n它被 `FSavedMove_Character` 保存，回放可复现。\n\n**`bTurnBackInputLatched`**：转身结束后玩家往往还按着同一个\n方向键，而那个方向此时已经是角色正前方，不该再触发一次。\n必须等输入离开反向阈值才解闩 —— 所以 `ResetTurnBack()`\n**刻意不清这个标志**，清了会让角色原地反复转身。","x":-700,"y":280,"width":620,"height":420,"color":"4"},
+		{"id":"phase-turning","type":"text","text":"### 1　`Turning` 转身中\n\n**f0–f20 / 0 → 0.333s**\n`Yaw` 0 → **-180**　`PosX` 0 → 423.7（**正向**）\n`Speed` 1182 → 1380\n\n```text\nTurnBackElapsed += dt\nbYawReached = |YawTotalDegrees| >= TurnBackMinYawDegrees    // 90\nbYawSettled = |YawDeltaDegrees| <= TurnBackYawSettleDegrees // 0.05\nif bYawReached and bYawSettled: Phase = Braking\n```\n\n朝向由 `PhysicsRotation` **累加转角增量**驱动，绕过 `Super`：\n绕过就等于这一帧只有曲线在转角色，不必临时关掉\n`bOrientRotationToMovement` 再恢复（那种做法一旦中途异常退出，\n被改掉的旋转模式就永远回不来了）。\n\n累加增量而不是设成 `EntryYaw + YawTotal`：增量对入口朝向的\n误差不敏感，模拟代理那边的入口朝向是近似值，\n用绝对值会让它一进入转身就跳一下。\n\n位移方向同时被曲线接管，沿进入朝向继续滑行。","x":-60,"y":280,"width":600,"height":520,"color":"5"},
+		{"id":"phase-braking","type":"text","text":"### 2　`Braking` 倒滑刹车\n\n**f20–f60 / 0.333 → 1.0s**\n`Yaw` 锁 -180　`PosX` 423.7 → **690.7**（仍正向）\n`Speed` 1380 → **52**\n\n```text\nTurnBackElapsed += dt\nbForwardFlipped = Direction.X <= -TurnBackRunOutForwardThreshold // 0.5\nbFastEnough     = Speed >= TurnBackRunOutMinSpeed               // 150\nif bForwardFlipped and bFastEnough: Phase = RunOut\n```\n\n**这是急停转身最有辨识度的一段**：身体已经转过来了，\n人还在往原方向滑。与 `Turning` 的区别只在转角是否还在变，\n移动行为一致（方向仍由曲线接管），所以网络侧不区分这两个相位。\n\n**速度门限是必要的**：刹车段末速掉到 52 cm/s，\n单帧位移不足 1cm，归一化方向容易抖，\n容易被一帧噪声提前推进相位。\n\n刹车感由动画给出，代码不写减速曲线。","x":580,"y":280,"width":600,"height":480,"color":"5"},
+		{"id":"phase-runout","type":"text","text":"### 3　`RunOut` 跑出（方向交回输入）\n\n**f60–f142 / 1.0 → 2.367s**\n`Yaw` 锁 -180　`PosX` 690.7 → **-948.1**（**反向**）\n`Speed` 52 → **1039** ≈ `Run_Loop` 的 1050\n\n```text\nTurnBackElapsed += dt\nif !HasMoveInput(): ResetTurnBack()   // 松手即结束\n// 不挂位移源：方向取玩家输入、走 CalcVelocity\n// 朝向交回 Super::PhysicsRotation 的自动对齐\n// 速度仍由 GetMaxSpeed 取曲线值，保证不脚滑\n```\n\n**这一段不用曲线方向，所以不存在「要不要反转」的问题。**\n曲线在这里给出的方向是 `Rotate(EntryYaw) × (-1, 0)`，\n即进入朝向的反方向 —— 恰好等于角色转身后的正前方。\n玩家不改输入时两者一致；改了输入就该跟输入走。\n把它当角色局部方向解释才会倒着跑。\n\n**松手是正常出口**，`TurnBackDurationSeconds`（3.0s）只是兜底：\n相位推进依赖曲线，动画被打断或没烘焙曲线时相位会卡住，\n进而 `bTurnBackInputLatched` 永不解闩，下一次转身再也触发不了。\n\n**AnimBP 的 TurnBack 状态不覆盖这一段**：`WalkRun → TurnBack` 的条件\n（`Locomotion_WalkRun_To_TurnBack`）只认曲线接管段，进入 `RunOut` 即为假，\n状态机自己切回 WalkRun 播跑步循环。若把 `RunOut` 也算进去，\nAnimBP 靠动画播完（`TimeRemaining <= 0.03`）切回 WalkRun 后条件又成立，\n会立刻退回 TurnBack 从头播 —— 转身动画无限循环直到相位超时。","x":1220,"y":220,"width":620,"height":640,"color":"1"},
+		{"id":"speed","type":"text","text":"## 速度：两条通道\n\n```text\nGetScaledCurveSpeed():\n    if !bUseCurveDrivenSpeed or !CurveMotion.HasUsableSpeed(): return 0\n    return Speed * RootMotionScale        // 本地端无上界钳制\nGetMaxSpeed():\n    CurveSpeed = GetScaledCurveSpeed()\n    if CurveSpeed > 0: return CurveSpeed  // 曲线优先\n    ...回落到 GaitSpeed\n```\n\n| 通道 | 谁定方向 | 谁定速度 |\n|---|---|---|\n| 输入驱动（走、跑） | 玩家输入 | `GetMaxSpeed()` 作上限 |\n| 动画驱动（刹停、转身） | 曲线 | 曲线（Override 源） |\n\n`GetMaxSpeed()` **只服务输入驱动那一条**。动画驱动段\n`CalcVelocity` 被整段跳过，这个函数根本不被查询。\n所以走跑仍需要它 —— 靠它让脚步与位移对齐。\n\n**实测峰值**：走跑 < 1000　转身 2412\n攻击类有瞬移式突进 —— `Attack_Normal_Enhance_03`\n单帧位移 312cm、峰值 **18724 cm/s**（真实设计，不是解析瑕疵）。\n`MaxCurveDrivenSpeed` 设为 **20000**，只在\n「曲线不可用 + 非本地控制端」那条分支起作用，\n不钳本地曲线速度。设得过小会让服务器反复拉回角色。\n\n**禁止 move 合并**：曲线位移源在场时\n`FSavedMove_GGYGO::SetMoveFor` 设 `bForceNoCombine = true`。\n合并会把角色拉回起点重演一次更长的 move，而曲线速度逐帧\n变化（走路刹停 459 → 0），重演只剩最后一帧的值。\n引擎自己的 `CanCombineWith` 只挡 anim montage 不挡 source，\n且刹停期间两帧 `Acceleration` 都是零，正好落在允许合并的分支。","x":-60,"y":880,"width":600,"height":420,"color":"4"},
+		{"id":"net","type":"text","text":"## 网络：一个 bit 够用\n\n`FLAG_Custom_2` = `TurnBackCurveDrivenFlag`\n只发「曲线是否在接管」（`Turning` 或 `Braking`）。\n\n**为什么一个 bit 够**：`Turning` 与 `Braking` 的移动行为完全一致\n（方向与朝向都由曲线接管），`RunOut` 与普通移动一致 ——\n三个相位对接收端只有两种含义。\n\n接收端恢复成 `Turning` 而不是 `Braking`：那一端不知道转角走到哪了，\n而 `Turning` 的行为是两段的超集（照样累加转角增量，\n曲线在 `Braking` 段给的增量本就是 0，不会转多）。\n\n`bReplicatedTurnBackCurveDriven`（`COND_SkipOwner`）补给模拟代理 ——\n压缩标志位只走客户端→服务器一个方向，不转发给其它客户端。\n\n`FSavedMove_GGYGO` 存：相位 · 计时 · 入口朝向 · 输入闩 · 曲线运动量。\n转身期间禁止 move 合并，否则中间帧的方向变化会丢失。","x":580,"y":880,"width":600,"height":440,"color":"1"},
+		{"id":"animbp","type":"text","text":"## AnimBP 侧的接线（ABP_Pyrios 实际现状）\n\n状态机嵌套 `MainStateMachine → MainGroundState → LocomotionState`，\n最内层五状态 + 一个 Conduit：\n\n```text\nNotMoving ─NotMoving_To_Conduit─┐\nStop ─────Stop_To_Conduit───────┤\n                            Conduit\n            ┌─Conduit_To_EnterMove─→ EnterMove\n            └─Conduit_To_Moving_Direct─→ Moving\nEnterMove ─动画剩余 <= 0.03─→ Moving\nEnterMove ─EnterMove_To_Stop─→ Stop\nMoving ───Moving_To_Stop────→ Stop\nStop ─────动画剩余 <= 0.5───→ NotMoving\n\nMoving 内层：WalkRun ─WalkRun_To_TurnBack─→ TurnBack\n                     ←──动画剩余 <= 0.03──┘\n```\n\n资产取用：`NotMoving`=`IdleLoop`　`EnterMove`=`WalkStart`　`TurnBack`=`TurnBack`\n`Stop` 用 `StopValue` 在 `WalkStartEnd`/`WalkEnd`/`RunEnd` 间 Select\n`WalkRun` 用 `WalkRun` BlendSpace，由 `GaitBlendY` 驱动它的 **X 轴**\n\n**BlendSpace1D 的单轴是 X**，`GaitBlendY` 必须接 X 引脚。接到 Y 不会报错，\n只会表现为「一直走路、跑不起来」，因为值传不进去。\n\n**循环动画的 `loop` 必须为 True**。FBX 导入出来的 AnimSequence 一律 `loop=False`，\n而 BlendSpace 里非循环样本播一次就停在最后一帧 —— 角色一移动动画播 0.65 秒就冻住，\n看起来像「完全没有走跑动画」。哪些该循环看动画自带的 `Cfg_LoopTime` 曲线\n（Pyrios 共 19 个），别靠名字猜。\n\nAnimGraph 顶层在状态机之后还接了作用于 `Bip001` 的 `Transform (Modify) Bone`\n（组件空间、只有 Z 平移 50.802，用于对齐胶囊体）与一个惯性化节点。\n那两个与 root motion 无关 —— in-place 化只扣水平位移与 yaw，不动高度。\n\n**蓝图实际只读两个成员**：`StateMemory.GaitBlendY` 与 `StateMemory.StopValue`。\n`AnimBlend*` / `ActualVelocity*` / `AnimCurveVelocity*` / `bTurnBackRunOut`\n目前都没有节点消费。","x":-2140,"y":880,"width":620,"height":700,"color":"4"},
+		{"id":"gaps","type":"text","text":"## 缺口与待验证\n**⓿ 位移改 Root Motion Source 后未 PIE 实测**　静态检查通过、\nLive Coding 编译通过，但刹停滑行距离与转身轨迹尚未在 PIE 量过。\n参照值：`Walk_End` 约 330cm（2.38s 衰减到 0）；\n`Run_End` 约 447cm，前 0.167s 走掉 296cm（66%），\n首帧速度 2087、峰值 4279、单帧最大位移 71cm —— 急停有明显前冲，\n那是动画本身的设计，不是 bug。\n\n**① Yaw 符号未实测**　曲线末值 -180。轴映射推的是\n`UE_Yaw = FBX_rotY`，但 UE Rotator 的 Yaw 正负方向没在 PIE 验证过。\n若符号反了，角色会朝错的方向转 180°。\n\n**② `_End` 动画是「短动作 + 长静止」结构**　`Walk_End` 标称 5.6167s，\n位移在 2.533s 就结束，之后 3s 是站立姿势；`Run_End` 2.483s 结束；\n`Walk_Start_End` 只走 0.167s（96% 是静止）。\n\n**判据**：位移类动画（走跑循环、起步、转身、攻击本体，共 21 个）\n的尾巴恰好是 -0.017s（即那一帧末尾重复帧），位移一直走到 clip 末尾；\n有长尾巴的 50 个全是 `_End` / `Hit` / `Evade` / `ParryAid`，\n且长度散乱（0.5~4.6s，只有零星同值），不是统一约定。\n所以长静止段只出现在收招/受击类，是这类动作的固有结构。\n\n留长是为了让状态机自己决定何时切走 —— Unity 那边靠 Animator transition 的\n`exitTime` 在中途切走，而 `controllerIsNull=true`，导出时那些时间点丢了。\n播完只是站着不动，不会错位，所以不是 bug，只是浪费。\n\n**③ 末帧重复**　118/119 个 clip 的 FBX 比 `muscleClip` 长恰好一帧，\n末帧位移与前一帧相同。`Cfg_ClipLength` 才是真正的循环周期。","x":1220,"y":880,"width":620,"height":760,"color":"6"},
+		{"id":"troubleshoot","type":"text","text":"## 排查：现象 → 优先检查\n\n| 现象 | 先查哪里 |\n|---|---|\n| 转身时角色横着滑出去 | 位移源的 `BaseYaw` 是否传了当前朝向而不是 `TurnBackEntryYaw`；以及曲线的 X/Y 有没有被多交换一次（新曲线已是 UE 轴序）|\n| 转身第一帧就直接进 `Braking` | `TurnBackMinYawDegrees` 是否被调到 0。基线未建立那一帧 `YawDelta` 恒为 0，靠这个门槛挡掉 |\n| 相位卡在 `Braking` 出不来 | 曲线 `DirX` 是否真的翻负；`TurnBackRunOutMinSpeed` 是否高于刹车段末速（Pyrios 是 52） |\n| 角色转了 360°、位移走双倍 | 该动画还没做 in-place 化，`Bip001` 里仍带着 root motion。跑 `ZZZStripRootMotion` |\n| 动画朝反方向漂、位移翻倍 | `ZZZStripRootMotion` 对同一资产跑了两次（不幂等）。重导入该动画再跑一次 |\n| 角色在原点后方几米处原地播 | in-place 化时 `bAlignToOrigin` 传了 0，而该动画是「从远处走过来停在原点」的收招类 |\n| 转身后再也不能触发第二次 | `bTurnBackInputLatched` 未解闩 —— 相位卡住导致，看 `TurnBackDurationSeconds` 兜底有没有生效 |\n| 移动完全没速度、脚滑 | 动画有没有烘焙曲线：`Cfg_ClipLength` 是否 > 0。为 0 时 `bHasCurveSource` 为 false，回落固定速度 |\n| 一直播走路、跑不起来 | `GaitBlendY` 接在了 BlendSpacePlayer 的 Y 引脚上。BlendSpace1D 的单轴是 **X** |\n| 移动时动画播一下就冻住 | 循环动画的 `loop` 是 False。FBX 导入出来一律不循环，BlendSpace 里非循环样本播完停在末帧。按 `Cfg_LoopTime` 修 |\n| 转身动画反复从头播 | `WalkRun_To_TurnBack` 把 `RunOut` 也算进转身了 |\n| 联机下角色被反复拉回 | `MaxCurveDrivenSpeed` 是否低于该动画的 `RootMotion_Speed` 峰值 |\n| 循环动画每周期顿一下 | `Cfg_ClipLength` 与资产时长差一帧（末帧重复，见缺口⑤） |\n| 松手后原地刹住、没有滑行 | 刹停源没挂上。查 `bUseCurveDrivenSpeed`、`CurveMotion.HasUsableSpeed()`（`Cfg_ClipLength` 是否 > 0）、以及那一帧是否被判成有输入 |\n| 踏空时角色竖直掉下去、没有前冲 | 位移源退场帧把 `RootMotionParams` 留空了，水平速度被硬清一帧。退场必须原样输出当前速度 |\n| 空中沿地面方向平飘 | 位移源没在离地时退场。Override 源会连 `PhysFalling` 的重力一起顶掉 |\n| 转身中途角色被输入推着走 | 转身源的 `bEndOnZeroSpeed` 被设成了 `true`，曲线速度为 0 的那几帧源自己退场了 |\n| 刹停滑行距离比动画短 | move 被合并了。查 `bForceNoCombine` 有没有在 `SetMoveFor` 里设上 |","x":-700,"y":1380,"width":900,"height":460,"color":"6"},
+		{"id":"rms","type":"text","text":"## 位移怎么落地：Root Motion Source\n\n`FRootMotionSource_GGYGOCurve`（`Character/Components/GGYGOCurveRootMotionSource.h`）\n\n```text\nPrepareRootMotion(SimTime, TickTime, ...):\n    if 离地: FinishPreservingMomentum(); return\n    Speed = CurveMotion.Speed * SpeedScale\n    if Speed ~= 0:\n        if bEndOnZeroSpeed: FinishPreservingMomentum(); return\n        else: RootMotionParams.Set(零速度); return\n    Dir = Rotate(BaseYaw) x CurveMotion.Direction\n    RootMotionParams.Set(Dir * Speed * SimTime/TickTime)\n```\n\n**translation 是速度（cm/s），不是本帧位移** —— 引擎在\n`AccumulateRootMotionVelocityFromSource` 里直接赋给 `Velocity`。\n\n**为什么不能用 `GetMaxSpeed()` 做这件事**：上限只是上限。\n松手后 `Acceleration` 归零，`CalcVelocity` 会按\n`BrakingDecelerationWalking` 主动制动，上限再高也没有东西\n驱动位移，刹停动画那 330cm 滑行整段丢失。\n\nOverride 模式让 `PhysWalking` **整段跳过** `CalcVelocity`\n（判据 `CurrentRootMotion.HasOverrideVelocity()`），\n输入彻底不参与位移；而位移仍走 `MoveAlongFloor`，\n碰撞、斜坡、台阶一个不丢。\n\n| 源 | 优先级 | `BaseYaw` | `bEndOnZeroSpeed` |\n|---|---|---|---|\n| `GGYGO.CurveBrake` | 10 | 松手时朝向 | `true` 自我退场 |\n| `GGYGO.CurveTurnBack` | 20 | `TurnBackEntryYaw` | `false` 相位机管 |\n\n**`bEndOnZeroSpeed` 为什么要分**：转身中间有几帧曲线速度确实为 0，\n退场会让 `CalcVelocity` 恢复，而玩家正按着反方向键 —— 角色被推走。\n输出零速度压住才对。刹停相反，归零就是结束。\n\n**三个坑**\n① 离地必须退场：`PhysFalling` 同样跳过 `CalcVelocity`，\nOverride 源在空中会连重力一起顶掉，角色平飘。\n② 退场帧必须原样输出当前速度。引擎遍历所有源时不看\n`Finished` / `MarkedForRemoval`，仍无条件置 `bHasOverrideSources`，\n留空则 translation 为零 → 水平速度被硬清一帧（踏空时竖直下落）。\n③ `BaseYaw` 自己转，**不能**用基类 `bInLocalSpace` —— 那个用的是\n**当前**组件旋转，转身时差出角色已转过的角度。","x":-1420,"y":880,"width":620,"height":900,"color":"5"},
+		{"id":"turnback-split","type":"text","text":"## 转身：位移与朝向走两条路\n\n```text\nUpdateCharacterStateBeforeMovement(dt):\n    if IsLocallyControlled():\n        ResolveGait(dt); UpdateTurnBack(dt); UpdateCurveBrake()\n    UpdateTurnBackRootMotion()      // 所有角色都要\n    Super::...\n\nUpdateTurnBackRootMotion():\n    if !bUseCurveDrivenSpeed or !IsTurnBackCurveDriven():\n        RemoveRootMotionSource(\"GGYGO.CurveTurnBack\"); return\n    ApplyCurveRootMotionSource(..., TurnBackEntryYaw, false)\n```\n\n**位移** → `GGYGO.CurveTurnBack` 位移源\n**朝向** → 仍在 `PhysicsRotation` 里累加 `RootMotion_Yaw` 增量\n\n`FRootMotionSource` 只有位移通道、没有朝向通道，\n所以这一层没能统一，是已知的设计边界。\n\n**为什么挂在本地控制判断之外**：`UpdateFromCompressedFlags`\n已经在服务器与模拟代理上恢复了相位，不挂源那两端会按\n玩家输入的方向移动，与本地端分歧。\n\n**为什么必须在 `UpdateCharacterStateBeforeMovement` 里挂**：\n引擎在 `PerformMovement` 里的顺序是\n\n```text\nCleanUpInvalidRootMotion            // 摘掉上一帧 Finished 的源\nUpdateCharacterStateBeforeMovement  // ← 挂/摘在这里\nCurrentRootMotion.PrepareRootMotion // 仲裁：按 Priority 取最高的 Override\nStartNewPhysics -> PhysWalking      // 跳过 CalcVelocity、MoveAlongFloor\n```\n\n晚一步挂的源要等下一帧才生效。\n\n**刹停判据只有一条**：无移动输入而曲线仍在给速度。\n除了 `_End` 这类动画，没有别的动画会在无输入时给出非零速度\n（站立与静止兜底姿势 `RootMotion_Speed` 恒为 0），\n所以不需要记「松手那一帧」的下降沿。有输入就摘掉。","x":1900,"y":220,"width":640,"height":900,"color":"5"},
+		{"id":"bone-space","type":"text","text":"## 坐标系分层（in-place 化的依据）\n\nFBX Y-up → UE Z-up 的转换**烘在根骨骼**上，不是逐骨骼做的：\n\n| 骨骼 | local | 说明 |\n|---|---|---|\n| `Avatar_..._Model` | `Roll 90°` | 坐标系转换在这里 |\n| `Bone_Root` | identity | 恒为单位变换 |\n| `Bip001` | FBX 轴向 | 前进落在它的 **Z** 轴 |\n\n所以 `Bip001` 的 **local 轴向仍是 FBX 的**，只有 component 空间才是 UE 轴序：\n\n```text\ncomp Bip001  f0   T=(-0.7,    -0.0, 100.1)\n             f143 T=( 0.7,  -948.1, 100.1)\n             ↑X 左右  ↑Y 前进   ↑Z 高度\n```\n\n`comp Root` 逐帧与 `comp Bip001` 的 Y 完全相同（f143 都是 -948.1），\n差值只剩身体摆动 0.7 与骨盆高度 100.1 —— 这就是「`Root` 承载的正是那份要扣掉的量」。\n\n**扣除量必须取相对首帧的增量**：直接用 component 变换会把首帧那份 `Roll 90°`\n一起扣掉，角色会躺倒。顺序也不能反 —— `comp * 首帧逆` 是「在首帧局部空间里表达」，\n会把水平位移旋到 Z 轴，随后被去高度步骤清零，扣除量整体变成 0。","x":-2340,"y":-1440,"width":700,"height":640,"color":"6"},
+		{"id":"inplace","type":"text","text":"## 资产的 in-place 化（前置条件）\n\n`UAnimRootMotionTools::StripRootMotionFromBone`（控制台 `ZZZStripRootMotion`）\n\n原资产在 Unity 侧靠 Mecanim 处理：Animator 从 rootMotionBone 提取整体位移与转身，\n姿势里只留局部动作。导出 FBX 时没有这一步 —— 提取前的完整姿势写进 `Bip001`，\n提取出的 root motion 单独写进外部 Null 节点 `Root`（导入 UE 后成为骨架末尾的一根骨骼）。\n两者携带同一份位移，所以不处理的话姿势里的整体位移会与曲线驱动叠加：\n转身转 360 度、位移走双倍。\n\n```text\nStripRootMotionFromBone(Anim, Bip001, Root, bAlignToOrigin):\n    RM(f)  = comp(Root, 0).Inverse() * comp(Root, f)   // 相对首帧的增量\n    RM(f)  = 只保留水平位移与 yaw\n    new(f) = comp(Bip001, f) * RM(f).Inverse() * AlignCompensation\n    写回 Bip001 的 local 轨道\n```\n\n**为什么用 `Root` 骨骼而不是 `RootMotion_*` 曲线**：两根骨骼在同一套 component\n空间里，相减是纯 transform 运算。曲线经过了 FBX→UE 轴变换与 ±180 解折叠，\n拿它去扣骨骼轨道就得把那套变换反推回来 —— 而轴向随骨架而变（见右侧「坐标系分层」），\n手工推映射极易出错且换角色就失效。\n\n**不幂等**：重复执行会把同一份 root motion 扣第二次，动画朝反方向漂。","x":-2380,"y":-650,"width":780,"height":560,"color":"1"},
+		{"id":"sample","type":"text","text":"## `FGGYGOAnimCurveSampler` · 每帧采样\n\n9 条曲线：`RootMotion_Speed` · `PosX/PosY` · `Dist` ·\n`Yaw` · `DirX/DirY` · `Cfg_ClipLength` · `Cfg_LoopTime`\n\n```text\nCMC::TickComponent(dt):\n    SampleAnimCurves(dt)      // 必须在 Super 之前\n    Super::TickComponent(dt)  // 内部走 GetMaxSpeed /\n                              // UpdateCharacterStateBeforeMovement /\n                              // PhysicsRotation\n```\n\n**采样时机在 `Super` 之前**：移动要用本帧的曲线速度。\n放进 `UpdateCharacterStateBeforeMovement` 会在 sub-stepping 时\n一帧被调多次，而采样器持有跨帧基线，第二次之后差分全为零。\n\n**换段判据是 `RootMotion_Dist` 回退**，不用位移差分：\n路程单调不减，位移会来回摆动 —— 转身后半段位移一路减小，\n拿它判断会每帧都误判成换段。循环动画绕回循环点同样触发，\n代价是每周期丢一帧增量（速度不经差分，所以无实际后果）。\n\n**`YawTotalDegrees` 与 `YawDeltaDegrees` 都要**：差分判断\n「转角是否停止变化」，累计值判断「到底转过没有」。\n只看差分会把基线尚未建立的那一帧误判成转完。","x":-2290,"y":280,"width":600,"height":560,"color":"5"}
+	],
+	"edges":[
+		{"id":"e-data-sample","fromNode":"data-source","fromSide":"bottom","toNode":"sample","toSide":"top","label":"烘焙成 27 条 FloatCurve"},
+		{"id":"e-bonespace-inplace","fromNode":"bone-space","fromSide":"bottom","toNode":"inplace","toSide":"top","label":"确定扣除该在哪个空间做"},
+		{"id":"e-inplace-turning","fromNode":"inplace","fromSide":"bottom","toNode":"sample","toSide":"top","label":"资产原地化后曲线才是唯一位移来源"},
+		{"id":"e-invariant-sample","fromNode":"frame-invariant","fromSide":"left","toNode":"sample","toSide":"right","label":"轴序与基准约定"},
+		{"id":"e-sample-trigger","fromNode":"sample","fromSide":"right","toNode":"trigger","toSide":"left","label":"本帧 CurveMotion"},
+		{"id":"e-trigger-turning","fromNode":"trigger","fromSide":"right","toNode":"phase-turning","toSide":"left","label":"反向输入成立且未闩 → 记下 EntryYaw"},
+		{"id":"e-turning-braking","fromNode":"phase-turning","fromSide":"right","toNode":"phase-braking","toSide":"left","label":"累计转角到位且本帧增量归零"},
+		{"id":"e-braking-runout","fromNode":"phase-braking","fromSide":"right","toNode":"phase-runout","toSide":"left","label":"曲线前向分量翻负且速度过门限"},
+		{"id":"e-runout-trigger","fromNode":"phase-runout","fromSide":"top","toNode":"trigger","toSide":"top","label":"松手 → ResetTurnBack（不清输入闩）"},
+		{"id":"e-turning-speed","fromNode":"phase-turning","fromSide":"bottom","toNode":"speed","toSide":"top","label":"三段都用曲线速度"},
+		{"id":"e-braking-net","fromNode":"phase-braking","fromSide":"bottom","toNode":"net","toSide":"top","label":"与 Turning 合成一个 bit 同步"},
+		{"id":"e-runout-gaps","fromNode":"phase-runout","fromSide":"bottom","toNode":"gaps","toSide":"top","label":"表现尚未验收"},
+		{"id":"e-runout-animbp","fromNode":"phase-runout","fromSide":"left","toNode":"animbp","toSide":"right","label":"进入 RunOut 即切回 WalkRun 状态"},
+		{"id":"e-animbp-trouble","fromNode":"animbp","fromSide":"right","toNode":"troubleshoot","toSide":"left","label":"接线错误的症状"},
+		{"id":"e-invariant-turning","fromNode":"frame-invariant","fromSide":"bottom","toNode":"phase-turning","toSide":"top","label":"EntryYaw 换算世界方向"},
+		{"id":"e-sample-trouble","fromNode":"sample","fromSide":"bottom","toNode":"troubleshoot","toSide":"left","label":"曲线缺失的症状"},
+		{"id":"e-sample-rms","fromNode":"sample","fromSide":"bottom","toNode":"rms","toSide":"top","label":"每帧 CurveMotion.Speed / Direction（源在 PrepareRootMotion 里现取）"},
+		{"id":"e-rms-speed","fromNode":"rms","fromSide":"right","toNode":"speed","toSide":"left","label":"Override 源在场时 GetMaxSpeed 不被查询"},
+		{"id":"e-runout-split","fromNode":"phase-runout","fromSide":"right","toNode":"turnback-split","toSide":"left","label":"相位机决定挂/摘哪个源"},
+		{"id":"e-split-rms","fromNode":"turnback-split","fromSide":"bottom","toNode":"rms","toSide":"bottom","label":"位移交给 GGYGO.CurveTurnBack；朝向留在 PhysicsRotation"}
+	]
 }

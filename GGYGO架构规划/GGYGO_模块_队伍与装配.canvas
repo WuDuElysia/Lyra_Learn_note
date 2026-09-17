@@ -1,168 +1,24 @@
 {
-  "nodes": [
-    {
-      "id": "nav",
-      "type": "text",
-      "text": "← [[GGYGO_架构总览.canvas|返回总览]]　·　文字计划 [[计划_队伍与装配]]　·　类清单 [[模块参考#9. `Teams/` —— 队伍多角色|模块参考第 9 节]]\n\n# 队伍与装配层\n\n这一层只回答**玩家编队**：带谁、数据放在哪、谁正在出战。\nBoss 不复用队伍位置；其外置宿主见 [[GGYGO_BOSSAI架构.canvas]]。",
-      "x": -1280,
-      "y": -780,
-      "width": 640,
-      "height": 320,
-      "color": "3"
-    },
-    {
-      "id": "presets",
-      "type": "text",
-      "text": "## 编队存档 · 已实现\n\n**`UGGYGOSquadPresets`**（`ULocalPlayerSaveGame` 派生）\n`Presets[]`：N 套编队，每套 = 名字 + 成员列表\n`ActivePresetIndex`：选了哪套出战\n槽位名 `GGYGOSquadPresets`\n\n成员存 **`FPrimaryAssetId`** 而不是资产指针：\n存指针会让反序列化拉起所有编队里所有角色的\n引用链（AbilitySet、动画、相机模式）。\n代价是 `GGYGOPawnData` 必须注册 PrimaryAssetType\n且 `CookRule=AlwaysCook` —— 存档里的 Id 不构成\n资产引用，漏配就是打包后解析不出角色。\n\n**`UGGYGOLocalPlayer`** 是唯一取用入口。\n`LoadOrCreateSaveGameForLocalPlayer` 每次返回**新对象**，\n绕过缓存 = 面板与装配各持一份副本互相覆盖，\n症状是「编好的队不生效」且不报错。\n\n编辑接口不自动落盘，由调用方显式保存。",
-      "x": -400,
-      "y": -1200,
-      "width": 620,
-      "height": 520,
-      "color": "4"
-    },
-    {
-      "id": "squad",
-      "type": "text",
-      "text": "## 编队与出战 · 已实现\n\n**`UGGYGOSquadComponent`**（挂 `AGGYGOPlayerState`）\n`Roster`　　　　← 这一局带谁（复制）\n`Slots[]`　　　 ← 装配结果（复制）\n`ActiveSlotIndex` ← 出战序号（`OnRep` 更新表现）\n`OnActiveCharacterChanged` ← UI 与相机订阅\n\n挂 PlayerState 而不是角色：出战角色会换，\n「我的队伍有谁」不该在换人瞬间失去答案。\n\n**`SetRoster`** 仅服务器，且装配后（`Slots` 非空）拒绝。\n空项跳过（面板允许留空位），超 `GGYGO_MAX_SQUAD_SIZE`\n截断并报错。\n\n`IsSquadAssembled()` 判据是 `Slots.Num() > 0`\n而不是独立标记位：位置数组是复制属性，客户端\n据此也能得到一致答案；多一个标记位就多一处\n可能与它不同步的状态。\n\n复制 `ActiveSlotIndex` 而不是位置指针：序号两端一致，\n指针在数组尚未复制完成时可能指向 null。",
-      "x": 880,
-      "y": 960,
-      "width": 600,
-      "height": 540,
-      "color": "4"
-    },
-    {
-      "id": "assemble",
-      "type": "text",
-      "text": "## 装配 · 已实现\n\n**`AGGYGOGameMode`** 接管生成：`DefaultPawnClass = nullptr`\n且**有意不调** `Super::HandleStartingNewPlayer` ——\n父类会走「生成一个 Pawn 并附身」，置空类名不够，\n引擎会回退到基类 `APawn` 生成一个空壳。\n\n**名单三级回落**：\n　1. 已设好的 `Roster`（留给将来的客户端上报）\n　2. 本地玩家存档里的出战编队\n　3. `UGGYGOExperienceDefinition::SquadMembers`（默认编队）\n全空则报错不生成。保留第 3 级是为了让自动化测试\n与直接起关卡也能跑出可操作角色。\n\n**先等 GameFeature 激活完**（`PendingGameFeatureCount` 归零）。\n插件的 Action 要往角色类注入组件、授予能力，\n早生成的角色会缺内容且不报错。列表为空时计数恒为零。\n加载失败也放行，只报错 —— 一个装不上的插件\n不该让所有玩家卡在没有角色的状态。\n\n```\nHandleStartingNewPlayer(PC):        // 有意不调 Super\n    if !AreGameFeaturesReady(): return    // 就绪回调里补做\n    SpawnSquadForPlayer(PC)\n\nSpawnSquadForPlayer(PC):\n    // 名单三级回落\n    if !Squad->GetRoster().IsEmpty():   来源 = 已设名单\n    elif TryApplySavedRoster(PC):       来源 = 本地存档\n    Roster = Squad->GetRoster() ?: Experience->SquadMembers\n    if Roster.IsEmpty(): 报错 return\n\n    // 阶段一：先把数据宿主全部建好\n    for PawnData in Roster:\n        Slot = SpawnActor<AGGYGOCharacterSlot>(Owner = PC)   // Owner 不能省\n        Slot->SetPawnData(PawnData)      // 授予 AbilitySet、注入组规则\n        Squad->RegisterSlot(Slot)        // 第一个自动成为出战\n\n    // 阶段二：再建实体\n    for (Slot, PawnData) in 上一步:\n        Pawn = SpawnActor(PawnData->PawnClass,\n                          Owner = PC, AdjustIfPossibleButAlwaysSpawn)\n        PawnExt->InitializeAbilitySystem(Slot->GetASC(), Slot)\n        Slot->SetAvatar(Pawn)\n\n    PC->Possess(出战位的 Pawn)\n```\n\n顺序反过来就回到「属性集晚于读它的组件」。\n\n全员同一出生点，`AdjustIfPossibleButAlwaysSpawn`，\n否则第二三个成员因重叠生成失败。",
-      "x": -400,
-      "y": -620,
-      "width": 640,
-      "height": 940,
-      "color": "4"
-    },
-    {
-      "id": "switch",
-      "type": "text",
-      "text": "## 换人 · 已实现\n\n```\nSwitchToSlot(Index):\n    if Index 越界 or Index == ActiveSlotIndex: return false\n    NewSlot = Slots[Index]\n    if !CanSlotBeActive(NewSlot): return false    // 无实体或已死亡\n\n    if OldSlot:\n        PC->UnPossess()        // 必须先解除\n        DeactivateSlot(OldSlot)\n    ActivateSlot(NewSlot)\n    PC->Possess(NewSlot->GetAvatarPawn())\n    ActiveSlotIndex = Index                       // 复制序号，不复制指针\n    OnActiveCharacterChanged.Broadcast(NewCharacter)\n\nDeactivateSlot: 隐藏 + 关碰撞 + StopMovementImmediately + DisableMovement\nActivateSlot:   显示 + 开碰撞\n```\n\n**顺序不能反**：`Possess` 在前时，随后的 `UnPossess`\n会清掉刚建立的附身关系。\n\n出战：显示、开碰撞。\n待命：隐藏、关碰撞、停止移动，但 Pawn 留在场上 ——\n不销毁重建的理由不是「会丢状态」（状态在位置上，\n销毁不丢），而是切人要即时响应，重新生成有可见延迟。\n\n`CanSlotBeActive()`：有实体且未死亡。\n`SwitchToNextSlot` 会跳过不满足的位置。\n\n**为什么不做成 GA**：换人牵动 Controller 归属、相机、\n输入绑定这些跨 Actor 的关系，而 GA 的作用域是单个 ASC\n的 Avatar —— 做成能力会在换人途中因 Avatar 变更被取消。",
-      "x": 840,
-      "y": -490,
-      "width": 620,
-      "height": 720,
-      "color": "4"
-    },
-    {
-      "id": "todo",
-      "type": "text",
-      "text": "## 还缺什么\n\n**编成面板**未做。开发期入口是四个控制台命令：\n`GGYGOSetSquadMember <编队> <位置> <资产名>`\n`GGYGOSetActiveSquadPreset <序号>`\n`GGYGODumpSquadPresets`\n`GGYGOClearSquadPresets`\n改完要重进关卡才生效。\n\n**联机编队上报**未做。编队存在客户端自己的磁盘上，\n服务器读不到，所以远程玩家目前走默认编队。\n接上报只需填三级来源的第一级，位置与 GAS 不用动。\n\n**队伍级 ASC** 未建（挂 PlayerState 的那个）。\n目前没有任何队伍共享属性，建了就是一个谁都不读的 ASC。\n切人的冷却与消耗要等它。\n\n**装配后不可改编队**是设计而非缺口：位置的属性集是\n默认子对象，换角色时旧数值残留，而「新角色应该多少血」\n没有正确答案。要战斗中换人，正确形态是每个角色常驻\n一个位置、编队只是对位置的引用列表。\n\n联机行为（预测、属性复制、旁观者 Cue）尚未实测。\n\n**结构优化（待审阅）**：抽取 AGGYGOCombatantState 后再迁移 CharacterSlot；此项只为与 BossState 共享外置宿主机制，不改变现有玩家行为。",
-      "x": 1920,
-      "y": -520,
-      "width": 620,
-      "height": 620,
-      "color": "2"
-    },
-    {
-      "id": "slot",
-      "type": "text",
-      "text": "## 队伍位置 · 已实现（D1 核心）\n\n**`AGGYGOCharacterSlot`**（`AInfo` 派生：无 Mesh、无碰撞、不 Tick）\n`UGGYGOAbilitySystemComponent`　← 该角色的 ASC\n`UGGYGOHealthSet` / `UGGYGOCombatSet`　← **默认子对象**\n`PawnData` 引用（复制，UI 与表现用）\n`AvatarPawn` ← `SetAvatar()` 反向绑定\n\n**为什么属性集是默认子对象**：\n`InitializeComponent` 在组件注册阶段自动发现它们，\n那早于任何 Pawn 存在。于是 Pawn 上的 HealthComponent\n无论何时初始化都不可能「找不到 HealthSet」——\n时序问题在结构上消失，而不是靠约定维护。\n\n**Pawn 只是 Avatar**：所以\n`CharacterBase::GetAbilitySystemComponent()`\n在注入完成前返回 nullptr，调用方必须判空。\n\nPawn 销毁只是失去 Avatar，属性与 Buff 都还在 ——\n这是「待命角色继续走冷却」的实现基础。\n\n**待审阅抽取**：未来可让 CharacterSlot 继承最小 AGGYGOCombatantState，只复用 ASC/属性/Avatar 生命周期；编队、PlayerController Owner 与 Mixed 复制仍留在 Slot。",
-      "x": -400,
-      "y": 960,
-      "width": 620,
-      "height": 520,
-      "color": "4"
-    },
-    {
-      "id": "net",
-      "type": "text",
-      "text": "## 复制与预测约束\n\n**位置的 `Owner` 必须是 PlayerController。**\nGAS 预测靠 `ASC->GetOwnerActor()->GetNetOwningPlayer()`\n追玩家连接。设错时 PredictionKey 生成不出来，\n所有 `LocalPredicted` 能力静默退化为纯服务器执行\n（输入延迟一个 RTT），**且不报任何错**。\n\n**`bAlwaysRelevant` + `Mixed`，不用 `bOnlyRelevantToOwner`。**\n相关性是全有或全无的：位置一旦对旁观者不相关，\n他们连该角色的 Cue 与 Tag 都收不到，看不到你的命中反馈。\n「属性只给自己、GE 与 Cue 给所有人」由复制模式负责，\n不能用相关性替代。\n\n位置没有空间语义，Transform 不复制。\n\n`Slots` 用 `TObjectPtr` 持**强引用**：位置不在任何\nController 名下，弱引用会让它们被 GC 回收。",
-      "x": -1200,
-      "y": -80,
-      "width": 620,
-      "height": 520,
-      "color": "4"
-    },
-    {
-      "id": "combatant-plan",
-      "type": "text",
-      "text": "## `CombatantState` 抽取（计划）\n\n只下沉：ASC、基础 AttributeSet、Avatar 绑定/清理、复制守卫。\n\n不下沉：Roster、ActiveSlot、PawnData 选择、玩家 Owner、预测模式。\n\n`CharacterSlot : CombatantState`（玩家业务）\n`BossState : CombatantState`（Boss 生命周期）\n\n这是共享机制，不是让怪物变成队伍位置。",
-      "x": 1920,
-      "y": 220,
-      "width": 620,
-      "height": 390,
-      "color": "2"
-    }
-  ],
-  "edges": [
-    {
-      "id": "e-presets-assemble",
-      "fromNode": "presets",
-      "fromSide": "bottom",
-      "toNode": "assemble",
-      "toSide": "top",
-      "label": "出战编队解析为 PawnData 列表（第 2 级来源）"
-    },
-    {
-      "id": "e-assemble-slot",
-      "fromNode": "assemble",
-      "fromSide": "bottom",
-      "toNode": "slot",
-      "toSide": "top",
-      "label": "阶段一：每份 PawnData 建一个位置"
-    },
-    {
-      "id": "e-assemble-squad",
-      "fromNode": "assemble",
-      "fromSide": "right",
-      "toNode": "squad",
-      "toSide": "top",
-      "label": "RegisterSlot 登记，第一个自动出战"
-    },
-    {
-      "id": "e-slot-squad",
-      "fromNode": "slot",
-      "fromSide": "right",
-      "toNode": "squad",
-      "toSide": "left",
-      "label": "属性与能力已就绪"
-    },
-    {
-      "id": "e-assemble-switch",
-      "fromNode": "assemble",
-      "fromSide": "right",
-      "toNode": "switch",
-      "toSide": "left",
-      "label": "阶段二：生成 Pawn 并 SetAvatar"
-    },
-    {
-      "id": "e-squad-switch",
-      "fromNode": "squad",
-      "fromSide": "top",
-      "toNode": "switch",
-      "toSide": "bottom",
-      "label": "SwitchToSlot 换附身目标"
-    },
-    {
-      "id": "e-slot-net",
-      "fromNode": "slot",
-      "fromSide": "left",
-      "toNode": "net",
-      "toSide": "right",
-      "label": "Owner / 相关性 / 复制模式"
-    },
-    {
-      "id": "e-switch-todo",
-      "fromNode": "switch",
-      "fromSide": "right",
-      "toNode": "todo",
-      "toSide": "left",
-      "label": "冷却与消耗待队伍级 ASC"
-    },
-    {
-      "id": "e-slot-combatant",
-      "fromNode": "slot",
-      "fromSide": "right",
-      "toNode": "combatant-plan",
-      "toSide": "left",
-      "label": "待审阅：抽取共同基类"
-    }
-  ]
+	"nodes":[
+		{"id":"nav","type":"text","text":"← [[GGYGO_架构总览.canvas|返回总览]]　·　文字计划 [[计划_队伍与装配]]　·　类清单 [[模块参考#9. `Teams/` —— 队伍多角色|模块参考第 9 节]]\n\n# 队伍与装配层\n\n这一层只回答**玩家编队**：带谁、数据放在哪、谁正在出战。\nBoss 不复用队伍位置；其外置宿主见 [[GGYGO_BOSSAI架构.canvas]]。","x":-1280,"y":-780,"width":640,"height":320,"color":"3"},
+		{"id":"presets","type":"text","text":"## 编队存档 · 已实现\n\n**`UGGYGOSquadPresets`**（`ULocalPlayerSaveGame` 派生）\n`Presets[]`：N 套编队，每套 = 名字 + 成员列表\n`ActivePresetIndex`：选了哪套出战\n槽位名 `GGYGOSquadPresets`\n\n成员存 **`FPrimaryAssetId`** 而不是资产指针：\n存指针会让反序列化拉起所有编队里所有角色的\n引用链（AbilitySet、动画、相机模式）。\n代价是 `GGYGOPawnData` 必须注册 PrimaryAssetType\n且 `CookRule=AlwaysCook` —— 存档里的 Id 不构成\n资产引用，漏配就是打包后解析不出角色。\n\n**`UGGYGOLocalPlayer`** 是唯一取用入口。\n`LoadOrCreateSaveGameForLocalPlayer` 每次返回**新对象**，\n绕过缓存 = 面板与装配各持一份副本互相覆盖，\n症状是「编好的队不生效」且不报错。\n\n编辑接口不自动落盘，由调用方显式保存。","x":-400,"y":-1200,"width":620,"height":520,"color":"4"},
+		{"id":"squad","type":"text","text":"## 编队与出战 · 已实现\n\n**`UGGYGOSquadComponent`**（挂 `AGGYGOPlayerState`）\n`Roster`　　　　← 这一局带谁（复制）\n`Slots[]`　　　 ← 装配结果（复制）\n`ActiveSlotIndex` ← 出战序号（`OnRep` 更新表现）\n`OnActiveCharacterChanged` ← UI 与相机订阅\n\n挂 PlayerState 而不是角色：出战角色会换，\n「我的队伍有谁」不该在换人瞬间失去答案。\n\n**`SetRoster`** 仅服务器，且装配后（`Slots` 非空）拒绝。\n空项跳过（面板允许留空位），超 `GGYGO_MAX_SQUAD_SIZE`\n截断并报错。\n\n`IsSquadAssembled()` 判据是 `Slots.Num() > 0`\n而不是独立标记位：位置数组是复制属性，客户端\n据此也能得到一致答案；多一个标记位就多一处\n可能与它不同步的状态。\n\n复制 `ActiveSlotIndex` 而不是位置指针：序号两端一致，\n指针在数组尚未复制完成时可能指向 null。","x":880,"y":960,"width":600,"height":540,"color":"4"},
+		{"id":"assemble","type":"text","text":"## 装配 · 已实现\n\n**`AGGYGOGameMode`** 接管生成：`DefaultPawnClass = nullptr`\n且**有意不调** `Super::HandleStartingNewPlayer` ——\n父类会走「生成一个 Pawn 并附身」，置空类名不够，\n引擎会回退到基类 `APawn` 生成一个空壳。\n\n**名单三级回落**：\n　1. 已设好的 `Roster`（留给将来的客户端上报）\n　2. 本地玩家存档里的出战编队\n　3. `UGGYGOExperienceDefinition::SquadMembers`（默认编队）\n全空则报错不生成。保留第 3 级是为了让自动化测试\n与直接起关卡也能跑出可操作角色。\n\n**先等 GameFeature 激活完**（`PendingGameFeatureCount` 归零）。\n插件的 Action 要往角色类注入组件、授予能力，\n早生成的角色会缺内容且不报错。列表为空时计数恒为零。\n加载失败也放行，只报错 —— 一个装不上的插件\n不该让所有玩家卡在没有角色的状态。\n\n```\nHandleStartingNewPlayer(PC):        // 有意不调 Super\n    if !AreGameFeaturesReady(): return    // 就绪回调里补做\n    SpawnSquadForPlayer(PC)\n\nSpawnSquadForPlayer(PC):\n    // 名单三级回落\n    if !Squad->GetRoster().IsEmpty():   来源 = 已设名单\n    elif TryApplySavedRoster(PC):       来源 = 本地存档\n    Roster = Squad->GetRoster() ?: Experience->SquadMembers\n    if Roster.IsEmpty(): 报错 return\n\n    // 阶段一：先把数据宿主全部建好\n    for PawnData in Roster:\n        Slot = SpawnActor<AGGYGOCharacterSlot>(Owner = PC)   // Owner 不能省\n        Slot->SetPawnData(PawnData)      // 授予 AbilitySet、注入组规则\n        Squad->RegisterSlot(Slot)        // 第一个自动成为出战\n\n    // 阶段二：再建实体\n    for (Slot, PawnData) in 上一步:\n        Pawn = SpawnActor(PawnData->PawnClass,\n                          Owner = PC, AdjustIfPossibleButAlwaysSpawn)\n        PawnExt->InitializeAbilitySystem(Slot->GetASC(), Slot)\n        Slot->SetAvatar(Pawn)\n\n    PC->Possess(出战位的 Pawn)\n```\n\n顺序反过来就回到「属性集晚于读它的组件」。\n\n全员同一出生点，`AdjustIfPossibleButAlwaysSpawn`，\n否则第二三个成员因重叠生成失败。","x":-400,"y":-620,"width":640,"height":940,"color":"4"},
+		{"id":"switch","type":"text","text":"## 换人 · 已实现\n\n```\nSwitchToSlot(Index):\n    if Index 越界 or Index == ActiveSlotIndex: return false\n    NewSlot = Slots[Index]\n    if !CanSlotBeActive(NewSlot): return false    // 无实体或已死亡\n\n    if OldSlot:\n        PC->UnPossess()        // 必须先解除\n        DeactivateSlot(OldSlot)\n    ActivateSlot(NewSlot)\n    PC->Possess(NewSlot->GetAvatarPawn())\n    ActiveSlotIndex = Index                       // 复制序号，不复制指针\n    OnActiveCharacterChanged.Broadcast(NewCharacter)\n\nDeactivateSlot: 隐藏 + 关碰撞 + StopMovementImmediately + DisableMovement\nActivateSlot:   显示 + 开碰撞\n```\n\n**顺序不能反**：`Possess` 在前时，随后的 `UnPossess`\n会清掉刚建立的附身关系。\n\n出战：显示、开碰撞。\n待命：隐藏、关碰撞、停止移动，但 Pawn 留在场上 ——\n不销毁重建的理由不是「会丢状态」（状态在位置上，\n销毁不丢），而是切人要即时响应，重新生成有可见延迟。\n\n`CanSlotBeActive()`：有实体且未死亡。\n`SwitchToNextSlot` 会跳过不满足的位置。\n\n**为什么不做成 GA**：换人牵动 Controller 归属、相机、\n输入绑定这些跨 Actor 的关系，而 GA 的作用域是单个 ASC\n的 Avatar —— 做成能力会在换人途中因 Avatar 变更被取消。","x":840,"y":-490,"width":620,"height":720,"color":"4"},
+		{"id":"todo","type":"text","text":"## 还缺什么\n\n**编成面板**未做。开发期入口是四个控制台命令：\n`GGYGOSetSquadMember <编队> <位置> <资产名>`\n`GGYGOSetActiveSquadPreset <序号>`\n`GGYGODumpSquadPresets`\n`GGYGOClearSquadPresets`\n改完要重进关卡才生效。\n\n**联机编队上报**未做。编队存在客户端自己的磁盘上，\n服务器读不到，所以远程玩家目前走默认编队。\n接上报只需填三级来源的第一级，位置与 GAS 不用动。\n\n**队伍级 ASC** 未建（挂 PlayerState 的那个）。\n目前没有任何队伍共享属性，建了就是一个谁都不读的 ASC。\n切人的冷却与消耗要等它。\n\n**装配后不可改编队**是设计而非缺口：位置的属性集是\n默认子对象，换角色时旧数值残留，而「新角色应该多少血」\n没有正确答案。要战斗中换人，正确形态是每个角色常驻\n一个位置、编队只是对位置的引用列表。\n\n联机行为（预测、属性复制、旁观者 Cue）尚未实测。\n\n**结构优化（待审阅）**：抽取 AGGYGOCombatantState 后再迁移 CharacterSlot；此项只为与 BossState 共享外置宿主机制，不改变现有玩家行为。","x":1920,"y":-520,"width":620,"height":620,"color":"2"},
+		{"id":"slot","type":"text","text":"## 队伍位置 · 已实现（D1 核心）\n\n**`AGGYGOCharacterSlot`**（`AInfo` 派生：无 Mesh、无碰撞、不 Tick）\n`UGGYGOAbilitySystemComponent`　← 该角色的 ASC\n`UGGYGOHealthSet` / `UGGYGOCombatSet`　← **默认子对象**\n`PawnData` 引用（复制，UI 与表现用）\n`AvatarPawn` ← `SetAvatar()` 反向绑定\n\n**为什么属性集是默认子对象**：\n`InitializeComponent` 在组件注册阶段自动发现它们，\n那早于任何 Pawn 存在。于是 Pawn 上的 HealthComponent\n无论何时初始化都不可能「找不到 HealthSet」——\n时序问题在结构上消失，而不是靠约定维护。\n\n**Pawn 只是 Avatar**：所以\n`CharacterBase::GetAbilitySystemComponent()`\n在注入完成前返回 nullptr，调用方必须判空。\n\nPawn 销毁只是失去 Avatar，属性与 Buff 都还在 ——\n这是「待命角色继续走冷却」的实现基础。\n\n**待审阅抽取**：未来可让 CharacterSlot 继承最小 AGGYGOCombatantState，只复用 ASC/属性/Avatar 生命周期；编队、PlayerController Owner 与 Mixed 复制仍留在 Slot。","x":-400,"y":960,"width":620,"height":520,"color":"4"},
+		{"id":"net","type":"text","text":"## 复制与预测约束\n\n**位置的 `Owner` 必须是 PlayerController。**\nGAS 预测靠 `ASC->GetOwnerActor()->GetNetOwningPlayer()`\n追玩家连接。设错时 PredictionKey 生成不出来，\n所有 `LocalPredicted` 能力静默退化为纯服务器执行\n（输入延迟一个 RTT），**且不报任何错**。\n\n**`bAlwaysRelevant` + `Mixed`，不用 `bOnlyRelevantToOwner`。**\n相关性是全有或全无的：位置一旦对旁观者不相关，\n他们连该角色的 Cue 与 Tag 都收不到，看不到你的命中反馈。\n「属性只给自己、GE 与 Cue 给所有人」由复制模式负责，\n不能用相关性替代。\n\n位置没有空间语义，Transform 不复制。\n\n`Slots` 用 `TObjectPtr` 持**强引用**：位置不在任何\nController 名下，弱引用会让它们被 GC 回收。","x":-1200,"y":-80,"width":620,"height":520,"color":"4"},
+		{"id":"combatant-plan","type":"text","text":"## `CombatantState` 抽取（计划）\n\n只下沉：ASC、基础 AttributeSet、Avatar 绑定/清理、复制守卫。\n\n不下沉：Roster、ActiveSlot、PawnData 选择、玩家 Owner、预测模式。\n\n`CharacterSlot : CombatantState`（玩家业务）\n`BossState : CombatantState`（Boss 生命周期）\n\n这是共享机制，不是让怪物变成队伍位置。","x":1920,"y":220,"width":620,"height":390,"color":"2"}
+	],
+	"edges":[
+		{"id":"e-presets-assemble","fromNode":"presets","fromSide":"bottom","toNode":"assemble","toSide":"top","label":"出战编队解析为 PawnData 列表（第 2 级来源）"},
+		{"id":"e-assemble-slot","fromNode":"assemble","fromSide":"bottom","toNode":"slot","toSide":"top","label":"阶段一：每份 PawnData 建一个位置"},
+		{"id":"e-assemble-squad","fromNode":"assemble","fromSide":"right","toNode":"squad","toSide":"top","label":"RegisterSlot 登记，第一个自动出战"},
+		{"id":"e-slot-squad","fromNode":"slot","fromSide":"right","toNode":"squad","toSide":"left","label":"属性与能力已就绪"},
+		{"id":"e-assemble-switch","fromNode":"assemble","fromSide":"right","toNode":"switch","toSide":"left","label":"阶段二：生成 Pawn 并 SetAvatar"},
+		{"id":"e-squad-switch","fromNode":"squad","fromSide":"top","toNode":"switch","toSide":"bottom","label":"SwitchToSlot 换附身目标"},
+		{"id":"e-slot-net","fromNode":"slot","fromSide":"left","toNode":"net","toSide":"right","label":"Owner / 相关性 / 复制模式"},
+		{"id":"e-switch-todo","fromNode":"switch","fromSide":"right","toNode":"todo","toSide":"left","label":"冷却与消耗待队伍级 ASC"},
+		{"id":"e-slot-combatant","fromNode":"slot","fromSide":"right","toNode":"combatant-plan","toSide":"left","label":"待审阅：抽取共同基类"}
+	]
 }

@@ -1,204 +1,28 @@
 {
-  "nodes": [
-    {
-      "id": "attrs",
-      "type": "text",
-      "text": "## AttributeSet · 已实现\n\n`Attributes/GGYGOAttributeSet`（基类）\n`Attributes/GGYGOHealthSet`：Health / MaxHealth /\n　Poise / MaxPoise（复制）\n　+ Damage / Healing / PoiseDamage（元属性，不复制）\n`Attributes/GGYGOCombatSet`：BaseDamage / BaseHeal /\n　BasePoiseDamage（`COND_OwnerOnly`）\n\n**元属性链路**\n\n```\nPre:  if Attr==Damage 且 有 Immunity 且 非自毁 → Magnitude = 0\nPost: 广播原始伤害消息（未 Clamp）\n      SetHealth(Clamp(Health - Damage, MinHealth, MaxHealth))\n      SetDamage(0)            // 不清零会被后续 GE 重复消费\n      if Health<=0 且 !bOutOfHealth: OnOutOfHealth.Broadcast\n      bOutOfHealth = (Health<=0)   // 广播后重新读，监听者可能又改了\n```\n\n韧性并入 HealthSet：同一次命中同时改两者，\n拆成两个属性集就得跨 Set 读写。\n\n`OnOutOfHealth` / `OnPoiseBroken` 有边沿锁存，只广播一次。\n免疫穿透靠 spec 上的 `Gameplay.Damage.SelfDestruct` 动态 Tag。",
-      "x": 20,
-      "y": 460,
-      "width": 560,
-      "height": 500,
-      "color": "4"
-    },
-    {
-      "id": "nav",
-      "type": "text",
-      "text": "← [[GGYGO_架构总览.canvas|返回总览]]　·　文字计划 [[计划_AbilitySystem]]　·　类清单 [[模块参考#2. `AbilitySystem/` —— GAS 扩展|模块参考第 2 节]]\n\n# AbilitySystem 层\n\nASC 机制不依赖控制来源。玩家输入和 AI 决策最终都调用同一激活、组仲裁、GE 与 Cue 链。",
-      "x": -820,
-      "y": -320,
-      "width": 620,
-      "height": 220,
-      "color": "3"
-    },
-    {
-      "id": "tagrel",
-      "type": "text",
-      "text": "## Tag 关系表 · 已实现\n\n`GGYGOAbilityTagRelationshipMapping`\n\n表达「语义互斥」：任何 `Ability.Attack` 阻断 `Ability.Sprint`\n与组优先级互补 —— 后者表达「谁顶掉谁」\n\n判定顺序：先组优先级，后 Tag 关系\n\n`IsAbilityCancelledByTag` 刻意用精确相等而非层级匹配，\n避免取消误伤子类能力",
-      "x": 20,
-      "y": 1080,
-      "width": 560,
-      "height": 280,
-      "color": "4"
-    },
-    {
-      "id": "asc",
-      "type": "text",
-      "text": "## ASC\n\n`GGYGOAbilitySystemComponent`\n\n**宿主由战斗状态生命周期决定**：\n- 当前玩家：CharacterSlot，Owner 链到 PlayerController，Mixed\n- 计划 Boss：BossState，服务器权威，Minimal\n- 简单怪物：可由 Pawn 自持\n\n玩家的 Pressed / Held / Released 三缓存仍由\n`PlayerController::PostProcessInput` 每帧统一消费。\n\nAI 不伪造 InputTag，也不调用 `ProcessAbilityInput`；\nAI Task 直接以语义 ActionTag / SpecHandle 请求 `TryActivateAbility`。\n无论来源是谁，TagRequirements、Cost、Cooldown、组仲裁与取消规则都只在 GAS 判定。",
-      "x": 20,
-      "y": -680,
-      "width": 560,
-      "height": 520,
-      "color": "4"
-    },
-    {
-      "id": "ga",
-      "type": "text",
-      "text": "## GA 基类 · 已实现（抽象）\n\n`Abilities/GGYGOGameplayAbility`\n\n默认策略：`InstancedPerActor` + `LocalPredicted` + `ReplicateNo`\n字段：`ActivationPolicy` / `GroupTag` /\n`ActivationPriority` / `SelfPolicy` / `AdditionalCosts`\n\n`SetCanBeCanceled`：只有 `Exclusive` 能拒绝取消\n（否则组仲裁无法执行）\n\n**`EndAbility` 被重写以自动清理相机接管**：\n能力可能被组仲裁取消、被死亡取消、或因 Avatar 销毁而结束，\n那些路径都不走能力自己的收尾逻辑。\n\n**尚无任何具体派生类** —— 攻击 GA 的主体是 Montage 编排。",
-      "x": 20,
-      "y": -70,
-      "width": 560,
-      "height": 340,
-      "color": "4"
-    },
-    {
-      "id": "damage",
-      "type": "text",
-      "text": "## 伤害结算\n\n`Executions/GGYGODamageExecution`\n\n用 `ExecutionCalculation` 而不是简单 Modifier，\n因为要同时读源与目标的属性、要读 EffectContext、\n要一次算完再写回。\n\n```\nExecute:\n    捕获 CombatSet.BaseDamage (Source, bSnapshot=true)\n    if Spec.SetByCaller(SetByCaller.Damage, -1) >= 0: 用它覆盖\n    Atten = 材质衰减 × 距离衰减        // 由 AbilitySource 提供\n    Final = Max(Base × Max(Atten,0), 0)\n    AddOutputModifier(HealthSet.Damage, Additive, Final)   // 写元属性\n```\n\n**属性捕获用 `bSnapshot=true`** —— 记下**挥刀那一刻**\n的攻击力。判定与伤害落地隔着若干帧，\n不快照的话期间吃到的 Buff 会算进去、掉的会算不进去，\n玩家会觉得 Buff 白吃了。\n\n衰减系数来自 `IGGYGOAbilitySourceInterface`\n（由武器或角色数据资产实现，近战通常都返回 1）。",
-      "x": -1280,
-      "y": 460,
-      "width": 580,
-      "height": 540,
-      "color": "4"
-    },
-    {
-      "id": "context",
-      "type": "text",
-      "text": "## EffectContext · 已实现\n\n`GGYGOGameplayEffectContext`\n`GGYGOAbilitySystemGlobals`\n`GGYGOAbilitySourceInterface`\n\n携带 `AbilitySourceObject`（弱引用，**不复制**）\n与 `HitID`，让伤害结算能取衰减系数、\n让 Cue 能按命中材质分流\n\n**必须在 DefaultGame.ini 注册 Globals**，\n否则 `ExtractEffectContext` 恒返回 nullptr 且不报错",
-      "x": -1280,
-      "y": -40,
-      "width": 580,
-      "height": 300,
-      "color": "4"
-    },
-    {
-      "id": "groups",
-      "type": "text",
-      "text": "## 组仲裁 · 最小实现\n\n`ActiveAbilitiesByGroup`\n`TMap<Tag, TArray<TWeakObjectPtr<GA>>>`\n\n**三个正交维度**\n组身份 `GroupTag`（GA 上）\n组规则 `GroupRule`（独立 DataAsset，尚未建）\n自身策略 `SelfPolicy` + `Priority`（GA 上）\n\n**D4 的落点在两处比较符号**\n`IsActivationBlockedByGroup` 用 `>`（同级不阻断）\n`AddAbilityToActivationGroup` 同组取消用 `<=`\n两者拼起来 = 后来者打断先激活者\n\n```\nIsActivationBlockedByGroup(A, out Reason):\n    ① 跨组：任一活跃能力 SelfPolicy==Exclusive 且 优先级>A → 阻断\n    if !A.GroupTag: return false\n    Rule = ResolveGroupRule(A.GroupTag)\n    if Rule==Coexist: return false\n    ② 同组遍历：\n        Queued        → 一律阻断（不比优先级）\n        SingleInstance→ bNewcomerWinsOnTie ? (旧>新) : (旧>=新)\n```\n\n**三条组规则**\n`Coexist` 同组可并存\n`SingleInstance` 比优先级，赢的顶掉输的\n`SingleInstanceQueued` **不比优先级、不取消**，直接拒绝新的 ——\n这是连段不被自己打断的保证\n\n**阻断阈值与取消阈值严格互补**：\n`bNewcomerWinsOnTie` 为真时阻断用 `>` 配取消 `<=`，\n为假时阻断 `>=` 配取消 `<`。不互补就会出现\n「新的没被阻断、旧的也没被取消」的双实例。\n\n「排队」不在 ASC 实现：ASC 只给出 `GroupOccupiedQueued`\n原因，重试交输入缓冲。两个队列会在\n「哪个才是真实待激活列表」上产生歧义。",
-      "x": 820,
-      "y": -780,
-      "width": 580,
-      "height": 700,
-      "color": "4"
-    },
-    {
-      "id": "cost",
-      "type": "text",
-      "text": "## 可插拔消耗 · 基类已实现\n\n`Abilities/GGYGOAbilityCost`\n\n`CheckCost` / `ApplyCost` / `bOnlyApplyCostOnHit`\n\n「仅命中后扣」的判定由 GA 统一处理，\n派生类不用自己查命中。\n用于连段计数只在打中时推进。\n\n具体派生（耐力、能量）待实现",
-      "x": 1080,
-      "y": -30,
-      "width": 580,
-      "height": 260,
-      "color": "4"
-    },
-    {
-      "id": "todo",
-      "type": "text",
-      "text": "## 还缺什么\n\n**代码**\n攻击 / 闪避 GA 的实现（蓝图已建，只有组身份与优先级，\n　主体 Montage 编排未做）\n`Abilities/Costs/` 具体消耗派生（待有耐力或能量再说）\n`GGYGOGlobalAbilitySystem`：队伍级 Buff 广播，\n　等出现全场 Buff 玩法再抄\n`Phases/` GamePhase：暂无关卡阶段需求\n\n**资产**（已建完，见 [[计划_实施状态#15.2 待配置项|实施状态 15.2]]）\n组规则、GameData 与三个通用 GE、命中 Cue 均已配好。\n\n**注意**：`UGGYGOAbilitySet` 的 `GrantedAttributes`\n**不要**再放 `HealthSet` / `CombatSet` ——\n它们是队伍位置的默认子对象（D1），\n重复配置会让同一 ASC 上出现两份同类属性集，\n`GetSet` 返回的与 GE 改的可能不是同一份。\n\n物理材质仍需手动创建。\n\n**Boss AI（待审阅）**：增加 AI 语义激活桥、Phase/Form Tag 准入与 ServerInitiated 战斗能力；冷却仍只由 GAS 管理。",
-      "x": 980,
-      "y": 540,
-      "width": 580,
-      "height": 420,
-      "color": "2"
-    },
-    {
-      "id": "ai-request",
-      "type": "text",
-      "text": "## AI 激活入口（计划）\n\nBehaviorTree / Utility 只选择“想做什么”：\n`ActionTag`、目标与上下文。\n\n`BTTask_ActivateBossAbility` 请求 ASC 激活并等待结束；\n不会模拟按键，不会直接播 Montage、扣血或改 Tag。\n\n这样玩家和 AI 共享第 4 步之后的全部战斗执行链，\n但各自保留合适的上游驱动方式。",
-      "x": -1280,
-      "y": -700,
-      "width": 580,
-      "height": 390,
-      "color": "2"
-    }
-  ],
-  "edges": [
-    {
-      "id": "e-asc-ga",
-      "fromNode": "asc",
-      "fromSide": "bottom",
-      "toNode": "ga",
-      "toSide": "top",
-      "label": "TryActivateAbility"
-    },
-    {
-      "id": "e-asc-groups",
-      "fromNode": "asc",
-      "fromSide": "right",
-      "toNode": "groups",
-      "toSide": "left",
-      "label": "维护组表"
-    },
-    {
-      "id": "e-ga-groups",
-      "fromNode": "ga",
-      "fromSide": "right",
-      "toNode": "groups",
-      "toSide": "bottom",
-      "label": "读组身份与优先级"
-    },
-    {
-      "id": "e-ga-cost",
-      "fromNode": "ga",
-      "fromSide": "right",
-      "toNode": "cost",
-      "toSide": "left",
-      "label": "检查并扣除"
-    },
-    {
-      "id": "e-ga-attrs",
-      "fromNode": "ga",
-      "fromSide": "bottom",
-      "toNode": "attrs",
-      "toSide": "top",
-      "label": "经 GE 改属性"
-    },
-    {
-      "id": "e-ga-context",
-      "fromNode": "ga",
-      "fromSide": "left",
-      "toNode": "context",
-      "toSide": "right",
-      "label": "MakeEffectContext"
-    },
-    {
-      "id": "e-ga-tagrel",
-      "fromNode": "attrs",
-      "fromSide": "bottom",
-      "toNode": "tagrel",
-      "toSide": "top",
-      "label": "同层：Tag 需求判定"
-    },
-    {
-      "id": "e-asc-tagrel",
-      "fromNode": "asc",
-      "fromSide": "left",
-      "toNode": "tagrel",
-      "toSide": "left",
-      "label": "扩展阻断与取消 Tag"
-    },
-    {
-      "id": "e-damage-attrs",
-      "fromNode": "damage",
-      "fromSide": "right",
-      "toNode": "attrs",
-      "toSide": "left",
-      "label": "只写元属性"
-    },
-    {
-      "id": "e-context-damage",
-      "fromNode": "context",
-      "fromSide": "bottom",
-      "toNode": "damage",
-      "toSide": "top",
-      "label": "提供来源与命中信息"
-    },
-    {
-      "id": "e-ai-request-asc",
-      "fromNode": "ai-request",
-      "fromSide": "right",
-      "toNode": "asc",
-      "toSide": "left",
-      "label": "TryActivateAbility"
-    }
-  ]
+	"nodes":[
+		{"id":"attrs","type":"text","text":"## AttributeSet · 已实现\n\n`Attributes/GGYGOAttributeSet`（基类）\n`Attributes/GGYGOHealthSet`：Health / MaxHealth /\n　Poise / MaxPoise（复制）\n　+ Damage / Healing / PoiseDamage（元属性，不复制）\n`Attributes/GGYGOCombatSet`：BaseDamage / BaseHeal /\n　BasePoiseDamage（`COND_OwnerOnly`）\n\n**元属性链路**\n\n```\nPre:  if Attr==Damage 且 有 Immunity 且 非自毁 → Magnitude = 0\nPost: 广播原始伤害消息（未 Clamp）\n      SetHealth(Clamp(Health - Damage, MinHealth, MaxHealth))\n      SetDamage(0)            // 不清零会被后续 GE 重复消费\n      if Health<=0 且 !bOutOfHealth: OnOutOfHealth.Broadcast\n      bOutOfHealth = (Health<=0)   // 广播后重新读，监听者可能又改了\n```\n\n韧性并入 HealthSet：同一次命中同时改两者，\n拆成两个属性集就得跨 Set 读写。\n\n`OnOutOfHealth` / `OnPoiseBroken` 有边沿锁存，只广播一次。\n免疫穿透靠 spec 上的 `Gameplay.Damage.SelfDestruct` 动态 Tag。","x":20,"y":460,"width":560,"height":500,"color":"4"},
+		{"id":"nav","type":"text","text":"← [[GGYGO_架构总览.canvas|返回总览]]　·　文字计划 [[计划_AbilitySystem]]　·　类清单 [[模块参考#2. `AbilitySystem/` —— GAS 扩展|模块参考第 2 节]]\n\n# AbilitySystem 层\n\nASC 机制不依赖控制来源。玩家输入和 AI 决策最终都调用同一激活、组仲裁、GE 与 Cue 链。","x":-820,"y":-320,"width":620,"height":220,"color":"3"},
+		{"id":"tagrel","type":"text","text":"## Tag 关系表 · 已实现\n\n`GGYGOAbilityTagRelationshipMapping`\n\n表达「语义互斥」：任何 `Ability.Attack` 阻断 `Ability.Sprint`\n与组优先级互补 —— 后者表达「谁顶掉谁」\n\n判定顺序：先组优先级，后 Tag 关系\n\n`IsAbilityCancelledByTag` 刻意用精确相等而非层级匹配，\n避免取消误伤子类能力","x":20,"y":1080,"width":560,"height":280,"color":"4"},
+		{"id":"asc","type":"text","text":"## ASC\n\n`GGYGOAbilitySystemComponent`\n\n**宿主由战斗状态生命周期决定**：\n- 当前玩家：CharacterSlot，Owner 链到 PlayerController，Mixed\n- 计划 Boss：BossState，服务器权威，Minimal\n- 简单怪物：可由 Pawn 自持\n\n玩家的 Pressed / Held / Released 三缓存仍由\n`PlayerController::PostProcessInput` 每帧统一消费。\n\nAI 不伪造 InputTag，也不调用 `ProcessAbilityInput`；\nAI Task 直接以语义 ActionTag / SpecHandle 请求 `TryActivateAbility`。\n无论来源是谁，TagRequirements、Cost、Cooldown、组仲裁与取消规则都只在 GAS 判定。","x":20,"y":-680,"width":560,"height":520,"color":"4"},
+		{"id":"ga","type":"text","text":"## GA 基类 · 已实现（抽象）\n\n`Abilities/GGYGOGameplayAbility`\n\n默认策略：`InstancedPerActor` + `LocalPredicted` + `ReplicateNo`\n字段：`ActivationPolicy` / `GroupTag` /\n`ActivationPriority` / `SelfPolicy` / `AdditionalCosts`\n\n`SetCanBeCanceled`：只有 `Exclusive` 能拒绝取消\n（否则组仲裁无法执行）\n\n**`EndAbility` 被重写以自动清理相机接管**：\n能力可能被组仲裁取消、被死亡取消、或因 Avatar 销毁而结束，\n那些路径都不走能力自己的收尾逻辑。\n\n**尚无任何具体派生类** —— 攻击 GA 的主体是 Montage 编排。","x":20,"y":-70,"width":560,"height":340,"color":"4"},
+		{"id":"damage","type":"text","text":"## 伤害结算\n\n`Executions/GGYGODamageExecution`\n\n用 `ExecutionCalculation` 而不是简单 Modifier，\n因为要同时读源与目标的属性、要读 EffectContext、\n要一次算完再写回。\n\n```\nExecute:\n    捕获 CombatSet.BaseDamage (Source, bSnapshot=true)\n    if Spec.SetByCaller(SetByCaller.Damage, -1) >= 0: 用它覆盖\n    Atten = 材质衰减 × 距离衰减        // 由 AbilitySource 提供\n    Final = Max(Base × Max(Atten,0), 0)\n    AddOutputModifier(HealthSet.Damage, Additive, Final)   // 写元属性\n```\n\n**属性捕获用 `bSnapshot=true`** —— 记下**挥刀那一刻**\n的攻击力。判定与伤害落地隔着若干帧，\n不快照的话期间吃到的 Buff 会算进去、掉的会算不进去，\n玩家会觉得 Buff 白吃了。\n\n衰减系数来自 `IGGYGOAbilitySourceInterface`\n（由武器或角色数据资产实现，近战通常都返回 1）。","x":-1280,"y":460,"width":580,"height":540,"color":"4"},
+		{"id":"context","type":"text","text":"## EffectContext · 已实现\n\n`GGYGOGameplayEffectContext`\n`GGYGOAbilitySystemGlobals`\n`GGYGOAbilitySourceInterface`\n\n携带 `AbilitySourceObject`（弱引用，**不复制**）\n与 `HitID`，让伤害结算能取衰减系数、\n让 Cue 能按命中材质分流\n\n**必须在 DefaultGame.ini 注册 Globals**，\n否则 `ExtractEffectContext` 恒返回 nullptr 且不报错","x":-1280,"y":-40,"width":580,"height":300,"color":"4"},
+		{"id":"groups","type":"text","text":"## 组仲裁 · 最小实现\n\n`ActiveAbilitiesByGroup`\n`TMap<Tag, TArray<TWeakObjectPtr<GA>>>`\n\n**三个正交维度**\n组身份 `GroupTag`（GA 上）\n组规则 `GroupRule`（独立 DataAsset，尚未建）\n自身策略 `SelfPolicy` + `Priority`（GA 上）\n\n**D4 的落点在两处比较符号**\n`IsActivationBlockedByGroup` 用 `>`（同级不阻断）\n`AddAbilityToActivationGroup` 同组取消用 `<=`\n两者拼起来 = 后来者打断先激活者\n\n```\nIsActivationBlockedByGroup(A, out Reason):\n    ① 跨组：任一活跃能力 SelfPolicy==Exclusive 且 优先级>A → 阻断\n    if !A.GroupTag: return false\n    Rule = ResolveGroupRule(A.GroupTag)\n    if Rule==Coexist: return false\n    ② 同组遍历：\n        Queued        → 一律阻断（不比优先级）\n        SingleInstance→ bNewcomerWinsOnTie ? (旧>新) : (旧>=新)\n```\n\n**三条组规则**\n`Coexist` 同组可并存\n`SingleInstance` 比优先级，赢的顶掉输的\n`SingleInstanceQueued` **不比优先级、不取消**，直接拒绝新的 ——\n这是连段不被自己打断的保证\n\n**阻断阈值与取消阈值严格互补**：\n`bNewcomerWinsOnTie` 为真时阻断用 `>` 配取消 `<=`，\n为假时阻断 `>=` 配取消 `<`。不互补就会出现\n「新的没被阻断、旧的也没被取消」的双实例。\n\n「排队」不在 ASC 实现：ASC 只给出 `GroupOccupiedQueued`\n原因，重试交输入缓冲。两个队列会在\n「哪个才是真实待激活列表」上产生歧义。","x":820,"y":-780,"width":580,"height":700,"color":"4"},
+		{"id":"cost","type":"text","text":"## 可插拔消耗 · 基类已实现\n\n`Abilities/GGYGOAbilityCost`\n\n`CheckCost` / `ApplyCost` / `bOnlyApplyCostOnHit`\n\n「仅命中后扣」的判定由 GA 统一处理，\n派生类不用自己查命中。\n用于连段计数只在打中时推进。\n\n具体派生（耐力、能量）待实现","x":1080,"y":-30,"width":580,"height":260,"color":"4"},
+		{"id":"todo","type":"text","text":"## 还缺什么\n\n**代码**\n攻击 / 闪避 GA 的实现（蓝图已建，只有组身份与优先级，\n　主体 Montage 编排未做）\n`Abilities/Costs/` 具体消耗派生（待有耐力或能量再说）\n`GGYGOGlobalAbilitySystem`：队伍级 Buff 广播，\n　等出现全场 Buff 玩法再抄\n`Phases/` GamePhase：暂无关卡阶段需求\n\n**资产**（已建完，见 [[计划_实施状态#15.2 待配置项|实施状态 15.2]]）\n组规则、GameData 与三个通用 GE、命中 Cue 均已配好。\n\n**注意**：`UGGYGOAbilitySet` 的 `GrantedAttributes`\n**不要**再放 `HealthSet` / `CombatSet` ——\n它们是队伍位置的默认子对象（D1），\n重复配置会让同一 ASC 上出现两份同类属性集，\n`GetSet` 返回的与 GE 改的可能不是同一份。\n\n物理材质仍需手动创建。\n\n**Boss AI（待审阅）**：增加 AI 语义激活桥、Phase/Form Tag 准入与 ServerInitiated 战斗能力；冷却仍只由 GAS 管理。","x":980,"y":540,"width":580,"height":420,"color":"2"},
+		{"id":"ai-request","type":"text","text":"## AI 激活入口（计划）\n\nBehaviorTree / Utility 只选择“想做什么”：\n`ActionTag`、目标与上下文。\n\n`BTTask_ActivateBossAbility` 请求 ASC 激活并等待结束；\n不会模拟按键，不会直接播 Montage、扣血或改 Tag。\n\n这样玩家和 AI 共享第 4 步之后的全部战斗执行链，\n但各自保留合适的上游驱动方式。","x":-1280,"y":-700,"width":580,"height":390,"color":"2"}
+	],
+	"edges":[
+		{"id":"e-asc-ga","fromNode":"asc","fromSide":"bottom","toNode":"ga","toSide":"top","label":"TryActivateAbility"},
+		{"id":"e-asc-groups","fromNode":"asc","fromSide":"right","toNode":"groups","toSide":"left","label":"维护组表"},
+		{"id":"e-ga-groups","fromNode":"ga","fromSide":"right","toNode":"groups","toSide":"bottom","label":"读组身份与优先级"},
+		{"id":"e-ga-cost","fromNode":"ga","fromSide":"right","toNode":"cost","toSide":"left","label":"检查并扣除"},
+		{"id":"e-ga-attrs","fromNode":"ga","fromSide":"bottom","toNode":"attrs","toSide":"top","label":"经 GE 改属性"},
+		{"id":"e-ga-context","fromNode":"ga","fromSide":"left","toNode":"context","toSide":"right","label":"MakeEffectContext"},
+		{"id":"e-ga-tagrel","fromNode":"attrs","fromSide":"bottom","toNode":"tagrel","toSide":"top","label":"同层：Tag 需求判定"},
+		{"id":"e-asc-tagrel","fromNode":"asc","fromSide":"left","toNode":"tagrel","toSide":"left","label":"扩展阻断与取消 Tag"},
+		{"id":"e-damage-attrs","fromNode":"damage","fromSide":"right","toNode":"attrs","toSide":"left","label":"只写元属性"},
+		{"id":"e-context-damage","fromNode":"context","fromSide":"bottom","toNode":"damage","toSide":"top","label":"提供来源与命中信息"},
+		{"id":"e-ai-request-asc","fromNode":"ai-request","fromSide":"right","toNode":"asc","toSide":"left","label":"TryActivateAbility"}
+	]
 }

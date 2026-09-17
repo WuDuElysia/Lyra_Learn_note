@@ -1,8 +1,7 @@
 {
-	"nodes": [
+	"nodes":[
 		{"id":"plan","type":"text","text":"# 模块化文字计划\n\n[[计划蓝图]] —— **总入口与全局决策**\n\n正文已按 Canvas 的模块边界拆分：\n架构总览、AbilitySystem、输入与意图、角色与组件、\n队伍与装配、移动与动作位移、GameFeature、实施状态。\n\n[[计划_BOSSAI]] 是待审阅的独立增量方案。\n[[模块参考]] 只记录当前代码事实。","x":20,"y":-300,"width":520,"height":280,"color":"3"},
 		{"id":"decisions","type":"text","text":"# 已确认的架构决策\n\n**D1** 玩家编队 ASC 挂 CharacterSlot，Pawn 只是 Avatar；不要求所有 AI 复用 Slot\n**D2** 每个玩家各带一支队伍（4 人房 × 3 角色 = 12 个角色 ASC）\n**D3** 移动权威是 CharacterMovementComponent\n**D4** 同优先级 GA 由后来者打断先激活者（比较用 `>`）\n\nBoss 外置 BossState 是待审阅扩展：原因是 Pawn 会换形态而战斗状态必须连续。\n普通怪物若不换 Pawn，仍可 Pawn 自持 ASC。","x":-880,"y":-300,"width":580,"height":280,"color":"1"},
-		{"id":"othergraphs","type":"text","text":"# 入口图\n\n[[GGYGO_模块依赖.canvas|▸ 模块依赖]]\n依赖方向与分层，用来定阅读顺序。\n\n[[GGYGO_战斗链路.canvas|▸ 战斗链路]]\n玩家输入或 AI 决策进入同一 GAS 执行链。\n\n[[GGYGO_BOSSAI架构.canvas|▸ Boss AI 架构]]\nBossState、BT、GAS、阶段与换形态事务。","x":720,"y":-300,"width":520,"height":280,"color":"3"},
 		{"id":"m-character","type":"text","text":"# 角色与组件层\n\n[[GGYGO_模块_角色与组件.canvas|▸ 打开子图]]\n\n**职责**：角色 Actor、组件拆分与 InitState 初始化协调\n**关键取舍**：PawnExtension 接收外部 ASC，但不假设宿主类型。\n当前玩家由 CharacterSlot 注入；计划中的可换形态 Boss 由 BossState 注入；\n简单怪物仍允许 Pawn 自持。\n玩家角色单独一个类，AI 不带 HeroComponent。","x":900,"y":60,"width":540,"height":300,"color":"4"},
 		{"id":"m-input","type":"text","text":"# 输入层\n\n[[GGYGO_模块_输入与意图.canvas|▸ 打开子图]]\n\n**职责**：按键 → InputTag → 能力激活；连段输入缓冲\n**关键取舍**：InputTag 直连能力（照抄 Lyra），\n独立意图层暂不建 —— 缓冲只需两个字段，\n「该不该重试」的判断只有 ASC 知道\n**驱动点**：`PostProcessInput`，不是组件 Tick","x":-1150,"y":60,"width":540,"height":300,"color":"4"},
 		{"id":"m-movement","type":"text","text":"# 移动与位移层\n\n[[GGYGO_模块_移动与位移.canvas|▸ 打开移动子图]]\n[[GGYGO_模块_动画曲线.canvas|▸ 动画曲线读取与消费]]\n\n**职责**：locomotion、急停转身与动作位移最终都落到 CMC。\n\n动画曲线走统一管线：资产烘焙 → Sampler 每帧读取一次 → `CurveMotion` 快照 → CMC 内集中消费。转身只是消费者之一，不另建读取链。\n\n动作位移由 GA 发起；与 locomotion 并存时由 Restriction Tag 与 RootMotionSource 优先级解决冲突。","x":-1150,"y":650,"width":540,"height":420,"color":"5"},
@@ -11,9 +10,10 @@
 		{"id":"m-team","type":"text","text":"# 队伍与装配层\n\n[[GGYGO_模块_队伍与装配.canvas|▸ 打开子图]]\n\n**`AGGYGOCharacterSlot`** —— 一个位置一个（D1 核心）\n`AInfo` 派生，持有该角色的 ASC 与 HealthSet/CombatSet\n（均为默认子对象，随位置构造即就绪）。\nOwner 必须是 PlayerController，否则预测键失效且不报错。\n\n**`UGGYGOSquadComponent`**（挂 PlayerState）\n`Roster` 是这一局的名单，`Slots` 是装配结果，\n装的是位置而非角色。待命角色的冷却与 Buff\n继续走，因为那些状态在位置上而不在 Pawn 上。\n\n**`UGGYGOSquadPresets`**（存档，缓存在 GGYGOLocalPlayer）\n玩家存的 N 套编队与出战选择，成员存 PrimaryAssetId。\n编队三层：预设（落盘）→ 名单（一局）→ 位置。\n\n**`AGGYGOGameMode`** 两阶段装配：先建位置再建实体。\n名单三级回落：已设 → 出战编队存档 → Experience 默认。\n\n缺口：队伍级 ASC 未建（等出现共享属性再说）。\n编成面板与联机编队上报未做；装配后不可改编队。","x":880,"y":440,"width":580,"height":560,"color":"5"},
 		{"id":"m-camera","type":"text","text":"# 相机层\n\n[[GGYGO_模块_相机.canvas|▸ 打开子图]]\n\n**职责**：相机模式栈与加权混合\n`UGGYGOCameraComponent` 每帧求值栈顶，\n写回 Controller 的控制朝向\n\n**为什么是栈**：相机状态是叠加的 ——\n锁定期间放大招，结束后应回到锁定而非常规跟随。\n单个「当前模式」变量表达不了嵌套。\n\n能力可临时推入自己的模式，`EndAbility` 自动撤销。\n\n**按幅度分三层**：每段攻击的微调用 `CameraOffset`\n（叠加在求值结果上，不换模式，避免丢掉锁定与\n穿墙恢复状态）；换机位用 `AbilityCameraMode`；\n过场用 LevelSequence + `SetViewTarget`，不进栈。","x":880,"y":1060,"width":540,"height":440,"color":"5"},
 		{"id":"verify","type":"text","text":"# 验证状态\n\n资产已配齐（GameData、Experience、AbilityGroupConfig、\n命中 Cue、四个能力空壳），装配链已跑通：\n单机下队伍装配成功、角色被附身、属性集正常就位。\n编队存档的写入、重启读回、清空回落三条路径也各验证过一次。\n\n**仍未验证**：能力的实际效果（四个 GA 只有空壳，无 Montage 编排）、\n切人（Experience 只配了 1 个位置）、\n镜头微调的实际手感、\n联机预测（Slot 的 Owner 链只做了静态确认，\n错了不报错，必须跑 Dedicated Server 才能确认）。\n\n物理材质需手动创建，MCP 建不出 PhysicalMaterial 实例。\n\n**Boss AI / 换形态**：仅完成设计蓝图，尚未改 UE 源码、蓝图或行为树。","x":-140,"y":1120,"width":560,"height":420,"color":"1"},
-		{"id":"m-bossai","type":"text","text":"# Boss AI（待审阅）\n\n[[GGYGO_BOSSAI架构.canvas|▸ 打开子图]]\n\n`CombatantState` 抽取最小外置宿主机制；\n`BossState` 保存跨 Pawn 的 ASC、属性、阶段与形态；\nAIController 保存感知、仇恨、目标与 BehaviorTree。\n\nBT 只请求语义动作，GAS 负责准入与执行；\n换形态通过 Avatar Handoff 事务完成，不等于死亡。","x":1540,"y":420,"width":560,"height":500,"color":"2"}
+		{"id":"m-bossai","type":"text","text":"# Boss AI（待审阅）\n\n[[GGYGO_BOSSAI架构.canvas|▸ 打开子图]]\n\n`CombatantState` 抽取最小外置宿主机制；\n`BossState` 保存跨 Pawn 的 ASC、属性、阶段与形态；\nAIController 保存感知、仇恨、目标与 BehaviorTree。\n\nBT 只请求语义动作，GAS 负责准入与执行；\n换形态通过 Avatar Handoff 事务完成，不等于死亡。","x":1420,"y":-550,"width":560,"height":500,"color":"2"},
+		{"id":"othergraphs","type":"text","text":"# 入口图\n\n[[GGYGO_模块依赖.canvas|▸ 模块依赖]]\n依赖方向与分层，用来定阅读顺序。\n\n[[GGYGO_战斗链路.canvas|▸ 战斗链路]]\n玩家输入或 AI 决策进入同一 GAS 执行链。\n\n[[GGYGO_BOSSAI架构.canvas|▸ Boss AI 架构]]\nBossState、BT、GAS、阶段与换形态事务。","x":20,"y":-690,"width":520,"height":280,"color":"3"}
 	],
-	"edges": [
+	"edges":[
 		{"id":"e-input-gas","fromNode":"m-input","fromSide":"right","toNode":"m-gas","toSide":"left","label":"InputTag → 缓存句柄 → 仲裁"},
 		{"id":"e-input-movement","fromNode":"m-input","fromSide":"bottom","toNode":"m-movement","toSide":"top","label":"移动输入直连，不走 GAS"},
 		{"id":"e-character-gas","fromNode":"m-character","fromSide":"left","toNode":"m-gas","toSide":"right","label":"作为 Avatar 消费注入的 ASC"},
@@ -24,6 +24,6 @@
 		{"id":"e-team-character","fromNode":"m-team","fromSide":"top","toNode":"m-character","toSide":"bottom","label":"注入位置的 ASC 并设为 Avatar"},
 		{"id":"e-decisions-plan","fromNode":"decisions","fromSide":"right","toNode":"plan","toSide":"left","label":"依据"},
 		{"id":"e-boss-gas","fromNode":"m-bossai","fromSide":"left","toNode":"m-gas","toSide":"right","label":"请求激活 Ability"},
-		{"id":"e-boss-character","fromNode":"m-bossai","fromSide":"top","toNode":"m-character","toSide":"right","label":"替换 Avatar"}
+		{"id":"e-boss-character","fromNode":"m-bossai","fromSide":"bottom","toNode":"m-character","toSide":"right","label":"替换 Avatar"}
 	]
 }

@@ -5,7 +5,9 @@
 > 2026-09-17：阶段 A 的 C++ 结构迁移已完成，`GGYGOEditor Win64 Development` 与
 > `GGYGO Win64 Development` 均通过 UHT、编译和链接；无界面单机运行已验证默认地图、
 > GameMode、玩家 Slot 与出战 Pawn 可以完成装配。交互式输入/Cue 与 Dedicated Server
-> 回归仍待执行。尚未创建 Boss 蓝图、行为树或战斗资产。
+> 回归仍待执行。阶段 B 的 Boss C++ 最小装配、Editor/Game Target 编译、
+> 单 Form/单 Phase 测试资产与单机 PIE 装配验收已完成；攻击行为树、Cue/死亡边沿与
+> Dedicated Server 可见性仍属后续验收。
 >
 > 本文专门规划 Boss 战斗 AI、阶段/形态切换与持久 ASC 宿主。总体架构依据见
 > [[计划蓝图]]，当前代码事实见 [[模块参考]]，配套图见 [[GGYGO_BOSSAI架构.canvas]]。
@@ -734,6 +736,21 @@ Content/Abilities/Boss/<BossId>/
 - 复用 Health、CMC、死亡链。
 
 验收：Boss 能生成、被 AIController Possess、客户端看见血量/Tag/Cue、死亡只触发一次。
+
+**实施进度（2026-09-17）**：
+
+- [x] `UGGYGOBossDefinition`：Form/Phase、持久 AbilitySet 与 BehaviorTree 静态定义；
+- [x] `AGGYGOBossState`：Minimal ASC、Form/Phase 复制、全部形态能力去重后一次授予；
+- [x] `AGGYGOBossCharacter`：复用 Health/CMC/PawnExtension 的纯 Avatar；
+- [x] `AGGYGOBossAIController`：显式 Possess，换 Avatar 时暂停但不清理 Brain；
+- [x] `AGGYGOBossEncounter`：按 State → Deferred Avatar → Controller 的顺序完成最小装配；
+- [x] Avatar 销毁时 `CombatantState` 自动 Detach，死亡后不残留旧 Avatar；
+- [x] Editor Target 与独立 Game Target 编译通过；
+- [x] 创建单 Form/单 Phase 的 `DA_Boss_Test`、`DA_Pawn_Boss_Test` 与 `BP_Boss_Test`；
+- [x] 建立独立 `L_BossAI_Test` 测试图，不污染主场景；
+- [x] 单机 PIE 验证生成与 AIController Possess，装配日志确认 Form/Phase Tag 与 `Health=100/100`；
+- [ ] 单机补验 GameplayCue 实际播放与死亡只触发一次；
+- [ ] Dedicated Server 验证客户端可见性与 Minimal 复制。
 
 ### 阶段 C：一条完整攻击竖切
 

@@ -63,7 +63,7 @@
     {
       "id": "ga-motion",
       "type": "text",
-      "text": "## 动作位移由 GA 发起\n\n攻击 / 闪避 / 受击能力（**这些 GA 尚未建**，\n主体是 Montage 编排，见 [[计划蓝图]] 15.3）\n\n位移与动画是**两条并行轨道**：\n由同一个 GA 启动、共享同一个 `Duration`，\n互不驱动，各自对齐到同一时间基准。\n\n播放方式没有选择余地：**必须 Montage**\n（判定窗口 / 上下半身分层 / 可控打断 /\n与 GAS 预测配套）",
+      "text": "## 动作位移由 GA 发起\n\n攻击 / 闪避 / 受击能力（**这些 GA 尚未建**，\n主体是 Montage 编排，见 [[计划_实施状态#15.3 已知缺口|实施状态 15.3]]）\n\n位移与动画是**两条并行轨道**：\n由同一个 GA 启动、共享同一个 `Duration`，\n互不驱动，各自对齐到同一时间基准。\n\n播放方式没有选择余地：**必须 Montage**\n（判定窗口 / 上下半身分层 / 可控打断 /\n与 GAS 预测配套）",
       "x": 120,
       "y": -240,
       "width": 560,
@@ -83,7 +83,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "← [[GGYGO_架构总览.canvas|返回总览]]　·　文字说明见 [[计划蓝图]] 第 10、13 章　·　细节见 [[模块参考]] 第 4 节\n\n# 移动与位移层\n\n**两条独立链路，同一个落点。**\n左侧 locomotion 不走 GAS，速度经 `GetMaxSpeed` 交给 `CalcVelocity`；\n右侧动作位移由 GA 发起，进 CMC 的 `FRootMotionSourceGroup`。",
+      "text": "← [[GGYGO_架构总览.canvas|返回总览]]　·　文字计划 [[计划_移动与动作位移]]　·　细节见 [[模块参考]] 第 4 节\n\n# 移动与位移层\n\n**两条独立链路，同一个落点。**\n左侧 locomotion 不走 GAS，速度经 `GetMaxSpeed` 交给 `CalcVelocity`；\n右侧动作位移由 GA 发起，进 CMC 的 `FRootMotionSourceGroup`。",
       "x": -600,
       "y": -680,
       "width": 620,

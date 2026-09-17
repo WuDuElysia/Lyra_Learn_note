@@ -1,6 +1,11 @@
 # GGYGO Boss AI 计划蓝图
 
-> **状态：设计稿，等待审阅；尚未修改 UE 源码或资产。**
+> **状态：已确认，实施中。**
+>
+> 2026-09-17：阶段 A 的 C++ 结构迁移已完成，`GGYGOEditor Win64 Development` 与
+> `GGYGO Win64 Development` 均通过 UHT、编译和链接；无界面单机运行已验证默认地图、
+> GameMode、玩家 Slot 与出战 Pawn 可以完成装配。交互式输入/Cue 与 Dedicated Server
+> 回归仍待执行。尚未创建 Boss 蓝图、行为树或战斗资产。
 >
 > 本文专门规划 Boss 战斗 AI、阶段/形态切换与持久 ASC 宿主。总体架构依据见
 > [[计划蓝图]]，当前代码事实见 [[模块参考]]，配套图见 [[GGYGO_BOSSAI架构.canvas]]。
@@ -710,6 +715,17 @@ Content/Abilities/Boss/<BossId>/
 
 验收：现有玩家单机流程无回归；专用服务器下预测键、属性、Cue 与切人正常。
 
+**实施进度（2026-09-17）**：
+
+- [x] 新建 `AGGYGOCombatantState`，持有 ASC、基础属性集与复制 Avatar；
+- [x] `AGGYGOCharacterSlot` 迁移到基类，Mixed 复制、PawnData、能力授予和玩家 Owner 保持在 Slot；
+- [x] GameMode 改为只调用 `CombatantState::AttachAvatar`，删除生成方对 PawnExtension 的直接写入；
+- [x] PawnExtension 的幂等判断同时核对 ASC、Owner 与 Avatar；
+- [x] Editor Target 与独立 Game Target 编译通过；
+- [x] 无界面单机验证默认地图、GameMode、玩家 Slot 与出战 Pawn 装配；
+- [ ] 交互式 PIE 验证输入、属性与 Cue；
+- [ ] Dedicated Server 验证预测键、属性复制与切人。
+
 ### 阶段 B：Boss 最小装配
 
 - BossState + BossCharacter + BossAIController；
@@ -777,15 +793,15 @@ AIController 与目标不重建；客户端最终只看到一个有效 Avatar。
 
 在改代码前确认以下条目：
 
-- [ ] 接受 `CombatantState` 只抽 Owner/Avatar/ASC，不包含 AI 与 PawnData；
-- [ ] 接受玩家 Slot、BossState、简单怪物 Pawn-owned ASC 三种布局并存；
-- [ ] 接受 BehaviorTree 只产出请求，GAS 执行动作；
-- [ ] 接受 Phase 与 Form 分离；
-- [ ] 接受 Boss 能力一次性授予、Tag 门控；
-- [ ] 接受 Exit 与 Enter 是两个 Ability，中间才发生 Avatar Handoff；
-- [ ] 接受换形态不走死亡流程；
-- [ ] 接受冷却只保存在 GAS；
-- [ ] 接受 AIController/Threat 在换形态期间保持实例；
-- [ ] 接受第一版先做一只两形态 Boss 的完整竖切，再扩展通用性。
+- [x] 接受 `CombatantState` 只抽 Owner/Avatar/ASC，不包含 AI 与 PawnData；
+- [x] 接受玩家 Slot、BossState、简单怪物 Pawn-owned ASC 三种布局并存；
+- [x] 接受 BehaviorTree 只产出请求，GAS 执行动作；
+- [x] 接受 Phase 与 Form 分离；
+- [x] 接受 Boss 能力一次性授予、Tag 门控；
+- [x] 接受 Exit 与 Enter 是两个 Ability，中间才发生 Avatar Handoff；
+- [x] 接受换形态不走死亡流程；
+- [x] 接受冷却只保存在 GAS；
+- [x] 接受 AIController/Threat 在换形态期间保持实例；
+- [x] 接受第一版先做一只两形态 Boss 的完整竖切，再扩展通用性。
 
-审阅通过后，把本节状态改为“已确认”，再进入第 13 章的代码阶段。
+本轮“开始计划”视为以上架构项确认；若后续改变任一项，先更新本节再继续代码阶段。

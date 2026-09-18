@@ -12,7 +12,7 @@
 		{"id":"combat","type":"text","text":"## Combat/\n\n`UGGYGOMeleeTraceComponent`\n\n依赖 Character（取骨骼位置）。\n命中结果交给 GAS 应用伤害 GE。","x":765,"y":990,"width":320,"height":180,"color":"1"},
 		{"id":"camera","type":"text","text":"## Camera/\n\n相机模式栈。\n\n依赖 Character 取跟随目标；\n被 GAS 依赖（能力可推入模式）。\n\n子图：[[GGYGO_模块_表现层.canvas]]","x":1160,"y":540,"width":320,"height":220,"color":"1"},
 		{"id":"anim","type":"text","text":"## Animation/zzzAnim/\n\n快照 → 过渡判定 → 表现记忆。\n\n**只读**依赖 Character（读 CMC）。\n唯一反向通道是 AnimNotify，\n只发事件不写状态。\n\n子图：[[GGYGO_模块_移动与位移.canvas]]","x":1300,"y":910,"width":340,"height":260,"color":"1"},
-		{"id":"ai","type":"text","text":"## AI/ · Boss/（计划）\n\n`AGGYGOBossState`：跨 Pawn 的 ASC / 属性 / Phase / Form\n`AGGYGOBossAIController`：感知、仇恨、目标、BT\n`CombatTargetComponent`：统一目标读取\nBT Task：选择语义动作并请求 GAS 激活\n\n不依赖 Teams 的编队业务；依赖 Character 的 Avatar 契约、\nAbilitySystem 的执行链与 System 的 GameplayTag。\n\n子图：[[GGYGO_BOSSAI架构.canvas]]","x":945,"y":-390,"width":430,"height":390,"color":"2"}
+		{"id":"ai","type":"text","text":"## AI/ · Boss/（阶段 A–C 已实现）\n\n`BossState`：跨 Pawn 的 ASC / 属性 / Phase / Form\n`BossAIController`：Brain、确定性随机流、动作权重\n`BossActionSet`：语义动作候选\nBT Task：过滤、选择并请求 GAS 激活\n\n不依赖 Teams 业务；依赖 Character 的 Avatar 契约、AbilitySystem 执行链与 System Tag。Perception / Threat / CombatTarget 属于阶段 D。\n\n子图：[[GGYGO_BOSSAI架构.canvas]]","x":945,"y":-390,"width":430,"height":390,"color":"2"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"input","fromSide":"bottom","toNode":"gas","toSide":"top","label":"InputTag"},

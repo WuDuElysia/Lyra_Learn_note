@@ -2,12 +2,11 @@
 
 > **状态：已确认，实施中。**
 >
-> 2026-09-17：阶段 A 的 C++ 结构迁移已完成，`GGYGOEditor Win64 Development` 与
-> `GGYGO Win64 Development` 均通过 UHT、编译和链接；无界面单机运行已验证默认地图、
-> GameMode、玩家 Slot 与出战 Pawn 可以完成装配。交互式输入/Cue 与 Dedicated Server
-> 回归仍待执行。阶段 B 的 Boss C++ 最小装配、Editor/Game Target 编译、
-> 单 Form/单 Phase 测试资产与单机 PIE 装配验收已完成；攻击行为树、Cue/死亡边沿与
-> Dedicated Server 可见性仍属后续验收。
+> 2026-09-18：阶段 A–C 已完成。`GGYGOEditor Win64 Development` 与
+> `GGYGO Win64 Development` 均通过 UHT、编译和链接；阶段 B 的单 Form/单 Phase
+> 最小装配、阶段 C 的确定性选招、BT→GAS 激活桥及近战攻击竖切均通过单机 PIE。
+> `GameplayCue.Hit.Flesh` 已由运行时 Cue Map 注册；命中 Notify 尚未配置可见/可听表现。
+> Brain 暂停、死亡单次边沿与 Dedicated Server 复制仍待专项回归。
 >
 > 本文专门规划 Boss 战斗 AI、阶段/形态切换与持久 ASC 宿主。总体架构依据见
 > [[计划蓝图]]，当前代码事实见 [[模块参考]]，配套图见 [[GGYGO_BOSSAI架构.canvas]]。
@@ -760,6 +759,23 @@ Content/Abilities/Boss/<BossId>/
 - Montage Event → Trace → DamageExecution → Cue。
 
 验收：AI 只请求能力；停用 BT 后不会有攻击；GA 单独激活仍能完成同一动作。
+
+**实施进度（2026-09-17）**：
+
+- [x] 新建 `UGGYGOCombatActionAbility`，用 `BossAction.*` 语义标签连接决策与执行；
+- [x] 新建 `UGGYGOBossActionSet`，只保存候选条件和动态权重参数，不复制冷却、伤害或 Montage 配置；
+- [x] `ChooseBossAction` 先按距离/角度/Tag/LOS 过滤，再调用 GAS `CanActivateAbility`，最后由 Encounter Seed 驱动确定性加权选择；
+- [x] `ActivateBossAbility` 只调用 `TryActivateAbility` 并精确等待该 Spec 结束；BT Abort 只解绑等待，不越权取消已进入执行段的 GA；
+- [x] `UGGYGOBossMeleeAbility` 串通 Montage → GameplayEvent NotifyState → MeleeTrace → `GE_Damage_SetByCaller` → `GameplayCue.Hit.Flesh`；
+- [x] 编辑器命令 `GGYGO.BuildBossStageCTestAssets` 可重复生成 `BB_Boss_Test`、`BT_Boss_Test`、`AM_BossMelee_Test` 与命中窗口；
+- [x] 创建 `BP_GA_BossMelee_Test`、`DA_BossActionSet_Test`、`DA_AbilitySet_Boss_Test` 并接入 `DA_Boss_Test`；
+- [x] 测试图补专用地板，修复角色从出生高度持续掉出 KillZ、导致近战命中不可复现的问题；
+- [x] 单机 PIE 实测：同一 Spec 循环完成“选招 → 激活 → Montage → 开窗 → 命中 → 伤害 → 关窗”，玩家生命 `100 → 0`；
+- [x] 将 `GCN_BossHit_Flesh_Test` 放入配置扫描路径 `/Game/GameplayCues/Test/`；运行时 `GameplayCue.PrintGameplayCueNotifyMap` 确认 `GameplayCue.Hit.Flesh -> 1`；
+- [x] Editor Target 编译通过；
+- [ ] 组装一条可见/可听的命中 Cue 表现资产（当前已发 Cue，但测试 Notify 尚未配置 Niagara/音效）；
+- [ ] 专项自动化验证“暂停 Brain 后不再发起新攻击、已激活 GA 能自行收尾”；
+- [ ] Dedicated Server 验证能力、伤害与 Cue 的权威/复制链。
 
 ### 阶段 D：目标、仇恨与移动
 

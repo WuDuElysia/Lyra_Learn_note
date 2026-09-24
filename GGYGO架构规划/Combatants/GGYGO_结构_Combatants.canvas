@@ -59,6 +59,16 @@
       "width": 420,
       "height": 215,
       "color": "4"
+    },
+    {
+      "id": "contract",
+      "type": "text",
+      "text": "## 共同宿主最小接口\nGetGGYGOAbilitySystemComponent() → 向 GA/BT/PawnExtension 暴露持久 ASC；不暴露玩家专属 Slot API。\nAttachAvatar(NewPawn) → SynchronizeAvatarBinding → PawnExtension::InitializeAbilitySystem(ASC, Owner)；OnRep_AvatarPawn 在客户端重放绑定。\nDetachAvatar(ExpectedPawn) 只解绑期望 Pawn，防旧形态延迟销毁时清掉新 Avatar。Player Slot 与 BossState 只复用这一宿主契约，不复用输入或决策策略。",
+      "x": 0,
+      "y": 1100,
+      "width": 1450,
+      "height": 300,
+      "color": "6"
     }
   ],
   "edges": [

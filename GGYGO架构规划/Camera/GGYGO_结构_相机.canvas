@@ -1,178 +1,26 @@
 {
-  "nodes": [
-    {
-      "id": "nav",
-      "type": "text",
-      "text": "# Camera｜结构图\n当前实现的类和接口关系。执行顺序见 [[GGYGO_流程_相机.canvas|流程图]]；详细说明见 [[Camera/结构|结构文档]]。",
-      "x": 0,
-      "y": 0,
-      "width": 1410,
-      "height": 130,
-      "color": "6"
-    },
-    {
-      "id": "pawn",
-      "type": "text",
-      "text": "## UGGYGOPawnData\n`DefaultCameraMode: TSubclassOf<UGGYGOCameraMode>` → 提供无能力覆盖时的模式类。并非栈实例。",
-      "x": 0,
-      "y": 200,
-      "width": 390,
-      "height": 190,
-      "color": "4"
-    },
-    {
-      "id": "ga",
-      "type": "text",
-      "text": "## UGGYGOGameplayAbility\n`SetCameraMode(Class)` → 登记本 GA 的模式覆盖。\n`ClearCameraMode()` → 能力结束时撤销自己的覆盖。\n`ApplyCameraOffset(Offset)` / `ClearCameraOffset()` → 叠加/回落镜头微调。\n详见 [[AbilitySystem/结构|AbilitySystem]]。",
-      "x": 0,
-      "y": 440,
-      "width": 390,
-      "height": 245,
-      "color": "4"
-    },
-    {
-      "id": "hero",
-      "type": "text",
-      "text": "## UGGYGOHeroComponent\n`DetermineCameraMode()` → 覆盖栈顶或 PawnData 默认类。\n`SetAbilityCameraMode(Class, SpecHandle)` → 按能力句柄置顶。\n`ClearAbilityCameraMode(SpecHandle)` → 只移除该能力。\n它管理所有权，不计算视角。",
-      "x": 500,
-      "y": 300,
-      "width": 420,
-      "height": 270,
-      "color": "5"
-    },
-    {
-      "id": "component",
-      "type": "text",
-      "text": "## UGGYGOCameraComponent\n`GetCameraView(dt, OutView)` → UE 每帧拉取镜头的入口。\n`DetermineCameraModeDelegate` → 从 Hero 取有效模式类。\n`SetCameraOffset(Offset)` / `ClearCameraOffset()` → 设置/回落最终微调。\n持有 `CameraModeStack`，输出最终视角。",
-      "x": 1020,
-      "y": 300,
-      "width": 420,
-      "height": 270,
-      "color": "5"
-    },
-    {
-      "id": "third",
-      "type": "text",
-      "text": "## UGGYGOCameraMode_ThirdPerson\n`UpdateView(dt)` → 从 Pawn 视点与控制朝向计算跟随视角；扫球处理遮挡。继承 Mode 的混合生命周期。",
-      "x": 0,
-      "y": 740,
-      "width": 390,
-      "height": 215,
-      "color": "4"
-    },
-    {
-      "id": "mode",
-      "type": "text",
-      "text": "## UGGYGOCameraMode\n`UpdateCameraMode(dt)` → 调 `UpdateView` 并推进权重。\n`UpdateView(dt)` → 子类计算单模式视角。\n`GetCameraModeView()` → 交给栈混合。\n`GetTargetActor()` → 从 CameraComponent 找跟随对象。",
-      "x": 500,
-      "y": 680,
-      "width": 420,
-      "height": 255,
-      "color": "4"
-    },
-    {
-      "id": "stack",
-      "type": "text",
-      "text": "## UGGYGOCameraModeStack\n`PushCameraMode(Class)` → 按类复用实例并置顶。\n`EvaluateStack(dt, OutView)` → 更新所有模式、从栈底向栈顶混合。\n`ClearStack()` → Avatar 切换时清空。\n它不保存 Ability SpecHandle。",
-      "x": 1020,
-      "y": 660,
-      "width": 420,
-      "height": 260,
-      "color": "5"
-    },
-    {
-      "id": "view",
-      "type": "text",
-      "text": "## FGGYGOCameraModeView\n`Location` / `Rotation` → 镜头位置和画面朝向。\n`ControlRotation` → 输入所用控制朝向。\n`FieldOfView` / `Blend(Other, Weight)` → 视场角和加权合成。",
-      "x": 500,
-      "y": 980,
-      "width": 420,
-      "height": 220,
-      "color": "1"
-    },
-    {
-      "id": "controller",
-      "type": "text",
-      "text": "## Controller / UE Camera View\n组件将 `View.ControlRotation` 写回 Controller，把 `Location` / `Rotation` / `FOV` 写入 `FMinimalViewInfo`；UE 再渲染这一帧。",
-      "x": 1020,
-      "y": 980,
-      "width": 420,
-      "height": 215,
-      "color": "1"
-    }
-  ],
-  "edges": [
-    {
-      "id": "e1",
-      "fromNode": "pawn",
-      "fromSide": "right",
-      "toNode": "hero",
-      "toSide": "left",
-      "label": "默认模式类"
-    },
-    {
-      "id": "e2",
-      "fromNode": "ga",
-      "fromSide": "right",
-      "toNode": "hero",
-      "toSide": "left",
-      "label": "按 SpecHandle 登记 / 撤销覆盖"
-    },
-    {
-      "id": "e3",
-      "fromNode": "hero",
-      "fromSide": "right",
-      "toNode": "component",
-      "toSide": "left",
-      "label": "委托返回当前有效模式"
-    },
-    {
-      "id": "e4",
-      "fromNode": "component",
-      "fromSide": "right",
-      "toNode": "stack",
-      "toSide": "left",
-      "label": "持有并推入模式类"
-    },
-    {
-      "id": "e5",
-      "fromNode": "stack",
-      "fromSide": "left",
-      "toNode": "mode",
-      "toSide": "right",
-      "label": "复用并求值模式实例"
-    },
-    {
-      "id": "e6",
-      "fromNode": "third",
-      "fromSide": "right",
-      "toNode": "mode",
-      "toSide": "left",
-      "label": "继承并实现 UpdateView"
-    },
-    {
-      "id": "e7",
-      "fromNode": "mode",
-      "fromSide": "right",
-      "toNode": "view",
-      "toSide": "left",
-      "label": "输出单个模式视角"
-    },
-    {
-      "id": "e8",
-      "fromNode": "stack",
-      "fromSide": "left",
-      "toNode": "view",
-      "toSide": "right",
-      "label": "按权重合成最终视角"
-    },
-    {
-      "id": "e9",
-      "fromNode": "component",
-      "fromSide": "bottom",
-      "toNode": "controller",
-      "toSide": "top",
-      "label": "写入最终视角与 ControlRotation"
-    }
-  ]
+	"nodes":[
+		{"id":"nav","type":"text","text":"# Camera｜结构图\n当前实现的类和接口关系。执行顺序见 [[GGYGO_流程_相机.canvas|流程图]]；详细说明见 [[Camera/结构|结构文档]]。","x":0,"y":0,"width":1410,"height":130,"color":"6"},
+		{"id":"pawn","type":"text","text":"## UGGYGOPawnData\n`DefaultCameraMode: TSubclassOf<UGGYGOCameraMode>` → 提供无能力覆盖时的模式类。并非栈实例。","x":0,"y":200,"width":390,"height":190,"color":"4"},
+		{"id":"ga","type":"text","text":"## UGGYGOGameplayAbility\n`SetCameraMode(Class)` → 登记本 GA 的模式覆盖。\n`ClearCameraMode()` → 能力结束时撤销自己的覆盖。\n`ApplyCameraOffset(Offset)` / `ClearCameraOffset()` → 叠加/回落镜头微调。\n详见 [[AbilitySystem/结构|AbilitySystem]]。","x":0,"y":440,"width":390,"height":245,"color":"4"},
+		{"id":"hero","type":"text","text":"## UGGYGOHeroComponent\n`DetermineCameraMode()` → 覆盖栈顶或 PawnData 默认类。\n`SetAbilityCameraMode(Class, SpecHandle)` → 按能力句柄置顶。\n`ClearAbilityCameraMode(SpecHandle)` → 只移除该能力。\n它管理所有权，不计算视角。","x":500,"y":300,"width":420,"height":270,"color":"5"},
+		{"id":"component","type":"text","text":"## UGGYGOCameraComponent\n`GetCameraView(dt, OutView)` → UE 每帧拉取镜头的入口。\n`DetermineCameraModeDelegate` → 从 Hero 取有效模式类。\n`SetCameraOffset(Offset)` / `ClearCameraOffset()` → 设置/回落最终微调。\n持有 `CameraModeStack`，输出最终视角。","x":1020,"y":300,"width":420,"height":270,"color":"5"},
+		{"id":"third","type":"text","text":"## UGGYGOCameraMode_ThirdPerson\n`UpdateView(dt)` → 从 Pawn 视点与控制朝向计算跟随视角；扫球处理遮挡。继承 Mode 的混合生命周期。","x":0,"y":740,"width":390,"height":215,"color":"4"},
+		{"id":"mode","type":"text","text":"## UGGYGOCameraMode\n`UpdateCameraMode(dt)` → 调 `UpdateView` 并推进权重。\n`UpdateView(dt)` → 子类计算单模式视角。\n`GetCameraModeView()` → 交给栈混合。\n`GetTargetActor()` → 从 CameraComponent 找跟随对象。","x":500,"y":680,"width":420,"height":255,"color":"4"},
+		{"id":"stack","type":"text","text":"## UGGYGOCameraModeStack\n`PushCameraMode(Class)` → 按类复用实例并置顶。\n`EvaluateStack(dt, OutView)` → 更新所有模式、从栈底向栈顶混合。\n`ClearStack()` → Avatar 切换时清空。\n它不保存 Ability SpecHandle。","x":1020,"y":660,"width":420,"height":260,"color":"5"},
+		{"id":"view","type":"text","text":"## FGGYGOCameraModeView\n`Location` / `Rotation` → 镜头位置和画面朝向。\n`ControlRotation` → 输入所用控制朝向。\n`FieldOfView` / `Blend(Other, Weight)` → 视场角和加权合成。","x":500,"y":980,"width":420,"height":220,"color":"1"},
+		{"id":"controller","type":"text","text":"## Controller / UE Camera View\n组件将 `View.ControlRotation` 写回 Controller，把 `Location` / `Rotation` / `FOV` 写入 `FMinimalViewInfo`；UE 再渲染这一帧。","x":1020,"y":980,"width":420,"height":215,"color":"1"},
+		{"id":"contract","type":"text","text":"## 所有权、求值与输出（接口链）\nGA::SetCameraMode(Class) → HeroComponent::SetAbilityCameraMode(Class, SpecHandle)：Hero 管覆盖所有权；结束用 ClearAbilityCameraMode(Handle) 精确撤回。\nUE → CameraComponent::GetCameraView(dt, OutView) → DetermineCameraModeDelegate → HeroComponent::DetermineCameraMode：返回 Class，不返回模式实例。\nCameraComponent → Stack::PushCameraMode(Class) / EvaluateStack(dt, View) → Mode::UpdateCameraMode(dt) / View::Blend：Stack 管实例复用与混合。\nCameraComponent 写 Controller.ControlRotation 与 FMinimalViewInfo；CameraOffset 在栈求值后作用，不污染模式 View。","x":0,"y":1290,"width":1450,"height":300,"color":"6"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"pawn","fromSide":"right","toNode":"hero","toSide":"left","label":"默认模式类"},
+		{"id":"e2","fromNode":"ga","fromSide":"right","toNode":"hero","toSide":"left","label":"按 SpecHandle 登记 / 撤销覆盖"},
+		{"id":"e3","fromNode":"hero","fromSide":"right","toNode":"component","toSide":"left","label":"委托返回当前有效模式"},
+		{"id":"e4","fromNode":"component","fromSide":"right","toNode":"stack","toSide":"left","label":"持有并推入模式类"},
+		{"id":"e5","fromNode":"stack","fromSide":"left","toNode":"mode","toSide":"right","label":"复用并求值模式实例"},
+		{"id":"e6","fromNode":"third","fromSide":"right","toNode":"mode","toSide":"left","label":"继承并实现 UpdateView"},
+		{"id":"e7","fromNode":"mode","fromSide":"right","toNode":"view","toSide":"left","label":"输出单个模式视角"},
+		{"id":"e8","fromNode":"stack","fromSide":"left","toNode":"view","toSide":"right","label":"按权重合成最终视角"},
+		{"id":"e9","fromNode":"component","fromSide":"bottom","toNode":"controller","toSide":"top","label":"写入最终视角与 ControlRotation"}
+	]
 }

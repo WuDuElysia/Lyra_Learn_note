@@ -79,6 +79,16 @@
       "width": 470,
       "height": 195,
       "color": "4"
+    },
+    {
+      "id": "contract",
+      "type": "text",
+      "text": "## Experience 装配接口契约\nGameMode::InitGame → 读 Experience；ActivateGameFeatures → GameFeaturesSubsystem::LoadAndActivateGameFeaturePlugin(URL, Callback)。\nOnGameFeatureActivated 更新 PendingGameFeatureCount；完成后 SpawnSquadForPendingPlayers。HandleStartingNewPlayer_Implementation 负责未就绪排队。\nSpawnSquadForPlayer → SpawnSquadSlot(PawnData) → InitializeForPawnData/AbilitySet；再 SpawnSquadMember → SetPawnData/AttachAvatar/Possess。\nExperience 是资产配置；GameMode 是权威装配器，PawnData 下发给对应组件。",
+      "x": 0,
+      "y": 1270,
+      "width": 1450,
+      "height": 300,
+      "color": "6"
     }
   ],
   "edges": [

@@ -89,6 +89,16 @@
       "width": 490,
       "height": 260,
       "color": "1"
+    },
+    {
+      "id": "contract",
+      "type": "text",
+      "text": "## 关键交互契约（调用方 → 接口 → 结果）\nSlot/BossState → AbilitySet::GiveToAbilitySystem(ASC, Handles, Source) → GA/GE/属性进入持久 ASC；撤装用 Handles::TakeFromAbilitySystem。\nHero Input / Boss BT → ASC::ProcessAbilityInput 或 TryActivateAbility(Handle) → GA::CanActivateAbility 与组仲裁 → ActivateAbility/FailureTags。\nGA 命中 → ApplyGameplayEffectSpecToTarget → DamageExecution::Execute_Implementation → HealthSet::PostGameplayEffectExecute → HealthComponent/消息。\nASC 只拥有能力状态；Camera、Trace、动画各自是跨模块调用，不反向拥有 ASC。",
+      "x": 0,
+      "y": 1390,
+      "width": 1450,
+      "height": 300,
+      "color": "6"
     }
   ],
   "edges": [

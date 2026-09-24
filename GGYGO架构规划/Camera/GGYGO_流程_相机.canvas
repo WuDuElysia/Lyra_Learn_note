@@ -13,71 +13,71 @@
     {
       "id": "engine",
       "type": "text",
-      "text": "1. UE 通过 ViewTarget 调用 CameraComponent::GetCameraView。",
+      "text": "1. UE 通过 ViewTarget 调用 CameraComponent::GetCameraView。\n\n调用：UE PlayerCameraManager/ViewTarget → CameraComponent::GetCameraView(dt, OutMinimalViewInfo)。",
       "x": 0,
-      "y": 300,
+      "y": 405,
       "width": 385,
-      "height": 170,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "choose",
       "type": "text",
-      "text": "2. HeroComponent 从 Ability 覆盖列表或 PawnData 选有效模式。",
+      "text": "2. HeroComponent 从 Ability 覆盖列表或 PawnData 选有效模式。\n\n调用：CameraComponent::UpdateCameraModes → DetermineCameraModeDelegate → HeroComponent::DetermineCameraMode；返回 Mode Class。",
       "x": 470,
-      "y": 300,
+      "y": 405,
       "width": 420,
-      "height": 180,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "push",
       "type": "text",
-      "text": "3. CameraComponent 把模式类交给 CameraModeStack。",
+      "text": "3. CameraComponent 把模式类交给 CameraModeStack。\n\n调用：CameraModeStack::PushCameraMode(ModeClass)；按类复用模式实例并移至索引 0。",
       "x": 970,
-      "y": 300,
+      "y": 405,
       "width": 420,
-      "height": 180,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "evaluate",
       "type": "text",
-      "text": "4. Stack 更新并混合各 CameraMode 的 View。\n[[GGYGO_流程_相机模式求值.canvas|展开]]",
+      "text": "4. Stack 更新并混合各 CameraMode 的 View。\n[[GGYGO_流程_相机模式求值.canvas|展开]]\n\n调用：CameraModeStack::EvaluateStack(dt, OutView) → Mode::UpdateCameraMode / View::Blend。",
       "x": 1470,
-      "y": 300,
+      "y": 405,
       "width": 420,
-      "height": 185,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "offset",
       "type": "text",
-      "text": "5. CameraComponent 对最终 View 叠加 CameraOffset。",
+      "text": "5. CameraComponent 对最终 View 叠加 CameraOffset。\n\n调用：CameraComponent 在 EvaluateStack 后应用 FGGYGOCameraOffset；不改各 Mode 的原始 View。",
       "x": 1470,
-      "y": 670,
+      "y": 905,
       "width": 420,
-      "height": 180,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "output",
       "type": "text",
-      "text": "6. 写入最终 FOV/位置/Rotation 与 Controller 的 ControlRotation。",
+      "text": "6. 写入最终 FOV/位置/Rotation 与 Controller 的 ControlRotation。\n\nGetCameraView 将 View.ControlRotation 写 Controller，View.Location/Rotation/FOV 写 FMinimalViewInfo。",
       "x": 970,
-      "y": 700,
+      "y": 945,
       "width": 420,
-      "height": 185,
+      "height": 230,
       "color": "1"
     },
     {
       "id": "empty",
       "type": "text",
-      "text": "兜底：模式类为空或栈为空时，用 UCameraComponent 自身视角。",
+      "text": "兜底：模式类为空或栈为空时，用 UCameraComponent 自身视角。\n\n若委托返回空类或 Stack 无有效 View，调用 Super::GetCameraView(dt, OutView)。",
       "x": 470,
-      "y": 740,
+      "y": 999,
       "width": 420,
-      "height": 175,
+      "height": 230,
       "color": "3"
     }
   ],
@@ -88,7 +88,7 @@
       "fromSide": "right",
       "toNode": "choose",
       "toSide": "left",
-      "label": "拉取本帧视角"
+      "label": "GetCameraView → UpdateCameraModes"
     },
     {
       "id": "e2",
@@ -96,7 +96,7 @@
       "fromSide": "right",
       "toNode": "push",
       "toSide": "left",
-      "label": "返回有效模式类"
+      "label": "DetermineCameraModeDelegate → Mode Class"
     },
     {
       "id": "e3",
@@ -104,7 +104,7 @@
       "fromSide": "right",
       "toNode": "evaluate",
       "toSide": "left",
-      "label": "PushCameraMode"
+      "label": "PushCameraMode → EvaluateStack"
     },
     {
       "id": "e4",
@@ -112,7 +112,7 @@
       "fromSide": "bottom",
       "toNode": "offset",
       "toSide": "top",
-      "label": "得到合成视角"
+      "label": "EvaluateStack → FGGYGOCameraModeView"
     },
     {
       "id": "e5",
@@ -120,7 +120,7 @@
       "fromSide": "right",
       "toNode": "output",
       "toSide": "left",
-      "label": "应用微调后"
+      "label": "Offset → FMinimalViewInfo"
     },
     {
       "id": "e6",
@@ -128,7 +128,7 @@
       "fromSide": "bottom",
       "toNode": "empty",
       "toSide": "top",
-      "label": "尚无有效模式"
+      "label": "Mode Class 为空"
     },
     {
       "id": "e7",
@@ -136,7 +136,7 @@
       "fromSide": "right",
       "toNode": "output",
       "toSide": "left",
-      "label": "使用组件兜底视角"
+      "label": "Super::GetCameraView 兜底"
     }
   ]
 }

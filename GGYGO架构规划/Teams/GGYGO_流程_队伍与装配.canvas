@@ -13,61 +13,61 @@
     {
       "id": "preset",
       "type": "text",
-      "text": "1. LocalPlayer 预设解析为本局 Roster；若没有，取 Experience 默认编队。",
+      "text": "1. LocalPlayer 预设解析为本局 Roster；若没有，取 Experience 默认编队。\n\n调用：SquadPresets::ResolveActivePresetRoster(OutRoster) → SquadComponent::SetRoster；否则 Experience 默认编队成员。",
       "x": 0,
-      "y": 300,
+      "y": 405,
       "width": 400,
-      "height": 180,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "slots",
       "type": "text",
-      "text": "2. GameMode 为每名成员创建 CharacterSlot，先建 ASC/属性并授予 AbilitySet。",
+      "text": "2. GameMode 为每名成员创建 CharacterSlot，先建 ASC/属性并授予 AbilitySet。\n\n调用：GameMode::SpawnSquadSlot → CharacterSlot::InitializeForPawnData → AbilitySet::GiveToAbilitySystem。",
       "x": 480,
-      "y": 300,
+      "y": 405,
       "width": 420,
-      "height": 190,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "pawns",
       "type": "text",
-      "text": "3. 再生成 Pawn；PawnExtension 绑定对应 Slot ASC，Pawn 成为 Avatar。",
+      "text": "3. 再生成 Pawn；PawnExtension 绑定对应 Slot ASC，Pawn 成为 Avatar。\n\n调用：GameMode::SpawnSquadMember → PawnExtension::SetPawnData → Slot::AttachAvatar(Pawn) → InitializeAbilitySystem。",
       "x": 980,
-      "y": 300,
+      "y": 405,
       "width": 420,
-      "height": 190,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "active",
       "type": "text",
-      "text": "4. SquadComponent 登记 Slots，PlayerController Possess 当前出战 Pawn。",
+      "text": "4. SquadComponent 登记 Slots，PlayerController Possess 当前出战 Pawn。\n\n调用：SquadComponent::RegisterSlot / SwitchToSlot(0) → PlayerController::Possess(ActivePawn)。",
       "x": 1480,
-      "y": 300,
+      "y": 405,
       "width": 430,
-      "height": 190,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "switch",
       "type": "text",
-      "text": "5. 换人：先 UnPossess 旧 Pawn，再 Possess 新 Pawn，更新出战索引。",
+      "text": "5. 换人：先 UnPossess 旧 Pawn，再 Possess 新 Pawn，更新出战索引。\n\n调用：SquadComponent::SwitchToSlot(Index) → Controller::UnPossess / Possess(TargetPawn)，更新 ActiveSlotIndex。",
       "x": 1480,
-      "y": 690,
+      "y": 932,
       "width": 430,
-      "height": 185,
+      "height": 230,
       "color": "1"
     },
     {
       "id": "persist",
       "type": "text",
-      "text": "待命 Slot 的属性、Buff、冷却继续存在；切换的是 Avatar 和附身关系。",
+      "text": "待命 Slot 的属性、Buff、冷却继续存在；切换的是 Avatar 和附身关系。\n\nSwitchToSlot 不重建 CharacterSlot/ASC；待命能力仍由各自 Slot 保有，只有控制权切换。",
       "x": 980,
-      "y": 730,
+      "y": 986,
       "width": 420,
-      "height": 180,
+      "height": 230,
       "color": "4"
     },
     {
@@ -88,7 +88,7 @@
       "fromSide": "right",
       "toNode": "slots",
       "toSide": "left",
-      "label": "确定名单"
+      "label": "ResolveActivePresetRoster → SetRoster"
     },
     {
       "id": "e2",
@@ -96,7 +96,7 @@
       "fromSide": "right",
       "toNode": "pawns",
       "toSide": "left",
-      "label": "ASC 已就绪"
+      "label": "InitializeForPawnData → SpawnSquadMember"
     },
     {
       "id": "e3",
@@ -104,7 +104,7 @@
       "fromSide": "right",
       "toNode": "active",
       "toSide": "left",
-      "label": "Avatar 绑定完毕"
+      "label": "AttachAvatar → RegisterSlot / Possess"
     },
     {
       "id": "e4",
@@ -112,7 +112,7 @@
       "fromSide": "bottom",
       "toNode": "switch",
       "toSide": "top",
-      "label": "玩家发起换人"
+      "label": "SwitchToSlot(Index)"
     },
     {
       "id": "e5",
@@ -120,7 +120,7 @@
       "fromSide": "right",
       "toNode": "persist",
       "toSide": "left",
-      "label": "GAS 状态留在 Slot"
+      "label": "Slot/ASC 保留；只换 Possess"
     },
     {
       "id": "e6",
@@ -128,7 +128,7 @@
       "fromSide": "bottom",
       "toNode": "remote",
       "toSide": "top",
-      "label": "远程存档不可直读"
+      "label": "远程预设需服务器上报（未实现）"
     }
   ]
 }

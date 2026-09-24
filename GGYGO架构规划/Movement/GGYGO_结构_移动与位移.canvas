@@ -79,6 +79,16 @@
       "width": 410,
       "height": 205,
       "color": "1"
+    },
+    {
+      "id": "contract",
+      "type": "text",
+      "text": "## 移动权威接口链\nHeroComponent::Input_Move → Pawn::AddMovementInput；CMC::UpdateCharacterStateBeforeMovement 解算步态/转身/限制 Tag。\nCMC::TickComponent → Sampler::Sample(AnimInstance, dt, CurveMotion)；GetMaxSpeed/PhysicsRotation 消费，RMS::PrepareRootMotion 供动作段位移。\nFSavedMove_GGYGO::SetMoveFor/PrepMoveFor + CanCombineWith 保证预测重放边界；AnimationStateCapture::Capture 只读 CMC 结果。\nMotionProfile 为目标设计，当前不可作为已实现 CMC 输入。",
+      "x": 0,
+      "y": 1240,
+      "width": 1450,
+      "height": 300,
+      "color": "6"
     }
   ],
   "edges": [

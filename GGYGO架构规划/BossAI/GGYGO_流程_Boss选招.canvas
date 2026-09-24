@@ -1,19 +1,124 @@
 {
-	"nodes":[
-		{"id":"nav","type":"text","text":"# Boss 选招｜流程子图\nA–C 当前实现。类关系见 [[GGYGO_结构_BossAI.canvas|结构图]]；[[计划_BOSSAI]]。","x":0,"y":0,"width":1690,"height":130,"color":"6"},
-		{"id":"tick","type":"text","text":"1. BehaviorTree 到达选招任务，读 BossState 的当前 Form/Phase。","x":0,"y":260,"width":410,"height":180,"color":"5"},
-		{"id":"candidates","type":"text","text":"2. ActionSet 给出 ActionTag 候选及权重；按距离、角度、可激活性过滤。","x":480,"y":260,"width":420,"height":190,"color":"5"},
-		{"id":"random","type":"text","text":"3. BossAIController 的确定性随机流抽取候选，记录选择。","x":980,"y":260,"width":420,"height":180,"color":"5"},
-		{"id":"request","type":"text","text":"4. 激活任务用 ActionTag 找对应 GA，向 BossState ASC 申请激活。","x":1480,"y":260,"width":420,"height":185,"color":"5"},
-		{"id":"execute","type":"text","text":"5A. 成功：GA 驱动 Montage / Trace / GE；任务等能力结束。","x":1480,"y":610,"width":420,"height":180,"color":"1"},
-		{"id":"fail","type":"text","text":"5B. 拒绝或无候选：BT 走失败/其他动作，不在任务里直接造成伤害。","x":980,"y":610,"width":420,"height":185,"color":"3"}
-	],
-	"edges":[
-		{"id":"e1","fromNode":"tick","fromSide":"right","toNode":"candidates","toSide":"left","label":"读取阶段动作池"},
-		{"id":"e2","fromNode":"candidates","fromSide":"right","toNode":"random","toSide":"left","label":"存在有效候选"},
-		{"id":"e3","fromNode":"random","fromSide":"right","toNode":"request","toSide":"left","label":"选出 ActionTag"},
-		{"id":"e4","fromNode":"request","fromSide":"right","toNode":"execute","toSide":"left","label":"ASC 接受"},
-		{"id":"e5","fromNode":"request","fromSide":"right","toNode":"fail","toSide":"left","label":"拒绝"},
-		{"id":"e6","fromNode":"candidates","fromSide":"bottom","toNode":"fail","toSide":"left","label":"无候选"}
-	]
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Boss 选招｜流程子图\nA–C 当前实现。类关系见 [[GGYGO_结构_BossAI.canvas|结构图]]；[[计划_BOSSAI]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1690,
+      "height": 130,
+      "color": "6"
+    },
+    {
+      "id": "tick",
+      "type": "text",
+      "text": "1. BehaviorTree 到达选招任务，读 BossState 的当前 Form/Phase。\n\nUE BT 调 ChooseBossAction::ExecuteTask；读取 BossState::GetCurrentFormTag/GetCurrentPhaseTag 与目标 Blackboard。",
+      "x": 0,
+      "y": 351,
+      "width": 410,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "candidates",
+      "type": "text",
+      "text": "2. ActionSet 给出 ActionTag 候选及权重；按距离、角度、可激活性过滤。\n\n遍历 BossActionSet 动作；按 Form/Phase、距离/角度筛选，再调 ASC::CanActivateAbilityByHandle(Handle, FailureTags)。",
+      "x": 480,
+      "y": 351,
+      "width": 420,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "random",
+      "type": "text",
+      "text": "3. BossAIController 的确定性随机流抽取候选，记录选择。\n\n调用：BossAIController::GetActionWeight / DrawActionWeight(Total) / RecordActionSelection；选中 ActionTag 写 Blackboard。",
+      "x": 980,
+      "y": 351,
+      "width": 420,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "request",
+      "type": "text",
+      "text": "4. 激活任务用 ActionTag 找对应 GA，向 BossState ASC 申请激活。\n\n调用：ActivateAbility::ExecuteTask 从 ActionTag 找 SpecHandle → ASC::TryActivateAbility(Handle)，登记结束委托。",
+      "x": 1480,
+      "y": 351,
+      "width": 420,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "execute",
+      "type": "text",
+      "text": "5A. 成功：GA 驱动 Montage / Trace / GE；任务等能力结束。\n\nGA::ActivateAbility → Montage Task/Trace/GE；BTTask::HandleAbilityEnded 对同一 Handle 收尾并返回结果。",
+      "x": 1480,
+      "y": 824,
+      "width": 420,
+      "height": 230,
+      "color": "1"
+    },
+    {
+      "id": "fail",
+      "type": "text",
+      "text": "5B. 拒绝或无候选：BT 走失败/其他动作，不在任务里直接造成伤害。\n\n无候选或 TryActivateAbility=false → EBTNodeResult::Failed；OnTaskFinished/CleanupBinding 防残留回调。",
+      "x": 980,
+      "y": 824,
+      "width": 420,
+      "height": 230,
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "tick",
+      "fromSide": "right",
+      "toNode": "candidates",
+      "toSide": "left",
+      "label": "ResolveCurrentActionSet(Form/Phase)"
+    },
+    {
+      "id": "e2",
+      "fromNode": "candidates",
+      "fromSide": "right",
+      "toNode": "random",
+      "toSide": "left",
+      "label": "CanActivateAbilityByHandle=true"
+    },
+    {
+      "id": "e3",
+      "fromNode": "random",
+      "fromSide": "right",
+      "toNode": "request",
+      "toSide": "left",
+      "label": "DrawActionWeight → Blackboard ActionTag"
+    },
+    {
+      "id": "e4",
+      "fromNode": "request",
+      "fromSide": "right",
+      "toNode": "execute",
+      "toSide": "left",
+      "label": "TryActivateAbility=true → 等 OnAbilityEnded"
+    },
+    {
+      "id": "e5",
+      "fromNode": "request",
+      "fromSide": "right",
+      "toNode": "fail",
+      "toSide": "left",
+      "label": "TryActivateAbility=false → Failed"
+    },
+    {
+      "id": "e6",
+      "fromNode": "candidates",
+      "fromSide": "bottom",
+      "toNode": "fail",
+      "toSide": "left",
+      "label": "候选为空 → ClearValue / Failed"
+    }
+  ]
 }

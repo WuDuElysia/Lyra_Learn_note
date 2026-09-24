@@ -49,6 +49,16 @@
       "width": 440,
       "height": 220,
       "color": "1"
+    },
+    {
+      "id": "contract",
+      "type": "text",
+      "text": "## 共享基础接口\nGGYGOGameplayTags 提供静态 Tag 语义键，Input/ASC/AI/消息只共享键，不经 System 互相调用。\nUGGYGOAssetManager::Get/GetGameData → UGGYGOGameData 的 Damage/Heal/SelfDestruct GE；调用方处理可空值与资产缺失。\nPawnData/AbilitySet 是关卡或角色配置，不应塞进全局 GameData；System 不持有角色状态。",
+      "x": 0,
+      "y": 1010,
+      "width": 1450,
+      "height": 300,
+      "color": "6"
     }
   ],
   "edges": [

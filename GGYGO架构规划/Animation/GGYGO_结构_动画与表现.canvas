@@ -23,7 +23,7 @@
     {
       "id": "capture",
       "type": "text",
-      "text": "## FGGYGOAnimationStateCapture\n`Capture(Pawn, OutFrame, OutDebug)` → 在游戏线程取 CMC/ASC/Pawn 事实，集中处理缺失来源。",
+      "text": "## FGGYGOAnimationStateCapture\n`Capture(OutFrame, OutDebug, Pawn)` → 在游戏线程取 CMC/ASC/Pawn 事实，集中处理缺失来源。",
       "x": 500,
       "y": 280,
       "width": 420,
@@ -79,6 +79,16 @@
       "width": 390,
       "height": 210,
       "color": "4"
+    },
+    {
+      "id": "contract",
+      "type": "text",
+      "text": "## 事实到表现的接口边界\nUE → AnimInstanceBase::NativeUpdateAnimation(dt) → StateCapture::Capture(OutState, OutDebug, Pawn)。\nCapture 从 CMC/ASC/Pawn 读权威事实，写 AnimationStateFrame；AnimBP 通过查询函数/StateFrame 决定状态、资产与过渡。\nZZZAnimInstance::NativeUpdateAnimation → LegacySnapshotAdapter::Capture 仅适配旧 Snapshot；StopValue/GaitBlendY 兼容记忆当前仍在 C++，目标才迁入蓝图。\nAnimBP 不应回调 CMC 来决定玩法位移；曲线反读例外见曲线结构子图。",
+      "x": 0,
+      "y": 1300,
+      "width": 1450,
+      "height": 300,
+      "color": "6"
     }
   ],
   "edges": [

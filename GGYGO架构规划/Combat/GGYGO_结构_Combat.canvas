@@ -59,6 +59,16 @@
       "width": 430,
       "height": 220,
       "color": "1"
+    },
+    {
+      "id": "contract",
+      "type": "text",
+      "text": "## 窗口与命中接口契约\nGA/Montage Event → MeleeTrace::BeginTraceWindow(StartSocket, EndSocket, Radius)；EndTraceWindow 关闭判定。\nMeleeTrace::TickComponent → PerformTrace；Mesh::GetSocketLocation 与 SweepMultiByChannel 产 HitResult，HitActorsThisWindow 在窗口内去重。\nOnMeleeHit.Broadcast(Actor, Hit) → BossMeleeAbility::HandleMeleeHit → SourceASC::MakeOutgoingSpec / ApplyGameplayEffectSpecToTarget；Trace 只报告命中，不拥有伤害公式。",
+      "x": 0,
+      "y": 1000,
+      "width": 1450,
+      "height": 300,
+      "color": "6"
     }
   ],
   "edges": [

@@ -13,81 +13,81 @@
     {
       "id": "asset",
       "type": "text",
-      "text": "1. 烘焙动画提供 Speed、PosX/Y、Dist、Yaw、DirX/Y 与 Cfg_ClipLength/LoopTime。",
+      "text": "1. 烘焙动画提供 Speed、PosX/Y、Dist、Yaw、DirX/Y 与 Cfg_ClipLength/LoopTime。\n\n数据键：RootMotion_Speed/PosX/PosY/Dist/Yaw/DirX/DirY、Cfg_ClipLength/LoopTime；不是直接位移命令。",
       "x": 0,
-      "y": 270,
+      "y": 365,
       "width": 430,
-      "height": 205,
+      "height": 230,
       "color": "4"
     },
     {
       "id": "tick",
       "type": "text",
-      "text": "2. CMC::TickComponent 在 Super 之前、每帧一次调用 SampleAnimCurves(dt)。",
+      "text": "2. CMC::TickComponent 在 Super 之前、每帧一次调用 SampleAnimCurves(dt)。\n\n调用：CMC::TickComponent → SampleAnimCurves(dt) → Sampler::Sample(AnimInstance, dt, OutCurveMotion)，然后 Super::TickComponent。",
       "x": 500,
-      "y": 270,
+      "y": 365,
       "width": 430,
-      "height": 185,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "read",
       "type": "text",
-      "text": "3. Sample 用 AnimInstance::GetCurveValue 读取并清理非有限/负值。",
+      "text": "3. Sample 用 AnimInstance::GetCurveValue 读取并清理非有限/负值。\n\nSampler::Sample 用 AnimInstance::GetCurveValue(Name)；非有限值归零，累积量保留前帧基线。",
       "x": 1010,
-      "y": 270,
+      "y": 365,
       "width": 430,
-      "height": 190,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "source",
       "type": "text",
-      "text": "4. ClipLength 或旧批次的 Speed/Dir/Dist 判定曲线存在；零速度仍可能是有效曲线。",
+      "text": "4. ClipLength 或旧批次的 Speed/Dir/Dist 判定曲线存在；零速度仍可能是有效曲线。\n\nSampler::Sample 根据 ClipLength 或兼容曲线组设置 bHasCurveSource；Speed=0 不等于来源缺失。",
       "x": 1520,
-      "y": 270,
+      "y": 365,
       "width": 440,
-      "height": 210,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "guard",
       "type": "text",
-      "text": "5. 首帧、dt 无效、Dist 回退时只更新基线；动画切段/循环不能算出反向大位移。",
+      "text": "5. 首帧、dt 无效、Dist 回退时只更新基线；动画切段/循环不能算出反向大位移。\n\nSampler::ResetBaseline 用于 Mesh/动画源失效；首帧和 Dist 回退不产差分，防止切段尖峰。",
       "x": 1520,
-      "y": 640,
+      "y": 864,
       "width": 440,
-      "height": 210,
+      "height": 230,
       "color": "3"
     },
     {
       "id": "diff",
       "type": "text",
-      "text": "6. 正常帧：PosX/Y 和 Yaw 与上帧差分；Speed 直接取值；DirX/Y 优先于差分方向。",
+      "text": "6. 正常帧：PosX/Y 和 Yaw 与上帧差分；Speed 直接取值；DirX/Y 优先于差分方向。\n\nSampler::Sample 对累计 Pos/Yaw 求相邻帧差，速度直接取 Speed；Direction 优先读 DirX/Y。",
       "x": 1010,
-      "y": 680,
+      "y": 918,
       "width": 430,
-      "height": 215,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "motion",
       "type": "text",
-      "text": "7. 输出 CurveMotion：Speed、Direction、PositionDelta、YawDelta/YawTotal 与有效性。",
+      "text": "7. 输出 CurveMotion：Speed、Direction、PositionDelta、YawDelta/YawTotal 与有效性。\n\n写出 FGGYGOAnimCurveMotion；HasUsableSpeed 与 bHasCurveSource 分开，避免误判停止帧。",
       "x": 500,
-      "y": 730,
+      "y": 986,
       "width": 430,
-      "height": 205,
+      "height": 230,
       "color": "1"
     },
     {
       "id": "consume",
       "type": "text",
-      "text": "8. CMC 的 GetMaxSpeed、PhysicsRotation 和曲线 RootMotionSource 消费本帧结果。",
+      "text": "8. CMC 的 GetMaxSpeed、PhysicsRotation 和曲线 RootMotionSource 消费本帧结果。\n\nCMC::GetMaxSpeed/PhysicsRotation 消费速度和转角；FRootMotionSource_GGYGOCurve::PrepareRootMotion 消费方向/速度。",
       "x": 500,
-      "y": 1110,
+      "y": 1499,
       "width": 430,
-      "height": 210,
+      "height": 230,
       "color": "1"
     },
     {
@@ -95,7 +95,7 @@
       "type": "text",
       "text": "目标：独立 MotionProfile 给 CMC 提供同一套时钟/曲线；目前仍依赖 AnimInstance。",
       "x": 1010,
-      "y": 1110,
+      "y": 1600,
       "width": 430,
       "height": 205,
       "color": "3"
@@ -108,7 +108,7 @@
       "fromSide": "right",
       "toNode": "tick",
       "toSide": "left",
-      "label": "动画资产已播放"
+      "label": "CMC::TickComponent(dt)"
     },
     {
       "id": "e2",
@@ -116,7 +116,7 @@
       "fromSide": "right",
       "toNode": "read",
       "toSide": "left",
-      "label": "本帧采样"
+      "label": "SampleAnimCurves → Sampler::Sample"
     },
     {
       "id": "e3",
@@ -124,7 +124,7 @@
       "fromSide": "right",
       "toNode": "source",
       "toSide": "left",
-      "label": "取得曲线信号"
+      "label": "AnimInstance::GetCurveValue"
     },
     {
       "id": "e4",
@@ -132,7 +132,7 @@
       "fromSide": "bottom",
       "toNode": "guard",
       "toSide": "top",
-      "label": "检查基线与切段"
+      "label": "bHasCurveSource / 基线判断"
     },
     {
       "id": "e5",
@@ -140,7 +140,7 @@
       "fromSide": "right",
       "toNode": "diff",
       "toSide": "left",
-      "label": "基线有效"
+      "label": "Pos/Yaw 差分"
     },
     {
       "id": "e6",
@@ -148,7 +148,7 @@
       "fromSide": "left",
       "toNode": "motion",
       "toSide": "right",
-      "label": "无效时输出零增量"
+      "label": "首帧/回退：零增量"
     },
     {
       "id": "e7",
@@ -156,7 +156,7 @@
       "fromSide": "right",
       "toNode": "motion",
       "toSide": "left",
-      "label": "形成运动量"
+      "label": "写 FGGYGOAnimCurveMotion"
     },
     {
       "id": "e8",
@@ -164,7 +164,7 @@
       "fromSide": "bottom",
       "toNode": "consume",
       "toSide": "top",
-      "label": "当前曲线结果"
+      "label": "GetMaxSpeed / PhysicsRotation / RMS"
     },
     {
       "id": "e9",
@@ -172,7 +172,7 @@
       "fromSide": "right",
       "toNode": "target",
       "toSide": "left",
-      "label": "未来替换反读源"
+      "label": "目标：MotionProfile 替代反读"
     }
   ]
 }

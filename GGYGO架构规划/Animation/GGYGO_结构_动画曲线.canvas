@@ -89,6 +89,16 @@
       "width": 470,
       "height": 190,
       "color": "3"
+    },
+    {
+      "id": "contract",
+      "type": "text",
+      "text": "## 曲线接口与时钟边界\nCMC::TickComponent(dt) → SampleAnimCurves(dt) → Sampler::Sample(AnimInstance, dt, OutMotion) → AnimInstance::GetCurveValue(Name)。\nSampler 持有累计量基线，写 CurveMotion；CMC::GetMaxSpeed/PhysicsRotation 与 RMS::PrepareRootMotion 读取它。SavedMove::SetMoveFor/PrepMoveFor 为预测重演保存/恢复。\n当前是 CMC 反读 AnimInstance；MotionProfile 只是拟议替代数据源，不能画作已实现调用。",
+      "x": 0,
+      "y": 1470,
+      "width": 1450,
+      "height": 300,
+      "color": "6"
     }
   ],
   "edges": [

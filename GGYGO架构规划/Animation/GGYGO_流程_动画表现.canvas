@@ -1,21 +1,142 @@
 {
-	"nodes":[
-		{"id":"nav","type":"text","text":"# Animation｜流程图\n一帧只读语义如何进入 AnimBP；类关系见 [[GGYGO_结构_动画与表现.canvas|结构图]]、[[Animation/结构|结构文档]]。动画曲线另见 [[GGYGO_流程_动画曲线处理.canvas|子图]]。","x":0,"y":0,"width":1740,"height":145,"color":"6"},
-		{"id":"source","type":"text","text":"1. CMC / ASC / Pawn 在各自引擎生命周期更新权威状态。","x":0,"y":300,"width":385,"height":170,"color":"5"},
-		{"id":"capture","type":"text","text":"2. AnimInstanceBase 在 NativeUpdateAnimation 捕获一帧 AnimationStateFrame。","x":470,"y":300,"width":420,"height":185,"color":"5"},
-		{"id":"read","type":"text","text":"3. ABP_Pyrios 读取输入、步态、转身等语义事实。","x":970,"y":300,"width":420,"height":180,"color":"5"},
-		{"id":"transition","type":"text","text":"4. AnimBP 过渡图选择 EnterMove、Moving、Stop、TurnBack 等状态。","x":1470,"y":300,"width":420,"height":190,"color":"5"},
-		{"id":"play","type":"text","text":"5. 状态图选动画序列 / BlendSpace，并输出骨骼姿势。","x":1470,"y":690,"width":420,"height":180,"color":"1"},
-		{"id":"compat","type":"text","text":"兼容路径：ZZZ 适配旧 Snapshot，仍推进 StopValue 与 GaitBlendY。","x":970,"y":720,"width":420,"height":185,"color":"3"},
-		{"id":"future","type":"text","text":"目标：表现记忆回到 AnimBP，MotionProfile/Linked Layer 继续按计划迁移。\n[[计划_动画与表现层]]","x":470,"y":770,"width":420,"height":190,"color":"3"}
-	],
-	"edges":[
-		{"id":"e1","fromNode":"source","fromSide":"right","toNode":"capture","toSide":"left","label":"权威事实就绪"},
-		{"id":"e2","fromNode":"capture","fromSide":"right","toNode":"read","toSide":"left","label":"发布只读帧"},
-		{"id":"e3","fromNode":"read","fromSide":"right","toNode":"transition","toSide":"left","label":"满足过渡条件"},
-		{"id":"e4","fromNode":"transition","fromSide":"bottom","toNode":"play","toSide":"top","label":"选择表现状态"},
-		{"id":"e5","fromNode":"capture","fromSide":"bottom","toNode":"compat","toSide":"left","label":"迁移期适配"},
-		{"id":"e6","fromNode":"compat","fromSide":"right","toNode":"play","toSide":"left","label":"旧表现记忆驱动 Select / BlendSpace"},
-		{"id":"e7","fromNode":"compat","fromSide":"left","toNode":"future","toSide":"right","label":"后续移除兼容层"}
-	]
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Animation｜流程图\n一帧只读语义如何进入 AnimBP；类关系见 [[GGYGO_结构_动画与表现.canvas|结构图]]、[[Animation/结构|结构文档]]。动画曲线另见 [[GGYGO_流程_动画曲线处理.canvas|子图]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1740,
+      "height": 145,
+      "color": "6"
+    },
+    {
+      "id": "source",
+      "type": "text",
+      "text": "1. CMC / ASC / Pawn 在各自引擎生命周期更新权威状态。\n\n来源接口：CMC::GetResolvedGait/HasMoveInput/IsTurnBackCurveDriven，ASC::HasMatchingGameplayTag，Pawn Transform。",
+      "x": 0,
+      "y": 405,
+      "width": 385,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "capture",
+      "type": "text",
+      "text": "2. AnimInstanceBase 在 NativeUpdateAnimation 捕获一帧 AnimationStateFrame。\n\n调用：AnimInstanceBase::NativeUpdateAnimation → StateCapture::Capture(OutState, OutDebug, Pawn)；游戏线程一次集中抓取。",
+      "x": 470,
+      "y": 405,
+      "width": 420,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "read",
+      "type": "text",
+      "text": "3. ABP_Pyrios 读取输入、步态、转身等语义事实。\n\nAnimBP 经 AnimInstanceBase::GetAnimationStateFrame 和 HasAnimationStateTag/IsAnimationRunGait 等只读查询获得事实。",
+      "x": 970,
+      "y": 405,
+      "width": 420,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "transition",
+      "type": "text",
+      "text": "4. AnimBP 过渡图选择 EnterMove、Moving、Stop、TurnBack 等状态。\n\nAnimBP 过渡规则消费 StateFrame；C++ 不返回具体 ABP 状态名，EnterMove/Stop/TurnBack 选择留在蓝图。",
+      "x": 1470,
+      "y": 405,
+      "width": 420,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "play",
+      "type": "text",
+      "text": "5. 状态图选动画序列 / BlendSpace，并输出骨骼姿势。\n\nAnimBP 使用 GetSeqByKey/GetBlendSpaceByKey 取资源，AnimGraph 求姿势；资源选择不回写 CMC。",
+      "x": 1470,
+      "y": 932,
+      "width": 420,
+      "height": 230,
+      "color": "1"
+    },
+    {
+      "id": "compat",
+      "type": "text",
+      "text": "兼容路径：ZZZ 适配旧 Snapshot，仍推进 StopValue 与 GaitBlendY。\n\n调用：ZZZAnimInstance::NativeUpdateAnimation → LegacySnapshotAdapter::Capture(StateFrame, DebugFrame) → 旧状态记忆。",
+      "x": 970,
+      "y": 972,
+      "width": 420,
+      "height": 230,
+      "color": "3"
+    },
+    {
+      "id": "future",
+      "type": "text",
+      "text": "目标：表现记忆回到 AnimBP，MotionProfile/Linked Layer 继续按计划迁移。\n[[计划_动画与表现层]]",
+      "x": 470,
+      "y": 770,
+      "width": 420,
+      "height": 190,
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "source",
+      "fromSide": "right",
+      "toNode": "capture",
+      "toSide": "left",
+      "label": "权威事实就绪"
+    },
+    {
+      "id": "e2",
+      "fromNode": "capture",
+      "fromSide": "right",
+      "toNode": "read",
+      "toSide": "left",
+      "label": "发布只读帧"
+    },
+    {
+      "id": "e3",
+      "fromNode": "read",
+      "fromSide": "right",
+      "toNode": "transition",
+      "toSide": "left",
+      "label": "满足过渡条件"
+    },
+    {
+      "id": "e4",
+      "fromNode": "transition",
+      "fromSide": "bottom",
+      "toNode": "play",
+      "toSide": "top",
+      "label": "选择表现状态"
+    },
+    {
+      "id": "e5",
+      "fromNode": "capture",
+      "fromSide": "bottom",
+      "toNode": "compat",
+      "toSide": "left",
+      "label": "迁移期适配"
+    },
+    {
+      "id": "e6",
+      "fromNode": "compat",
+      "fromSide": "right",
+      "toNode": "play",
+      "toSide": "left",
+      "label": "旧表现记忆驱动 Select / BlendSpace"
+    },
+    {
+      "id": "e7",
+      "fromNode": "compat",
+      "fromSide": "left",
+      "toNode": "future",
+      "toSide": "right",
+      "label": "后续移除兼容层"
+    }
+  ]
 }

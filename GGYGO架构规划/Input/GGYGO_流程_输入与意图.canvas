@@ -13,71 +13,71 @@
     {
       "id": "action",
       "type": "text",
-      "text": "1. Enhanced Input 发出 InputAction 轴值或按下/松开。",
+      "text": "1. Enhanced Input 发出 InputAction 轴值或按下/松开。\n\nUE Enhanced Input 触发 InputAction::Started/Completed 或 Triggered 轴值；不直接激活 GA。",
       "x": 0,
-      "y": 280,
+      "y": 378,
       "width": 385,
-      "height": 170,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "map",
       "type": "text",
-      "text": "2. InputConfig 与 InputComponent 将 Action 绑定到对应 Tag 回调。",
+      "text": "2. InputConfig 与 InputComponent 将 Action 绑定到对应 Tag 回调。\n\nHeroComponent::InitializePlayerInput → InputComponent::BindNativeAction/BindAbilityActions(InputConfig, Callbacks)。",
       "x": 470,
-      "y": 280,
+      "y": 378,
       "width": 400,
-      "height": 175,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "branch",
       "type": "text",
-      "text": "3. HeroComponent 按输入类型分流。",
+      "text": "3. HeroComponent 按输入类型分流。\n\n回调：HeroComponent::Input_Move / Input_LookMouse / Input_LookStick / Input_AbilityInputTagPressed/Released。",
       "x": 950,
-      "y": 280,
+      "y": 378,
       "width": 385,
-      "height": 170,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "move",
       "type": "text",
-      "text": "移动/视角轴值：直接交给 CMC / Controller。\n[[Movement/结构]]",
+      "text": "移动/视角轴值：直接交给 CMC / Controller。\n[[Movement/结构]]\n\nInput_Move → Pawn::AddMovementInput；Input_Look* → Pawn::AddControllerYawInput/AddControllerPitchInput；不走 ASC。",
       "x": 1430,
-      "y": 160,
+      "y": 216,
       "width": 420,
-      "height": 180,
+      "height": 230,
       "color": "1"
     },
     {
       "id": "ability",
       "type": "text",
-      "text": "Ability InputTag：Pressed/Released 先写入 ASC 缓存。",
+      "text": "Ability InputTag：Pressed/Released 先写入 ASC 缓存。\n\nInput_AbilityInputTagPressed/Released(Tag) → ASC::AbilityInputTagPressed/Released(Tag)；只写 Handle 集。",
       "x": 1430,
-      "y": 550,
+      "y": 743,
       "width": 420,
-      "height": 180,
+      "height": 230,
       "color": "1"
     },
     {
       "id": "consume",
       "type": "text",
-      "text": "4. PlayerController::PostProcessInput 调 ASC::ProcessAbilityInput，统一申请激活。",
+      "text": "4. PlayerController::PostProcessInput 调 ASC::ProcessAbilityInput，统一申请激活。\n\nPlayerController::PostProcessInput(dt, paused) → ASC::ProcessAbilityInput → TryActivateAbility(Handle)。",
       "x": 950,
-      "y": 700,
+      "y": 945,
       "width": 400,
-      "height": 190,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "retry",
       "type": "text",
-      "text": "可重试拒绝：HeroComponent 暂存意图，组释放后再请求。\n[[GGYGO_流程_能力仲裁.canvas]]",
+      "text": "可重试拒绝：HeroComponent 暂存意图，组释放后再请求。\n[[GGYGO_流程_能力仲裁.canvas]]\n\nASC::OnAbilityInputRetryable → HeroComponent::BufferAbilityInput；OnAbilityGroupFreed → HandleAbilityGroupFreed 重交 Tag。",
       "x": 1430,
-      "y": 940,
+      "y": 1269,
       "width": 420,
-      "height": 190,
+      "height": 230,
       "color": "3"
     }
   ],
@@ -88,7 +88,7 @@
       "fromSide": "right",
       "toNode": "map",
       "toSide": "left",
-      "label": "触发映射"
+      "label": "BindNativeAction / BindAbilityActions"
     },
     {
       "id": "e2",
@@ -96,7 +96,7 @@
       "fromSide": "right",
       "toNode": "branch",
       "toSide": "left",
-      "label": "调用 Hero 回调"
+      "label": "HeroComponent 输入回调"
     },
     {
       "id": "e3",
@@ -104,7 +104,7 @@
       "fromSide": "right",
       "toNode": "move",
       "toSide": "left",
-      "label": "连续轴值"
+      "label": "AddMovementInput / AddControllerYawInput"
     },
     {
       "id": "e4",
@@ -112,7 +112,7 @@
       "fromSide": "right",
       "toNode": "ability",
       "toSide": "left",
-      "label": "能力按键"
+      "label": "ASC::AbilityInputTagPressed/Released"
     },
     {
       "id": "e5",
@@ -120,7 +120,7 @@
       "fromSide": "right",
       "toNode": "consume",
       "toSide": "left",
-      "label": "本帧输入收齐"
+      "label": "PostProcessInput → ProcessAbilityInput"
     },
     {
       "id": "e6",
@@ -128,7 +128,7 @@
       "fromSide": "right",
       "toNode": "retry",
       "toSide": "left",
-      "label": "可重试拒绝"
+      "label": "OnAbilityInputRetryable → BufferAbilityInput"
     }
   ]
 }

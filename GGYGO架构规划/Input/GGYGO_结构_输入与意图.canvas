@@ -79,6 +79,16 @@
       "width": 420,
       "height": 245,
       "color": "1"
+    },
+    {
+      "id": "contract",
+      "type": "text",
+      "text": "## 输入接口分流\nHeroComponent::InitializePlayerInput → InputComponent::BindNativeAction/BindAbilityActions(InputConfig)：Action/Tag 到回调，不决定 GA。\nInput_Move/Look → Pawn::AddMovementInput / Controller 视角输入；Input_AbilityInputTagPressed/Released(Tag) → ASC 缓存 SpecHandle。\nPlayerController::PostProcessInput(dt, paused) → ASC::ProcessAbilityInput → TryActivateAbility；Retryable/GroupFreed 委托 → HeroComponent 缓冲/重交。\n连续轴值走 CMC，语义能力走 GAS；这是两个不同入口。",
+      "x": 0,
+      "y": 1300,
+      "width": 1450,
+      "height": 300,
+      "color": "6"
     }
   ],
   "edges": [

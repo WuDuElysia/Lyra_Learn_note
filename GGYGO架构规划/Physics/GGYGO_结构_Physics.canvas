@@ -49,6 +49,16 @@
       "width": 430,
       "height": 205,
       "color": "1"
+    },
+    {
+      "id": "contract",
+      "type": "text",
+      "text": "## 物理材质语义传递\nMeleeTrace::PerformTrace → FHitResult.PhysMaterial → UGGYGOPhysicalMaterialWithTags::Tags。\n通常的 GA 效果创建路径可经 ApplyAbilityTagsToGameplayEffectSpec 把材质 Tag 加入 GE 目标语义；DamageExecution::Execute_Implementation 从 EffectContext.PhysicalMaterial 调 AbilitySource 的衰减接口。BossMelee 当前直接用 SourceASC::MakeOutgoingSpec 并执行固定 HitCueTag，不保证经过该 Tag 注入/表面 Cue 选择路径。\n普通 UPhysicalMaterial 不含项目 Tags，必须处理空/非项目材质；Physics 不负责直接扣血。",
+      "x": 0,
+      "y": 980,
+      "width": 1450,
+      "height": 300,
+      "color": "6"
     }
   ],
   "edges": [

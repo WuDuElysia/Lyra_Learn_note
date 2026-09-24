@@ -1,20 +1,134 @@
 {
-	"nodes":[
-		{"id":"nav","type":"text","text":"# Character｜初始化流程图\nPawnData、ASC 和各组件何时就绪；类关系见 [[GGYGO_结构_角色与组件.canvas|结构图]]、[[Character/结构|结构文档]]。","x":0,"y":0,"width":1650,"height":140,"color":"6"},
-		{"id":"spawn","type":"text","text":"1. GameMode / BossEncounter 生成 Pawn，装入 PawnData。","x":0,"y":300,"width":385,"height":170,"color":"5"},
-		{"id":"owner","type":"text","text":"2. Slot 或 BossState 先拥有 ASC、基础属性与授予的能力。","x":460,"y":300,"width":410,"height":180,"color":"5"},
-		{"id":"bind","type":"text","text":"3. PawnExtension::InitializeAbilitySystem 把外部 ASC 绑定到当前 Avatar。","x":960,"y":300,"width":420,"height":190,"color":"5"},
-		{"id":"init","type":"text","text":"4. InitState 推进；HealthComponent 绑定 HealthSet，移动层应用 MovementSet。","x":1460,"y":300,"width":430,"height":190,"color":"5"},
-		{"id":"hero","type":"text","text":"玩家分支：HeroComponent 完成输入绑定、能力重试和相机模式委托。","x":1460,"y":650,"width":430,"height":190,"color":"1"},
-		{"id":"boss","type":"text","text":"Boss 分支：AIController 驱动 BT，Pawn 不需要玩家 Hero 输入组件。","x":960,"y":680,"width":420,"height":180,"color":"1"},
-		{"id":"unbind","type":"text","text":"Avatar 卸载/更换：PawnExtension 清旧绑定；宿主 ASC 生命周期继续。","x":460,"y":730,"width":410,"height":180,"color":"3"}
-	],
-	"edges":[
-		{"id":"e1","fromNode":"spawn","fromSide":"right","toNode":"owner","toSide":"left","label":"取得对应宿主"},
-		{"id":"e2","fromNode":"owner","fromSide":"right","toNode":"bind","toSide":"left","label":"ASC / Owner 已就绪"},
-		{"id":"e3","fromNode":"bind","fromSide":"right","toNode":"init","toSide":"left","label":"Avatar 绑定完成"},
-		{"id":"e4","fromNode":"init","fromSide":"right","toNode":"hero","toSide":"left","label":"玩家 Pawn"},
-		{"id":"e5","fromNode":"init","fromSide":"bottom","toNode":"boss","toSide":"top","label":"Boss Pawn"},
-		{"id":"e6","fromNode":"bind","fromSide":"bottom","toNode":"unbind","toSide":"right","label":"Avatar 退场"}
-	]
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Character｜初始化流程图\nPawnData、ASC 和各组件何时就绪；类关系见 [[GGYGO_结构_角色与组件.canvas|结构图]]、[[Character/结构|结构文档]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1650,
+      "height": 140,
+      "color": "6"
+    },
+    {
+      "id": "spawn",
+      "type": "text",
+      "text": "1. GameMode / BossEncounter 生成 Pawn，装入 PawnData。\n\n玩家：GameMode::SpawnSquadMember/SpawnSquadSlot；Boss：BossEncounter::SpawnBoss；对 PawnExtension::SetPawnData(Data)。",
+      "x": 0,
+      "y": 405,
+      "width": 385,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "owner",
+      "type": "text",
+      "text": "2. Slot 或 BossState 先拥有 ASC、基础属性与授予的能力。\n\n调用：Slot::InitializeForPawnData / BossState::InitializeFromDefinition → AbilitySet::GiveToAbilitySystem(ASC, Handles, Source)。",
+      "x": 460,
+      "y": 405,
+      "width": 410,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "bind",
+      "type": "text",
+      "text": "3. PawnExtension::InitializeAbilitySystem 把外部 ASC 绑定到当前 Avatar。\n\n调用：CombatantState::AttachAvatar(Pawn) → PawnExtension::InitializeAbilitySystem(ASC, Owner) → ASC::InitAbilityActorInfo。",
+      "x": 960,
+      "y": 405,
+      "width": 420,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "init",
+      "type": "text",
+      "text": "4. InitState 推进；HealthComponent 绑定 HealthSet，移动层应用 MovementSet。\n\n调用：PawnExtension::CheckDefaultInitialization/HandleChangeInitState → ApplyPawnDataToConsumers；HealthComponent::InitializeWithAbilitySystem。",
+      "x": 1460,
+      "y": 405,
+      "width": 430,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "hero",
+      "type": "text",
+      "text": "玩家分支：HeroComponent 完成输入绑定、能力重试和相机模式委托。\n\n调用：HeroComponent::InitializePlayerInput → InputComponent::BindNativeAction/BindAbilityActions；绑定 DetermineCameraModeDelegate。",
+      "x": 1460,
+      "y": 878,
+      "width": 430,
+      "height": 230,
+      "color": "1"
+    },
+    {
+      "id": "boss",
+      "type": "text",
+      "text": "Boss 分支：AIController 驱动 BT，Pawn 不需要玩家 Hero 输入组件。\n\n调用：BossAIController 驱动 BehaviorTree；BTTask 通过 BossState::GetGGYGOAbilitySystemComponent 访问 ASC。",
+      "x": 960,
+      "y": 918,
+      "width": 420,
+      "height": 230,
+      "color": "1"
+    },
+    {
+      "id": "unbind",
+      "type": "text",
+      "text": "Avatar 卸载/更换：PawnExtension 清旧绑定；宿主 ASC 生命周期继续。\n\n调用：CombatantState::DetachAvatar(ExpectedPawn) → PawnExtension::UninitializeAbilitySystem；ExpectedPawn 防旧 Pawn 误清新绑定。",
+      "x": 460,
+      "y": 986,
+      "width": 410,
+      "height": 230,
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "spawn",
+      "fromSide": "right",
+      "toNode": "owner",
+      "toSide": "left",
+      "label": "取得对应宿主"
+    },
+    {
+      "id": "e2",
+      "fromNode": "owner",
+      "fromSide": "right",
+      "toNode": "bind",
+      "toSide": "left",
+      "label": "ASC / Owner 已就绪"
+    },
+    {
+      "id": "e3",
+      "fromNode": "bind",
+      "fromSide": "right",
+      "toNode": "init",
+      "toSide": "left",
+      "label": "Avatar 绑定完成"
+    },
+    {
+      "id": "e4",
+      "fromNode": "init",
+      "fromSide": "right",
+      "toNode": "hero",
+      "toSide": "left",
+      "label": "玩家 Pawn"
+    },
+    {
+      "id": "e5",
+      "fromNode": "init",
+      "fromSide": "bottom",
+      "toNode": "boss",
+      "toSide": "top",
+      "label": "Boss Pawn"
+    },
+    {
+      "id": "e6",
+      "fromNode": "bind",
+      "fromSide": "bottom",
+      "toNode": "unbind",
+      "toSide": "right",
+      "label": "Avatar 退场"
+    }
+  ]
 }

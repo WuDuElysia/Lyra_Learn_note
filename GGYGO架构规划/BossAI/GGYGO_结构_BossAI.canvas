@@ -8,7 +8,8 @@
 		{"id":"controller","type":"text","text":"## AGGYGOBossAIController\n`InitializeDecisionStream(Seed)` → 可复现随机流。\n`GetActionWeight(Action)` / `DrawActionWeight(Total)` → 加权选招。\n`RecordActionSelection` → 记录选择。","x":1100,"y":250,"width":420,"height":270,"color":"5"},
 		{"id":"tasks","type":"text","text":"## BT 任务接口\n`ChooseBossAction::ExecuteTask` → 过滤并选 ActionTag。\n`ActivateAbility::ExecuteTask` → 找 GA 并请求 ASC 激活；`OnTaskFinished` 清结束绑定。","x":1100,"y":630,"width":420,"height":245,"color":"4"},
 		{"id":"ga","type":"text","text":"## UGGYGOCombatActionAbility / BossMeleeAbility\n`ActionTag` → 决策与执行的语义键。\n`ActivateAbility()` → Montage Task；Event 打开 Trace。\n`HandleMeleeHit()` → 应用 GE 与 Cue。","x":1100,"y":1000,"width":420,"height":255,"color":"1"},
-		{"id":"future","type":"text","text":"## 目标设计（D–F，未实现）\n仇恨/目标服务、转阶段锁、换 Pawn 事务；BossState 持续持有 ASC，Controller 保持 Brain。\n[[GGYGO_流程_Boss换形态.canvas]]","x":540,"y":1050,"width":440,"height":230,"color":"3"}
+		{"id":"future","type":"text","text":"## 目标设计（D–F，未实现）\n仇恨/目标服务、转阶段锁、换 Pawn 事务；BossState 持续持有 ASC，Controller 保持 Brain。\n[[GGYGO_流程_Boss换形态.canvas]]","x":540,"y":1050,"width":440,"height":230,"color":"3"},
+		{"id":"contract","type":"text","text":"## 决策与执行接口契约\nBossEncounter::SpawnBoss → BossState::InitializeFromDefinition + AttachAvatar(Pawn) → ASC ActorInfo 指向当前 Pawn，状态留在 BossState。\nBT ChooseBossAction::ExecuteTask → ASC::CanActivateAbilityByHandle(Handle, FailureTags) → Controller::DrawActionWeight → Blackboard ActionTag。\nBT ActivateAbility::ExecuteTask → ASC::TryActivateAbility(Handle) → OnAbilityEnded/HandleAbilityEnded 返回 BT；GA::HandleMeleeHit → GE/Cue。\n目标服务/阶段事务目前未实现；换形态应重绑 Avatar 而非复制 ASC。","x":0,"y":1370,"width":1450,"height":300,"color":"6"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"definition","fromSide":"right","toNode":"state","toSide":"left","label":"初始化 Form / Phase 与能力"},

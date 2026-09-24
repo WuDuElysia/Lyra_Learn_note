@@ -79,6 +79,16 @@
       "width": 420,
       "height": 220,
       "color": "1"
+    },
+    {
+      "id": "contract",
+      "type": "text",
+      "text": "## 编队、宿主与控制权接口链\nSquadPresets::ResolveActivePresetRoster(OutRoster) → SquadComponent::SetRoster(PawnData[])：存档意图先于局内装配。\nGameMode::SpawnSquadSlot → Slot::InitializeForPawnData → AbilitySet::GiveToAbilitySystem；GameMode::SpawnSquadMember → Slot::AttachAvatar(Pawn) → PawnExtension::InitializeAbilitySystem。\nSquadComponent::RegisterSlot → SwitchToSlot(Index) → PlayerController::Possess(Pawn)：只换控制权和 ActiveSlotIndex，待命 Slot/ASC 不销毁。\nBossState 仅共用 CombatantState 的 ASC/Avatar 契约，不参加 Squad/Presets。",
+      "x": 0,
+      "y": 1350,
+      "width": 1450,
+      "height": 300,
+      "color": "6"
     }
   ],
   "edges": [

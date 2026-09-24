@@ -1,22 +1,160 @@
 {
-	"nodes":[
-		{"id":"nav","type":"text","text":"# Character｜结构图\n组件职责与跨模块接口。InitState 的先后顺序见 [[GGYGO_流程_角色初始化.canvas|流程图]]。[[Character/结构|结构文档]]","x":0,"y":0,"width":1500,"height":130,"color":"6"},
-		{"id":"host","type":"text","text":"## 外部宿主：AGGYGOCombatantState\n`AttachAvatar(Pawn)` → 同步复制 Avatar、PawnExtension 和 ASC ActorInfo。\n`DetachAvatar(ExpectedPawn)` → 避免旧 Pawn 延迟销毁误清新 Avatar。\n[[Teams/结构]] · [[BossAI/结构]]","x":0,"y":240,"width":390,"height":245,"color":"4"},
-		{"id":"data","type":"text","text":"## UGGYGOPawnData\n`PawnClass` / `AbilitySets` / `AbilityGroupConfig` / `TagRelationshipMapping`\n`MovementSet` / `InputConfig` / `DefaultCameraMode`：分发给对应消费者。","x":0,"y":570,"width":390,"height":215,"color":"4"},
-		{"id":"character","type":"text","text":"## AGGYGOCharacterBase / HeroCharacter\nPawn 是 Avatar。基础角色承载 PawnExtension、Health、CMC；玩家派生再有 Hero 输入/相机职责。","x":510,"y":330,"width":430,"height":220,"color":"5"},
-		{"id":"extension","type":"text","text":"## UGGYGOPawnExtensionComponent\n`SetPawnData(Data)` → 装配角色静态配置。\n`InitializeAbilitySystem(ASC, Owner)` → 建立 ActorInfo。\n`UninitializeAbilitySystem()` → Avatar 卸载。\nASC 就绪/卸载委托供 Health、CMC 订阅。","x":1050,"y":260,"width":430,"height":280,"color":"5"},
-		{"id":"health","type":"text","text":"## UGGYGOHealthComponent\n`InitializeWithAbilitySystem(ASC)` → 绑定 HealthSet。\n`GetHealth/Poise()` → 只读数值。\n`StartDeath()` / `FinishDeath()` → 死亡状态边沿与复制。","x":1050,"y":580,"width":430,"height":230,"color":"4"},
-		{"id":"hero","type":"text","text":"## UGGYGOHeroComponent（玩家）\n`InitializePlayerInput()` → 绑定 Native/Ability Action。\n`DetermineCameraMode()` → 默认/能力覆盖仲裁。\n`SetAbilityCameraMode(Class, SpecHandle)` / `Clear...` → 所有权管理。","x":510,"y":800,"width":430,"height":255,"color":"4"},
-		{"id":"movement","type":"text","text":"## UGGYGOCharacterMovementComponent\n`SetMovementSet(Data)` → 配置步态/曲线。\n`HasMoveInput()` / `GetHorizontalSpeed()` / `IsTurnBackCurveDriven()` → 发布动画语义。\n[[Movement/结构]]","x":1050,"y":920,"width":430,"height":235,"color":"4"}
-	],
-	"edges":[
-		{"id":"e1","fromNode":"host","fromSide":"right","toNode":"extension","toSide":"left","label":"注入外部 ASC / Owner"},
-		{"id":"e2","fromNode":"data","fromSide":"right","toNode":"extension","toSide":"left","label":"装配 PawnData"},
-		{"id":"e3","fromNode":"character","fromSide":"right","toNode":"extension","toSide":"left","label":"拥有组件"},
-		{"id":"e4","fromNode":"character","fromSide":"right","toNode":"health","toSide":"left","label":"拥有组件"},
-		{"id":"e5","fromNode":"extension","fromSide":"bottom","toNode":"health","toSide":"top","label":"ASC 就绪后绑定 HealthSet"},
-		{"id":"e6","fromNode":"character","fromSide":"bottom","toNode":"hero","toSide":"top","label":"玩家派生拥有"},
-		{"id":"e7","fromNode":"character","fromSide":"bottom","toNode":"movement","toSide":"top","label":"拥有 CMC"},
-		{"id":"e8","fromNode":"data","fromSide":"bottom","toNode":"hero","toSide":"left","label":"输入与相机配置"}
-	]
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Character｜结构图\n组件职责与跨模块接口。InitState 的先后顺序见 [[GGYGO_流程_角色初始化.canvas|流程图]]。[[Character/结构|结构文档]]",
+      "x": 0,
+      "y": 0,
+      "width": 1500,
+      "height": 130,
+      "color": "6"
+    },
+    {
+      "id": "host",
+      "type": "text",
+      "text": "## 外部宿主：AGGYGOCombatantState\n`AttachAvatar(Pawn)` → 同步复制 Avatar、PawnExtension 和 ASC ActorInfo。\n`DetachAvatar(ExpectedPawn)` → 避免旧 Pawn 延迟销毁误清新 Avatar。\n[[Teams/结构]] · [[BossAI/结构]]",
+      "x": 0,
+      "y": 240,
+      "width": 390,
+      "height": 245,
+      "color": "4"
+    },
+    {
+      "id": "data",
+      "type": "text",
+      "text": "## UGGYGOPawnData\n`PawnClass` / `AbilitySets` / `AbilityGroupConfig` / `TagRelationshipMapping`\n`MovementSet` / `InputConfig` / `DefaultCameraMode`：分发给对应消费者。",
+      "x": 0,
+      "y": 570,
+      "width": 390,
+      "height": 215,
+      "color": "4"
+    },
+    {
+      "id": "character",
+      "type": "text",
+      "text": "## AGGYGOCharacterBase / HeroCharacter\nPawn 是 Avatar。基础角色承载 PawnExtension、Health、CMC；玩家派生再有 Hero 输入/相机职责。",
+      "x": 510,
+      "y": 330,
+      "width": 430,
+      "height": 220,
+      "color": "5"
+    },
+    {
+      "id": "extension",
+      "type": "text",
+      "text": "## UGGYGOPawnExtensionComponent\n`SetPawnData(Data)` → 装配角色静态配置。\n`InitializeAbilitySystem(ASC, Owner)` → 建立 ActorInfo。\n`UninitializeAbilitySystem()` → Avatar 卸载。\nASC 就绪/卸载委托供 Health、CMC 订阅。",
+      "x": 1050,
+      "y": 260,
+      "width": 430,
+      "height": 280,
+      "color": "5"
+    },
+    {
+      "id": "health",
+      "type": "text",
+      "text": "## UGGYGOHealthComponent\n`InitializeWithAbilitySystem(ASC)` → 绑定 HealthSet。\n`GetHealth/Poise()` → 只读数值。\n`StartDeath()` / `FinishDeath()` → 死亡状态边沿与复制。",
+      "x": 1050,
+      "y": 580,
+      "width": 430,
+      "height": 230,
+      "color": "4"
+    },
+    {
+      "id": "hero",
+      "type": "text",
+      "text": "## UGGYGOHeroComponent（玩家）\n`InitializePlayerInput()` → 绑定 Native/Ability Action。\n`DetermineCameraMode()` → 默认/能力覆盖仲裁。\n`SetAbilityCameraMode(Class, SpecHandle)` / `Clear...` → 所有权管理。",
+      "x": 510,
+      "y": 800,
+      "width": 430,
+      "height": 255,
+      "color": "4"
+    },
+    {
+      "id": "movement",
+      "type": "text",
+      "text": "## UGGYGOCharacterMovementComponent\n`SetMovementSet(Data)` → 配置步态/曲线。\n`HasMoveInput()` / `GetHorizontalSpeed()` / `IsTurnBackCurveDriven()` → 发布动画语义。\n[[Movement/结构]]",
+      "x": 1050,
+      "y": 920,
+      "width": 430,
+      "height": 235,
+      "color": "4"
+    },
+    {
+      "id": "contract",
+      "type": "text",
+      "text": "## 宿主与 Avatar 交互契约\nCombatantState::AttachAvatar(Pawn) → PawnExtension::InitializeAbilitySystem(ASC, Owner) → ASC::InitAbilityActorInfo；Owner 是 Slot/BossState，Avatar 是 Pawn。\nPawnExtension::SetPawnData(Data) / ApplyPawnDataToConsumers → MovementSet 给 CMC、输入/默认相机给 Hero；不是 Pawn 自己拥有 ASC。\nPawnExtension 的 ASC 就绪通知 → HealthComponent::InitializeWithAbilitySystem(ASC)；换 Pawn 时 UninitializeAbilitySystem 与 DetachAvatar(ExpectedPawn) 避免误清新绑定。\n玩家 HeroComponent 只管输入和相机；Boss Pawn 无需复用玩家 Hero 输入。",
+      "x": 0,
+      "y": 1250,
+      "width": 1450,
+      "height": 300,
+      "color": "6"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "host",
+      "fromSide": "right",
+      "toNode": "extension",
+      "toSide": "left",
+      "label": "注入外部 ASC / Owner"
+    },
+    {
+      "id": "e2",
+      "fromNode": "data",
+      "fromSide": "right",
+      "toNode": "extension",
+      "toSide": "left",
+      "label": "装配 PawnData"
+    },
+    {
+      "id": "e3",
+      "fromNode": "character",
+      "fromSide": "right",
+      "toNode": "extension",
+      "toSide": "left",
+      "label": "拥有组件"
+    },
+    {
+      "id": "e4",
+      "fromNode": "character",
+      "fromSide": "right",
+      "toNode": "health",
+      "toSide": "left",
+      "label": "拥有组件"
+    },
+    {
+      "id": "e5",
+      "fromNode": "extension",
+      "fromSide": "bottom",
+      "toNode": "health",
+      "toSide": "top",
+      "label": "ASC 就绪后绑定 HealthSet"
+    },
+    {
+      "id": "e6",
+      "fromNode": "character",
+      "fromSide": "bottom",
+      "toNode": "hero",
+      "toSide": "top",
+      "label": "玩家派生拥有"
+    },
+    {
+      "id": "e7",
+      "fromNode": "character",
+      "fromSide": "bottom",
+      "toNode": "movement",
+      "toSide": "top",
+      "label": "拥有 CMC"
+    },
+    {
+      "id": "e8",
+      "fromNode": "data",
+      "fromSide": "bottom",
+      "toNode": "hero",
+      "toSide": "left",
+      "label": "输入与相机配置"
+    }
+  ]
 }

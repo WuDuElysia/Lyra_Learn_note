@@ -13,29 +13,29 @@
     {
       "id": "pull",
       "type": "text",
-      "text": "1. GetCameraView 调 UpdateCameraModes，从委托取得有效 Mode Class。",
+      "text": "1. GetCameraView 调 UpdateCameraModes，从委托取得有效 Mode Class。\n\n调用：CameraComponent::GetCameraView → UpdateCameraModes → DetermineCameraModeDelegate → Stack::PushCameraMode(Class)。",
       "x": 0,
-      "y": 260,
+      "y": 351,
       "width": 410,
-      "height": 180,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "pool",
       "type": "text",
-      "text": "2. PushCameraMode：按 Class 在实例池查找，未找到才 NewObject；栈顶同类时直接返回。",
+      "text": "2. PushCameraMode：按 Class 在实例池查找，未找到才 NewObject；栈顶同类时直接返回。\n\nPushCameraMode 用 Class 查 CameraModeInstances；仅首次 NewObject，活跃栈与实例池分离。",
       "x": 480,
-      "y": 260,
+      "y": 351,
       "width": 430,
-      "height": 195,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "contribution",
       "type": "text",
-      "text": "3. 已在栈中：可见贡献 = 自身 Weight × 上层各 (1 - Weight)；移到索引 0，用 SetBlendWeight 反解 BlendAlpha。新类从 0 进入。",
+      "text": "3. 已在栈中：可见贡献 = 自身 Weight × 上层各 (1 - Weight)；移到索引 0，用 SetBlendWeight 反解 BlendAlpha。新类从 0 进入。\n\nPushCameraMode 计算旧模式可见贡献、置顶后调用 Mode::SetBlendWeight；避免重推时画面突然跳回全权重。",
       "x": 990,
-      "y": 260,
+      "y": 351,
       "width": 470,
       "height": 245,
       "color": "5"
@@ -43,39 +43,39 @@
     {
       "id": "bottom",
       "type": "text",
-      "text": "空栈首次入栈：栈底权重强制为 1，避免从未初始化视角开始混合。",
+      "text": "空栈首次入栈：栈底权重强制为 1，避免从未初始化视角开始混合。\n\n首次入栈时底层 Mode::SetBlendWeight(1)；保证 BlendStack 有完整基底。",
       "x": 1530,
-      "y": 180,
+      "y": 243,
       "width": 440,
-      "height": 180,
+      "height": 230,
       "color": "3"
     },
     {
       "id": "update",
       "type": "text",
-      "text": "4. UpdateStack：Mode 先 UpdateView，再按 dt/BlendTime 推进 Alpha 并套缓动函数得到 Weight。",
+      "text": "4. UpdateStack：Mode 先 UpdateView，再按 dt/BlendTime 推进 Alpha 并套缓动函数得到 Weight。\n\nEvaluateStack → UpdateStack(dt) → 每个 Mode::UpdateCameraMode(dt)：UpdateView + BlendAlpha/缓动推进。",
       "x": 1530,
-      "y": 540,
+      "y": 729,
       "width": 440,
-      "height": 215,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "prune",
       "type": "text",
-      "text": "5. 遇到权重满 1 的上层模式：下层已不可见，调用 OnDeactivation 并移除活动项；实例池保留。",
+      "text": "5. 遇到权重满 1 的上层模式：下层已不可见，调用 OnDeactivation 并移除活动项；实例池保留。\n\nUpdateStack 删去被完全遮盖的旧活跃项，实例池仍保留以供后续复用。",
       "x": 990,
-      "y": 660,
+      "y": 891,
       "width": 470,
-      "height": 220,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "blend",
       "type": "text",
-      "text": "6. BlendStack：从数组末尾的栈底 View 开始，逐层混到索引 0；旋转插值使用归一化角差。",
+      "text": "6. BlendStack：从数组末尾的栈底 View 开始，逐层混到索引 0；旋转插值使用归一化角差。\n\nEvaluateStack → BlendStack：从栈底 View 开始，逐层 View::Blend(UpperView, UpperWeight)。",
       "x": 480,
-      "y": 760,
+      "y": 1026,
       "width": 430,
       "height": 230,
       "color": "5"
@@ -104,7 +104,7 @@
       "id": "fallback",
       "type": "text",
       "text": "无有效类且活动栈为空：直接调用 UCameraComponent::GetCameraView。",
-      "x": 480,
+      "x": 990,
       "y": 1170,
       "width": 430,
       "height": 180,
@@ -118,7 +118,7 @@
       "fromSide": "right",
       "toNode": "pool",
       "toSide": "left",
-      "label": "有效模式类"
+      "label": "PushCameraMode(Class)"
     },
     {
       "id": "e2",
@@ -126,7 +126,7 @@
       "fromSide": "right",
       "toNode": "contribution",
       "toSide": "left",
-      "label": "已有或新实例"
+      "label": "实例池复用 / NewObject"
     },
     {
       "id": "e3",
@@ -134,7 +134,7 @@
       "fromSide": "right",
       "toNode": "bottom",
       "toSide": "left",
-      "label": "仅首个模式"
+      "label": "首模式 SetBlendWeight(1)"
     },
     {
       "id": "e4",
@@ -142,7 +142,7 @@
       "fromSide": "right",
       "toNode": "update",
       "toSide": "left",
-      "label": "置顶并设初始权重"
+      "label": "SetBlendWeight → UpdateStack"
     },
     {
       "id": "e5",
@@ -150,7 +150,7 @@
       "fromSide": "right",
       "toNode": "prune",
       "toSide": "left",
-      "label": "更新后可见性"
+      "label": "权重更新 → 裁剪隐藏项"
     },
     {
       "id": "e6",
@@ -158,7 +158,7 @@
       "fromSide": "right",
       "toNode": "blend",
       "toSide": "left",
-      "label": "剩余活动模式"
+      "label": "活跃栈 → BlendStack"
     },
     {
       "id": "e7",
@@ -166,7 +166,7 @@
       "fromSide": "right",
       "toNode": "offset",
       "toSide": "left",
-      "label": "合成视角"
+      "label": "BlendStack → 合成 View"
     },
     {
       "id": "e8",
@@ -174,7 +174,7 @@
       "fromSide": "bottom",
       "toNode": "write",
       "toSide": "top",
-      "label": "最终视角"
+      "label": "Offset → GetCameraView 输出"
     },
     {
       "id": "e9",
@@ -182,7 +182,7 @@
       "fromSide": "bottom",
       "toNode": "fallback",
       "toSide": "top",
-      "label": "委托为空且无活动栈"
+      "label": "无有效模式 → Super::GetCameraView"
     }
   ]
 }

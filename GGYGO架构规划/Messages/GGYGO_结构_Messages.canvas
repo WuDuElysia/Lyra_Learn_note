@@ -59,6 +59,16 @@
       "width": 470,
       "height": 210,
       "color": "3"
+    },
+    {
+      "id": "contract",
+      "type": "text",
+      "text": "## 发布/订阅接口与边界\nHealthSet::PostGameplayEffectExecute → GameplayMessageSubsystem::BroadcastMessage(Verb, FGGYGOVerbMessage)；正伤害/破韧才发送对应 Verb，当前治疗没有此观察者消息。\nUI/音效/统计按 Verb 订阅并读取 Instigator/Target/Tags/Magnitude；消息不回写 ASC，不能作为伤害权威。\nGameplayEvent 是发往 ASC 的能力事件通道，通常由 Montage/HealthComponent 触发；与观察者广播不是同一接口。",
+      "x": 0,
+      "y": 1050,
+      "width": 1450,
+      "height": 300,
+      "color": "6"
     }
   ],
   "edges": [

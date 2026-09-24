@@ -1,0 +1,178 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# 动画曲线｜采样与消费流程\n[[Animation/曲线处理|实现说明]] · [[GGYGO_结构_动画曲线.canvas|类结构]] · [[计划_动画与表现层#7. 曲线与权威移动的新边界|目标拆环]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1960,
+      "height": 145,
+      "color": "6"
+    },
+    {
+      "id": "asset",
+      "type": "text",
+      "text": "1. 烘焙动画提供 Speed、PosX/Y、Dist、Yaw、DirX/Y 与 Cfg_ClipLength/LoopTime。",
+      "x": 0,
+      "y": 270,
+      "width": 430,
+      "height": 205,
+      "color": "4"
+    },
+    {
+      "id": "tick",
+      "type": "text",
+      "text": "2. CMC::TickComponent 在 Super 之前、每帧一次调用 SampleAnimCurves(dt)。",
+      "x": 500,
+      "y": 270,
+      "width": 430,
+      "height": 185,
+      "color": "5"
+    },
+    {
+      "id": "read",
+      "type": "text",
+      "text": "3. Sample 用 AnimInstance::GetCurveValue 读取并清理非有限/负值。",
+      "x": 1010,
+      "y": 270,
+      "width": 430,
+      "height": 190,
+      "color": "5"
+    },
+    {
+      "id": "source",
+      "type": "text",
+      "text": "4. ClipLength 或旧批次的 Speed/Dir/Dist 判定曲线存在；零速度仍可能是有效曲线。",
+      "x": 1520,
+      "y": 270,
+      "width": 440,
+      "height": 210,
+      "color": "5"
+    },
+    {
+      "id": "guard",
+      "type": "text",
+      "text": "5. 首帧、dt 无效、Dist 回退时只更新基线；动画切段/循环不能算出反向大位移。",
+      "x": 1520,
+      "y": 640,
+      "width": 440,
+      "height": 210,
+      "color": "3"
+    },
+    {
+      "id": "diff",
+      "type": "text",
+      "text": "6. 正常帧：PosX/Y 和 Yaw 与上帧差分；Speed 直接取值；DirX/Y 优先于差分方向。",
+      "x": 1010,
+      "y": 680,
+      "width": 430,
+      "height": 215,
+      "color": "5"
+    },
+    {
+      "id": "motion",
+      "type": "text",
+      "text": "7. 输出 CurveMotion：Speed、Direction、PositionDelta、YawDelta/YawTotal 与有效性。",
+      "x": 500,
+      "y": 730,
+      "width": 430,
+      "height": 205,
+      "color": "1"
+    },
+    {
+      "id": "consume",
+      "type": "text",
+      "text": "8. CMC 的 GetMaxSpeed、PhysicsRotation 和曲线 RootMotionSource 消费本帧结果。",
+      "x": 500,
+      "y": 1110,
+      "width": 430,
+      "height": 210,
+      "color": "1"
+    },
+    {
+      "id": "target",
+      "type": "text",
+      "text": "目标：独立 MotionProfile 给 CMC 提供同一套时钟/曲线；目前仍依赖 AnimInstance。",
+      "x": 1010,
+      "y": 1110,
+      "width": 430,
+      "height": 205,
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "asset",
+      "fromSide": "right",
+      "toNode": "tick",
+      "toSide": "left",
+      "label": "动画资产已播放"
+    },
+    {
+      "id": "e2",
+      "fromNode": "tick",
+      "fromSide": "right",
+      "toNode": "read",
+      "toSide": "left",
+      "label": "本帧采样"
+    },
+    {
+      "id": "e3",
+      "fromNode": "read",
+      "fromSide": "right",
+      "toNode": "source",
+      "toSide": "left",
+      "label": "取得曲线信号"
+    },
+    {
+      "id": "e4",
+      "fromNode": "source",
+      "fromSide": "bottom",
+      "toNode": "guard",
+      "toSide": "top",
+      "label": "检查基线与切段"
+    },
+    {
+      "id": "e5",
+      "fromNode": "guard",
+      "fromSide": "right",
+      "toNode": "diff",
+      "toSide": "left",
+      "label": "基线有效"
+    },
+    {
+      "id": "e6",
+      "fromNode": "guard",
+      "fromSide": "left",
+      "toNode": "motion",
+      "toSide": "right",
+      "label": "无效时输出零增量"
+    },
+    {
+      "id": "e7",
+      "fromNode": "diff",
+      "fromSide": "right",
+      "toNode": "motion",
+      "toSide": "left",
+      "label": "形成运动量"
+    },
+    {
+      "id": "e8",
+      "fromNode": "motion",
+      "fromSide": "bottom",
+      "toNode": "consume",
+      "toSide": "top",
+      "label": "当前曲线结果"
+    },
+    {
+      "id": "e9",
+      "fromNode": "consume",
+      "fromSide": "right",
+      "toNode": "target",
+      "toSide": "left",
+      "label": "未来替换反读源"
+    }
+  ]
+}

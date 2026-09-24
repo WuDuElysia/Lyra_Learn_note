@@ -1,0 +1,142 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Teams｜结构图\n玩家编队的持久层次。装配/换人顺序见 [[GGYGO_流程_队伍与装配.canvas|流程图]]；[[Teams/结构|结构文档]]。Boss 只共用底层宿主契约。",
+      "x": 0,
+      "y": 0,
+      "width": 1480,
+      "height": 140,
+      "color": "6"
+    },
+    {
+      "id": "presets",
+      "type": "text",
+      "text": "## UGGYGOSquadPresets\n`SetPresetMembers(Index, IDs)` → 保存资产 ID。\n`SetActivePresetIndex(Index)` → 选出战预设。\n`ResolveActivePresetRoster(Out)` → 解析本局成员。",
+      "x": 0,
+      "y": 280,
+      "width": 410,
+      "height": 245,
+      "color": "4"
+    },
+    {
+      "id": "state",
+      "type": "text",
+      "text": "## AGGYGOPlayerState\n拥有 `UGGYGOSquadComponent`；队伍数据跨 Pawn 死亡/更换仍保留。",
+      "x": 490,
+      "y": 220,
+      "width": 420,
+      "height": 195,
+      "color": "4"
+    },
+    {
+      "id": "pc",
+      "type": "text",
+      "text": "## AGGYGOPlayerController\n`Possess(Pawn)` → 控制出战 Avatar。\n`PostProcessInput()` → 调当前 ASC 消费本帧能力输入。",
+      "x": 490,
+      "y": 1030,
+      "width": 420,
+      "height": 220,
+      "color": "4"
+    },
+    {
+      "id": "squad",
+      "type": "text",
+      "text": "## UGGYGOSquadComponent\n`SetRoster(Data[])` → 装配前设置名单。\n`RegisterSlot(Slot)` → 登记已创建位置。\n`GetActiveSlot()` / `SwitchToSlot(Index)` → 当前出战与换人。\n持有 Roster、Slots、ActiveSlotIndex。",
+      "x": 490,
+      "y": 565,
+      "width": 420,
+      "height": 290,
+      "color": "5"
+    },
+    {
+      "id": "slot",
+      "type": "text",
+      "text": "## AGGYGOCharacterSlot\n`InitializeForPawnData(Data)` → 授予 AbilitySets / 配 ASC 规则。\n继承 `AttachAvatar(Pawn)`；每个 Slot 独立 HealthSet / CombatSet。",
+      "x": 1270,
+      "y": 578,
+      "width": 420,
+      "height": 260,
+      "color": "5"
+    },
+    {
+      "id": "base",
+      "type": "text",
+      "text": "## AGGYGOCombatantState\n`GetGGYGOAbilitySystemComponent()` → 访问持久 ASC。\n`AttachAvatar(Pawn)` / `DetachAvatar(Expected)` → 更新 ActorInfo 与复制引用。",
+      "x": 1270,
+      "y": 215,
+      "width": 420,
+      "height": 240,
+      "color": "4"
+    },
+    {
+      "id": "pawn",
+      "type": "text",
+      "text": "## AGGYGOCharacterBase / PawnExtension\n`InitializeAbilitySystem(ASC, Owner)` → Pawn 接入 Slot 持有的 GAS 状态。\n换人不重建 Slot。",
+      "x": 1270,
+      "y": 1035,
+      "width": 420,
+      "height": 220,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "presets",
+      "fromSide": "right",
+      "toNode": "squad",
+      "toSide": "left",
+      "label": "解析成局内 Roster"
+    },
+    {
+      "id": "e2",
+      "fromNode": "state",
+      "fromSide": "bottom",
+      "toNode": "squad",
+      "toSide": "top",
+      "label": "拥有组件"
+    },
+    {
+      "id": "e3",
+      "fromNode": "squad",
+      "fromSide": "right",
+      "toNode": "slot",
+      "toSide": "left",
+      "label": "保存多个 Slot / 激活一个"
+    },
+    {
+      "id": "e4",
+      "fromNode": "base",
+      "fromSide": "bottom",
+      "toNode": "slot",
+      "toSide": "top",
+      "label": "基类契约"
+    },
+    {
+      "id": "e5",
+      "fromNode": "slot",
+      "fromSide": "bottom",
+      "toNode": "pawn",
+      "toSide": "top",
+      "label": "Owner ASC 绑定 Avatar"
+    },
+    {
+      "id": "e6",
+      "fromNode": "squad",
+      "fromSide": "bottom",
+      "toNode": "pc",
+      "toSide": "top",
+      "label": "请求切换出战目标"
+    },
+    {
+      "id": "e7",
+      "fromNode": "pc",
+      "fromSide": "right",
+      "toNode": "pawn",
+      "toSide": "left",
+      "label": "Possess 出战 Pawn"
+    }
+  ]
+}

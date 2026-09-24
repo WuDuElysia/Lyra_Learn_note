@@ -1,0 +1,124 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# 能力仲裁｜流程子图\n只画申请到激活/拒绝的先后。类与接口见 [[GGYGO_结构_AbilitySystem.canvas|结构图]]；[[计划_AbilitySystem]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1660,
+      "height": 130,
+      "color": "6"
+    },
+    {
+      "id": "request",
+      "type": "text",
+      "text": "1. InputTag 或 ActionTag 形成能力激活请求。",
+      "x": 0,
+      "y": 260,
+      "width": 390,
+      "height": 165,
+      "color": "5"
+    },
+    {
+      "id": "tag",
+      "type": "text",
+      "text": "2. ASC 检查基础激活条件和 Tag 关系映射。",
+      "x": 470,
+      "y": 260,
+      "width": 390,
+      "height": 165,
+      "color": "5"
+    },
+    {
+      "id": "group",
+      "type": "text",
+      "text": "3. ASC 按组规则、Exclusive 策略和优先级仲裁；同级按 D4。",
+      "x": 940,
+      "y": 260,
+      "width": 410,
+      "height": 175,
+      "color": "5"
+    },
+    {
+      "id": "allow",
+      "type": "text",
+      "text": "4A. 允许：取消被压制实例，登记新能力所在组并激活 GA。",
+      "x": 1430,
+      "y": 160,
+      "width": 410,
+      "height": 175,
+      "color": "1"
+    },
+    {
+      "id": "reject",
+      "type": "text",
+      "text": "4B. 拒绝：回传原因；可重试的玩家意图由 HeroComponent 缓冲。",
+      "x": 1430,
+      "y": 500,
+      "width": 410,
+      "height": 180,
+      "color": "3"
+    },
+    {
+      "id": "freed",
+      "type": "text",
+      "text": "5. 旧 GA 结束释放组；HeroComponent 收到通知再申请一次。",
+      "x": 940,
+      "y": 610,
+      "width": 410,
+      "height": 180,
+      "color": "4"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "request",
+      "fromSide": "right",
+      "toNode": "tag",
+      "toSide": "left",
+      "label": "提交请求"
+    },
+    {
+      "id": "e2",
+      "fromNode": "tag",
+      "fromSide": "right",
+      "toNode": "group",
+      "toSide": "left",
+      "label": "基础条件通过"
+    },
+    {
+      "id": "e3",
+      "fromNode": "group",
+      "fromSide": "right",
+      "toNode": "allow",
+      "toSide": "left",
+      "label": "允许 / 可中断"
+    },
+    {
+      "id": "e4",
+      "fromNode": "group",
+      "fromSide": "right",
+      "toNode": "reject",
+      "toSide": "left",
+      "label": "阻断 / 占组"
+    },
+    {
+      "id": "e5",
+      "fromNode": "reject",
+      "fromSide": "right",
+      "toNode": "freed",
+      "toSide": "left",
+      "label": "可重试"
+    },
+    {
+      "id": "e6",
+      "fromNode": "freed",
+      "fromSide": "left",
+      "toNode": "request",
+      "toSide": "bottom",
+      "label": "重新申请"
+    }
+  ]
+}

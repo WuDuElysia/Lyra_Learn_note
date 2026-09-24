@@ -1,0 +1,272 @@
+{
+  "nodes": [
+    {
+      "id": "title",
+      "type": "text",
+      "text": "# GGYGO 模块依赖\n\n箭头方向 = 依赖方向（A → B 表示 A 依赖 B）。\n\n**判断一个模块能否独立理解**：看它出边的数量。\n`System/` 零出边，可以先看；`GameModes/` 指向多数模块，最后看。\n\n速查：[[模块参考]]　计划入口：[[计划蓝图]]　Boss：[[计划_BOSSAI]]；各模块结构文档入口：[[计划蓝图]]",
+      "x": -1460,
+      "y": -700,
+      "width": 460,
+      "height": 295,
+      "color": "6"
+    },
+    {
+      "id": "character",
+      "type": "text",
+      "text": "## Character/\n\n角色本体 + 四个组件：\nPawnExtension（协调）\nHealth（生命韧性）\nCMC（移动）\nHero（输入）\n\n角色基类当前不持有 ASC；PawnExtension 消费外部注入，\n但不依赖宿主必须是 CharacterSlot。\n玩家来自 Slot，计划 Boss 来自 BossState；简单怪物可自持。\n\n结构：[[GGYGO_结构_角色与组件.canvas]] · [[Character/结构]]\n流程：[[GGYGO_流程_角色初始化.canvas]]",
+      "x": -320,
+      "y": 200,
+      "width": 400,
+      "height": 375,
+      "color": "5"
+    },
+    {
+      "id": "system",
+      "type": "text",
+      "text": "## System/\n\n`GGYGOGameplayTags`\n`UGGYGOAssetManager`\n`UGGYGOGameData`\n\n**零依赖**，被所有模块引用。\nTag 是跨模块通信的公共词汇表。\n结构：[[System/结构]]",
+      "x": -280,
+      "y": -910,
+      "width": 360,
+      "height": 255,
+      "color": "4"
+    },
+    {
+      "id": "input",
+      "type": "text",
+      "text": "## Input/\n\n`UGGYGOInputConfig`\n`UGGYGOInputComponent`\n\n只依赖 System 的 Tag。\n按键与能力各自只认 Tag，\n两边可独立替换。\n结构：[[GGYGO_结构_输入与意图.canvas]] · [[Input/结构]]",
+      "x": -760,
+      "y": -900,
+      "width": 320,
+      "height": 235,
+      "color": "4"
+    },
+    {
+      "id": "gas",
+      "type": "text",
+      "text": "## AbilitySystem/\n\n**中枢**。ASC、能力基类、属性集、\n组仲裁、伤害结算、Cue、Montage 任务。\n\n状态变更的唯一入口 ——\n除移动输入外，任何改变角色状态的\n行为都经 `TryActivateAbility`\n或 `ApplyGameplayEffect`。\n\n结构：[[GGYGO_结构_AbilitySystem.canvas]] · [[AbilitySystem/结构]]\n流程：[[GGYGO_流程_AbilitySystem.canvas]]",
+      "x": -320,
+      "y": -300,
+      "width": 400,
+      "height": 335,
+      "color": "5"
+    },
+    {
+      "id": "teams",
+      "type": "text",
+      "text": "## Teams/ · Player/\n\n`AGGYGOCharacterSlot` ← 玩家 ASC 与属性集的宿主\n`UGGYGOSquadComponent`\n`UGGYGOSquadPresets`（编队存档）\n`AGGYGOPlayerState` / `AGGYGOPlayerController`\n\n队伍挂 PlayerState；预设（落盘）→ 名单（一局）→ 位置。\n当前 CharacterSlot 已继承最小 `AGGYGOCombatantState`，\n但玩家 Owner、Mixed 复制与编队语义仍只留在 Slot。\n\n结构：[[GGYGO_结构_队伍与装配.canvas]] · [[Teams/结构]]\n流程：[[GGYGO_流程_队伍与装配.canvas]]",
+      "x": -1920,
+      "y": 50,
+      "width": 340,
+      "height": 465,
+      "color": "5"
+    },
+    {
+      "id": "rule",
+      "type": "text",
+      "text": "## 层间铁律\n\n1. 上层只产出请求，不直接改状态\n2. 玩法状态变更入口是 GAS\n3. CMC 是移动权威\n4. C++ 向表现层发布只读事实；AnimBP 不反向决定移动\n5. Notify 只发语义事件\n6. 不新增第二个帧调度器：CMC、AnimInstance、GAS 各用引擎生命周期",
+      "x": 170,
+      "y": -1240,
+      "width": 400,
+      "height": 280,
+      "color": "6"
+    },
+    {
+      "id": "physics",
+      "type": "text",
+      "text": "## Physics/\n\n`UGGYGOPhysicalMaterialWithTags`\n\n零依赖。让「打到什么东西上」\n变成可查询的 Tag。\n结构：[[Physics/结构]]",
+      "x": 370,
+      "y": -750,
+      "width": 300,
+      "height": 215,
+      "color": "4"
+    },
+    {
+      "id": "gamemodes",
+      "type": "text",
+      "text": "## GameModes/\n\n`UGGYGOExperienceDefinition`\n`AGGYGOGameMode`\n\n**依赖所有人**。读 Experience，\n生成队伍、注入 PawnData、\n激活 GameFeature。\n\n换玩法模式 = 换一个资产引用。\n结构：[[GGYGO_结构_GameFeature.canvas]] · [[GameFeature/结构]]",
+      "x": -320,
+      "y": 1040,
+      "width": 400,
+      "height": 295,
+      "color": "3"
+    },
+    {
+      "id": "combat",
+      "type": "text",
+      "text": "## Combat/\n\n`UGGYGOMeleeTraceComponent`\n\n依赖 Character（取骨骼位置）。\n命中结果交给 GAS 应用伤害 GE。\n结构：[[Combat/结构]]",
+      "x": 765,
+      "y": 990,
+      "width": 320,
+      "height": 215,
+      "color": "1"
+    },
+    {
+      "id": "camera",
+      "type": "text",
+      "text": "## Camera/\n\n相机模式栈。\n\n依赖 Character 取跟随目标；\n被 GAS 依赖（能力可推入模式）。\n\n结构：[[GGYGO_结构_相机.canvas]] · [[Camera/结构]]\n流程：[[GGYGO_流程_相机.canvas]]",
+      "x": 1160,
+      "y": 540,
+      "width": 320,
+      "height": 255,
+      "color": "1"
+    },
+    {
+      "id": "anim",
+      "type": "text",
+      "text": "## Animation/（当前 + 目标）\n\n薄 AnimInstance + AnimationStateFrame + Linked Anim Layer + 强类型 Profile。\n\n只读消费 Character/CMC/GAS 发布的语义事实；表现拓扑留在蓝图。当前 ABP 已读取 AnimationStateFrame，Stop/GaitBlend 兼容记忆与 CMC 反读曲线仍待迁移。\n\n结构：[[GGYGO_结构_动画与表现.canvas]] · [[Animation/结构]]\n流程：[[GGYGO_流程_动画表现.canvas]]",
+      "x": 1300,
+      "y": 910,
+      "width": 340,
+      "height": 295,
+      "color": "1"
+    },
+    {
+      "id": "ai",
+      "type": "text",
+      "text": "## AI/ · Boss/（阶段 A–C 已实现）\n\n`BossState`：跨 Pawn 的 ASC / 属性 / Phase / Form\n`BossAIController`：Brain、确定性随机流、动作权重\n`BossActionSet`：语义动作候选\nBT Task：过滤、选择并请求 GAS 激活\n\n不依赖 Teams 业务；依赖 Character 的 Avatar 契约、AbilitySystem 执行链与 System Tag。Perception / Threat / CombatTarget 属于阶段 D。\n\n结构：[[GGYGO_结构_BossAI.canvas]] · [[BossAI/结构]]\n流程：[[GGYGO_流程_BossAI.canvas]]",
+      "x": 945,
+      "y": -390,
+      "width": 430,
+      "height": 425,
+      "color": "2"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "input",
+      "fromSide": "bottom",
+      "toNode": "gas",
+      "toSide": "top",
+      "label": "InputTag"
+    },
+    {
+      "id": "e2",
+      "fromNode": "gas",
+      "fromSide": "top",
+      "toNode": "system",
+      "toSide": "bottom",
+      "label": "Tag / 共享 GE"
+    },
+    {
+      "id": "e3",
+      "fromNode": "character",
+      "fromSide": "top",
+      "toNode": "gas",
+      "toSide": "bottom",
+      "label": "读 Tag / 绑属性委托"
+    },
+    {
+      "id": "e4",
+      "fromNode": "camera",
+      "fromSide": "left",
+      "toNode": "character",
+      "toSide": "right",
+      "label": "取跟随目标"
+    },
+    {
+      "id": "e5",
+      "fromNode": "gas",
+      "fromSide": "right",
+      "toNode": "camera",
+      "toSide": "left",
+      "label": "能力推入模式"
+    },
+    {
+      "id": "e6",
+      "fromNode": "anim",
+      "fromSide": "left",
+      "toNode": "character",
+      "toSide": "right",
+      "label": "只读 AnimationStateFrame"
+    },
+    {
+      "id": "e7",
+      "fromNode": "combat",
+      "fromSide": "left",
+      "toNode": "character",
+      "toSide": "bottom",
+      "label": "取骨骼位置"
+    },
+    {
+      "id": "e8",
+      "fromNode": "combat",
+      "fromSide": "left",
+      "toNode": "gas",
+      "toSide": "right",
+      "label": "命中 → 伤害 GE"
+    },
+    {
+      "id": "e9",
+      "fromNode": "teams",
+      "fromSide": "right",
+      "toNode": "character",
+      "toSide": "bottom",
+      "label": "注入 ASC 并设为 Avatar"
+    },
+    {
+      "id": "e10",
+      "fromNode": "teams",
+      "fromSide": "right",
+      "toNode": "gas",
+      "toSide": "bottom",
+      "label": "持有 ASC / 授予 AbilitySet / 驱动输入消费"
+    },
+    {
+      "id": "e11",
+      "fromNode": "gamemodes",
+      "fromSide": "top",
+      "toNode": "character",
+      "toSide": "bottom",
+      "label": "生成实体"
+    },
+    {
+      "id": "e12",
+      "fromNode": "gamemodes",
+      "fromSide": "left",
+      "toNode": "teams",
+      "toSide": "right",
+      "label": "建位置并登记"
+    },
+    {
+      "id": "e13",
+      "fromNode": "gas",
+      "fromSide": "top",
+      "toNode": "physics",
+      "toSide": "left",
+      "label": "材质 Tag 并入 GE"
+    },
+    {
+      "id": "e14",
+      "fromNode": "input",
+      "fromSide": "right",
+      "toNode": "system",
+      "toSide": "left",
+      "label": "Tag"
+    },
+    {
+      "id": "e-ai-gas",
+      "fromNode": "ai",
+      "fromSide": "left",
+      "toNode": "gas",
+      "toSide": "right",
+      "label": "语义动作请求"
+    },
+    {
+      "id": "e-ai-character",
+      "fromNode": "ai",
+      "fromSide": "left",
+      "toNode": "character",
+      "toSide": "right",
+      "label": "控制当前 Avatar"
+    },
+    {
+      "id": "e-ai-system",
+      "fromNode": "ai",
+      "fromSide": "left",
+      "toNode": "system",
+      "toSide": "right",
+      "label": "GameplayTag / 定义"
+    }
+  ]
+}

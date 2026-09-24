@@ -1,0 +1,124 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# 能力镜头覆盖与恢复｜流程子图\n模式所有权在 HeroComponent；类关系见 [[GGYGO_结构_相机.canvas|结构图]]，每帧求值见 [[GGYGO_流程_相机.canvas|主流程]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1710,
+      "height": 140,
+      "color": "6"
+    },
+    {
+      "id": "default",
+      "type": "text",
+      "text": "1. PawnData 提供 DefaultCameraMode。",
+      "x": 0,
+      "y": 290,
+      "width": 400,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "a",
+      "type": "text",
+      "text": "2. GA A 激活：以自己的 SpecHandle 登记模式 A，A 成为有效模式。",
+      "x": 470,
+      "y": 290,
+      "width": 420,
+      "height": 185,
+      "color": "5"
+    },
+    {
+      "id": "b",
+      "type": "text",
+      "text": "3. GA B 激活：以 B 的 SpecHandle 登记模式 B，B 暂时覆盖 A。",
+      "x": 970,
+      "y": 290,
+      "width": 420,
+      "height": 185,
+      "color": "5"
+    },
+    {
+      "id": "bend",
+      "type": "text",
+      "text": "4A. B 结束：只移除 B 条目；A 仍有效则恢复 A。",
+      "x": 1470,
+      "y": 180,
+      "width": 420,
+      "height": 180,
+      "color": "1"
+    },
+    {
+      "id": "aend",
+      "type": "text",
+      "text": "4B. A 先结束：只移除 A 条目；B 不受影响。",
+      "x": 1470,
+      "y": 550,
+      "width": 420,
+      "height": 180,
+      "color": "3"
+    },
+    {
+      "id": "restore",
+      "type": "text",
+      "text": "5. 所有覆盖清空后，HeroComponent 再选 PawnData 默认模式；CameraModeStack 平滑混合。",
+      "x": 970,
+      "y": 800,
+      "width": 420,
+      "height": 205,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "default",
+      "fromSide": "right",
+      "toNode": "a",
+      "toSide": "left",
+      "label": "默认模式可用"
+    },
+    {
+      "id": "e2",
+      "fromNode": "a",
+      "fromSide": "right",
+      "toNode": "b",
+      "toSide": "left",
+      "label": "后来的覆盖置顶"
+    },
+    {
+      "id": "e3",
+      "fromNode": "b",
+      "fromSide": "right",
+      "toNode": "bend",
+      "toSide": "left",
+      "label": "B 先结束"
+    },
+    {
+      "id": "e4",
+      "fromNode": "b",
+      "fromSide": "right",
+      "toNode": "aend",
+      "toSide": "left",
+      "label": "A 先结束"
+    },
+    {
+      "id": "e5",
+      "fromNode": "bend",
+      "fromSide": "bottom",
+      "toNode": "restore",
+      "toSide": "top",
+      "label": "A 也结束后"
+    },
+    {
+      "id": "e6",
+      "fromNode": "aend",
+      "fromSide": "bottom",
+      "toNode": "restore",
+      "toSide": "right",
+      "label": "B 也结束后"
+    }
+  ]
+}

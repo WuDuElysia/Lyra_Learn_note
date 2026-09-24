@@ -1,0 +1,214 @@
+{
+  "nodes": [
+    {
+      "id": "plan",
+      "type": "text",
+      "text": "# 模块化文字计划\n\n[[计划蓝图]] —— **总入口与全局决策**\n\n正文按 Canvas 模块边界拆分。[[计划_BOSSAI]] 已确认并按阶段实施；[[计划_动画与表现层]] 已按阶段实施，剩余兼容层与目标设计见模块计划。\n\n[[模块参考]] 只记录当前代码事实；计划图中的“目标”节点不得当成已经实现。",
+      "x": 20,
+      "y": -300,
+      "width": 520,
+      "height": 315,
+      "color": "3"
+    },
+    {
+      "id": "decisions",
+      "type": "text",
+      "text": "# 已确认的架构决策\n\n**D1** 玩家编队 ASC 挂 CharacterSlot，Pawn 只是 Avatar；不要求所有 AI 复用 Slot\n**D2** 每个玩家各带一支队伍（4 人房 × 3 角色 = 12 个角色 ASC）\n**D3** 移动权威是 CharacterMovementComponent\n**D4** 同优先级 GA 由后来者打断先激活者（比较用 `>`）\n\nBoss 外置 BossState 已于阶段 A/B 落地：Pawn 可换形态，战斗状态保持连续。\n普通怪物若不换 Pawn，仍可 Pawn 自持 ASC。",
+      "x": -880,
+      "y": -300,
+      "width": 580,
+      "height": 280,
+      "color": "1"
+    },
+    {
+      "id": "m-character",
+      "type": "text",
+      "text": "# 角色与组件层\n\n[[GGYGO_流程_角色初始化.canvas|▸ 打开子图]]\n\n**职责**：角色 Actor、组件拆分与 InitState 初始化协调\n**关键取舍**：PawnExtension 接收外部 ASC，但不假设宿主类型。\n当前玩家由 CharacterSlot 注入；可换形态 Boss 由 BossState 注入；\n简单怪物仍允许 Pawn 自持。\n玩家角色单独一个类，AI 不带 HeroComponent。\n结构：[[GGYGO_结构_角色与组件.canvas]] · [[Character/结构]]",
+      "x": 900,
+      "y": 60,
+      "width": 540,
+      "height": 335,
+      "color": "4"
+    },
+    {
+      "id": "m-input",
+      "type": "text",
+      "text": "# 输入层\n\n[[GGYGO_流程_输入与意图.canvas|▸ 打开子图]]\n\n**职责**：按键 → InputTag → 能力激活；连段输入缓冲\n**关键取舍**：InputTag 直连能力（照抄 Lyra），\n独立意图层暂不建 —— 缓冲只需两个字段，\n「该不该重试」的判断只有 ASC 知道\n**驱动点**：`PostProcessInput`，不是组件 Tick\n结构：[[GGYGO_结构_输入与意图.canvas]] · [[Input/结构]]",
+      "x": -1150,
+      "y": 60,
+      "width": 540,
+      "height": 335,
+      "color": "4"
+    },
+    {
+      "id": "m-movement",
+      "type": "text",
+      "text": "# 移动与位移层\n\n[[GGYGO_流程_移动与位移.canvas|▸ 打开移动子图]]\n[[GGYGO_流程_动画曲线处理.canvas|▸ 曲线与 MotionProfile]]\n\n**职责**：locomotion、急停转身与动作位移最终都由 CMC 执行。\n\n**目标**：普通走跑由 CMC 运动参数权威；转身/刹停使用 C++ 可独立采样的 MotionProfile 或原生 RootMotion；攻击位移由 GA 发起。\n\n当前 AnimInstance 曲线 → CurveMotion 的链路迁移期间保留，但不再是最终边界。\n结构：[[GGYGO_结构_移动与位移.canvas]] · [[Movement/结构]]",
+      "x": -1150,
+      "y": 650,
+      "width": 540,
+      "height": 455,
+      "color": "5"
+    },
+    {
+      "id": "m-presentation",
+      "type": "text",
+      "text": "# 动画与表现层\n\n[[GGYGO_流程_动画表现.canvas|▸ 打开子图]]\n[[计划_动画与表现层|▸ 分阶段重构计划]]\n\n**C++**：发布稳定事实、权威规则与线程安全快照。\n**AnimBP / Linked Layer**：状态机拓扑、资产选择、混合和形态差异。\n**DataAsset**：强类型动画/Profile 配置。\n**Notify**：只发语义事件。\n\nMontage、GameplayCue 与连续姿态表现仍是三条互补通道。\n结构：[[GGYGO_结构_动画与表现.canvas]] · [[Animation/结构]]",
+      "x": -160,
+      "y": 650,
+      "width": 580,
+      "height": 355,
+      "color": "5"
+    },
+    {
+      "id": "m-gas",
+      "type": "text",
+      "text": "# AbilitySystem 层\n\n[[GGYGO_流程_AbilitySystem.canvas|▸ 打开子图]]\n\n**职责**：状态变更的唯一入口。Ability / Effect /\nAttribute / Cue / 组仲裁 / 伤害结算\n**关键取舍**：并发控制用组身份 + 组规则 + 自身策略\n三个正交维度，未照抄 Lyra 的三值激活组枚举\n\nBoss 近战 GA 已贯通；玩家四个 GA 仍是待编排空壳。\n结构：[[GGYGO_结构_AbilitySystem.canvas]] · [[AbilitySystem/结构]]",
+      "x": -160,
+      "y": 60,
+      "width": 580,
+      "height": 335,
+      "color": "4"
+    },
+    {
+      "id": "m-team",
+      "type": "text",
+      "text": "# 队伍与装配层\n\n[[GGYGO_流程_队伍与装配.canvas|▸ 打开子图]]\n\n**`AGGYGOCharacterSlot`** —— 一个位置一个（D1 核心）\n`AInfo` 派生，持有该角色的 ASC 与 HealthSet/CombatSet\n（均为默认子对象，随位置构造即就绪）。\nOwner 必须是 PlayerController，否则预测键失效且不报错。\n\n**`UGGYGOSquadComponent`**（挂 PlayerState）\n`Roster` 是这一局的名单，`Slots` 是装配结果，\n装的是位置而非角色。待命角色的冷却与 Buff\n继续走，因为那些状态在位置上而不在 Pawn 上。\n\n**`UGGYGOSquadPresets`**（存档，缓存在 GGYGOLocalPlayer）\n玩家存的 N 套编队与出战选择，成员存 PrimaryAssetId。\n编队三层：预设（落盘）→ 名单（一局）→ 位置。\n\n**`AGGYGOGameMode`** 两阶段装配：先建位置再建实体。\n名单三级回落：已设 → 出战编队存档 → Experience 默认。\n\n缺口：队伍级 ASC 未建（等出现共享属性再说）。\n编成面板与联机编队上报未做；装配后不可改编队。\n结构：[[GGYGO_结构_队伍与装配.canvas]] · [[Teams/结构]]",
+      "x": 880,
+      "y": 440,
+      "width": 580,
+      "height": 595,
+      "color": "5"
+    },
+    {
+      "id": "m-camera",
+      "type": "text",
+      "text": "# 相机层\n\n[[GGYGO_流程_相机.canvas|▸ 打开子图]]\n\n**职责**：相机模式栈与加权混合\n`UGGYGOCameraComponent` 每帧求值栈顶，\n写回 Controller 的控制朝向\n\n**为什么是栈**：相机状态是叠加的 ——\n锁定期间放大招，结束后应回到锁定而非常规跟随。\n单个「当前模式」变量表达不了嵌套。\n\n能力可临时推入自己的模式，`EndAbility` 自动撤销。\n\n**按幅度分三层**：每段攻击的微调用 `CameraOffset`\n（叠加在求值结果上，不换模式，避免丢掉锁定与\n穿墙恢复状态）；换机位用 `AbilityCameraMode`；\n过场用 LevelSequence + `SetViewTarget`，不进栈。\n结构：[[GGYGO_结构_相机.canvas]] · [[Camera/结构]]",
+      "x": 880,
+      "y": 1060,
+      "width": 540,
+      "height": 475,
+      "color": "5"
+    },
+    {
+      "id": "verify",
+      "type": "text",
+      "text": "# 验证状态\n\n玩家队伍装配、属性与编队存档已跑通。玩家四个 GA 仍是空壳；切人、镜头手感与 Dedicated Server 仍未验证。\n\n**Boss AI**：阶段 A–C 已实现。独立 PIE 验证 State/Controller/Avatar 装配，以及 BT 选招 → GAS 激活 → Montage Notify → Trace → 伤害；玩家生命实测 100 → 0。\n\n仍缺：可见/可听 Cue 配置、暂停 Brain 专项自动化、单次死亡、Dedicated Server，以及阶段 D–F。\n\n物理材质需手动创建，MCP 建不出 PhysicalMaterial 实例。",
+      "x": -140,
+      "y": 1120,
+      "width": 560,
+      "height": 420,
+      "color": "1"
+    },
+    {
+      "id": "m-bossai",
+      "type": "text",
+      "text": "# Boss AI（阶段 A–C 已实现）\n\n[[GGYGO_流程_BossAI.canvas|▸ 打开子图]]\n\n`CombatantState` / `BossState` 保持跨 Pawn 状态；AIController 运行 BT 与确定性动作权重。\n\nBT 只选 ActionTag 并请求 GA；GAS 负责准入、Montage、Trace、伤害与 Cue。\n\n目标/仇恨、阶段阈值和 Avatar Handoff 属于阶段 D/E。\n结构：[[GGYGO_结构_BossAI.canvas]] · [[BossAI/结构]]",
+      "x": 1420,
+      "y": -550,
+      "width": 560,
+      "height": 535,
+      "color": "2"
+    },
+    {
+      "id": "othergraphs",
+      "type": "text",
+      "text": "# 入口图\n\n[[GGYGO_结构_模块依赖.canvas|▸ 模块依赖]]\n依赖方向与分层，用来定阅读顺序。\n\n[[GGYGO_流程_战斗链路.canvas|▸ 战斗链路]]\n玩家输入或 AI 决策进入同一 GAS 执行链。\n\n[[GGYGO_流程_BossAI.canvas|▸ Boss AI 架构]]\nBossState、BT、GAS、阶段与换形态事务。",
+      "x": 20,
+      "y": -690,
+      "width": 520,
+      "height": 280,
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-input-gas",
+      "fromNode": "m-input",
+      "fromSide": "right",
+      "toNode": "m-gas",
+      "toSide": "left",
+      "label": "InputTag → 缓存句柄 → 仲裁"
+    },
+    {
+      "id": "e-input-movement",
+      "fromNode": "m-input",
+      "fromSide": "bottom",
+      "toNode": "m-movement",
+      "toSide": "top",
+      "label": "移动输入直连，不走 GAS"
+    },
+    {
+      "id": "e-character-gas",
+      "fromNode": "m-character",
+      "fromSide": "left",
+      "toNode": "m-gas",
+      "toSide": "right",
+      "label": "作为 Avatar 消费注入的 ASC"
+    },
+    {
+      "id": "e-gas-movement",
+      "fromNode": "m-gas",
+      "fromSide": "left",
+      "toNode": "m-movement",
+      "toSide": "right",
+      "label": "动作位移由 GA 发起"
+    },
+    {
+      "id": "e-gas-presentation",
+      "fromNode": "m-gas",
+      "fromSide": "bottom",
+      "toNode": "m-presentation",
+      "toSide": "top",
+      "label": "Montage 与 Cue"
+    },
+    {
+      "id": "e-movement-presentation",
+      "fromNode": "m-movement",
+      "fromSide": "right",
+      "toNode": "m-presentation",
+      "toSide": "left",
+      "label": "发布 AnimationStateFrame"
+    },
+    {
+      "id": "e-gas-camera",
+      "fromNode": "m-gas",
+      "fromSide": "right",
+      "toNode": "m-camera",
+      "toSide": "left",
+      "label": "能力临时接管镜头"
+    },
+    {
+      "id": "e-team-character",
+      "fromNode": "m-team",
+      "fromSide": "top",
+      "toNode": "m-character",
+      "toSide": "bottom",
+      "label": "注入位置的 ASC 并设为 Avatar"
+    },
+    {
+      "id": "e-decisions-plan",
+      "fromNode": "decisions",
+      "fromSide": "right",
+      "toNode": "plan",
+      "toSide": "left",
+      "label": "依据"
+    },
+    {
+      "id": "e-boss-gas",
+      "fromNode": "m-bossai",
+      "fromSide": "left",
+      "toNode": "m-gas",
+      "toSide": "right",
+      "label": "请求激活 Ability"
+    },
+    {
+      "id": "e-boss-character",
+      "fromNode": "m-bossai",
+      "fromSide": "bottom",
+      "toNode": "m-character",
+      "toSide": "right",
+      "label": "替换 Avatar"
+    }
+  ]
+}

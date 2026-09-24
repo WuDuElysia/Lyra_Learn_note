@@ -1,0 +1,116 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Experience 启动｜流程图\n类与资产关系见 [[GGYGO_结构_GameFeature.canvas|结构图]]；[[计划_GameFeature]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1670,
+      "height": 130,
+      "color": "6"
+    },
+    {
+      "id": "init",
+      "type": "text",
+      "text": "1. GameMode::InitGame 选择 Experience。",
+      "x": 0,
+      "y": 260,
+      "width": 390,
+      "height": 165,
+      "color": "5"
+    },
+    {
+      "id": "features",
+      "type": "text",
+      "text": "2. 按 Experience 激活 GameFeature；PendingGameFeatureCount 记录未完成项。",
+      "x": 470,
+      "y": 260,
+      "width": 420,
+      "height": 185,
+      "color": "5"
+    },
+    {
+      "id": "wait",
+      "type": "text",
+      "text": "3. 玩家进入时若插件尚未结清，暂存玩家；每个回调递减计数。",
+      "x": 970,
+      "y": 260,
+      "width": 420,
+      "height": 185,
+      "color": "5"
+    },
+    {
+      "id": "roster",
+      "type": "text",
+      "text": "4. 就绪后选择 Roster → 本地预设 → Experience 默认编队。",
+      "x": 1470,
+      "y": 260,
+      "width": 420,
+      "height": 185,
+      "color": "5"
+    },
+    {
+      "id": "slot",
+      "type": "text",
+      "text": "5. 先创建各 CharacterSlot，基础属性和 AbilitySet 就绪。",
+      "x": 970,
+      "y": 610,
+      "width": 420,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "avatar",
+      "type": "text",
+      "text": "6. 再创建 Pawn、注入 Slot ASC、Possess 出战成员。",
+      "x": 1470,
+      "y": 610,
+      "width": 420,
+      "height": 180,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "init",
+      "fromSide": "right",
+      "toNode": "features",
+      "toSide": "left",
+      "label": "读取插件列表"
+    },
+    {
+      "id": "e2",
+      "fromNode": "features",
+      "fromSide": "right",
+      "toNode": "wait",
+      "toSide": "left",
+      "label": "等待异步结果"
+    },
+    {
+      "id": "e3",
+      "fromNode": "wait",
+      "fromSide": "right",
+      "toNode": "roster",
+      "toSide": "left",
+      "label": "计数归零（含失败）"
+    },
+    {
+      "id": "e4",
+      "fromNode": "roster",
+      "fromSide": "right",
+      "toNode": "slot",
+      "toSide": "left",
+      "label": "确定成员"
+    },
+    {
+      "id": "e5",
+      "fromNode": "slot",
+      "fromSide": "right",
+      "toNode": "avatar",
+      "toSide": "left",
+      "label": "ASC 先于 Avatar 绑定"
+    }
+  ]
+}

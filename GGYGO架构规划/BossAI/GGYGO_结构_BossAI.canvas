@@ -1,0 +1,24 @@
+{
+	"nodes":[
+		{"id":"nav","type":"text","text":"# BossAI｜结构图\n实线写当前 A–C 实现，目标/仇恨与换形态见计划子图。[[BossAI/结构|结构文档]] · [[GGYGO_流程_Boss选招.canvas|选招]] · [[GGYGO_流程_Boss换形态.canvas|换形态]]","x":0,"y":0,"width":1520,"height":150,"color":"6"},
+		{"id":"definition","type":"text","text":"## UGGYGOBossDefinition / ActionSet\nDefinition：Form/Phase、PawnClass、AbilitySet 与动作池配置。\nActionSet：ActionTag、权重与筛选条件。\n[[计划_BOSSAI]]","x":0,"y":250,"width":410,"height":235,"color":"4"},
+		{"id":"encounter","type":"text","text":"## AGGYGOBossEncounter\n`SpawnBoss()` → 创建 State、Avatar、AIController 并建立绑定。\n`GetBossState/Avatar/Controller()` → 对外取三者。","x":0,"y":620,"width":410,"height":225,"color":"5"},
+		{"id":"state","type":"text","text":"## AGGYGOBossState\n`InitializeFromDefinition(Data)` → 授予全形态能力并设置初始标签。\n`GetCurrentFormTag()` / `GetCurrentPhaseTag()` → 复制状态。\n继承 `AttachAvatar()` 与持久 ASC。","x":540,"y":250,"width":440,"height":260,"color":"5"},
+		{"id":"avatar","type":"text","text":"## AGGYGOBossCharacter\n`GetMeleeTraceComponent()` → GA 开关判定窗口。\nPawnExtension 绑定 BossState ASC；Mesh/CMC/碰撞属于当前形态 Pawn。","x":540,"y":640,"width":440,"height":240,"color":"4"},
+		{"id":"controller","type":"text","text":"## AGGYGOBossAIController\n`InitializeDecisionStream(Seed)` → 可复现随机流。\n`GetActionWeight(Action)` / `DrawActionWeight(Total)` → 加权选招。\n`RecordActionSelection` → 记录选择。","x":1100,"y":250,"width":420,"height":270,"color":"5"},
+		{"id":"tasks","type":"text","text":"## BT 任务接口\n`ChooseBossAction::ExecuteTask` → 过滤并选 ActionTag。\n`ActivateAbility::ExecuteTask` → 找 GA 并请求 ASC 激活；`OnTaskFinished` 清结束绑定。","x":1100,"y":630,"width":420,"height":245,"color":"4"},
+		{"id":"ga","type":"text","text":"## UGGYGOCombatActionAbility / BossMeleeAbility\n`ActionTag` → 决策与执行的语义键。\n`ActivateAbility()` → Montage Task；Event 打开 Trace。\n`HandleMeleeHit()` → 应用 GE 与 Cue。","x":1100,"y":1000,"width":420,"height":255,"color":"1"},
+		{"id":"future","type":"text","text":"## 目标设计（D–F，未实现）\n仇恨/目标服务、转阶段锁、换 Pawn 事务；BossState 持续持有 ASC，Controller 保持 Brain。\n[[GGYGO_流程_Boss换形态.canvas]]","x":540,"y":1050,"width":440,"height":230,"color":"3"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"definition","fromSide":"right","toNode":"state","toSide":"left","label":"初始化 Form / Phase 与能力"},
+		{"id":"e2","fromNode":"encounter","fromSide":"right","toNode":"state","toSide":"left","label":"创建持久宿主"},
+		{"id":"e3","fromNode":"encounter","fromSide":"right","toNode":"avatar","toSide":"left","label":"创建当前 Avatar"},
+		{"id":"e4","fromNode":"encounter","fromSide":"right","toNode":"controller","toSide":"left","label":"创建并 Possess"},
+		{"id":"e5","fromNode":"state","fromSide":"bottom","toNode":"avatar","toSide":"top","label":"Owner ASC 绑定 Avatar"},
+		{"id":"e6","fromNode":"controller","fromSide":"bottom","toNode":"tasks","toSide":"top","label":"驱动 BT 任务"},
+		{"id":"e7","fromNode":"tasks","fromSide":"right","toNode":"ga","toSide":"left","label":"以 ActionTag 请求能力"},
+		{"id":"e8","fromNode":"ga","fromSide":"left","toNode":"avatar","toSide":"right","label":"Montage / Trace 作用于当前 Pawn"},
+		{"id":"e9","fromNode":"future","fromSide":"top","toNode":"state","toSide":"bottom","label":"目标：转阶段更新持久状态"}
+	]
+}

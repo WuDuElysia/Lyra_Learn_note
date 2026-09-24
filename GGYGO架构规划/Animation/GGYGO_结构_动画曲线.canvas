@@ -1,0 +1,160 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# 动画曲线｜结构子图\n类、数据和关键接口：[[Animation/曲线处理|处理文档]]。实际采样顺序见 [[GGYGO_流程_动画曲线处理.canvas|流程图]]；目标拆环见 [[计划_动画与表现层#7. 曲线与权威移动的新边界]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1780,
+      "height": 150,
+      "color": "6"
+    },
+    {
+      "id": "asset",
+      "type": "text",
+      "text": "## 烘焙动画资产\n`RootMotion_Speed`：即时速度\n`PosX/PosY`：累计位移\n`Dist`：累计路程\n`Yaw`：累计转角\n`DirX/DirY`：烘焙方向\n`Cfg_ClipLength/LoopTime`：来源与循环标记",
+      "x": 0,
+      "y": 240,
+      "width": 430,
+      "height": 260,
+      "color": "4"
+    },
+    {
+      "id": "anim",
+      "type": "text",
+      "text": "## UAnimInstance\n`GetCurveValue(Name)` → 供采样器读取当前动画曲线。当前它是 CMC 反读的数据源。",
+      "x": 0,
+      "y": 650,
+      "width": 430,
+      "height": 190,
+      "color": "4"
+    },
+    {
+      "id": "sampler",
+      "type": "text",
+      "text": "## FGGYGOAnimCurveSampler\n`Sample(AnimInstance, dt, OutMotion)` → 清输出、读曲线、差分累计量。\n`ResetBaseline()` → Mesh/动画源中断后丢弃上一帧基线。\n持有 PreviousPosX/Y、Distance、Yaw。",
+      "x": 530,
+      "y": 340,
+      "width": 460,
+      "height": 265,
+      "color": "5"
+    },
+    {
+      "id": "motion",
+      "type": "text",
+      "text": "## FGGYGOAnimCurveMotion\n`Speed` / `Direction` / `YawDeltaDegrees` / `YawTotalDegrees`\n`PositionDelta` / `bHasCurveSource`\n`HasUsableSpeed()` → 区分速度可用与曲线缺失。",
+      "x": 530,
+      "y": 820,
+      "width": 460,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "cmc",
+      "type": "text",
+      "text": "## UGGYGOCharacterMovementComponent\n`SampleAnimCurves(dt)` → Super Tick 前恰好采一次。\n`GetScaledCurveSpeed()` → Speed × RootMotionScale。\n`GetMaxSpeed()` / `PhysicsRotation()` → 消费速度和 YawDelta。",
+      "x": 1110,
+      "y": 300,
+      "width": 470,
+      "height": 275,
+      "color": "5"
+    },
+    {
+      "id": "rms",
+      "type": "text",
+      "text": "## FRootMotionSource_GGYGOCurve\n`PrepareRootMotion()` → 用段入口 BaseYaw 将 Direction/Speed 转世界速度；保护 Z，退场保留动量。\n`NetSerialize()` → 复制 BaseYaw/Scale/结束策略。",
+      "x": 1110,
+      "y": 760,
+      "width": 470,
+      "height": 260,
+      "color": "4"
+    },
+    {
+      "id": "saved",
+      "type": "text",
+      "text": "## FSavedMove_GGYGO\n`SetMoveFor()` 保存 CurveMotion；`PrepMoveFor()` 恢复，供预测重演。",
+      "x": 530,
+      "y": 1190,
+      "width": 460,
+      "height": 180,
+      "color": "4"
+    },
+    {
+      "id": "profile",
+      "type": "text",
+      "text": "## MotionProfile（目标，未实现）\n离线可独立采样的速度/方向/转角与 PlaybackTime；未来切断 CMC → AnimInstance 反读。",
+      "x": 1110,
+      "y": 1190,
+      "width": 470,
+      "height": 190,
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "asset",
+      "fromSide": "bottom",
+      "toNode": "anim",
+      "toSide": "top",
+      "label": "动画资产暴露曲线"
+    },
+    {
+      "id": "e2",
+      "fromNode": "anim",
+      "fromSide": "right",
+      "toNode": "sampler",
+      "toSide": "left",
+      "label": "GetCurveValue"
+    },
+    {
+      "id": "e3",
+      "fromNode": "sampler",
+      "fromSide": "bottom",
+      "toNode": "motion",
+      "toSide": "top",
+      "label": "输出本帧结果"
+    },
+    {
+      "id": "e4",
+      "fromNode": "motion",
+      "fromSide": "right",
+      "toNode": "cmc",
+      "toSide": "left",
+      "label": "速度 / 转角 / 有效性"
+    },
+    {
+      "id": "e5",
+      "fromNode": "cmc",
+      "fromSide": "bottom",
+      "toNode": "rms",
+      "toSide": "top",
+      "label": "装配曲线位移源"
+    },
+    {
+      "id": "e6",
+      "fromNode": "motion",
+      "fromSide": "right",
+      "toNode": "rms",
+      "toSide": "left",
+      "label": "方向和速度"
+    },
+    {
+      "id": "e7",
+      "fromNode": "cmc",
+      "fromSide": "bottom",
+      "toNode": "saved",
+      "toSide": "top",
+      "label": "保存 / 恢复曲线快照"
+    },
+    {
+      "id": "e8",
+      "fromNode": "profile",
+      "fromSide": "top",
+      "toNode": "cmc",
+      "toSide": "bottom",
+      "label": "目标：独立采样输入"
+    }
+  ]
+}

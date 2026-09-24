@@ -1,0 +1,142 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Animation｜结构图\n当前实现与兼容层。运行时图见 [[GGYGO_流程_动画表现.canvas|表现流程]]、[[GGYGO_流程_动画曲线处理.canvas|曲线子图]]；[[Animation/结构|结构文档]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1450,
+      "height": 140,
+      "color": "6"
+    },
+    {
+      "id": "source",
+      "type": "text",
+      "text": "## CMC / ASC / Pawn（权威）\nCMC：`GetResolvedGait` / `HasMoveInput` / `IsTurnBackCurveDriven`。\nASC：GameplayTag 状态。Pawn：位置与朝向。\n[[Movement/结构]] · [[AbilitySystem/结构]]",
+      "x": 0,
+      "y": 280,
+      "width": 390,
+      "height": 225,
+      "color": "4"
+    },
+    {
+      "id": "capture",
+      "type": "text",
+      "text": "## FGGYGOAnimationStateCapture\n`Capture(Pawn, OutFrame, OutDebug)` → 在游戏线程取 CMC/ASC/Pawn 事实，集中处理缺失来源。",
+      "x": 500,
+      "y": 280,
+      "width": 420,
+      "height": 215,
+      "color": "5"
+    },
+    {
+      "id": "frame",
+      "type": "text",
+      "text": "## FGGYGOAnimationStateFrame\n`bHasMoveInput`、步态、转身相位、状态 Tag 等只读语义；不存 ABP 状态名或连线。",
+      "x": 1000,
+      "y": 280,
+      "width": 420,
+      "height": 210,
+      "color": "5"
+    },
+    {
+      "id": "base",
+      "type": "text",
+      "text": "## UGGYGOAnimInstanceBase\n`NativeUpdateAnimation(dt)` → 更新 StateFrame。\n`HasAnimationStateTag(Tag)` / `IsAnimationRunGait()` / `IsTurnBackCurveDriven()` → 供 AnimBP 过渡图查询。",
+      "x": 1000,
+      "y": 620,
+      "width": 420,
+      "height": 245,
+      "color": "5"
+    },
+    {
+      "id": "abp",
+      "type": "text",
+      "text": "## ABP_Pyrios\nAnimGraph：状态机与动画资产 Select。\n过渡图读 StateFrame / 查询函数；`GetSeqByKey` / `GetBlendSpaceByKey` 取资产。\n当前 Stop 与走跑混合仍使用兼容表现记忆。",
+      "x": 1000,
+      "y": 980,
+      "width": 420,
+      "height": 230,
+      "color": "1"
+    },
+    {
+      "id": "compat",
+      "type": "text",
+      "text": "## UZZZAnimInstance / Snapshot（兼容）\nStateFrame → 旧 Snapshot 的纯适配。\n`FZZZLocomotionEvents` 当前仍更新 `StateMemory.StopValue` / `GaitBlendY`；迁移计划见 [[计划_动画与表现层]]。",
+      "x": 500,
+      "y": 750,
+      "width": 420,
+      "height": 245,
+      "color": "3"
+    },
+    {
+      "id": "data",
+      "type": "text",
+      "text": "## FZZZAnimSet / FZZZAnimTuning\n动画键到序列/BlendSpace 的表与混合参数；曲线链见 [[GGYGO_结构_动画曲线.canvas|曲线结构子图]]。",
+      "x": 0,
+      "y": 970,
+      "width": 390,
+      "height": 210,
+      "color": "4"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "source",
+      "fromSide": "right",
+      "toNode": "capture",
+      "toSide": "left",
+      "label": "提供本帧事实"
+    },
+    {
+      "id": "e2",
+      "fromNode": "capture",
+      "fromSide": "right",
+      "toNode": "frame",
+      "toSide": "left",
+      "label": "填充语义帧"
+    },
+    {
+      "id": "e3",
+      "fromNode": "frame",
+      "fromSide": "bottom",
+      "toNode": "base",
+      "toSide": "top",
+      "label": "发布给 AnimInstance"
+    },
+    {
+      "id": "e4",
+      "fromNode": "base",
+      "fromSide": "bottom",
+      "toNode": "abp",
+      "toSide": "top",
+      "label": "供状态机只读消费"
+    },
+    {
+      "id": "e5",
+      "fromNode": "base",
+      "fromSide": "left",
+      "toNode": "compat",
+      "toSide": "top",
+      "label": "兼容映射旧快照"
+    },
+    {
+      "id": "e6",
+      "fromNode": "compat",
+      "fromSide": "right",
+      "toNode": "abp",
+      "toSide": "left",
+      "label": "仅剩表现记忆与旧调试字段"
+    },
+    {
+      "id": "e7",
+      "fromNode": "data",
+      "fromSide": "right",
+      "toNode": "abp",
+      "toSide": "left",
+      "label": "提供动画资产与调参"
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Movement｜结构图\n当前类和权威边界；步态/转身时序见 [[GGYGO_流程_移动与位移.canvas|流程图]]，曲线读取见 [[GGYGO_流程_动画曲线处理.canvas|子图]]。[[Movement/结构|结构文档]]",
+      "x": 0,
+      "y": 0,
+      "width": 1500,
+      "height": 145,
+      "color": "6"
+    },
+    {
+      "id": "input",
+      "type": "text",
+      "text": "## UGGYGOHeroComponent\n`Input_Move(Value)` → 连续轴值进入 CMC。\n跑步请求经 `RequestRunOnNextMove()`；[[Input/结构]]。",
+      "x": 0,
+      "y": 280,
+      "width": 390,
+      "height": 215,
+      "color": "4"
+    },
+    {
+      "id": "set",
+      "type": "text",
+      "text": "## UGGYGOMovementSet\n`GetSpeedForGait(Gait)` → 固定速度兜底。\n`bUseCurveDrivenSpeed` / `RootMotionScale` / `MaxCurveDrivenSpeed` → 当前曲线规则；转身阈值也在这里。",
+      "x": 0,
+      "y": 620,
+      "width": 390,
+      "height": 235,
+      "color": "4"
+    },
+    {
+      "id": "cmc",
+      "type": "text",
+      "text": "## UGGYGOCharacterMovementComponent\n`TickComponent()` → Super 前采曲线。\n`UpdateCharacterStateBeforeMovement()` → 步态/转身/刹停。\n`GetMaxSpeed()` → 曲线或步态速度。\n`PhysicsRotation()` → 转身 YawDelta。\n`SetMovementSet()` → 注入配置。",
+      "x": 530,
+      "y": 340,
+      "width": 480,
+      "height": 305,
+      "color": "5"
+    },
+    {
+      "id": "sampler",
+      "type": "text",
+      "text": "## FGGYGOAnimCurveSampler\n`Sample(AnimInstance, dt, OutMotion)` → 读 Speed、位置、路程、方向和 Yaw。\n`ResetBaseline()` → 避免切段/失去 Mesh 后跳变。\n[[Animation/曲线处理]]",
+      "x": 1100,
+      "y": 230,
+      "width": 410,
+      "height": 250,
+      "color": "4"
+    },
+    {
+      "id": "rms",
+      "type": "text",
+      "text": "## FRootMotionSource_GGYGOCurve\n`PrepareRootMotion()` → Speed/Direction 按入口 BaseYaw 转世界速度，交 CMC RootMotion。\n`NetSerialize()` → 复制基准角、缩放和结束策略。",
+      "x": 1100,
+      "y": 580,
+      "width": 410,
+      "height": 245,
+      "color": "4"
+    },
+    {
+      "id": "saved",
+      "type": "text",
+      "text": "## FSavedMove_GGYGO\n`SetMoveFor()` → 保存步态、转身与 CurveMotion。\n`PrepMoveFor()` → 重演前恢复。\n`CanCombineWith()` → 阻止不兼容 move 合并。",
+      "x": 530,
+      "y": 830,
+      "width": 480,
+      "height": 240,
+      "color": "5"
+    },
+    {
+      "id": "frame",
+      "type": "text",
+      "text": "## FGGYGOAnimationStateFrame\nCMC 发布输入、步态与曲线转身语义；AnimBP 只读选择表现。[[Animation/结构]]",
+      "x": 1100,
+      "y": 940,
+      "width": 410,
+      "height": 205,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "input",
+      "fromSide": "right",
+      "toNode": "cmc",
+      "toSide": "left",
+      "label": "提交移动输入"
+    },
+    {
+      "id": "e2",
+      "fromNode": "set",
+      "fromSide": "right",
+      "toNode": "cmc",
+      "toSide": "left",
+      "label": "提供移动规则"
+    },
+    {
+      "id": "e3",
+      "fromNode": "sampler",
+      "fromSide": "left",
+      "toNode": "cmc",
+      "toSide": "right",
+      "label": "当前曲线采样值"
+    },
+    {
+      "id": "e4",
+      "fromNode": "cmc",
+      "fromSide": "right",
+      "toNode": "rms",
+      "toSide": "left",
+      "label": "应用曲线动作位移"
+    },
+    {
+      "id": "e5",
+      "fromNode": "cmc",
+      "fromSide": "bottom",
+      "toNode": "saved",
+      "toSide": "top",
+      "label": "保存影响预测的自定义状态"
+    },
+    {
+      "id": "e6",
+      "fromNode": "cmc",
+      "fromSide": "right",
+      "toNode": "frame",
+      "toSide": "left",
+      "label": "发布只读语义"
+    },
+    {
+      "id": "e7",
+      "fromNode": "rms",
+      "fromSide": "left",
+      "toNode": "saved",
+      "toSide": "right",
+      "label": "位移状态参与预测"
+    }
+  ]
+}

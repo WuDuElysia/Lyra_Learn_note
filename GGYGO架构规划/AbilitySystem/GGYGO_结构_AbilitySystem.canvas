@@ -1,0 +1,168 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# AbilitySystem｜结构图\n当前类与跨模块接口；运行路径见 [[GGYGO_流程_AbilitySystem.canvas|激活流程]]、[[GGYGO_流程_能力仲裁.canvas|仲裁子图]]、[[GGYGO_流程_伤害结算.canvas|伤害子图]]。[[AbilitySystem/结构|结构文档]]",
+      "x": 0,
+      "y": 0,
+      "width": 1520,
+      "height": 145,
+      "color": "6"
+    },
+    {
+      "id": "input",
+      "type": "text",
+      "text": "## 玩家 / AI 入口\n`HeroComponent::Input_AbilityInputTagPressed/Released` → 提交玩家标签。\n`BTTask_GGYGOActivateAbility` → 按 ActionTag 找 GA。\n[[Input/结构]] · [[BossAI/结构]]",
+      "x": 0,
+      "y": 230,
+      "width": 390,
+      "height": 215,
+      "color": "4"
+    },
+    {
+      "id": "host",
+      "type": "text",
+      "text": "## AGGYGOCombatantState\n`GetGGYGOAbilitySystemComponent()` → 提供 ASC。\n`AttachAvatar(Pawn)` / `DetachAvatar(Pawn)` → 切换 Avatar 并同步 ActorInfo。\n派生玩家 Slot 与 BossState。",
+      "x": 0,
+      "y": 540,
+      "width": 390,
+      "height": 235,
+      "color": "4"
+    },
+    {
+      "id": "asc",
+      "type": "text",
+      "text": "## UGGYGOAbilitySystemComponent\n`AbilityInputTagPressed/Released(Tag)` → 缓存本帧输入。\n`ProcessAbilityInput(dt, paused)` → 统一激活。\n`CanActivateAbilityByHandle(Handle, Reasons)` → 预检。\n`IsActivationBlockedByGroup(GA, Reason)` → 组仲裁。\n`SetAbilityGroupConfig` / `SetTagRelationshipMapping` → 注入规则。",
+      "x": 520,
+      "y": 320,
+      "width": 490,
+      "height": 320,
+      "color": "5"
+    },
+    {
+      "id": "config",
+      "type": "text",
+      "text": "## 仲裁配置\n`UGGYGOAbilityGroupConfig`：GroupTag → 共存/独占/排队规则。\n`UGGYGOAbilityTagRelationshipMapping`：能力 Tag → 额外要求/阻断/取消 Tag。\n两者由 PawnData 注入 ASC。",
+      "x": 1120,
+      "y": 210,
+      "width": 400,
+      "height": 225,
+      "color": "4"
+    },
+    {
+      "id": "ga",
+      "type": "text",
+      "text": "## UGGYGOGameplayAbility\n`CanActivateAbility()` → 基础条件/成本/组检查。\n`ActivateAbility()` → 执行动作并可申请 CameraMode。\n`EndAbility()` → 释放组与镜头覆盖。\n`GetGroupTag()` / `GetActivationPriority()` → 仲裁输入。",
+      "x": 1120,
+      "y": 520,
+      "width": 400,
+      "height": 270,
+      "color": "5"
+    },
+    {
+      "id": "set",
+      "type": "text",
+      "text": "## UGGYGOAbilitySet\n`GiveToAbilitySystem(ASC, Handles, Source)` → 按 AttributeSet、GA、GE 顺序授予。\n`GrantedHandles::TakeFromAbilitySystem(ASC)` → 收回这次授予。",
+      "x": 520,
+      "y": 730,
+      "width": 490,
+      "height": 220,
+      "color": "4"
+    },
+    {
+      "id": "attr",
+      "type": "text",
+      "text": "## HealthSet / CombatSet\nHealthSet：Damage/Healing/PoiseDamage 元属性与生命、韧性变更委托。\nCombatSet：BaseDamage/BaseHeal/BasePoiseDamage 供 Execution 捕获。",
+      "x": 1120,
+      "y": 830,
+      "width": 400,
+      "height": 210,
+      "color": "4"
+    },
+    {
+      "id": "effect",
+      "type": "text",
+      "text": "## 伤害 / 表现接口\n`UGGYGODamageExecution::Execute` → 计算伤害并写目标元属性。\n`UGGYGOAbilityTask_PlayMontageAndWaitForEvent` → GA 等 Montage Event。\n`UGGYGOGameplayCueManager` → Cue 加载/分发。",
+      "x": 520,
+      "y": 1040,
+      "width": 490,
+      "height": 260,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "input",
+      "fromSide": "right",
+      "toNode": "asc",
+      "toSide": "left",
+      "label": "提交输入或语义激活请求"
+    },
+    {
+      "id": "e2",
+      "fromNode": "host",
+      "fromSide": "right",
+      "toNode": "asc",
+      "toSide": "left",
+      "label": "Owner 持有 ASC；Avatar 可更换"
+    },
+    {
+      "id": "e3",
+      "fromNode": "config",
+      "fromSide": "left",
+      "toNode": "asc",
+      "toSide": "right",
+      "label": "提供组规则与 Tag 关系"
+    },
+    {
+      "id": "e4",
+      "fromNode": "asc",
+      "fromSide": "right",
+      "toNode": "ga",
+      "toSide": "left",
+      "label": "激活与结束能力"
+    },
+    {
+      "id": "e5",
+      "fromNode": "host",
+      "fromSide": "bottom",
+      "toNode": "set",
+      "toSide": "left",
+      "label": "宿主选择装配资产"
+    },
+    {
+      "id": "e6",
+      "fromNode": "set",
+      "fromSide": "top",
+      "toNode": "asc",
+      "toSide": "bottom",
+      "label": "授予 GA / GE / Set"
+    },
+    {
+      "id": "e7",
+      "fromNode": "ga",
+      "fromSide": "right",
+      "toNode": "effect",
+      "toSide": "left",
+      "label": "执行伤害、Cue 与 Montage"
+    },
+    {
+      "id": "e8",
+      "fromNode": "effect",
+      "fromSide": "right",
+      "toNode": "attr",
+      "toSide": "left",
+      "label": "GE 修改目标属性"
+    },
+    {
+      "id": "e9",
+      "fromNode": "attr",
+      "fromSide": "left",
+      "toNode": "asc",
+      "toSide": "right",
+      "label": "属性集由 ASC 管理"
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Input｜结构图\n当前类与接口；按键的帧内顺序见 [[GGYGO_流程_输入与意图.canvas|流程图]]。[[Input/结构|结构文档]]",
+      "x": 0,
+      "y": 0,
+      "width": 1380,
+      "height": 130,
+      "color": "6"
+    },
+    {
+      "id": "action",
+      "type": "text",
+      "text": "## Enhanced Input / InputAction\n引擎产生轴值、Pressed、Released。",
+      "x": 0,
+      "y": 230,
+      "width": 390,
+      "height": 165,
+      "color": "4"
+    },
+    {
+      "id": "config",
+      "type": "text",
+      "text": "## UGGYGOInputConfig\nNative Actions → 轴值/视角 Tag；Ability Actions → 能力 InputTag。\n用精确 Tag 匹配区分鼠标与摇杆。",
+      "x": 0,
+      "y": 530,
+      "width": 390,
+      "height": 205,
+      "color": "4"
+    },
+    {
+      "id": "component",
+      "type": "text",
+      "text": "## UGGYGOInputComponent\n按 InputTag 批量绑定 InputAction；返回绑定句柄供换 Pawn/卸载时解绑。\n只做映射，不决定 GA。",
+      "x": 490,
+      "y": 350,
+      "width": 420,
+      "height": 220,
+      "color": "5"
+    },
+    {
+      "id": "hero",
+      "type": "text",
+      "text": "## UGGYGOHeroComponent\n`InitializePlayerInput(InputComp)` → 读取 PawnData.InputConfig 并绑定。\n`Input_Move/Look*` → 直接传轴值。\n`Input_AbilityInputTagPressed/Released(Tag)` → 提交 ASC。\n`BufferAbilityInput(Tag)` → 保存可重试意图。",
+      "x": 1010,
+      "y": 270,
+      "width": 420,
+      "height": 285,
+      "color": "5"
+    },
+    {
+      "id": "pc",
+      "type": "text",
+      "text": "## AGGYGOPlayerController\n`PostProcessInput(dt, paused)` → 所有输入回调后调用当前 ASC 的 `ProcessAbilityInput`，避免同帧后到输入延迟一帧。",
+      "x": 1010,
+      "y": 660,
+      "width": 420,
+      "height": 230,
+      "color": "4"
+    },
+    {
+      "id": "cmc",
+      "type": "text",
+      "text": "## UGGYGOCharacterMovementComponent\n`HasMoveInput()` / 当前加速度 → 移动权威的输入事实；连续轴值不进入 GAS。\n[[Movement/结构]]",
+      "x": 490,
+      "y": 720,
+      "width": 420,
+      "height": 210,
+      "color": "1"
+    },
+    {
+      "id": "asc",
+      "type": "text",
+      "text": "## UGGYGOAbilitySystemComponent\n`AbilityInputTagPressed/Released(Tag)` → 缓存句柄/边沿。\n`ProcessAbilityInput(dt, paused)` → 统一 TryActivateAbility。\n组释放/可重试拒绝通知 Hero。[[AbilitySystem/结构]]",
+      "x": 1010,
+      "y": 960,
+      "width": 420,
+      "height": 245,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "action",
+      "fromSide": "right",
+      "toNode": "config",
+      "toSide": "left",
+      "label": "配置 InputTag"
+    },
+    {
+      "id": "e2",
+      "fromNode": "config",
+      "fromSide": "right",
+      "toNode": "component",
+      "toSide": "left",
+      "label": "提供动作与标签映射"
+    },
+    {
+      "id": "e3",
+      "fromNode": "component",
+      "fromSide": "right",
+      "toNode": "hero",
+      "toSide": "left",
+      "label": "触发已绑定回调"
+    },
+    {
+      "id": "e4",
+      "fromNode": "hero",
+      "fromSide": "right",
+      "toNode": "cmc",
+      "toSide": "left",
+      "label": "移动轴值"
+    },
+    {
+      "id": "e5",
+      "fromNode": "hero",
+      "fromSide": "bottom",
+      "toNode": "asc",
+      "toSide": "top",
+      "label": "提交 Ability InputTag"
+    },
+    {
+      "id": "e6",
+      "fromNode": "pc",
+      "fromSide": "bottom",
+      "toNode": "asc",
+      "toSide": "top",
+      "label": "PostProcessInput 统一消费"
+    },
+    {
+      "id": "e7",
+      "fromNode": "asc",
+      "fromSide": "left",
+      "toNode": "hero",
+      "toSide": "right",
+      "label": "可重试拒绝 / 组释放"
+    }
+  ]
+}

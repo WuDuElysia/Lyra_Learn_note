@@ -1,0 +1,150 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# GameFeature / Experience｜结构图\n服务器装配关系；先后顺序见 [[GGYGO_流程_GameFeature.canvas|流程图]]；[[GameFeature/结构|结构文档]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1450,
+      "height": 130,
+      "color": "6"
+    },
+    {
+      "id": "experience",
+      "type": "text",
+      "text": "## UGGYGOExperienceDefinition\nGameFeature 插件列表 → 本局加载项；默认 SquadMembers → 无编队时的回退名单。",
+      "x": 0,
+      "y": 290,
+      "width": 400,
+      "height": 200,
+      "color": "4"
+    },
+    {
+      "id": "feature",
+      "type": "text",
+      "text": "## UGameFeaturesSubsystem（UE）\n`LoadAndActivateGameFeaturePlugin(URL, Callback)` → 异步激活；回调成功/失败均返回 GameMode。",
+      "x": 0,
+      "y": 650,
+      "width": 400,
+      "height": 215,
+      "color": "4"
+    },
+    {
+      "id": "gm",
+      "type": "text",
+      "text": "## AGGYGOGameMode\n`InitGame()` → 取得 Experience。\n`ActivateGameFeatures()` → 发起插件激活。\n`HandleStartingNewPlayer()` → 未就绪先排队。\n`SpawnSquadForPlayer()` → Slot→Pawn 两阶段装配。",
+      "x": 520,
+      "y": 390,
+      "width": 470,
+      "height": 300,
+      "color": "5"
+    },
+    {
+      "id": "pawn",
+      "type": "text",
+      "text": "## UGGYGOPawnData\n`PawnClass` → 实体类型。\n`AbilitySets` / 组规则 → Slot ASC。\n`MovementSet` / `InputConfig` / `DefaultCameraMode` → Pawn 组件。",
+      "x": 1100,
+      "y": 220,
+      "width": 410,
+      "height": 245,
+      "color": "4"
+    },
+    {
+      "id": "teams",
+      "type": "text",
+      "text": "## UGGYGOSquadComponent / CharacterSlot\n`SetRoster()` → 局内成员意图。\n`RegisterSlot()` → 接收生成结果。\n`InitializeForPawnData()` → 授予能力。[[Teams/结构]]",
+      "x": 1100,
+      "y": 580,
+      "width": 410,
+      "height": 235,
+      "color": "5"
+    },
+    {
+      "id": "avatar",
+      "type": "text",
+      "text": "## AGGYGOCharacterBase / PawnExtension\n生成 Pawn 后调用 `SetPawnData()`、`AttachAvatar()` / `InitializeAbilitySystem()` 建立 Owner/Avatar；[[Character/结构]]。",
+      "x": 1100,
+      "y": 940,
+      "width": 410,
+      "height": 235,
+      "color": "1"
+    },
+    {
+      "id": "asset",
+      "type": "text",
+      "text": "## UGGYGOAssetManager\n项目级共享资产入口；具体资产就绪与兜底约束见 [[模块参考]]。",
+      "x": 520,
+      "y": 900,
+      "width": 470,
+      "height": 195,
+      "color": "4"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "experience",
+      "fromSide": "right",
+      "toNode": "gm",
+      "toSide": "left",
+      "label": "提供插件列表与默认编队"
+    },
+    {
+      "id": "e2",
+      "fromNode": "gm",
+      "fromSide": "left",
+      "toNode": "feature",
+      "toSide": "right",
+      "label": "请求插件激活"
+    },
+    {
+      "id": "e3",
+      "fromNode": "feature",
+      "fromSide": "right",
+      "toNode": "gm",
+      "toSide": "left",
+      "label": "完成/失败回调结清等待计数"
+    },
+    {
+      "id": "e4",
+      "fromNode": "pawn",
+      "fromSide": "left",
+      "toNode": "gm",
+      "toSide": "right",
+      "label": "角色装配数据"
+    },
+    {
+      "id": "e5",
+      "fromNode": "gm",
+      "fromSide": "right",
+      "toNode": "teams",
+      "toSide": "left",
+      "label": "创建 Slot 并注册"
+    },
+    {
+      "id": "e6",
+      "fromNode": "gm",
+      "fromSide": "right",
+      "toNode": "avatar",
+      "toSide": "left",
+      "label": "生成 Pawn、绑定 ASC"
+    },
+    {
+      "id": "e7",
+      "fromNode": "teams",
+      "fromSide": "bottom",
+      "toNode": "avatar",
+      "toSide": "top",
+      "label": "Slot ASC 成为 Pawn 的 Owner/Avatar 关系"
+    },
+    {
+      "id": "e8",
+      "fromNode": "asset",
+      "fromSide": "top",
+      "toNode": "gm",
+      "toSide": "bottom",
+      "label": "加载共享资产"
+    }
+  ]
+}

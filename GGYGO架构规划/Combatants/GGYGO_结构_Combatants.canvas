@@ -1,0 +1,98 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Combatants｜结构图\n外置 ASC 宿主的最小共同契约。[[Combatants/结构|结构文档]] · 玩家 [[Teams/结构]] · Boss [[BossAI/结构]]",
+      "x": 0,
+      "y": 0,
+      "width": 1530,
+      "height": 130,
+      "color": "6"
+    },
+    {
+      "id": "base",
+      "type": "text",
+      "text": "## AGGYGOCombatantState\n`GetGGYGOAbilitySystemComponent()` → 持久 ASC。\n`AttachAvatar(NewPawn)` → 同步引用、PawnExtension 与 ActorInfo。\n`DetachAvatar(ExpectedPawn)` → 只清当前 Avatar。",
+      "x": 530,
+      "y": 300,
+      "width": 470,
+      "height": 270,
+      "color": "5"
+    },
+    {
+      "id": "attr",
+      "type": "text",
+      "text": "## ASC + HealthSet + CombatSet\n宿主默认子对象；Owner 生命周期跨 Pawn。",
+      "x": 0,
+      "y": 320,
+      "width": 410,
+      "height": 180,
+      "color": "4"
+    },
+    {
+      "id": "pawn",
+      "type": "text",
+      "text": "## 当前 APawn / PawnExtension\n作为可替换 Avatar；客户端 `OnRep_AvatarPawn()` 后重新绑定。[[Character/结构]]",
+      "x": 1110,
+      "y": 320,
+      "width": 420,
+      "height": 210,
+      "color": "4"
+    },
+    {
+      "id": "slot",
+      "type": "text",
+      "text": "## AGGYGOCharacterSlot\n继承宿主；加玩家 Owner、Mixed 复制、PawnData/编队语义。[[Teams/结构]]",
+      "x": 0,
+      "y": 790,
+      "width": 410,
+      "height": 215,
+      "color": "4"
+    },
+    {
+      "id": "boss",
+      "type": "text",
+      "text": "## AGGYGOBossState\n继承宿主；加 Definition、Form/Phase 标签和 Boss 能力。[[BossAI/结构]]",
+      "x": 1110,
+      "y": 790,
+      "width": 420,
+      "height": 215,
+      "color": "4"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "attr",
+      "fromSide": "right",
+      "toNode": "base",
+      "toSide": "left",
+      "label": "默认子对象 / 持有"
+    },
+    {
+      "id": "e2",
+      "fromNode": "base",
+      "fromSide": "right",
+      "toNode": "pawn",
+      "toSide": "left",
+      "label": "AttachAvatar 绑定"
+    },
+    {
+      "id": "e3",
+      "fromNode": "base",
+      "fromSide": "bottom",
+      "toNode": "slot",
+      "toSide": "top",
+      "label": "继承"
+    },
+    {
+      "id": "e4",
+      "fromNode": "base",
+      "fromSide": "bottom",
+      "toNode": "boss",
+      "toSide": "top",
+      "label": "继承"
+    }
+  ]
+}

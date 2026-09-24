@@ -1,0 +1,80 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Physics｜结构图\n物理材质只提供表面语义。[[Physics/结构|结构文档]]",
+      "x": 0,
+      "y": 0,
+      "width": 1500,
+      "height": 125,
+      "color": "6"
+    },
+    {
+      "id": "asset",
+      "type": "text",
+      "text": "## UGGYGOPhysicalMaterialWithTags\n继承 UPhysicalMaterial。\n`Tags: FGameplayTagContainer` → 标记 Metal/Flesh 等表面类型。",
+      "x": 0,
+      "y": 280,
+      "width": 430,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "hit",
+      "type": "text",
+      "text": "## FHitResult.PhysMaterial\n近战或其他碰撞结果携带材质资产；普通材质没有项目 Tags。[[Combat/结构]]",
+      "x": 520,
+      "y": 280,
+      "width": 430,
+      "height": 215,
+      "color": "4"
+    },
+    {
+      "id": "ge",
+      "type": "text",
+      "text": "## UGGYGOGameplayAbility / GE\n`ApplyAbilityTagsToGameplayEffectSpec()` 可把材质 Tag 并入目标捕获 Tag。",
+      "x": 1040,
+      "y": 280,
+      "width": 430,
+      "height": 215,
+      "color": "5"
+    },
+    {
+      "id": "cue",
+      "type": "text",
+      "text": "## DamageExecution / HitImpact Cue\n按表面 Tag 选择衰减或表现；具体规则属于 [[AbilitySystem/结构]]。",
+      "x": 1040,
+      "y": 680,
+      "width": 430,
+      "height": 205,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "asset",
+      "fromSide": "right",
+      "toNode": "hit",
+      "toSide": "left",
+      "label": "碰撞体使用此材质"
+    },
+    {
+      "id": "e2",
+      "fromNode": "hit",
+      "fromSide": "right",
+      "toNode": "ge",
+      "toSide": "left",
+      "label": "命中结果中的 PhysMaterial"
+    },
+    {
+      "id": "e3",
+      "fromNode": "ge",
+      "fromSide": "bottom",
+      "toNode": "cue",
+      "toSide": "top",
+      "label": "GE 目标 Tag 提供表面语义"
+    }
+  ]
+}

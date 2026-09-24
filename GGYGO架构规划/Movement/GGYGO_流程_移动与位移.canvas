@@ -1,0 +1,20 @@
+{
+	"nodes":[
+		{"id":"nav","type":"text","text":"# Movement｜流程图\n一次本地移动预测的主路径。结构接口见 [[GGYGO_结构_移动与位移.canvas|结构图]]、[[Movement/结构|结构文档]]；曲线细节 [[GGYGO_流程_动画曲线处理.canvas|子图]]。","x":0,"y":0,"width":1750,"height":145,"color":"6"},
+		{"id":"input","type":"text","text":"1. HeroComponent 提交移动轴值或跑步请求。","x":0,"y":290,"width":385,"height":170,"color":"5"},
+		{"id":"resolve","type":"text","text":"2. CMC 在移动更新前解算步态、转身/急停与限制 Tag。","x":470,"y":290,"width":420,"height":185,"color":"5"},
+		{"id":"curve","type":"text","text":"3. 当前曲线采样链给 CMC 提供速度/转向信息；动作位移经 RootMotionSource。","x":970,"y":290,"width":420,"height":195,"color":"5"},
+		{"id":"physics","type":"text","text":"4. CMC 的 GetMaxSpeed、PhysicsRotation 与原生物理/碰撞执行位移。","x":1470,"y":290,"width":420,"height":190,"color":"5"},
+		{"id":"saved","type":"text","text":"5. SavedMove 记录自定义状态，客户端预测和服务器重演使用相同输入。","x":1470,"y":690,"width":420,"height":190,"color":"1"},
+		{"id":"anim","type":"text","text":"6. CMC 的步态、输入、转身语义发布给 AnimationStateFrame。","x":970,"y":730,"width":420,"height":180,"color":"1"},
+		{"id":"target","type":"text","text":"目标拆环：MotionProfile 成为权威移动曲线来源，当前尚未落地。","x":470,"y":750,"width":420,"height":180,"color":"3"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"input","fromSide":"right","toNode":"resolve","toSide":"left","label":"移动输入"},
+		{"id":"e2","fromNode":"resolve","fromSide":"right","toNode":"curve","toSide":"left","label":"决定曲线阶段"},
+		{"id":"e3","fromNode":"curve","fromSide":"right","toNode":"physics","toSide":"left","label":"速度 / RootMotion"},
+		{"id":"e4","fromNode":"physics","fromSide":"bottom","toNode":"saved","toSide":"top","label":"预测重演"},
+		{"id":"e5","fromNode":"physics","fromSide":"right","toNode":"anim","toSide":"left","label":"只读语义输出"},
+		{"id":"e6","fromNode":"curve","fromSide":"bottom","toNode":"target","toSide":"top","label":"后续替换采样来源"}
+	]
+}

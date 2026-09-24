@@ -1,0 +1,18 @@
+{
+	"nodes":[
+		{"id":"nav","type":"text","text":"# Boss 换形态｜目标流程\nD–F 阶段设计，当前未实现完整事务。当前类关系见 [[GGYGO_结构_BossAI.canvas|结构图]]；验收条件见 [[计划_BOSSAI]]。","x":0,"y":0,"width":1840,"height":145,"color":"6"},
+		{"id":"trigger","type":"text","text":"1. 权威服务器判定转阶段条件，BossState 锁住过渡并暂停 Brain。","x":0,"y":270,"width":410,"height":190,"color":"3"},
+		{"id":"cancel","type":"text","text":"2. 取消或等待当前 GA、关闭命中窗口，记录需要保留的状态。","x":480,"y":270,"width":410,"height":190,"color":"3"},
+		{"id":"spawn","type":"text","text":"3. 生成新 Form 的 Pawn；旧 Pawn 退场，Controller 改附身。","x":960,"y":270,"width":410,"height":190,"color":"3"},
+		{"id":"rebind","type":"text","text":"4. BossState ASC 更换 Avatar，PawnExtension/Health/CMC 重新绑定。","x":1440,"y":270,"width":430,"height":190,"color":"3"},
+		{"id":"resume","type":"text","text":"5. 更新 Form/Phase 与表现，恢复 Brain；属性、Buff、冷却留在 BossState。","x":1440,"y":630,"width":430,"height":200,"color":"3"},
+		{"id":"rollback","type":"text","text":"失败分支：不能让 ASC 指向已销毁 Pawn；按计划定义回滚或安全退出。","x":960,"y":650,"width":410,"height":190,"color":"3"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"trigger","fromSide":"right","toNode":"cancel","toSide":"left","label":"开始事务"},
+		{"id":"e2","fromNode":"cancel","fromSide":"right","toNode":"spawn","toSide":"left","label":"战斗动作停稳"},
+		{"id":"e3","fromNode":"spawn","fromSide":"right","toNode":"rebind","toSide":"left","label":"新 Avatar 就绪"},
+		{"id":"e4","fromNode":"rebind","fromSide":"right","toNode":"resume","toSide":"left","label":"绑定成功"},
+		{"id":"e5","fromNode":"rebind","fromSide":"bottom","toNode":"rollback","toSide":"right","label":"绑定失败"}
+	]
+}

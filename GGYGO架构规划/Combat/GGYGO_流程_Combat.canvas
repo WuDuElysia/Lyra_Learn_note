@@ -1,0 +1,124 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Combat｜近战判定流程\n结构与接口见 [[GGYGO_结构_Combat.canvas|结构图]]；伤害后续见 [[GGYGO_流程_伤害结算.canvas]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1710,
+      "height": 130,
+      "color": "6"
+    },
+    {
+      "id": "open",
+      "type": "text",
+      "text": "1. GA 收到 Montage Event，BeginTraceWindow 设置 Socket/Radius，清本窗口已命中集合。",
+      "x": 0,
+      "y": 290,
+      "width": 430,
+      "height": 190,
+      "color": "5"
+    },
+    {
+      "id": "baseline",
+      "type": "text",
+      "text": "2. 窗口首帧只记录武器两端位置，不生成从旧动画到新动画的虚假扫掠。",
+      "x": 500,
+      "y": 290,
+      "width": 430,
+      "height": 190,
+      "color": "5"
+    },
+    {
+      "id": "sweep",
+      "type": "text",
+      "text": "3. 后续每帧用上一帧与本帧线段连续扫掠，按通道过滤候选。",
+      "x": 1000,
+      "y": 290,
+      "width": 430,
+      "height": 185,
+      "color": "5"
+    },
+    {
+      "id": "dedupe",
+      "type": "text",
+      "text": "4. 已命中 Actor 跳过；新命中进入窗口集合，广播 OnMeleeHit。",
+      "x": 1500,
+      "y": 290,
+      "width": 430,
+      "height": 190,
+      "color": "5"
+    },
+    {
+      "id": "ge",
+      "type": "text",
+      "text": "5. GA 解释 HitResult、材质和目标，应用伤害 GE/Cue。",
+      "x": 1500,
+      "y": 680,
+      "width": 430,
+      "height": 180,
+      "color": "1"
+    },
+    {
+      "id": "close",
+      "type": "text",
+      "text": "6. Montage Event 结束或 GA 取消时 EndTraceWindow，停止判定 Tick。",
+      "x": 1000,
+      "y": 720,
+      "width": 430,
+      "height": 180,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "open",
+      "fromSide": "right",
+      "toNode": "baseline",
+      "toSide": "left",
+      "label": "开启窗口"
+    },
+    {
+      "id": "e2",
+      "fromNode": "baseline",
+      "fromSide": "right",
+      "toNode": "sweep",
+      "toSide": "left",
+      "label": "基线有效"
+    },
+    {
+      "id": "e3",
+      "fromNode": "sweep",
+      "fromSide": "right",
+      "toNode": "dedupe",
+      "toSide": "left",
+      "label": "获得命中候选"
+    },
+    {
+      "id": "e4",
+      "fromNode": "dedupe",
+      "fromSide": "bottom",
+      "toNode": "ge",
+      "toSide": "top",
+      "label": "首次命中"
+    },
+    {
+      "id": "e5",
+      "fromNode": "ge",
+      "fromSide": "right",
+      "toNode": "close",
+      "toSide": "left",
+      "label": "动画窗口结束"
+    },
+    {
+      "id": "e6",
+      "fromNode": "dedupe",
+      "fromSide": "left",
+      "toNode": "sweep",
+      "toSide": "right",
+      "label": "下一帧继续"
+    }
+  ]
+}

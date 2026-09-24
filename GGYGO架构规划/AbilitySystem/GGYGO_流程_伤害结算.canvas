@@ -1,0 +1,116 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# 伤害结算｜流程子图\n只画一次命中如何变为属性和表现。类关系见 [[GGYGO_结构_AbilitySystem.canvas|结构图]]；跨模块全链见 [[GGYGO_流程_战斗链路.canvas]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1660,
+      "height": 130,
+      "color": "6"
+    },
+    {
+      "id": "window",
+      "type": "text",
+      "text": "1. GA 的 Montage Event 打开判定窗口。",
+      "x": 0,
+      "y": 260,
+      "width": 390,
+      "height": 165,
+      "color": "5"
+    },
+    {
+      "id": "trace",
+      "type": "text",
+      "text": "2. MeleeTrace 沿上一帧到本帧武器轨迹扫掠，并在窗口内去重。",
+      "x": 470,
+      "y": 260,
+      "width": 410,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "effect",
+      "type": "text",
+      "text": "3. GA 对目标施加伤害 GE，填 EffectContext / SetByCaller。",
+      "x": 960,
+      "y": 260,
+      "width": 410,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "execute",
+      "type": "text",
+      "text": "4. DamageExecution 捕获源输出和目标承受属性，写 Damage / PoiseDamage 元属性。",
+      "x": 1450,
+      "y": 260,
+      "width": 420,
+      "height": 205,
+      "color": "5"
+    },
+    {
+      "id": "health",
+      "type": "text",
+      "text": "5. HealthSet 更新生命/韧性；HealthComponent 发变化、破韧或死亡事件。",
+      "x": 960,
+      "y": 640,
+      "width": 410,
+      "height": 190,
+      "color": "1"
+    },
+    {
+      "id": "cue",
+      "type": "text",
+      "text": "6. GameplayCue 发布命中表现；可见特效仍取决于 Cue 资产配置。",
+      "x": 1450,
+      "y": 640,
+      "width": 420,
+      "height": 180,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "window",
+      "fromSide": "right",
+      "toNode": "trace",
+      "toSide": "left",
+      "label": "判定启用"
+    },
+    {
+      "id": "e2",
+      "fromNode": "trace",
+      "fromSide": "right",
+      "toNode": "effect",
+      "toSide": "left",
+      "label": "命中且未重复"
+    },
+    {
+      "id": "e3",
+      "fromNode": "effect",
+      "fromSide": "right",
+      "toNode": "execute",
+      "toSide": "left",
+      "label": "应用 GE"
+    },
+    {
+      "id": "e4",
+      "fromNode": "execute",
+      "fromSide": "right",
+      "toNode": "health",
+      "toSide": "left",
+      "label": "修改元属性"
+    },
+    {
+      "id": "e5",
+      "fromNode": "execute",
+      "fromSide": "bottom",
+      "toNode": "cue",
+      "toSide": "top",
+      "label": "命中表现事件"
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Teams｜流程图\n一局的编队装配与切换时序。类与接口见 [[GGYGO_结构_队伍与装配.canvas|结构图]]、[[Teams/结构|结构文档]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1740,
+      "height": 140,
+      "color": "6"
+    },
+    {
+      "id": "preset",
+      "type": "text",
+      "text": "1. LocalPlayer 预设解析为本局 Roster；若没有，取 Experience 默认编队。",
+      "x": 0,
+      "y": 300,
+      "width": 400,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "slots",
+      "type": "text",
+      "text": "2. GameMode 为每名成员创建 CharacterSlot，先建 ASC/属性并授予 AbilitySet。",
+      "x": 480,
+      "y": 300,
+      "width": 420,
+      "height": 190,
+      "color": "5"
+    },
+    {
+      "id": "pawns",
+      "type": "text",
+      "text": "3. 再生成 Pawn；PawnExtension 绑定对应 Slot ASC，Pawn 成为 Avatar。",
+      "x": 980,
+      "y": 300,
+      "width": 420,
+      "height": 190,
+      "color": "5"
+    },
+    {
+      "id": "active",
+      "type": "text",
+      "text": "4. SquadComponent 登记 Slots，PlayerController Possess 当前出战 Pawn。",
+      "x": 1480,
+      "y": 300,
+      "width": 430,
+      "height": 190,
+      "color": "5"
+    },
+    {
+      "id": "switch",
+      "type": "text",
+      "text": "5. 换人：先 UnPossess 旧 Pawn，再 Possess 新 Pawn，更新出战索引。",
+      "x": 1480,
+      "y": 690,
+      "width": 430,
+      "height": 185,
+      "color": "1"
+    },
+    {
+      "id": "persist",
+      "type": "text",
+      "text": "待命 Slot 的属性、Buff、冷却继续存在；切换的是 Avatar 和附身关系。",
+      "x": 980,
+      "y": 730,
+      "width": 420,
+      "height": 180,
+      "color": "4"
+    },
+    {
+      "id": "remote",
+      "type": "text",
+      "text": "缺口：远程玩家自定义编队的服务器上报与联机回归尚待完成。",
+      "x": 480,
+      "y": 760,
+      "width": 420,
+      "height": 180,
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "preset",
+      "fromSide": "right",
+      "toNode": "slots",
+      "toSide": "left",
+      "label": "确定名单"
+    },
+    {
+      "id": "e2",
+      "fromNode": "slots",
+      "fromSide": "right",
+      "toNode": "pawns",
+      "toSide": "left",
+      "label": "ASC 已就绪"
+    },
+    {
+      "id": "e3",
+      "fromNode": "pawns",
+      "fromSide": "right",
+      "toNode": "active",
+      "toSide": "left",
+      "label": "Avatar 绑定完毕"
+    },
+    {
+      "id": "e4",
+      "fromNode": "active",
+      "fromSide": "bottom",
+      "toNode": "switch",
+      "toSide": "top",
+      "label": "玩家发起换人"
+    },
+    {
+      "id": "e5",
+      "fromNode": "switch",
+      "fromSide": "right",
+      "toNode": "persist",
+      "toSide": "left",
+      "label": "GAS 状态留在 Slot"
+    },
+    {
+      "id": "e6",
+      "fromNode": "preset",
+      "fromSide": "bottom",
+      "toNode": "remote",
+      "toSide": "top",
+      "label": "远程存档不可直读"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# System｜结构图\n项目语义键与共享资产入口。[[System/结构|结构文档]] · [[计划蓝图|模块导航]]",
+      "x": 0,
+      "y": 0,
+      "width": 1530,
+      "height": 125,
+      "color": "6"
+    },
+    {
+      "id": "tags",
+      "type": "text",
+      "text": "## GGYGOGameplayTags\n原生 Tag 常量：Input/Ability/Group/State/Restriction/Event/Cue/Message。\n各模块只认同一语义键。",
+      "x": 0,
+      "y": 260,
+      "width": 420,
+      "height": 215,
+      "color": "4"
+    },
+    {
+      "id": "manager",
+      "type": "text",
+      "text": "## UGGYGOAssetManager\n`Get()` → 单例或错误日志+兜底。\n`StartInitialLoading()` → 启动预载。\n`GetGameData()` → 可空共享资产；按类缓存。",
+      "x": 550,
+      "y": 260,
+      "width": 440,
+      "height": 245,
+      "color": "5"
+    },
+    {
+      "id": "data",
+      "type": "text",
+      "text": "## UGGYGOGameData\n`Get()` → 可空。\nDamage / Heal / SelfDestruct GE 类引用；项目级 C++ 共用资产。",
+      "x": 1110,
+      "y": 260,
+      "width": 420,
+      "height": 210,
+      "color": "5"
+    },
+    {
+      "id": "consumers",
+      "type": "text",
+      "text": "## AbilitySystem / Input / GameMode\n消费 Tag 与共享 GE；角色专属 AbilitySet/PawnData 仍归各自模块。[[AbilitySystem/结构]] · [[GameFeature/结构]]",
+      "x": 550,
+      "y": 700,
+      "width": 440,
+      "height": 220,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "tags",
+      "fromSide": "bottom",
+      "toNode": "consumers",
+      "toSide": "left",
+      "label": "公共语义键"
+    },
+    {
+      "id": "e2",
+      "fromNode": "manager",
+      "fromSide": "right",
+      "toNode": "data",
+      "toSide": "left",
+      "label": "加载并缓存"
+    },
+    {
+      "id": "e3",
+      "fromNode": "data",
+      "fromSide": "bottom",
+      "toNode": "consumers",
+      "toSide": "right",
+      "label": "提供共享 GE"
+    },
+    {
+      "id": "e4",
+      "fromNode": "tags",
+      "fromSide": "right",
+      "toNode": "manager",
+      "toSide": "left",
+      "label": "启动注册/全局访问"
+    }
+  ]
+}

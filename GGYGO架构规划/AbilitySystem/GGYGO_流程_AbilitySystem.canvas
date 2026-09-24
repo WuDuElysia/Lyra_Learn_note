@@ -1,0 +1,142 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# AbilitySystem｜流程图\n只呈现能力从装配、申请到结束的阶段；类和接口见 [[GGYGO_结构_AbilitySystem.canvas|结构图]]、[[AbilitySystem/结构|结构文档]]。组仲裁 [[GGYGO_流程_能力仲裁.canvas|子图]] · 伤害 [[GGYGO_流程_伤害结算.canvas|子图]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1650,
+      "height": 150,
+      "color": "6"
+    },
+    {
+      "id": "grant",
+      "type": "text",
+      "text": "1. 状态宿主创建 ASC 与基础属性，并按 AbilitySet 授予 GA / GE。",
+      "x": 0,
+      "y": 290,
+      "width": 385,
+      "height": 170,
+      "color": "5"
+    },
+    {
+      "id": "request",
+      "type": "text",
+      "text": "2. 玩家 InputTag 或 Boss ActionTag 形成激活申请。",
+      "x": 470,
+      "y": 290,
+      "width": 385,
+      "height": 170,
+      "color": "5"
+    },
+    {
+      "id": "check",
+      "type": "text",
+      "text": "3. ASC 检查 Tag、消耗、组规则和优先级。\n详见 [[GGYGO_流程_能力仲裁.canvas|仲裁子图]]。",
+      "x": 940,
+      "y": 290,
+      "width": 400,
+      "height": 185,
+      "color": "5"
+    },
+    {
+      "id": "active",
+      "type": "text",
+      "text": "4. GA 激活：Montage、事件窗口、移动请求与相机接管按能力配置执行。",
+      "x": 1430,
+      "y": 180,
+      "width": 420,
+      "height": 195,
+      "color": "1"
+    },
+    {
+      "id": "fail",
+      "type": "text",
+      "text": "拒绝：反馈原因；仅可重试的玩家意图进入缓冲。",
+      "x": 1430,
+      "y": 560,
+      "width": 420,
+      "height": 170,
+      "color": "3"
+    },
+    {
+      "id": "end",
+      "type": "text",
+      "text": "5. GA 完成/取消：释放组、撤销相机接管；可能唤醒缓冲请求。",
+      "x": 940,
+      "y": 650,
+      "width": 400,
+      "height": 185,
+      "color": "1"
+    },
+    {
+      "id": "damage",
+      "type": "text",
+      "text": "命中分支：GE → 属性 → Cue；详见 [[GGYGO_流程_伤害结算.canvas|伤害子图]]。",
+      "x": 1430,
+      "y": 920,
+      "width": 420,
+      "height": 170,
+      "color": "4"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "grant",
+      "fromSide": "right",
+      "toNode": "request",
+      "toSide": "left",
+      "label": "能力已授予"
+    },
+    {
+      "id": "e2",
+      "fromNode": "request",
+      "fromSide": "right",
+      "toNode": "check",
+      "toSide": "left",
+      "label": "申请激活"
+    },
+    {
+      "id": "e3",
+      "fromNode": "check",
+      "fromSide": "right",
+      "toNode": "active",
+      "toSide": "left",
+      "label": "条件通过"
+    },
+    {
+      "id": "e4",
+      "fromNode": "check",
+      "fromSide": "right",
+      "toNode": "fail",
+      "toSide": "left",
+      "label": "阻断/消耗不足"
+    },
+    {
+      "id": "e5",
+      "fromNode": "active",
+      "fromSide": "bottom",
+      "toNode": "end",
+      "toSide": "right",
+      "label": "结束或打断"
+    },
+    {
+      "id": "e6",
+      "fromNode": "active",
+      "fromSide": "bottom",
+      "toNode": "damage",
+      "toSide": "top",
+      "label": "命中时"
+    },
+    {
+      "id": "e7",
+      "fromNode": "end",
+      "fromSide": "left",
+      "toNode": "request",
+      "toSide": "bottom",
+      "label": "释放后重试"
+    }
+  ]
+}

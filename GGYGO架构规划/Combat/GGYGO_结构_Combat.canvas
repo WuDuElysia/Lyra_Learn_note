@@ -1,0 +1,98 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Combat｜结构图\n窗口、连续扫掠和命中输出。[[Combat/结构|结构文档]] · [[GGYGO_流程_Combat.canvas|运行流程]]",
+      "x": 0,
+      "y": 0,
+      "width": 1540,
+      "height": 125,
+      "color": "6"
+    },
+    {
+      "id": "ga",
+      "type": "text",
+      "text": "## GA / Montage Event\n`BeginTraceWindow(StartSocket, EndSocket, Radius)` → 打开窗口。\n`EndTraceWindow()` → 关闭。\n[[BossAI/结构]]",
+      "x": 0,
+      "y": 270,
+      "width": 430,
+      "height": 225,
+      "color": "4"
+    },
+    {
+      "id": "trace",
+      "type": "text",
+      "text": "## UGGYGOMeleeTraceComponent\n`TickComponent()` / `PerformTrace()` → 上帧至本帧连续扫掠。\n`IsTracing()` → 窗口状态。\n`OnMeleeHit(Actor, Hit)` → 命中广播。",
+      "x": 550,
+      "y": 270,
+      "width": 460,
+      "height": 255,
+      "color": "5"
+    },
+    {
+      "id": "mesh",
+      "type": "text",
+      "text": "## SkeletalMesh Socket / TraceChannel\nStartSocket、EndSocket 定义判定线段；TraceRadius 与碰撞通道决定扫掠体。",
+      "x": 1110,
+      "y": 260,
+      "width": 430,
+      "height": 205,
+      "color": "4"
+    },
+    {
+      "id": "memory",
+      "type": "text",
+      "text": "## 窗口内状态\nPreviousStart/End：跨帧轨迹基线。\nHitActorsThisWindow：弱引用去重；新窗口清空。",
+      "x": 550,
+      "y": 670,
+      "width": 460,
+      "height": 220,
+      "color": "4"
+    },
+    {
+      "id": "gas",
+      "type": "text",
+      "text": "## AbilitySystem / Physics\nGA 接命中后应用 GE/Cue；HitResult 可携材质标签。[[AbilitySystem/结构]] · [[Physics/结构]]",
+      "x": 1110,
+      "y": 690,
+      "width": 430,
+      "height": 220,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "ga",
+      "fromSide": "right",
+      "toNode": "trace",
+      "toSide": "left",
+      "label": "开/关判定窗口"
+    },
+    {
+      "id": "e2",
+      "fromNode": "mesh",
+      "fromSide": "left",
+      "toNode": "trace",
+      "toSide": "right",
+      "label": "骨骼坐标与碰撞设置"
+    },
+    {
+      "id": "e3",
+      "fromNode": "trace",
+      "fromSide": "bottom",
+      "toNode": "memory",
+      "toSide": "top",
+      "label": "保存基线与去重"
+    },
+    {
+      "id": "e4",
+      "fromNode": "trace",
+      "fromSide": "bottom",
+      "toNode": "gas",
+      "toSide": "top",
+      "label": "OnMeleeHit 结果"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+	"nodes":[
+		{"id":"nav","type":"text","text":"# BossAI｜主流程图\nA–C 已实现；D–F 尚是计划。类与接口见 [[GGYGO_结构_BossAI.canvas|结构图]]、[[BossAI/结构|结构文档]]。选招 [[GGYGO_流程_Boss选招.canvas|子图]] · 换形态 [[GGYGO_流程_Boss换形态.canvas|目标子图]]。","x":0,"y":0,"width":1800,"height":155,"color":"6"},
+		{"id":"spawn","type":"text","text":"1. BossEncounter 由 Definition 创建 BossState、BossCharacter 和 AIController。","x":0,"y":300,"width":410,"height":190,"color":"5"},
+		{"id":"bind","type":"text","text":"2. BossState 持有 ASC/属性；PawnExtension 绑定当前 Avatar。","x":490,"y":300,"width":410,"height":180,"color":"5"},
+		{"id":"brain","type":"text","text":"3. AIController 驱动 BT，选择 ActionTag；详见 [[GGYGO_流程_Boss选招.canvas|选招子图]]。","x":980,"y":300,"width":420,"height":195,"color":"5"},
+		{"id":"ga","type":"text","text":"4. BT 申请 GAS 能力；GA 执行 Montage、MeleeTrace、GE 与 Cue。","x":1480,"y":300,"width":420,"height":190,"color":"1"},
+		{"id":"future","type":"text","text":"D–F 目标：目标/仇恨、阶段与形态切换事务。\n[[GGYGO_流程_Boss换形态.canvas|换形态目标子图]]","x":980,"y":720,"width":420,"height":190,"color":"3"},
+		{"id":"persist","type":"text","text":"换形态时应保留 BossState 的属性、Buff、冷却和 AI 目标；当前完整事务未实现。","x":1480,"y":720,"width":420,"height":190,"color":"3"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"spawn","fromSide":"right","toNode":"bind","toSide":"left","label":"Owner / Avatar 装配"},
+		{"id":"e2","fromNode":"bind","fromSide":"right","toNode":"brain","toSide":"left","label":"战斗状态就绪"},
+		{"id":"e3","fromNode":"brain","fromSide":"right","toNode":"ga","toSide":"left","label":"ActionTag 申请"},
+		{"id":"e4","fromNode":"ga","fromSide":"bottom","toNode":"future","toSide":"top","label":"后续阶段触发"},
+		{"id":"e5","fromNode":"future","fromSide":"right","toNode":"persist","toSide":"left","label":"目标保持状态连续"}
+	]
+}

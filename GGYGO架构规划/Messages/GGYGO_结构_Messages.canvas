@@ -1,0 +1,98 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Messages｜结构图\n观察者消息，不是 GA 指令。[[Messages/结构|结构文档]]",
+      "x": 0,
+      "y": 0,
+      "width": 1530,
+      "height": 125,
+      "color": "6"
+    },
+    {
+      "id": "source",
+      "type": "text",
+      "text": "## UGGYGOHealthSet\n正伤害广播 Damage、正韧性伤害广播 PoiseBreak；治疗路径目前不广播此消息。[[AbilitySystem/结构]]",
+      "x": 0,
+      "y": 300,
+      "width": 410,
+      "height": 190,
+      "color": "4"
+    },
+    {
+      "id": "payload",
+      "type": "text",
+      "text": "## FGGYGOVerbMessage\n`Verb` → 类型；`Instigator/Target` → 参与者；`InstigatorTags/TargetTags/ContextTags` → 语义；`Magnitude` → 原始数值。",
+      "x": 510,
+      "y": 270,
+      "width": 470,
+      "height": 260,
+      "color": "5"
+    },
+    {
+      "id": "router",
+      "type": "text",
+      "text": "## UGameplayMessageSubsystem（UE）\n按 Verb 通道广播载荷；不保存 GAS 权威状态。",
+      "x": 1090,
+      "y": 300,
+      "width": 430,
+      "height": 190,
+      "color": "4"
+    },
+    {
+      "id": "readers",
+      "type": "text",
+      "text": "## UI / 音频 / 统计\n只读订阅已发生事件；不会从消息反向改 ASC。",
+      "x": 1090,
+      "y": 700,
+      "width": 430,
+      "height": 185,
+      "color": "1"
+    },
+    {
+      "id": "event",
+      "type": "text",
+      "text": "## GameplayEvent（另一路）\n发给指定 Actor 的 ASC，驱动 Ability 逻辑；不经观察者消息。",
+      "x": 510,
+      "y": 750,
+      "width": 470,
+      "height": 210,
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "source",
+      "fromSide": "right",
+      "toNode": "payload",
+      "toSide": "left",
+      "label": "构造事件事实"
+    },
+    {
+      "id": "e2",
+      "fromNode": "payload",
+      "fromSide": "right",
+      "toNode": "router",
+      "toSide": "left",
+      "label": "广播消息"
+    },
+    {
+      "id": "e3",
+      "fromNode": "router",
+      "fromSide": "bottom",
+      "toNode": "readers",
+      "toSide": "top",
+      "label": "Verb 订阅"
+    },
+    {
+      "id": "e4",
+      "fromNode": "source",
+      "fromSide": "bottom",
+      "toNode": "event",
+      "toSide": "top",
+      "label": "逻辑事件走 ASC"
+    }
+  ]
+}

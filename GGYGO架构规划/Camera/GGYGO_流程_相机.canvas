@@ -1,0 +1,142 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Camera｜流程图\n一次视角拉取的主路径。类与接口见 [[GGYGO_结构_相机.canvas|结构图]]、[[Camera/结构|结构文档]]；细节见 [[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复]]、[[GGYGO_流程_相机模式求值.canvas|模式求值]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1720,
+      "height": 145,
+      "color": "6"
+    },
+    {
+      "id": "engine",
+      "type": "text",
+      "text": "1. UE 通过 ViewTarget 调用 CameraComponent::GetCameraView。",
+      "x": 0,
+      "y": 300,
+      "width": 385,
+      "height": 170,
+      "color": "5"
+    },
+    {
+      "id": "choose",
+      "type": "text",
+      "text": "2. HeroComponent 从 Ability 覆盖列表或 PawnData 选有效模式。",
+      "x": 470,
+      "y": 300,
+      "width": 420,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "push",
+      "type": "text",
+      "text": "3. CameraComponent 把模式类交给 CameraModeStack。",
+      "x": 970,
+      "y": 300,
+      "width": 420,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "evaluate",
+      "type": "text",
+      "text": "4. Stack 更新并混合各 CameraMode 的 View。\n[[GGYGO_流程_相机模式求值.canvas|展开]]",
+      "x": 1470,
+      "y": 300,
+      "width": 420,
+      "height": 185,
+      "color": "5"
+    },
+    {
+      "id": "offset",
+      "type": "text",
+      "text": "5. CameraComponent 对最终 View 叠加 CameraOffset。",
+      "x": 1470,
+      "y": 670,
+      "width": 420,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "output",
+      "type": "text",
+      "text": "6. 写入最终 FOV/位置/Rotation 与 Controller 的 ControlRotation。",
+      "x": 970,
+      "y": 700,
+      "width": 420,
+      "height": 185,
+      "color": "1"
+    },
+    {
+      "id": "empty",
+      "type": "text",
+      "text": "兜底：模式类为空或栈为空时，用 UCameraComponent 自身视角。",
+      "x": 470,
+      "y": 740,
+      "width": 420,
+      "height": 175,
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "engine",
+      "fromSide": "right",
+      "toNode": "choose",
+      "toSide": "left",
+      "label": "拉取本帧视角"
+    },
+    {
+      "id": "e2",
+      "fromNode": "choose",
+      "fromSide": "right",
+      "toNode": "push",
+      "toSide": "left",
+      "label": "返回有效模式类"
+    },
+    {
+      "id": "e3",
+      "fromNode": "push",
+      "fromSide": "right",
+      "toNode": "evaluate",
+      "toSide": "left",
+      "label": "PushCameraMode"
+    },
+    {
+      "id": "e4",
+      "fromNode": "evaluate",
+      "fromSide": "bottom",
+      "toNode": "offset",
+      "toSide": "top",
+      "label": "得到合成视角"
+    },
+    {
+      "id": "e5",
+      "fromNode": "offset",
+      "fromSide": "right",
+      "toNode": "output",
+      "toSide": "left",
+      "label": "应用微调后"
+    },
+    {
+      "id": "e6",
+      "fromNode": "choose",
+      "fromSide": "bottom",
+      "toNode": "empty",
+      "toSide": "top",
+      "label": "尚无有效模式"
+    },
+    {
+      "id": "e7",
+      "fromNode": "empty",
+      "fromSide": "right",
+      "toNode": "output",
+      "toSide": "left",
+      "label": "使用组件兜底视角"
+    }
+  ]
+}

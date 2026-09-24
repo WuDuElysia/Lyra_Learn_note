@@ -1,0 +1,188 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# 相机模式栈求值｜实现子图\n[[Camera/模式栈实现|算法说明]] · [[GGYGO_结构_相机.canvas|类结构]] · [[GGYGO_流程_相机.canvas|返回主流程]]。栈索引 0 是栈顶，HeroComponent 已先仲裁有效模式。",
+      "x": 0,
+      "y": 0,
+      "width": 1900,
+      "height": 150,
+      "color": "6"
+    },
+    {
+      "id": "pull",
+      "type": "text",
+      "text": "1. GetCameraView 调 UpdateCameraModes，从委托取得有效 Mode Class。",
+      "x": 0,
+      "y": 260,
+      "width": 410,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "pool",
+      "type": "text",
+      "text": "2. PushCameraMode：按 Class 在实例池查找，未找到才 NewObject；栈顶同类时直接返回。",
+      "x": 480,
+      "y": 260,
+      "width": 430,
+      "height": 195,
+      "color": "5"
+    },
+    {
+      "id": "contribution",
+      "type": "text",
+      "text": "3. 已在栈中：可见贡献 = 自身 Weight × 上层各 (1 - Weight)；移到索引 0，用 SetBlendWeight 反解 BlendAlpha。新类从 0 进入。",
+      "x": 990,
+      "y": 260,
+      "width": 470,
+      "height": 245,
+      "color": "5"
+    },
+    {
+      "id": "bottom",
+      "type": "text",
+      "text": "空栈首次入栈：栈底权重强制为 1，避免从未初始化视角开始混合。",
+      "x": 1530,
+      "y": 180,
+      "width": 440,
+      "height": 180,
+      "color": "3"
+    },
+    {
+      "id": "update",
+      "type": "text",
+      "text": "4. UpdateStack：Mode 先 UpdateView，再按 dt/BlendTime 推进 Alpha 并套缓动函数得到 Weight。",
+      "x": 1530,
+      "y": 540,
+      "width": 440,
+      "height": 215,
+      "color": "5"
+    },
+    {
+      "id": "prune",
+      "type": "text",
+      "text": "5. 遇到权重满 1 的上层模式：下层已不可见，调用 OnDeactivation 并移除活动项；实例池保留。",
+      "x": 990,
+      "y": 660,
+      "width": 470,
+      "height": 220,
+      "color": "5"
+    },
+    {
+      "id": "blend",
+      "type": "text",
+      "text": "6. BlendStack：从数组末尾的栈底 View 开始，逐层混到索引 0；旋转插值使用归一化角差。",
+      "x": 480,
+      "y": 760,
+      "width": 430,
+      "height": 230,
+      "color": "5"
+    },
+    {
+      "id": "offset",
+      "type": "text",
+      "text": "7. CameraComponent 在合成 View 之后施加局部位置/FOV 微调，Alpha 按进入/回落时间线性变化。",
+      "x": 0,
+      "y": 790,
+      "width": 410,
+      "height": 220,
+      "color": "1"
+    },
+    {
+      "id": "write",
+      "type": "text",
+      "text": "8. 写回组件与 FMinimalViewInfo；ControlRotation 单独写回 Pawn Controller。",
+      "x": 0,
+      "y": 1170,
+      "width": 410,
+      "height": 190,
+      "color": "1"
+    },
+    {
+      "id": "fallback",
+      "type": "text",
+      "text": "无有效类且活动栈为空：直接调用 UCameraComponent::GetCameraView。",
+      "x": 480,
+      "y": 1170,
+      "width": 430,
+      "height": 180,
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "pull",
+      "fromSide": "right",
+      "toNode": "pool",
+      "toSide": "left",
+      "label": "有效模式类"
+    },
+    {
+      "id": "e2",
+      "fromNode": "pool",
+      "fromSide": "right",
+      "toNode": "contribution",
+      "toSide": "left",
+      "label": "已有或新实例"
+    },
+    {
+      "id": "e3",
+      "fromNode": "contribution",
+      "fromSide": "right",
+      "toNode": "bottom",
+      "toSide": "left",
+      "label": "仅首个模式"
+    },
+    {
+      "id": "e4",
+      "fromNode": "contribution",
+      "fromSide": "right",
+      "toNode": "update",
+      "toSide": "left",
+      "label": "置顶并设初始权重"
+    },
+    {
+      "id": "e5",
+      "fromNode": "update",
+      "fromSide": "right",
+      "toNode": "prune",
+      "toSide": "left",
+      "label": "更新后可见性"
+    },
+    {
+      "id": "e6",
+      "fromNode": "prune",
+      "fromSide": "right",
+      "toNode": "blend",
+      "toSide": "left",
+      "label": "剩余活动模式"
+    },
+    {
+      "id": "e7",
+      "fromNode": "blend",
+      "fromSide": "right",
+      "toNode": "offset",
+      "toSide": "left",
+      "label": "合成视角"
+    },
+    {
+      "id": "e8",
+      "fromNode": "offset",
+      "fromSide": "bottom",
+      "toNode": "write",
+      "toSide": "top",
+      "label": "最终视角"
+    },
+    {
+      "id": "e9",
+      "fromNode": "pull",
+      "fromSide": "bottom",
+      "toNode": "fallback",
+      "toSide": "top",
+      "label": "委托为空且无活动栈"
+    }
+  ]
+}

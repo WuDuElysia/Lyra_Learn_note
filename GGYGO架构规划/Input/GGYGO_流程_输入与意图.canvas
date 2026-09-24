@@ -1,0 +1,134 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Input｜流程图\n按键到能力申请的时间顺序。类与接口见 [[GGYGO_结构_输入与意图.canvas|结构图]]、[[Input/结构|结构文档]]。",
+      "x": 0,
+      "y": 0,
+      "width": 1600,
+      "height": 140,
+      "color": "6"
+    },
+    {
+      "id": "action",
+      "type": "text",
+      "text": "1. Enhanced Input 发出 InputAction 轴值或按下/松开。",
+      "x": 0,
+      "y": 280,
+      "width": 385,
+      "height": 170,
+      "color": "5"
+    },
+    {
+      "id": "map",
+      "type": "text",
+      "text": "2. InputConfig 与 InputComponent 将 Action 绑定到对应 Tag 回调。",
+      "x": 470,
+      "y": 280,
+      "width": 400,
+      "height": 175,
+      "color": "5"
+    },
+    {
+      "id": "branch",
+      "type": "text",
+      "text": "3. HeroComponent 按输入类型分流。",
+      "x": 950,
+      "y": 280,
+      "width": 385,
+      "height": 170,
+      "color": "5"
+    },
+    {
+      "id": "move",
+      "type": "text",
+      "text": "移动/视角轴值：直接交给 CMC / Controller。\n[[Movement/结构]]",
+      "x": 1430,
+      "y": 160,
+      "width": 420,
+      "height": 180,
+      "color": "1"
+    },
+    {
+      "id": "ability",
+      "type": "text",
+      "text": "Ability InputTag：Pressed/Released 先写入 ASC 缓存。",
+      "x": 1430,
+      "y": 550,
+      "width": 420,
+      "height": 180,
+      "color": "1"
+    },
+    {
+      "id": "consume",
+      "type": "text",
+      "text": "4. PlayerController::PostProcessInput 调 ASC::ProcessAbilityInput，统一申请激活。",
+      "x": 950,
+      "y": 700,
+      "width": 400,
+      "height": 190,
+      "color": "5"
+    },
+    {
+      "id": "retry",
+      "type": "text",
+      "text": "可重试拒绝：HeroComponent 暂存意图，组释放后再请求。\n[[GGYGO_流程_能力仲裁.canvas]]",
+      "x": 1430,
+      "y": 940,
+      "width": 420,
+      "height": 190,
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "action",
+      "fromSide": "right",
+      "toNode": "map",
+      "toSide": "left",
+      "label": "触发映射"
+    },
+    {
+      "id": "e2",
+      "fromNode": "map",
+      "fromSide": "right",
+      "toNode": "branch",
+      "toSide": "left",
+      "label": "调用 Hero 回调"
+    },
+    {
+      "id": "e3",
+      "fromNode": "branch",
+      "fromSide": "right",
+      "toNode": "move",
+      "toSide": "left",
+      "label": "连续轴值"
+    },
+    {
+      "id": "e4",
+      "fromNode": "branch",
+      "fromSide": "right",
+      "toNode": "ability",
+      "toSide": "left",
+      "label": "能力按键"
+    },
+    {
+      "id": "e5",
+      "fromNode": "ability",
+      "fromSide": "right",
+      "toNode": "consume",
+      "toSide": "left",
+      "label": "本帧输入收齐"
+    },
+    {
+      "id": "e6",
+      "fromNode": "consume",
+      "fromSide": "right",
+      "toNode": "retry",
+      "toSide": "left",
+      "label": "可重试拒绝"
+    }
+  ]
+}

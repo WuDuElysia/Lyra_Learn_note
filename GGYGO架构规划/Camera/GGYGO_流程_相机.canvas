@@ -21,6 +21,16 @@
       "color": "5"
     },
     {
+      "id": "look-input",
+      "type": "text",
+      "text": "0. 视角输入先更新 Controller.ControlRotation。\n\n资产：BP_PC_Pyrios 注册 IMC_Default + IMC_MouseLook；IA_Look / IA_MouseLook → Look.Stick / Look.Mouse。\n回调：HeroComponent::Input_Look* → AddControllerYawInput / AddControllerPitchInput。",
+      "x": 0,
+      "y": 190,
+      "width": 890,
+      "height": 180,
+      "color": "4"
+    },
+    {
       "id": "choose",
       "type": "text",
       "text": "2. HeroComponent 从 Ability 覆盖列表或 PawnData 选有效模式。\n\n调用：CameraComponent::UpdateCameraModes → DetermineCameraModeDelegate → HeroComponent::DetermineCameraMode；返回 Mode Class。",
@@ -82,6 +92,14 @@
     }
   ],
   "edges": [
+    {
+      "id": "e0",
+      "fromNode": "look-input",
+      "fromSide": "bottom",
+      "toNode": "engine",
+      "toSide": "top",
+      "label": "ControlRotation → Pawn ViewRotation"
+    },
     {
       "id": "e1",
       "fromNode": "engine",

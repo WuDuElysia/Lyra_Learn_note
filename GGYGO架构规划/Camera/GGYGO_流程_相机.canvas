@@ -33,11 +33,11 @@
     {
       "id": "choose",
       "type": "text",
-      "text": "2. HeroComponent 从 Ability 覆盖列表或 PawnData 选有效模式。\n\n调用：CameraComponent::UpdateCameraModes → DetermineCameraModeDelegate → HeroComponent::DetermineCameraMode；返回 Mode Class。",
+      "text": "2. HeroComponent 从 Ability 覆盖列表或 PawnData 选有效模式。\n\n当前默认：DA_Pawn_Pyrios.DefaultCameraMode → BP_CameraMode_ThirdPerson_Pyrios_C。\n调用：CameraComponent::UpdateCameraModes → DetermineCameraModeDelegate → HeroComponent::DetermineCameraMode；返回 Mode Class。",
       "x": 470,
       "y": 405,
       "width": 420,
-      "height": 230,
+      "height": 255,
       "color": "5"
     },
     {

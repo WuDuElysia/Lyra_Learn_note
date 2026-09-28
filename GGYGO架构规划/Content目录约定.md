@@ -14,6 +14,7 @@
 | `/Game/GameplayCues/` | GAS 表现 | GameplayCue 资产统一放这里；`DefaultGame.ini` 已扫描此路径 |
 | `/Game/GameplayEffects/` | GAS 效果 | 按限制、冷却、伤害等语义分类，不按蓝图来源目录分类 |
 | `/Game/Characters/` | 角色资产 | 角色专属资产按角色聚合；跨角色资产放 `Shared/` |
+| `/Game/Camera/` | 相机参数资产 | CameraMode 派生蓝图；C++ 保留算法，角色 PawnData 选择模式类 |
 | `/Game/Input/` | 输入资产 | InputAction、InputMappingContext 和输入配置分层 |
 | `/Game/PhysicsMaterials/` | 物理表现 | 带表面/Gameplay Tag 的物理材质；目录已创建，资产待配置 |
 
@@ -39,6 +40,8 @@
       Movement/
       AbilitySets/
       Groups/
+  Camera/
+    Modes/
   Input/
     Actions/
     Mappings/
@@ -64,7 +67,13 @@
 | `IMC_MouseLook` | `/Game/Input/Mappings/IMC_MouseLook` | 鼠标视角映射 |
 | `IA_*` | `/Game/Input/Actions/` | InputAction 保持原有 Actions 目录 |
 
-`BP_PlayerController` 对两个 IMC 都有引用，`BP_PC_Pyrios` 引用 `IMC_Default`。迁移后反向引用仍指向新路径。
+`BP_PC_Pyrios.HeroComponent` 当前同时引用 `IMC_Default` 与 `IMC_MouseLook`。迁移后反向引用仍指向新路径。
+
+### Camera
+
+| 资产 | 当前路径 | 说明 |
+|---|---|---|
+| `BP_CameraMode_ThirdPerson_Pyrios` | `/Game/Camera/Modes/BP_CameraMode_ThirdPerson_Pyrios` | Pyrios 第三人称设计参数；父类为 `UGGYGOCameraMode_ThirdPerson`，由 `DA_Pawn_Pyrios.DefaultCameraMode` 选择 |
 
 ### GameplayEffect
 

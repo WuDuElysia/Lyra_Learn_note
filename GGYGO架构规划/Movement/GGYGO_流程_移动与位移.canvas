@@ -13,7 +13,7 @@
     {
       "id": "input",
       "type": "text",
-      "text": "1. HeroComponent 提交移动轴值或跑步请求。\n\nHeroComponent::Input_Move(Value) → AddMovementInput；跑步请求 CMC::RequestRunOnNextMove。",
+      "text": "1. HeroComponent 提交移动轴值、ForceWalk 或跑步契约。\n\nInput_Move(Value) → AddMovementInput；ForceWalk Pressed/Released → CMC::SetForceWalkRequested；跑步契约 → RequestRunOnNextMove。",
       "x": 0,
       "y": 392,
       "width": 385,
@@ -23,8 +23,8 @@
     {
       "id": "resolve",
       "type": "text",
-      "text": "2. CMC 在移动更新前解算步态、转身/急停与限制 Tag。\n\nCMC::UpdateCharacterStateBeforeMovement → 解算 Gait/TurnBack/Stop；读取 ASC 限制 Tag 和 MovementSet。",
-      "x": 470,
+      "text": "3. CMC 在移动更新前解算步态、转身/急停与限制 Tag。\n\nUpdateCharacterStateBeforeMovement：有输入先 Walk；持续满 MovementSet.WalkToRunHoldSeconds（默认 1.5 秒）升 Run；ForceWalk 保持 Walk；随后推进 TurnBack/Stop。",
+      "x": 970,
       "y": 392,
       "width": 420,
       "height": 230,
@@ -33,8 +33,8 @@
     {
       "id": "curve",
       "type": "text",
-      "text": "3. 当前曲线采样链给 CMC 提供速度/转向信息；动作位移经 RootMotionSource。\n\nCMC::TickComponent → SampleAnimCurves(dt) → Sampler::Sample；动作源 RMS::PrepareRootMotion。",
-      "x": 970,
+      "text": "2. CMC::TickComponent 在 Super 前采当前动画曲线。\n\nSampleAnimCurves(dt) → Sampler::Sample；建立本帧 CurveMotion，供随后 CMC 更新读取；动作源仍经 RMS::PrepareRootMotion。",
+      "x": 470,
       "y": 392,
       "width": 420,
       "height": 230,
@@ -63,7 +63,7 @@
     {
       "id": "anim",
       "type": "text",
-      "text": "6. CMC 的步态、输入、转身语义发布给 AnimationStateFrame。\n\nAnimationStateCapture::Capture 从 CMC::GetResolvedGait/HasMoveInput/IsTurnBackCurveDriven 生成只读 StateFrame。",
+      "text": "6. CMC 的步态发布给 WalkRun BlendSpace。\n\nAnimationStateCapture::Capture 读取 GetResolvedGait → ZZZ 兼容层把 Run 映射为 GaitBlendY=1、Walk 映射为 0 → ABP_Pyrios.WalkRun 的 X 轴消费。",
       "x": 970,
       "y": 986,
       "width": 420,
@@ -86,25 +86,25 @@
       "id": "e1",
       "fromNode": "input",
       "fromSide": "right",
-      "toNode": "resolve",
+      "toNode": "curve",
       "toSide": "left",
-      "label": "移动输入"
+      "label": "本帧移动请求"
     },
     {
       "id": "e2",
-      "fromNode": "resolve",
+      "fromNode": "curve",
       "fromSide": "right",
-      "toNode": "curve",
+      "toNode": "resolve",
       "toSide": "left",
-      "label": "决定曲线阶段"
+      "label": "CurveMotion 供移动更新读取"
     },
     {
       "id": "e3",
-      "fromNode": "curve",
+      "fromNode": "resolve",
       "fromSide": "right",
       "toNode": "physics",
       "toSide": "left",
-      "label": "速度 / RootMotion"
+      "label": "Gait / 速度上限 / RootMotion"
     },
     {
       "id": "e4",

@@ -13,7 +13,7 @@
     {
       "id": "input",
       "type": "text",
-      "text": "## UGGYGOHeroComponent\n`Input_Move(Value)` → 连续轴值进入 CMC。\n跑步请求经 `RequestRunOnNextMove()`；[[Input/结构]]。",
+      "text": "## UGGYGOHeroComponent\n`Input_Move(Value)` → 连续轴值进入 CMC。\n`Input_ForceWalkPressed/Released()` → CMC ForceWalk 请求；跑步契约仍经 `RequestRunOnNextMove()`。[[Input/结构]]",
       "x": 0,
       "y": 280,
       "width": 390,
@@ -23,7 +23,7 @@
     {
       "id": "set",
       "type": "text",
-      "text": "## UGGYGOMovementSet\n`GetSpeedForGait(Gait)` → 固定速度兜底。\n`bUseCurveDrivenSpeed` / `RootMotionScale` / `MaxCurveDrivenSpeed` → 当前曲线规则；转身阈值也在这里。",
+      "text": "## UGGYGOMovementSet\n`GetSpeedForGait(Gait)` → Walk/Run 固定速度兜底。\n`WalkToRunHoldSeconds` → 持续 Walk 升 Run，默认 1.5 秒。\n`bUseCurveDrivenSpeed` / `RootMotionScale` / `MaxCurveDrivenSpeed` → 当前曲线规则；转身阈值也在这里。",
       "x": 0,
       "y": 620,
       "width": 390,
@@ -33,7 +33,7 @@
     {
       "id": "cmc",
       "type": "text",
-      "text": "## UGGYGOCharacterMovementComponent\n`TickComponent()` → Super 前采曲线。\n`UpdateCharacterStateBeforeMovement()` → 步态/转身/刹停。\n`GetMaxSpeed()` → 曲线或步态速度。\n`PhysicsRotation()` → 转身 YawDelta。\n`SetMovementSet()` → 注入配置。",
+      "text": "## UGGYGOCharacterMovementComponent\n`TickComponent()` → Super 前采曲线。\n`UpdateCharacterStateBeforeMovement()` → Walk 计时升 Run、ForceWalk、转身/刹停。\n`GetMaxSpeed()` → 曲线或步态速度；ForceWalk 封顶 Walk。\n`PhysicsRotation()` → 转身 YawDelta。\n`SetMovementSet()` → 注入配置并重置移动记忆。",
       "x": 530,
       "y": 340,
       "width": 480,
@@ -63,7 +63,7 @@
     {
       "id": "saved",
       "type": "text",
-      "text": "## FSavedMove_GGYGO\n`SetMoveFor()` → 保存步态、转身与 CurveMotion。\n`PrepMoveFor()` → 重演前恢复。\n`CanCombineWith()` → 阻止不兼容 move 合并。",
+      "text": "## FSavedMove_GGYGO\n`SetMoveFor()` → 保存步态、Walk 计时、ForceWalk、输入边沿、转身与 CurveMotion。\n`PrepMoveFor()` → 重演前恢复。\n`CanCombineWith()` → 阻止不兼容 move 合并；Custom 位传递步态/ForceWalk。",
       "x": 530,
       "y": 830,
       "width": 480,
@@ -83,7 +83,7 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## 移动权威接口链\nHeroComponent::Input_Move → Pawn::AddMovementInput；CMC::UpdateCharacterStateBeforeMovement 解算步态/转身/限制 Tag。\nCMC::TickComponent → Sampler::Sample(AnimInstance, dt, CurveMotion)；GetMaxSpeed/PhysicsRotation 消费，RMS::PrepareRootMotion 供动作段位移。\nFSavedMove_GGYGO::SetMoveFor/PrepMoveFor + CanCombineWith 保证预测重放边界；AnimationStateCapture::Capture 只读 CMC 结果。\nMotionProfile 为目标设计，当前不可作为已实现 CMC 输入。",
+      "text": "## 移动权威接口链\nHeroComponent::Input_Move → Pawn::AddMovementInput；ForceWalk 输入 → CMC::SetForceWalkRequested。\nCMC::UpdateCharacterStateBeforeMovement 连续 Walk 满 1.5 秒升 Run；AnimationStateCapture 发布 Gait，ZZZ 兼容层映射为 GaitBlendY，ABP_Pyrios.WalkRun BlendSpace X 轴消费。\nCMC::TickComponent → Sampler::Sample(AnimInstance, dt, CurveMotion)；GetMaxSpeed/PhysicsRotation 消费，RMS::PrepareRootMotion 供动作段位移。\nFSavedMove_GGYGO::SetMoveFor/PrepMoveFor + CanCombineWith 保证预测重放边界。MotionProfile 为目标设计，当前不可作为已实现 CMC 输入。",
       "x": 0,
       "y": 1240,
       "width": 1450,

@@ -81,14 +81,44 @@
       "color": "4"
     },
     {
+      "id": "pyrios-render",
+      "type": "text",
+      "text": "## UGGYGOPyriosRenderComponent（玩家）\n`BeginPlay` → `RefreshMaterials()`：按 Mesh 槽位建 MID，保存原材质。\n`UpdateLighting()`：DirectionalLight 方向/颜色/强度 + 遮挡 → MID；参考强度、响应、Tint 和输出上限可按角色配置。\n`UpdateOutline()`：创建跟随原 Mesh Pose 的描边壳。\n`EndPlay`：恢复材质，销毁描边壳。\n[[Character/渲染实现|实现与限制]] · [[GGYGO_流程_Pyrios渲染.canvas|流程图]]",
+      "x": 0,
+      "y": 850,
+      "width": 390,
+      "height": 320,
+      "color": "1"
+    },
+    {
+      "id": "pyrios-materials",
+      "type": "text",
+      "text": "## Pyrios 材质资产\n`M_Pyrois_Toon`（Unlit）+ Body 1 / Body 2 / Weapon 三个 MI → 角色表面。\n`M_Pyrois_Outline` → 运行时反面扩张描边；FX01 保留原槽位。\n路径：`/Game/Characters/Player/Pyrios/Materials/Generated/`。",
+      "x": 0,
+      "y": 1235,
+      "width": 390,
+      "height": 265,
+      "color": "4"
+    },
+    {
       "id": "contract",
       "type": "text",
       "text": "## 宿主与 Avatar 交互契约\nCombatantState::AttachAvatar(Pawn) → PawnExtension::InitializeAbilitySystem(ASC, Owner) → ASC::InitAbilityActorInfo；Owner 是 Slot/BossState，Avatar 是 Pawn。\nPawnExtension::SetPawnData(Data) / ApplyPawnDataToConsumers → MovementSet 给 CMC、输入/默认相机给 Hero；不是 Pawn 自己拥有 ASC。\nPawnExtension 的 ASC 就绪通知 → HealthComponent::InitializeWithAbilitySystem(ASC)；换 Pawn 时 UninitializeAbilitySystem 与 DetachAvatar(ExpectedPawn) 避免误清新绑定。\n玩家 HeroComponent 只管输入和相机；Boss Pawn 无需复用玩家 Hero 输入。",
       "x": 0,
-      "y": 1250,
+      "y": 1600,
       "width": 1450,
       "height": 300,
       "color": "6"
+    },
+    {
+      "id": "pyrios-mesh",
+      "type": "text",
+      "text": "## Pyrois 骨骼模型 / BP_PC_Pyrios\n`Avatar_Male_Size03_Pyrois_Model` 的 Body 1、Body 2、Weapon 默认槽位已绑定三个 Toon MI。`BP_PC_Pyrios` 的 Mesh 无材质覆盖，故编辑器视口直接显示材质球效果，无需 `BeginPlay`。",
+      "x": 510,
+      "y": 1235,
+      "width": 430,
+      "height": 265,
+      "color": "4"
     }
   ],
   "edges": [
@@ -155,6 +185,30 @@
       "toNode": "hero",
       "toSide": "left",
       "label": "输入与相机配置"
+    },
+    {
+      "id": "e9-pyrios-owner",
+      "fromNode": "character",
+      "fromSide": "left",
+      "toNode": "pyrios-render",
+      "toSide": "right",
+      "label": "HeroCharacter 构造时拥有 StylizedRenderComponent"
+    },
+    {
+      "id": "e10-pyrios-materials",
+      "fromNode": "pyrios-render",
+      "fromSide": "bottom",
+      "toNode": "pyrios-materials",
+      "toSide": "top",
+      "label": "按槽位加载 MI / 向 MID 写光照参数"
+    },
+    {
+      "id": "e11-pyrios-editor-preview",
+      "fromNode": "pyrios-materials",
+      "fromSide": "right",
+      "toNode": "pyrios-mesh",
+      "toSide": "left",
+      "label": "三个 MI 写入模型默认槽位 → 蓝图编辑器即时预览"
     }
   ]
 }

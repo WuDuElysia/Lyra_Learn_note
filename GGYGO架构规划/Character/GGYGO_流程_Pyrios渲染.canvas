@@ -1,0 +1,220 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Character｜Pyrios 渲染流程\n上方为运行时 MID/描边链路，下方为模型默认材质的编辑器预览链路。入口来自 [[GGYGO_流程_角色初始化.canvas|角色初始化主流程]]。类关系见 [[GGYGO_结构_角色与组件.canvas|结构图]]；参数、限制与验证见 [[Character/渲染实现|实现说明]]。",
+      "x": 0,
+      "y": 0,
+      "width": 2040,
+      "height": 140,
+      "color": "6"
+    },
+    {
+      "id": "begin",
+      "type": "text",
+      "text": "## 1. HeroCharacter 开始播放\n`UGGYGOPyriosRenderComponent::BeginPlay()` 调用 `ACharacter::GetMesh()`。若 Mesh 存在，进入 `RefreshMaterials()`；此链路不等待 ASC 或 PawnExtension InitState。",
+      "x": 0,
+      "y": 300,
+      "width": 380,
+      "height": 220,
+      "color": "5"
+    },
+    {
+      "id": "refresh",
+      "type": "text",
+      "text": "## 2. RefreshMaterials()\n先恢复上轮原材质并销毁旧描边。逐槽位先查 `MaterialSlots`；否则仅当 Mesh 名含 `Pyrois` 时按 Body 1 / Body 2 / Weapon 加载生成 MI，创建 MID、保存原材质。FX01 不匹配，保持原槽位。换 Mesh 后需由调用方再次执行此接口。",
+      "x": 470,
+      "y": 300,
+      "width": 460,
+      "height": 285,
+      "color": "5"
+    },
+    {
+      "id": "no-match",
+      "type": "text",
+      "text": "## 无可替换材质\n`GetMesh()==null`：记录警告后返回。\n`DynamicMaterials.IsEmpty()`：保留原材质，不启用光照 Tick，也不建描边。",
+      "x": 470,
+      "y": 715,
+      "width": 460,
+      "height": 190,
+      "color": "3"
+    },
+    {
+      "id": "outline",
+      "type": "text",
+      "text": "## 3A. UpdateOutline()\n若 `bEnableOutline` 且有 MID，新建 `USkeletalMeshComponent`，绑定原 Mesh 的 `LeaderPoseComponent`，关闭碰撞和投影阴影。每槽位用 `M_Pyrois_Outline` 建 MID；未替换的 FX01 槽位 `OutlineOpacity=0`。",
+      "x": 1020,
+      "y": 180,
+      "width": 450,
+      "height": 275,
+      "color": "1"
+    },
+    {
+      "id": "lighting",
+      "type": "text",
+      "text": "## 3B. UpdateLighting()\n显式 `KeyLight` 或场景首个 `ADirectionalLight` → 光方向/颜色/强度；无灯则用固定方向、白光和参考强度。按组件的参考强度、响应与上限计算 `SceneLightStrength`；可选角色级遮挡射线。写入各 MID 的 `KeyLightDirectionWS`、`KeyLightColor`、`SceneLightStrength`、`KeyLightVisibility`。",
+      "x": 1020,
+      "y": 565,
+      "width": 450,
+      "height": 320,
+      "color": "5"
+    },
+    {
+      "id": "shader",
+      "type": "text",
+      "text": "## 4. 画面输出\n`M_Pyrois_Toon`（Unlit）读取 D/N/M/A 与 MID 参数，在 Emissive 中计算可调三段明暗、五组高光/边缘光、逐组阴影强度和 JSON MatCap；`SceneLightStrength` 限制漫反射/镜面/边缘光。编辑器静态校准来自 `Pyrios_Editor_Calibration.json`。描边壳叠加轮廓，场景物体继续使用 UE 光照。材质已在 UE 编译；MatCap 不随主光缩放，银甲仍偏亮，原版逐像素阴影、Body_FX01 和剑光特效尚缺。",
+      "x": 1580,
+      "y": 350,
+      "width": 460,
+      "height": 360,
+      "color": "1"
+    },
+    {
+      "id": "tick",
+      "type": "text",
+      "text": "## 5. 运行时更新\n有 MID 时启用 `TickComponent`，默认间隔 0.1 s；每次 Tick 调用 `UpdateLighting()`。光照参数只改本角色的动态材质实例。",
+      "x": 1020,
+      "y": 1020,
+      "width": 450,
+      "height": 190,
+      "color": "4"
+    },
+    {
+      "id": "end",
+      "type": "text",
+      "text": "## 6. EndPlay / 换装\n`EndPlay` 恢复保存的原材质、销毁描边组件并清空 MID。运行时换 Mesh 或装扮时，调用 `RefreshMaterials()` 重新建材质与描边；当前不会自动侦测新 Mesh。",
+      "x": 1580,
+      "y": 1020,
+      "width": 460,
+      "height": 210,
+      "color": "3"
+    },
+    {
+      "id": "editor-bind",
+      "type": "text",
+      "text": "## 编辑器：模型默认槽位\n`bind_pyrios_editor_preview.py` / 生成脚本将 Body 1、Body 2、Weapon 三个 MI 保存到 `Avatar_Male_Size03_Pyrois_Model` 的对应槽位；FX01 不改。",
+      "x": 0,
+      "y": 1350,
+      "width": 470,
+      "height": 220,
+      "color": "4"
+    },
+    {
+      "id": "editor-preview",
+      "type": "text",
+      "text": "## 编辑器：即时预览 Toon 表面\n`BP_PC_Pyrios` Mesh 没有材质覆盖，模型缩略图、MI 材质球和角色蓝图视口直接读取默认 MI。不需 PIE；运行时主光参数和描边壳仍由组件在 `BeginPlay` 后建立。",
+      "x": 550,
+      "y": 1350,
+      "width": 470,
+      "height": 220,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-begin-refresh",
+      "fromNode": "begin",
+      "fromSide": "right",
+      "toNode": "refresh",
+      "toSide": "left",
+      "label": "GetMesh() 有效 → RefreshMaterials()"
+    },
+    {
+      "id": "e-begin-no-mesh",
+      "fromNode": "begin",
+      "fromSide": "bottom",
+      "toNode": "no-match",
+      "toSide": "left",
+      "label": "GetMesh()==null → 记录警告"
+    },
+    {
+      "id": "e-refresh-no-match",
+      "fromNode": "refresh",
+      "fromSide": "bottom",
+      "toNode": "no-match",
+      "toSide": "top",
+      "label": "无匹配 MI → 保留原材质"
+    },
+    {
+      "id": "e-refresh-outline",
+      "fromNode": "refresh",
+      "fromSide": "right",
+      "toNode": "outline",
+      "toSide": "left",
+      "label": "有 MID 且 bEnableOutline → UpdateOutline()"
+    },
+    {
+      "id": "e-refresh-lighting",
+      "fromNode": "refresh",
+      "fromSide": "right",
+      "toNode": "lighting",
+      "toSide": "left",
+      "label": "有 MID → 立即 UpdateLighting()"
+    },
+    {
+      "id": "e-refresh-shader",
+      "fromNode": "refresh",
+      "fromSide": "right",
+      "toNode": "shader",
+      "toSide": "left",
+      "label": "三个 MI 与 D/N/M/A 贴图 → Toon 材质"
+    },
+    {
+      "id": "e-outline-shader",
+      "fromNode": "outline",
+      "fromSide": "right",
+      "toNode": "shader",
+      "toSide": "top",
+      "label": "跟随 Pose 的背面扩张壳 → 轮廓"
+    },
+    {
+      "id": "e-lighting-shader",
+      "fromNode": "lighting",
+      "fromSide": "right",
+      "toNode": "shader",
+      "toSide": "bottom",
+      "label": "主光方向/颜色/受限强度/遮挡 → Emissive 求值"
+    },
+    {
+      "id": "e-lighting-tick",
+      "fromNode": "lighting",
+      "fromSide": "bottom",
+      "toNode": "tick",
+      "toSide": "top",
+      "label": "启用 0.1 s Tick"
+    },
+    {
+      "id": "e-tick-lighting",
+      "fromNode": "tick",
+      "fromSide": "left",
+      "toNode": "lighting",
+      "toSide": "left",
+      "label": "TickComponent() → UpdateLighting()"
+    },
+    {
+      "id": "e-tick-end",
+      "fromNode": "tick",
+      "fromSide": "right",
+      "toNode": "end",
+      "toSide": "left",
+      "label": "EndPlay → 恢复原材质"
+    },
+    {
+      "id": "e-no-match-end",
+      "fromNode": "no-match",
+      "fromSide": "right",
+      "toNode": "end",
+      "toSide": "left",
+      "label": "EndPlay → 清理空状态"
+    },
+    {
+      "id": "e-editor-bind-preview",
+      "fromNode": "editor-bind",
+      "fromSide": "right",
+      "toNode": "editor-preview",
+      "toSide": "left",
+      "label": "默认槽位的三个 MI → 模型与角色蓝图视口"
+    }
+  ]
+}

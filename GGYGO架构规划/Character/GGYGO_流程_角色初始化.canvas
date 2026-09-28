@@ -71,6 +71,16 @@
       "color": "1"
     },
     {
+      "id": "pyrios-visual",
+      "type": "text",
+      "text": "玩家视觉支路：`AGGYGOHeroCharacter` 的 `StylizedRenderComponent::BeginPlay` 读取已就绪的 Mesh，调用 `RefreshMaterials()` 建立 MID 与描边。\n不等待 ASC / InitState；非 Pyrois Mesh 无匹配时保持原材质。\n[[GGYGO_流程_Pyrios渲染.canvas|展开材质、主光与描边链路]]",
+      "x": 0,
+      "y": 820,
+      "width": 385,
+      "height": 265,
+      "color": "1"
+    },
+    {
       "id": "unbind",
       "type": "text",
       "text": "Avatar 卸载/更换：PawnExtension 清旧绑定；宿主 ASC 生命周期继续。\n\n调用：CombatantState::DetachAvatar(ExpectedPawn) → PawnExtension::UninitializeAbilitySystem；ExpectedPawn 防旧 Pawn 误清新绑定。",
@@ -129,6 +139,14 @@
       "toNode": "unbind",
       "toSide": "right",
       "label": "Avatar 退场"
+    },
+    {
+      "id": "e7-pyrios-visual",
+      "fromNode": "spawn",
+      "fromSide": "bottom",
+      "toNode": "pyrios-visual",
+      "toSide": "top",
+      "label": "HeroCharacter 开始播放；渲染组件读 Mesh"
     }
   ]
 }

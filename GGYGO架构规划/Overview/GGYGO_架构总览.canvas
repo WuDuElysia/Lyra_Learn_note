@@ -23,7 +23,7 @@
     {
       "id": "m-character",
       "type": "text",
-      "text": "# 角色与组件层\n\n[[GGYGO_流程_角色初始化.canvas|▸ 打开子图]]\n\n**职责**：角色 Actor、组件拆分与 InitState 初始化协调\n**关键取舍**：PawnExtension 接收外部 ASC，但不假设宿主类型。\n当前玩家由 CharacterSlot 注入；可换形态 Boss 由 BossState 注入；\n简单怪物仍允许 Pawn 自持。\n玩家角色单独一个类，AI 不带 HeroComponent。\n结构：[[GGYGO_结构_角色与组件.canvas]] · [[Character/结构]]",
+      "text": "# 角色与组件层\n[[GGYGO_流程_角色初始化.canvas|▸ 初始化流程]] · [[GGYGO_流程_Pyrios渲染.canvas|▸ Pyrios 渲染流程]]\n**职责**：Avatar、组件拆分与 InitState 初始化协调；Hero 另挂 Pyrios 材质/描边组件。\n**关键取舍**：PawnExtension 接收 Slot/BossState 注入的外部 ASC，也允许简单怪物自持。只有玩家 Hero 挂输入、相机与当前渲染适配。\n**渲染边界**：Unlit Toon 材质读 UE DirectionalLight；FX01 特效材质尚未移植。\n结构：[[GGYGO_结构_角色与组件.canvas]] · [[Character/结构]] · [[Character/渲染实现]]",
       "x": 900,
       "y": 60,
       "width": 540,
@@ -93,11 +93,11 @@
     {
       "id": "verify",
       "type": "text",
-      "text": "# 验证状态\n\n玩家队伍装配、属性与编队存档已跑通。玩家四个 GA 仍是空壳；切人、镜头手感与 Dedicated Server 仍未验证。\n\n**Boss AI**：阶段 A–C 已实现。独立 PIE 验证 State/Controller/Avatar 装配，以及 BT 选招 → GAS 激活 → Montage Notify → Trace → 伤害；玩家生命实测 100 → 0。\n\n仍缺：可见/可听 Cue 配置、暂停 Brain 专项自动化、单次死亡、Dedicated Server，以及阶段 D–F。\n\n物理材质需手动创建，MCP 建不出 PhysicalMaterial 实例。",
+      "text": "# 验证状态\n\n玩家队伍装配、属性与编队存档已跑通。玩家四个 GA 仍是空壳；切人、镜头手感与 Dedicated Server 仍未验证。\n\n**Pyrios 渲染**：C++ 与 D3D12 材质编译通过；临时角色 Simulate 确认自动替换材质和描边。三个 Toon MI 已绑定模型默认槽位，模型和角色蓝图编辑器可直接预览；ABP_Pyrios 七条旧转场调用已修复并编译通过。对照游戏截图确认视觉仍未还原；已修正反序 Material ID 与 JSON MatCap 接线，原版 Ramp/高光、FX01 和夜景曝光仍待完成。\n\n**Boss AI**：阶段 A–C 已实现。独立 PIE 验证 State/Controller/Avatar 装配，以及 BT 选招 → GAS 激活 → Montage Notify → Trace → 伤害；玩家生命实测 100 → 0。\n\n仍缺：可见/可听 Cue 配置、暂停 Brain 专项自动化、单次死亡、Dedicated Server，以及阶段 D–F。物理材质需手动创建，MCP 建不出 PhysicalMaterial 实例。",
       "x": -140,
       "y": 1120,
       "width": 560,
-      "height": 420,
+      "height": 525,
       "color": "1"
     },
     {

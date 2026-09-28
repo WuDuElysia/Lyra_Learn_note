@@ -13,7 +13,7 @@
     {
       "id": "input",
       "type": "text",
-      "text": "1. HeroComponent 提交移动轴值、ForceWalk 或跑步契约。\n\nInput_Move(Value) → AddMovementInput；ForceWalk Pressed/Released → CMC::SetForceWalkRequested；跑步契约 → RequestRunOnNextMove。",
+      "text": "1. HeroComponent 提交移动轴值或 ForceWalk。\n\nInput_Move(Value) → AddMovementInput；ForceWalk Pressed/Released → CMC::SetForceWalkRequested。\nGA_Dodge / RequestRunOnNextMove 调用链未接入，当前仅占位。",
       "x": 0,
       "y": 392,
       "width": 385,
@@ -63,7 +63,7 @@
     {
       "id": "anim",
       "type": "text",
-      "text": "6. CMC 的步态发布给 WalkRun BlendSpace。\n\nAnimationStateCapture::Capture 读取 GetResolvedGait → ZZZ 兼容层把 Run 映射为 GaitBlendY=1、Walk 映射为 0 → ABP_Pyrios.WalkRun 的 X 轴消费。",
+      "text": "6. CMC 的步态发布给 WalkRun BlendSpace。\n\nGetResolvedGait → AnimationStateCapture → GaitBlendY（Run=1、Walk=0）→ WalkRun X 轴 WalkRunBlendAlpha。\nEnterMove 单次播放 → 剩余比例 ≤ 0.03 → Moving；避免起步循环挡住 WalkRun。",
       "x": 970,
       "y": 986,
       "width": 420,

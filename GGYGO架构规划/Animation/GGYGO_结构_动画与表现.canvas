@@ -53,7 +53,7 @@
     {
       "id": "abp",
       "type": "text",
-      "text": "## ABP_Pyrios\nAnimGraph：状态机与动画资产 Select。\n过渡图读 StateFrame / 查询函数；`GetSeqByKey` / `GetBlendSpaceByKey` 取资产。\n当前 Stop 与走跑混合仍使用兼容表现记忆。",
+      "text": "## ABP_Pyrios\n过渡图读取 StateFrame；GetSeqByKey / GetBlendSpaceByKey 取资产。\nEnterMove / Stop / TurnBack 单次播放。\nWalkRun：X 轴 WalkRunBlendAlpha 读取旧字段 GaitBlendY（蓝图显示 Walk Run Blend Alpha）。",
       "x": 1000,
       "y": 980,
       "width": 420,

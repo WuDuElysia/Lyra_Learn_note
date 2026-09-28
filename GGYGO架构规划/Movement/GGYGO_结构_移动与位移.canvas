@@ -13,7 +13,7 @@
     {
       "id": "input",
       "type": "text",
-      "text": "## UGGYGOHeroComponent\n`Input_Move(Value)` → 连续轴值进入 CMC。\n`Input_ForceWalkPressed/Released()` → CMC ForceWalk 请求；跑步契约仍经 `RequestRunOnNextMove()`。[[Input/结构]]",
+      "text": "## UGGYGOHeroComponent\n`Input_Move(Value)` → 连续轴值进入 CMC。\n`Input_ForceWalkPressed/Released()` → CMC ForceWalk 请求。\n`RequestRunOnNextMove()` 为 CMC 预留接口，GA_Dodge 仅占位、尚无调用方。[[Input/结构]]",
       "x": 0,
       "y": 280,
       "width": 390,

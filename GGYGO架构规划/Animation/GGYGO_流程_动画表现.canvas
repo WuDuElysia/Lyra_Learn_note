@@ -53,7 +53,7 @@
     {
       "id": "play",
       "type": "text",
-      "text": "5. 状态图选动画序列 / BlendSpace，并输出骨骼姿势。\n\nAnimBP 使用 GetSeqByKey/GetBlendSpaceByKey 取资源，AnimGraph 求姿势；资源选择不回写 CMC。",
+      "text": "5. 状态图选动画序列 / BlendSpace。\n\nGetSeqByKey：EnterMove / Stop / TurnBack 单次播放，Idle 循环。\nGetBlendSpaceByKey(WalkRun)：GaitBlendY → X 轴 WalkRunBlendAlpha（0 Walk / 1 Run）。\n单次段不循环，末尾条件才能稳定退出。",
       "x": 1470,
       "y": 932,
       "width": 420,

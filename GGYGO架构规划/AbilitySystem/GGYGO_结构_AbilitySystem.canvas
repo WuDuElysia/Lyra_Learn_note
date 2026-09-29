@@ -3,11 +3,11 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# AbilitySystem｜结构图\n当前类与跨模块接口；运行路径见 [[GGYGO_流程_AbilitySystem.canvas|激活流程]]、[[GGYGO_流程_能力仲裁.canvas|仲裁子图]]、[[GGYGO_流程_伤害结算.canvas|伤害子图]]。[[AbilitySystem/结构|结构文档]]",
+      "text": "# AbilitySystem｜结构图\n当前类与跨模块接口；运行路径见 [[GGYGO_流程_AbilitySystem.canvas|激活流程]]、[[GGYGO_流程_能力仲裁.canvas|仲裁子图]]、[[GGYGO_流程_伤害结算.canvas|伤害子图]]。[[AbilitySystem/结构|结构文档]]\n普攻目标：[[GGYGO_流程_玩家普攻连段.canvas|连段流程]] · [[计划_玩家普攻连段]]。",
       "x": 0,
       "y": 0,
       "width": 1520,
-      "height": 145,
+      "height": 205,
       "color": "6"
     },
     {

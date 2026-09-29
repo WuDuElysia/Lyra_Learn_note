@@ -3,11 +3,11 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Animation｜结构图\n当前实现与兼容层。运行时图见 [[GGYGO_流程_动画表现.canvas|表现流程]]、[[GGYGO_流程_动画曲线处理.canvas|曲线子图]]；[[Animation/结构|结构文档]]。",
+      "text": "# Animation｜结构图\n当前实现与兼容层。运行时图见 [[GGYGO_流程_动画表现.canvas|表现流程]]、[[GGYGO_流程_动画曲线处理.canvas|曲线子图]]；[[Animation/结构|结构文档]]。\n普攻资产：[[Animation/普攻动画实施|契约、调查与验收]]（资产已保存/待接线验收）。",
       "x": 0,
       "y": 0,
       "width": 1450,
-      "height": 140,
+      "height": 210,
       "color": "6"
     },
     {
@@ -89,6 +89,56 @@
       "width": 1450,
       "height": 300,
       "color": "6"
+    },
+    {
+      "id": "combo_sources",
+      "type": "text",
+      "text": "## 普攻 AnimSequence（已存在）\nNormal_01/02/03 与对应 End：60 fps，共用 Pyrios Skeleton。\n无 Notify，原生 Root Motion=false；含 RootMotion_* 曲线。\n[[Animation/普攻动画实施|资产事实与契约]]",
+      "x": 0,
+      "y": 1730,
+      "width": 440,
+      "height": 260,
+      "color": "4"
+    },
+    {
+      "id": "combo_montages",
+      "type": "text",
+      "text": "## 三份普攻 Montage（初版已保存）\nAM_Pyrios_Attack_Normal_01/02/03。Main → End → 停止，Slot=FullBody。\nMain 全段 + End 前 30/45/90 帧（60 fps）；BlendIn/Out=0.10/0.25 s。\n[[Animation/普攻动画实施|实际帧区间与验证范围]]",
+      "x": 520,
+      "y": 1730,
+      "width": 440,
+      "height": 260,
+      "color": "3"
+    },
+    {
+      "id": "combo_ga",
+      "type": "text",
+      "text": "## 战斗侧 GA（跨模块契约）\nUGGYGOPlayerComboAbility / FGGYGOComboStep 持有各段 Montage 引用。\nGA 决定换段、输入缓存、伤害和异常清理；动画不保存角色级战斗状态。\n[[计划_玩家普攻连段|GA 实施计划]]",
+      "x": 1040,
+      "y": 1730,
+      "width": 440,
+      "height": 280,
+      "color": "3"
+    },
+    {
+      "id": "combo_notify",
+      "type": "text",
+      "text": "## GameplayEventWindow（已配置/回读）\n60 fps：Hit=4–14 / 4–15 / 20–54。\nCombo=16–115 / 17–99 / 56–102，分别跨入 End 14/18/18 帧。\n独立轨发 Event.Montage 的 ComboWindow 与 HitWindow Begin/End；游戏内待验收。",
+      "x": 520,
+      "y": 2130,
+      "width": 440,
+      "height": 260,
+      "color": "3"
+    },
+    {
+      "id": "combo_slot_gate",
+      "type": "text",
+      "text": "## FullBody Slot（骨架已注册）\n当前 ABP 主图无 Slot，最终接线暂停。\nModifyBone 固定 Bip001 组件位置；CMC 仍反读 RootMotion_*。\n待移动策略明确后验证网格/胶囊一致性。\n[[Animation/普攻动画实施|证据与当前缺口]]",
+      "x": 0,
+      "y": 2130,
+      "width": 440,
+      "height": 280,
+      "color": "3"
     }
   ],
   "edges": [
@@ -147,6 +197,38 @@
       "toNode": "abp",
       "toSide": "left",
       "label": "提供动画资产与调参"
+    },
+    {
+      "id": "combo_ref_sequence",
+      "fromNode": "combo_montages",
+      "fromSide": "right",
+      "toNode": "combo_sources",
+      "toSide": "left",
+      "label": "AnimSegment 引用素材（已配置）"
+    },
+    {
+      "id": "combo_ga_ref",
+      "fromNode": "combo_ga",
+      "fromSide": "right",
+      "toNode": "combo_montages",
+      "toSide": "left",
+      "label": "FGGYGOComboStep 引用 Montage（目标）"
+    },
+    {
+      "id": "combo_events_ga",
+      "fromNode": "combo_notify",
+      "fromSide": "right",
+      "toNode": "combo_ga",
+      "toSide": "left",
+      "label": "窗口发 GameplayEvent；GA 消费（待集成验收）"
+    },
+    {
+      "id": "combo_slot_pose",
+      "fromNode": "combo_montages",
+      "fromSide": "right",
+      "toNode": "combo_slot_gate",
+      "toSide": "left",
+      "label": "按 FullBody Slot 输出姿势（待接线）"
     }
   ]
 }

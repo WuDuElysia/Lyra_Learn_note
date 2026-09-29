@@ -33,7 +33,7 @@
     {
       "id": "m-input",
       "type": "text",
-      "text": "# 输入层\n\n[[GGYGO_流程_输入与意图.canvas|▸ 打开子图]]\n\n**职责**：按键 → InputTag → 能力激活；连段输入缓冲\n**关键取舍**：InputTag 直连能力（照抄 Lyra），\n独立意图层暂不建 —— 缓冲只需两个字段，\n「该不该重试」的判断只有 ASC 知道\n**驱动点**：`PostProcessInput`，不是组件 Tick\n结构：[[GGYGO_结构_输入与意图.canvas]] · [[Input/结构]]",
+      "text": "# 输入层\n\n[[GGYGO_流程_输入与意图.canvas|▸ 打开子图]]\n\n**职责**：按键 → InputTag → 能力激活；激活失败重试。\n**驱动点**：`PostProcessInput → ProcessAbilityInput`。\n`IA_Attack` 使用 Pressed 边沿；活跃 GA 的后续按键经 InputPressed 交给连段任务。\n**缓存边界**：Hero 的失败重试与 GA 内的下一段请求分开管理。\n结构：[[GGYGO_结构_输入与意图.canvas]] · [[Input/结构]]",
       "x": -1150,
       "y": 60,
       "width": 540,
@@ -63,7 +63,7 @@
     {
       "id": "m-gas",
       "type": "text",
-      "text": "# AbilitySystem 层\n\n[[GGYGO_流程_AbilitySystem.canvas|▸ 打开子图]]\n\n**职责**：状态变更的唯一入口。Ability / Effect /\nAttribute / Cue / 组仲裁 / 伤害结算\n**关键取舍**：并发控制用组身份 + 组规则 + 自身策略\n三个正交维度，未照抄 Lyra 的三值激活组枚举\n\nBoss 近战 GA 已贯通；玩家四个 GA 仍是待编排空壳。\n结构：[[GGYGO_结构_AbilitySystem.canvas]] · [[AbilitySystem/结构]]",
+      "text": "# AbilitySystem 层\n\n[[GGYGO_流程_AbilitySystem.canvas|▸ 打开子图]]\n\n**职责**：Ability / Effect / Attribute / Cue、组仲裁与伤害。\n**并发**：组身份 + 组规则 + 自身策略。\n`UGGYGOPlayerComboAbility` 已构建：StartStep 播段、TryAdvanceCombo 消费请求、EndAbility 清理。\nBoss 近战已贯通；玩家 GA 蓝图与 ABP 仍待接入。\n[[计划_玩家普攻连段|连段阶段]] · [[GGYGO_结构_AbilitySystem.canvas]] · [[AbilitySystem/结构]]",
       "x": -160,
       "y": 60,
       "width": 580,
@@ -93,7 +93,7 @@
     {
       "id": "verify",
       "type": "text",
-      "text": "# 验证状态\n\n玩家队伍装配、属性与编队存档已跑通。玩家四个 GA 仍是空壳；切人、镜头手感与 Dedicated Server 仍未验证。\n\n**Pyrios 渲染**：C++ 与 D3D12 材质编译通过；临时角色 Simulate 确认自动替换材质和描边。三个 Toon MI 已绑定模型默认槽位，模型和角色蓝图编辑器可直接预览；ABP_Pyrios 七条旧转场调用已修复并编译通过。对照游戏截图确认视觉仍未还原；已修正反序 Material ID 与 JSON MatCap 接线，原版 Ramp/高光、FX01 和夜景曝光仍待完成。\n\n**Boss AI**：阶段 A–C 已实现。独立 PIE 验证 State/Controller/Avatar 装配，以及 BT 选招 → GAS 激活 → Montage Notify → Trace → 伤害；玩家生命实测 100 → 0。\n\n仍缺：可见/可听 Cue 配置、暂停 Brain 专项自动化、单次死亡、Dedicated Server，以及阶段 D–F。物理材质需手动创建，MCP 建不出 PhysicalMaterial 实例。",
+      "text": "# 验证状态\n\n玩家队伍装配、属性与编队存档已跑通。\n\n**玩家普攻**：原生完整构建、新类加载、窗口/缓存测试 1/1 通过；三份 Main→End Montage 与窗口已保存并回读。GA 蓝图、ABP Slot、移动交互未接入；PIE 与联机待验收，尚未可玩。\n[[Animation/普攻动画实施|动画证据与资产交付]] · [[计划_实施状态|完整状态与待办]]\n\n**Pyrios 渲染**：材质/描边及编辑器预览已接入，原版 Ramp/高光、FX01 与夜景仍待还原，见 [[Character/渲染实现]]。\n\n**Boss AI**：A–C 已实现；PIE 验证装配、选招、Notify、Trace 与伤害（生命100→0）。可见 Cue、Brain 暂停、单次死亡、Dedicated Server 与 D–F 尚待验收或实施。",
       "x": -140,
       "y": 1120,
       "width": 560,

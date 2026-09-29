@@ -63,7 +63,7 @@ Exclusive_Blocking     // 阻止所有其他 Exclusive 激活
 |---|---|---|
 | `Coexist` | 组内任意多个可同时激活 | Buff 类、被动 |
 | `SingleInstance` | 组内同时只能一个，按优先级决定去留 | 技能组、大招组 |
-| `SingleInstanceQueued` | 组内同时只能一个，新请求进缓冲队列而不是取消旧的 | **普攻连段**（等前一段结束再出下一段） |
+| `SingleInstanceQueued` | 组内同时只能一个，被拒绝的激活由调用方缓冲重试 | 独立攻击实例之间的准入；玩家 GA 内段序由窗口与单请求缓存管理 |
 
 **自身策略**（`EGGYGOAbilitySelfPolicy`）：
 
@@ -117,10 +117,7 @@ TMap<FGameplayTag, TArray<TWeakObjectPtr<UGGYGOGameplayAbility>>> ActiveAbilitie
 
 **D4 的落点在第 2、3 步：比较用 `>` 而不是 `>=`，即同优先级时后来者胜出并打断先激活者。**
 
-这带来一个必须注意的后果：**普攻连段不能靠"同级先到先得"实现了**。第二段普攻如果和第一段同 Priority，会直接打断第一段，动画从头切。两个解法：
-
-- 用 `SingleInstanceQueued` 组规则，让第二段进队列等第一段结束（推荐，语义清晰）
-- 或给连段各段递增 Priority（100 / 101 / 102），靠优先级递增实现顺序推进
+玩家普攻采用一个 GA 内管理多段：同 Priority 100，NotifyState 控制窗口，GA 消费单请求缓冲并切换逐段 Main→End Montage。`SingleInstanceQueued` 只约束其他攻击实例；它不负责内部段序或动画窗口。具体分阶段实施和网络/清理契约见 [[计划_玩家普攻连段]]。
 
 ### 5.4 落地结构
 

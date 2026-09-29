@@ -3,11 +3,11 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Animation｜流程图\n一帧只读语义如何进入 AnimBP；类关系见 [[GGYGO_结构_动画与表现.canvas|结构图]]、[[Animation/结构|结构文档]]。动画曲线另见 [[GGYGO_流程_动画曲线处理.canvas|子图]]。",
+      "text": "# Animation｜流程图\n一帧只读语义如何进入 AnimBP；类关系见 [[GGYGO_结构_动画与表现.canvas|结构图]]、[[Animation/结构|结构文档]]。动画曲线另见 [[GGYGO_流程_动画曲线处理.canvas|子图]]。\n普攻目标：[[GGYGO_流程_玩家普攻连段.canvas|连段流程]] · [[计划_玩家普攻连段]]。\n普攻资产：[[Animation/普攻动画实施|契约、调查与验收]]（资产已保存/待接线验收）。",
       "x": 0,
       "y": 0,
       "width": 1740,
-      "height": 145,
+      "height": 210,
       "color": "6"
     },
     {
@@ -79,6 +79,46 @@
       "width": 420,
       "height": 190,
       "color": "3"
+    },
+    {
+      "id": "combo_entry",
+      "type": "text",
+      "text": "## 普攻播放入口（待集成）\nGA 通过 Montage Task 播放本段 Main。\n三份 Montage 已保存并静态回读；ABP Slot 尚未接入。\n[[Animation/普攻动画实施|实际资产与验收范围]] · [[计划_玩家普攻连段|GA 规则]]",
+      "x": 0,
+      "y": 1430,
+      "width": 430,
+      "height": 260,
+      "color": "3"
+    },
+    {
+      "id": "combo_window",
+      "type": "text",
+      "text": "## Montage 时间轴（已配置）\n独立 HitWindow / ComboWindow 发 Event.Montage Begin/End。\nGA 校验播放来源并消费请求；运行时待验收。\n01 Combo 结束于115帧，早于116帧 BlendOut；60 fps。",
+      "x": 510,
+      "y": 1430,
+      "width": 430,
+      "height": 260,
+      "color": "3"
+    },
+    {
+      "id": "combo_end",
+      "type": "text",
+      "text": "## 未换段 → End（资产已配置）\nMain.NextSectionName=End，End.NextSectionName=None。\nEnd 取素材前30/45/90帧；Combo跨入End 14/18/18帧。\n默认 BlendOut 从116/111/159帧开始，持续15帧（60 fps）。",
+      "x": 1020,
+      "y": 1430,
+      "width": 430,
+      "height": 260,
+      "color": "3"
+    },
+    {
+      "id": "combo_return",
+      "type": "text",
+      "text": "## FullBody BlendOut → 移动（待实测）\nSlot 混回持续更新的 locomotion 源姿势。\n检查 End→Idle/Walk/Run 与中断回移动。\n当前无 Slot；Bip001 修正和 CMC 曲线消费须先验证。",
+      "x": 1530,
+      "y": 1430,
+      "width": 430,
+      "height": 280,
+      "color": "3"
     }
   ],
   "edges": [
@@ -137,6 +177,30 @@
       "toNode": "future",
       "toSide": "right",
       "label": "后续移除兼容层"
+    },
+    {
+      "id": "combo_play_events",
+      "fromNode": "combo_entry",
+      "fromSide": "right",
+      "toNode": "combo_window",
+      "toSide": "left",
+      "label": "播放推进触发各窗口"
+    },
+    {
+      "id": "combo_default_end",
+      "fromNode": "combo_window",
+      "fromSide": "right",
+      "toNode": "combo_end",
+      "toSide": "left",
+      "label": "未消费换段请求，Section 默认前进"
+    },
+    {
+      "id": "combo_end_locomotion",
+      "fromNode": "combo_end",
+      "fromSide": "right",
+      "toNode": "combo_return",
+      "toSide": "left",
+      "label": "End 结束并按 Montage 参数混出"
     }
   ]
 }

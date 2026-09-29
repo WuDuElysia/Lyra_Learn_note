@@ -103,7 +103,7 @@
     {
       "id": "m-bossai",
       "type": "text",
-      "text": "# Boss AI（阶段 A–C 已实现）\n\n[[GGYGO_流程_BossAI.canvas|▸ 打开子图]]\n\n`CombatantState` / `BossState` 保持跨 Pawn 状态；AIController 运行 BT 与确定性动作权重。\n\nBT 只选 ActionTag 并请求 GA；GAS 负责准入、Montage、Trace、伤害与 Cue。\n\n目标/仇恨、阶段阈值和 Avatar Handoff 属于阶段 D/E。\n结构：[[GGYGO_结构_BossAI.canvas]] · [[BossAI/结构]]",
+      "text": "# Boss AI（阶段 A–C 已实现）\n\n[[GGYGO_流程_BossAI.canvas|▸ 打开子图]]\n\n`CombatantState` / `BossState` 保持跨 Pawn 状态；AIController 运行 BT 与确定性动作权重。\n\nBT 只选 ActionTag 并请求 GA；GAS 负责准入、Montage、Trace、伤害与 Cue。\n\n目标/仇恨、阶段阈值和 Avatar Handoff 属于阶段 D/E。\n结构：[[GGYGO_结构_BossAI.canvas]] · [[BossAI/结构]]\n\n**Kevin 素材储备**：独立模型/骨架与75条动画已导入，4条源空片段未生成；尚未接入 BossAI。\n[[Animation/BH3_Kevin_DemonBattle导入|素材与验收]] · [[Character/Kevin_DemonBattle_材质导入|材质边界]]",
       "x": 1420,
       "y": -550,
       "width": 560,

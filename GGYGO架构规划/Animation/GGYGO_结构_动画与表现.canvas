@@ -139,6 +139,16 @@
       "width": 440,
       "height": 280,
       "color": "3"
+    },
+    {
+      "id": "bh3_import",
+      "type": "text",
+      "x": 0,
+      "y": 2570,
+      "width": 600,
+      "height": 260,
+      "text": "## BH3 Kevin DemonBattle：独立导入\n模型/StandBy已保存与预览；75条可导入动画全部成功，4条源空片段未生成。\n独立Skeleton，保留原始根层级；渲染按槽名接线。\n[[Animation/BH3_Kevin_DemonBattle导入|导入说明与验收]]\n[[GGYGO_流程_BH3_DemonBattle导入.canvas|导入流程子图]]",
+      "color": "4"
     }
   ],
   "edges": [

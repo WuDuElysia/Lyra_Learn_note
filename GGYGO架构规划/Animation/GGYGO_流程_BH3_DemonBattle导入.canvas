@@ -1,0 +1,108 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "x": 0,
+      "y": 0,
+      "width": 1550,
+      "height": 180,
+      "text": "# Kevin DemonBattle：资产导入\n[[Animation/BH3_Kevin_DemonBattle导入|导入说明与验收]] · [[Animation/结构|Animation 结构]]\n返回 [[GGYGO_流程_动画表现.canvas|动画主流程]]\n资产准备流程，不代表 BossAI 已接线。",
+      "color": "6"
+    },
+    {
+      "id": "audit",
+      "type": "text",
+      "x": 0,
+      "y": 270,
+      "width": 460,
+      "height": 260,
+      "text": "## 1. 源文件审计（已完成）\nBH3 全目录 931 文件；只导入 05_DemonBattle 包。\n79 FBX 名称/父子层级与模型一致；7个网格在动画中成为占位骨骼。\n单位已为厘米，统一比例=1；保留 BOSS_411 → Bip001。",
+      "color": "4"
+    },
+    {
+      "id": "smoke",
+      "type": "text",
+      "x": 550,
+      "y": 270,
+      "width": 460,
+      "height": 260,
+      "text": "## 2. 模型 + StandBy（已保存/预览）\nAssetTools.import_asset_tasks → FbxFactory\nMesh/SK_Kevin_DemonBattle\n独立 Skeleton 回读491节点；8材质槽。\nStandBy：60fps、131帧区间，姿势完整。",
+      "color": "5"
+    },
+    {
+      "id": "batch",
+      "type": "text",
+      "x": 1100,
+      "y": 270,
+      "width": 460,
+      "height": 260,
+      "text": "## 3. 批量导入（75/75可导入成功）\nFbxImportUI.skeleton 指定本包骨架。\nAnimation/AS_<源名>，非法字符转下划线。\n75条回读同一Skeleton、正时长、RootMotion=false。\n另4条源FBX无曲线，未生成动画；79条未全部生成。",
+      "color": "5"
+    },
+    {
+      "id": "handoff",
+      "type": "text",
+      "x": 1650,
+      "y": 270,
+      "width": 460,
+      "height": 260,
+      "text": "## 4. 基础材质（已保存/预览）\n按8槽绑定 MI；16纹理/3主材质/8实例。\n无光照与 Lit 预览已检查，不等同原版Shader。\n[[Character/Kevin_DemonBattle_材质导入|材质接口与边界]]\n不接 BossAI、ABP 或主关卡；物理资产未创建。",
+      "color": "1"
+    },
+    {
+      "id": "safe",
+      "type": "text",
+      "x": 550,
+      "y": 670,
+      "width": 460,
+      "height": 260,
+      "text": "## 重复执行与源文件保护\n已有资产须匹配脚本所有者与源SHA256，验证后跳过；未知资产停止，不覆盖。\n原始FBX/JSON只读。ImportUniformScale=1。\n不套用 Pyrios 去根或重定向流程。",
+      "color": "3"
+    },
+    {
+      "id": "warning",
+      "type": "text",
+      "x": 1100,
+      "y": 670,
+      "width": 460,
+      "height": 260,
+      "text": "## 已知导入提示\n无平滑组；部分骨骼不在 bind pose，UE自动重建成功。\n原FBX StandBy比JSON stopTime多1帧；保留导出范围。\n材质质量/全部动作视觉验收仍需后续检查。",
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "audit_smoke",
+      "fromNode": "audit",
+      "fromSide": "right",
+      "toNode": "smoke",
+      "toSide": "left",
+      "label": "全层级与单位校验通过"
+    },
+    {
+      "id": "smoke_batch",
+      "fromNode": "smoke",
+      "fromSide": "right",
+      "toNode": "batch",
+      "toSide": "left",
+      "label": "模型与样片预览通过"
+    },
+    {
+      "id": "batch_handoff",
+      "fromNode": "batch",
+      "fromSide": "right",
+      "toNode": "handoff",
+      "toSide": "left",
+      "label": "逐条成功数与槽名报告"
+    },
+    {
+      "id": "safe_batch",
+      "fromNode": "safe",
+      "fromSide": "right",
+      "toNode": "batch",
+      "toSide": "left",
+      "label": "校验来源后导入或跳过"
+    }
+  ]
+}

@@ -79,6 +79,16 @@
       "width": 420,
       "height": 180,
       "color": "3"
+    },
+    {
+      "id": "movement-test-validation",
+      "type": "text",
+      "x": 0,
+      "y": 1350,
+      "width": 1390,
+      "height": 270,
+      "color": "6",
+      "text": "## 单人 PIE 验证入口｜L_Movement_Test\nOpen map → BP_GameMode::SpawnSquadForPlayer → PlayerStart → Pyrios。\nInject IA_Move：静置 1s → 前向 31s → 反向 3s → 松开 3s。\n4513 帧均 Grounded；胶囊中心 Z≈90.15 cm。Walk 首帧 1.0123s → Run 2.5183s。\n反向后 Turning 32.0113s → Braking 32.3363s → RunOut 33.053s，最终 Yaw=180°。\n覆盖 Enhanced Input → HeroComponent → CMC；物理键盘、联机、导航/流送未验收。[[Movement/移动测试关卡|配置与证据]]"
     }
   ],
   "edges": [

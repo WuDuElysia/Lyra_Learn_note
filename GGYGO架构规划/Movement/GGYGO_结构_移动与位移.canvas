@@ -89,6 +89,16 @@
       "width": 1450,
       "height": 300,
       "color": "6"
+    },
+    {
+      "id": "movement-test-map",
+      "type": "text",
+      "x": 0,
+      "y": 1650,
+      "width": 1450,
+      "height": 250,
+      "color": "4",
+      "text": "## L_Movement_Test｜可直接 Play 的验证场景\n`/Game/Map/L_Movement_Test`：1000 × 1000 m Cube，顶面 Z=0，BlockAll / WorldStatic；世界坐标 5 m 网格。\nWorld Settings → BP_GameMode → DA_Experience_Default → DA_Pawn_Pyrios；中央 PlayerStart=(0,0,150) cm。\n现有 IA_Move → HeroComponent → CMC；地图只提供生成环境和地面碰撞。\n38 秒 PIE / 4513 帧全部接地，Walk→Run 与 TurnBack 已观测。[[Movement/移动测试关卡|配置与证据]] · [[GameFeature/结构|装配接口]]"
     }
   ],
   "edges": [
@@ -147,6 +157,14 @@
       "toNode": "saved",
       "toSide": "right",
       "label": "位移状态参与预测"
+    },
+    {
+      "id": "movement-test-floor-cmc",
+      "fromNode": "movement-test-map",
+      "fromSide": "right",
+      "toNode": "cmc",
+      "toSide": "right",
+      "label": "为 CMC 原生物理查询提供阻挡地面"
     }
   ]
 }

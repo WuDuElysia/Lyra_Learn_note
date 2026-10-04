@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Teams｜结构图\n持久编队层次与关键静态接缝；箭头标签说明持有、继承、数据或调用。\n[[Teams/结构|结构文档]] · [[计划_队伍与装配|设计与缺口]] · [[GGYGO_流程_队伍与装配.canvas|装配与终止流程]]\n创建者A已捕获/准备并真实交付；Creator只管未交付，Squad只管已交付原责任，Host关闭原绑定。\nGate58 Failed/exit6，无新DLL、未冒烟；完整创建/Logout/切人仍开放，C13不关闭。Boss只共用底层宿主。",
+      "text": "# Teams｜结构图\n持久编队层次与关键接口；箭头说明持有、继承、数据或调用。\n[[Teams/结构|结构文档]] · [[计划_队伍与装配|设计与缺口]] · [[GGYGO_流程_队伍与装配.canvas|装配与终止流程]]\nCreator只管未交付原物，Squad只管已交付原责任，Host关闭原绑定；Boss共用底层宿主。\nCreator已Gate67编译，实队动态仍未验；旧冒烟不构成实队证据。Gate58失败保留，C13 / 完整切人 / 资产 / 网络开放。",
       "x": 0,
       "y": 0,
       "width": 1690,
@@ -13,7 +13,7 @@
     {
       "id": "presets",
       "type": "text",
-      "text": "## UGGYGOSquadPresets\n输入：Index、FPrimaryAssetId[]（含空位）。\n`SetPresetMembers` → bool；超限拒绝，原名单不变。\n`ResolveActivePresetRoster(Out)` → 人数 / PawnData[]；超限0且不加载，输出空。\n`HandlePostLoad` → 保留超限旧数据，不截断。\n本地SaveGame；编辑后由调用方显式保存。",
+      "text": "## UGGYGOSquadPresets\n输入：Index / 原始ID[]（含空位）。\n`TryLoadForLocalPlayer` → Loaded / CreatedForMissingSlot / Invalid。\n`ResolveActivePresetRoster` → Resolved / Unconfigured / Invalid；完整PawnData[]或空。\n仅显式空ID跳过；非法停止，不发布部分名单。\n`HandlePostLoad`只诊断，保留非法旧字段。\n主LP保存先验原来源，再返回Super真实bool。\n[[Teams/结构#主玩家保存与唯一缓存|加载、保存及缓存契约]]",
       "x": 0,
       "y": 280,
       "width": 440,
@@ -33,7 +33,7 @@
     {
       "id": "pc",
       "type": "text",
-      "text": "## AGGYGOPlayerController\n`Possess(Pawn)` → Authority执行出战控制。\nSquad终止仅在原活动控制链仍匹配时请求`UnPossess`。\n`PostProcessInput(dt, bPaused)` → 当前ASC::ProcessAbilityInput。\n[[Input/结构|输入生命周期]]；完整切人GA退出 / 输入释放政策未接。",
+      "text": "## PlayerController / LocalPlayer\nPC::`Possess` → 权威出战控制；终止仅原匹配链`UnPossess`。\n`PostProcessInput` → 当前ASC处理输入。\nLP::`TryGetSquadPresets` → 唯一缓存 / 明确错误；原缓存或来源失效不重载替换。\nPC三项Exec消费保存真实bool；拒绝保留内存，接受不等于落盘。\n[[Input/结构|输入生命周期]]；完整切人政策未接。",
       "x": 600,
       "y": 1150,
       "width": 500,
@@ -83,7 +83,7 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## GameMode / Experience：原创建者与配置\n[[GameFeature/结构|原会话装配门禁]] · [[Teams/结构#GameMode 创建准备、交付与未交付责任（创建者 A）|完整类型 / 输入输出 / 失败契约]]。\n`SpawnSquadSlot(Context, PawnData, OutActors)` / `SpawnSquadMember(Context, PawnData, SpawnTransform, OutActors)` → native准备bool，false仍保留实际原产物。\n原Context / 同PC同步保护 / PawnData弱快照；native pre-spawn捕获原Actor，先全Slot再Pawn；原配置与原Extension严格读回。\n`AttachAvatar(Member)`后重检原资格；调用private `RegisterCreatedSlot(Slot, Member)`前移出原对，先消费真实bool再重检Context：true只归Squad，false归Creator回收。\nCreator唯一请求原Slot→原Pawn销毁；拒绝且仍活保留原字段并拒绝同PC新生成；Destroyed/EndPlay先GF Close再同一残留消费、再Super，不持H/Context。\n`Experience::IsDataValid(Context)`仅编辑期容量；非法保存回落 / 默认运行容量 / 出生点Identity / 整队政策 / Logout / 完整切人未闭合，C13开放。\nGate57旧DLL不含A；Gate58 Failed/exit6，无新DLL、未冒烟；A无成功统一编译或运行证据，资产 / 网络未验。",
+      "text": "## GameMode / Experience：原创建者与收尾\n[[GameFeature/结构|原会话门禁]] · [[Teams/结构#GameMode 创建准备、交付与未交付责任（创建者 A）|创建准备与交付]] · [[Teams/结构#原 Controller Logout 与 Creator 留存收尾|原Controller收尾]]\n选源：已有Roster → LP三态；仅正常Unconfigured用Experience，Invalid在Actor前停止。原始Num含空位先验容量；捕获实际StartSpot / Root并验Transform，无Identity替代。\n`SpawnSquadSlot` / `SpawnSquadMember` → native准备bool，false仍暴露实际原产物；先全部Slot再Pawn，外调重检原Context。\n交付前移出原对；`RegisterCreatedSlot` true由Squad独占，false由Creator请求原Slot→原Pawn销毁。请求接受不等于物理完成。\n`Logout`捕获原PC / Creator，抽原弱身份批次 → 钩子关闭原Squad → 消费原批次 → Super一次；其他PC保留、回调拒绝append，无调用后Reset或自动扫尾。\nDestroyed / EndPlay先GF Close；整体关闭仅首次取主账本剩余，外层仍管原批次、只外层退guard。无第二执行器；最新Creator已Gate67编译、实队未验，C13开放。",
       "x": 0,
       "y": 1530,
       "width": 1690,
@@ -93,7 +93,7 @@
     {
       "id": "capacity",
       "type": "text",
-      "text": "## GGYGOSquad：容量词汇\n`IsMemberCountWithinCapacity(Count)` → bool。\nint32原始数量：0～4 true；负数 / 超限 false。\n仅校验，不截断、缓存或加载。\n0是否业务可用归调用方；唯一上限4。\nPresets / Squad / Experience共享规则。",
+      "text": "## GGYGOSquad：容量词汇\n`IsMemberCountWithinCapacity(Count)` → bool。\n原始int32：0～4 true，负数 / 超限 false。\n不截断、补位、缓存或加载。\n0可否启动由调用方判定，唯一上限4。\nPresets / Squad / Experience / GameMode共用；运行先验原始Num（含空位）。",
       "x": 0,
       "y": 690,
       "width": 440,
@@ -118,7 +118,7 @@
       "fromSide": "right",
       "toNode": "squad",
       "toSide": "left",
-      "label": "PawnData[]供Roster"
+      "label": "LP / GameMode消费完整Resolved数据 → SetRoster"
     },
     {
       "id": "e2",

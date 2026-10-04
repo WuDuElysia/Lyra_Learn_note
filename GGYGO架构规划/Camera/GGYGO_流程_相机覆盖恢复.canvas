@@ -3,71 +3,71 @@
 		{
 			"id": "nav",
 			"type": "text",
-			"text": "# 能力镜头覆盖、凭证与解绑恢复｜流程子图\n模式所有权在 HeroComponent，Offset 单槽在 CameraComponent；类关系见 [[GGYGO_结构_相机.canvas|结构图]]，每次视图拉取见 [[GGYGO_流程_相机.canvas|主流程]]。",
+			"text": "# 能力镜头覆盖、凭证与解绑恢复｜流程子图\nHero拥有模式仲裁；CameraComponent拥有Offset单槽；GA保存原接收者/精确凭证。[[GGYGO_结构_相机.canvas|结构图]] · [[GGYGO_流程_相机.canvas|求值与发布主流程]]。\n默认原Cleanup已接原终止记录；派生清理及端到端迁移未全部闭合。typed H原资源清理以[[Input/结构#Hero本地ASC身份订阅与原H清理|Input精确合同]]为准。",
 			"x": 0,
 			"y": 0,
 			"width": 1710,
-			"height": 140,
+			"height": 190,
 			"color": "6"
 		},
 		{
 			"id": "default",
 			"type": "text",
-			"text": "1. PawnData 提供 DefaultCameraMode。\n\n读取：HeroComponent::DetermineCameraMode → PawnData->DefaultCameraMode；这是覆盖列表为空时的回退类。",
+			"text": "1. PawnData提供正常DefaultCameraMode配置。\nHeroComponent::DetermineCameraMode在覆盖列表为空时\n选择该默认类；不替缺失/非法配置生成另一镜头。\n有效类交给Prepare中的Push/Evaluate Result链。\n无效类明确失败，Manager停止受控发布。",
 			"x": 0,
 			"y": 392,
 			"width": 400,
-			"height": 230,
+			"height": 280,
 			"color": "5"
 		},
 		{
 			"id": "a",
 			"type": "text",
-			"text": "2. GA A 激活：向当前 Hero 登记 SpecHandle_A，取得 Generation_A。\n\nGA 保存原 Hero / Spec / Generation；A 成为有效模式。结束时不会按当前 Avatar 重新查接收者。",
+			"text": "2. GA A申请SetCameraMode(Class)。\n向原Hero登记SpecHandle_A，成功取得Generation_A。\nGA保存原Hero/Spec/generation；A成为有效请求。\n无效申请不伪造成功或换源。\n默认Cleanup从原Termination记录读取精确凭证，\n不按当前Avatar重新找接收者或重放。",
 			"x": 470,
 			"y": 392,
 			"width": 420,
-			"height": 245,
+			"height": 300,
 			"color": "5"
 		},
 		{
 			"id": "b",
 			"type": "text",
-			"text": "3. GA B 激活：向同一 Hero 登记 SpecHandle_B，取得 Generation_B。\n\nB 暂时覆盖 A；A 的请求仍保留。GA B 独立保存自己的原接收者与精确凭证。",
+			"text": "3. GA B向同一原Hero申请合法模式，\n成功取得自己的SpecHandle_B + Generation_B。\nB置顶覆盖A；A的请求仍保留。\nB独立保存原接收者与精确凭证。\n原清理只归还该终止记录持有的资源，\n不影响数值相同但来源不同的后继。",
 			"x": 970,
 			"y": 392,
 			"width": 420,
-			"height": 245,
+			"height": 300,
 			"color": "5"
 		},
 		{
 			"id": "bend",
 			"type": "text",
-			"text": "4A. B 结束：向原 Hero 清 `Spec_B + Generation_B`；A 仍有效则恢复 A。\n\n迟到、无效或不匹配 generation 的清理返回 false，不影响当前条目。",
+			"text": "4A. 原B记录进入默认终止清理。\n向原Hero清Spec_B + Generation_B；\n匹配条目撤回，A仍有效时重新选A。\n迟到/无效/不匹配凭证返回false，不清后继。\n此图描述原资源归还条件，\n不宣称所有派生End已完成迁移。",
 			"x": 1470,
 			"y": 243,
 			"width": 420,
-			"height": 245,
+			"height": 300,
 			"color": "1"
 		},
 		{
 			"id": "aend",
 			"type": "text",
-			"text": "4B. A 先结束：只清 `Spec_A + Generation_A`；B 不受影响。\n\n清理先于 GA 的 Super::EndAbility；无效的迟到 End 先被 IsEndAbilityValid 拒绝。",
+			"text": "4B. 原A记录先进入默认终止清理。\n只清Spec_A + Generation_A，B不受影响。\nCleanupAbilityResourcesForTermination(Context)\n核对原终止来源；先脱开仍匹配的成员，\n再调用原接收者归还精确资源。\n派生清理及端到端终止链仍未全部闭合，\n不能泛称所有End都在Super前安全清理。",
 			"x": 1470,
 			"y": 743,
 			"width": 420,
-			"height": 245,
+			"height": 300,
 			"color": "3"
 		},
 		{
 			"id": "restore",
 			"type": "text",
-			"text": "5. 所有覆盖清空后，HeroComponent 再选 PawnData 默认模式；CameraModeStack 平滑混合。\n\n委托返回默认类 → CameraComponent::UpdateCameraModes → Stack::PushCameraMode / EvaluateStack。",
+			"text": "5. 所有有效覆盖撤回后，Hero选PawnData默认类。\n后续Prepare：UpdateCameraModes →\nPushCameraMode / EvaluateStack返回真实Result。\n合法配置成功后才生成候选并进入原生发布门禁。\n委托未绑定/默认类非法明确失败，不继续旧栈。\nManager已Stopped时不因请求清空或Ready自动恢复；\n[[Camera/结构#发布准入与显式重启|原失败身份显式Restart]]。",
 			"x": 970,
 			"y": 1200,
 			"width": 420,
-			"height": 245,
+			"height": 300,
 			"color": "1"
 		},
 		{
@@ -83,7 +83,7 @@
 		{
 			"id": "unbind",
 			"type": "text",
-			"text": "PawnExtension 本地解绑入口\n`UninitializeAbilitySystem(ExpectedASC)`\n本地缓存空/Expected失配 → return，不广播。\n匹配先清本地缓存；共享ASC仅Pawn/Avatar匹配清理。\n随后广播（Avatar失配也通知本地Hero）。\nHero BeginPlay 唯一订阅；[[Camera/结构#解绑协调与后继保护|精确条件]]。",
+			"text": "PawnExtension本地ASC身份订阅 / typed Notice。\nHero的PrepareLocalAbilitySystemSubscription\n先持原订阅记录，再注册原Extension并接受同步回放。\nReady / Refreshed / Released携带原身份合同。\n宿主/共享ASC解绑仍由Extension负责；\nHero不能把旧无参数广播作为当前清理来源。\n[[Input/结构#Hero本地ASC身份订阅与原H清理|原订阅与H合同]]。",
 			"x": 0,
 			"y": 1070,
 			"width": 420,
@@ -93,41 +93,41 @@
 		{
 			"id": "hero-guard",
 			"type": "text",
-			"text": "Hero 唯一 `HandleAbilitySystemUninitialized`\n!bEndingPlay 且有效输入会话：\n输入ASC与当前缓存/Avatar匹配，或刚建立且\n输入ASC缓存与两项旧订阅均无 → return。\n跳过输入/Camera清理；其它情况走下方分支。\n[[Camera/结构#解绑协调与后继保护|完整guard条件]]。",
+			"text": "ConsumeLocalAbilitySystemNotice(ExpectedSubscription, Notice)\n核对原订阅、typed H及真实上下文。\nReady关联已有输入/原retry；同H Refreshed不重绑。\nReleased只匹配原H，可接受其弱身份已经失效。\n先撤回原记录/派生关联，仅退休原H所属资源；\n无Controller/InputComponent不阻止原镜头撤回。\n新H、新输入/retry或新镜头请求受后继保护，\n旧清理不能继续写入替代来源。\n[[Input/结构#Hero本地ASC身份订阅与原H清理|精确条件]]。",
 			"x": 470,
 			"y": 1070,
 			"width": 420,
-			"height": 290,
+			"height": 300,
 			"color": "3"
 		},
 		{
 			"id": "release-reset",
 			"type": "text",
-			"text": "Hero 清理分支：`ReleasePlayerInput()`\n→ 清模式覆盖 → 有Camera时ResetCameraRuntimeState。\ngeneration/token序号保持，不重放旧请求。\n正常解绑可走e10；EndPlay清理后结束。\nIMC释放可同步重入，该组合仍待独立验证。",
+			"text": "原资源清理与镜头撤回。\n只释放确属原H的输入/retry，不全局Release替代会话。\n汇合后复核原记录、镜头代次与后继保护；\n再清原overrides，只Reset捕获的原Camera。\ngeneration/token序号保持，不重放旧请求。\nEndPlay按自身原生命周期归还资源后结束；\nIMC重入与完整终止链仍需独立动态验收。",
 			"x": 470,
 			"y": 1430,
 			"width": 420,
-			"height": 245,
+			"height": 300,
 			"color": "4"
 		},
 		{
 			"id": "endplay",
 			"type": "text",
-			"text": "Hero EndPlay：先设 `bEndingPlay=true`。\n解绑 `DetermineCameraModeDelegate`；\n再调用同一Handler，绕过guard。\n清理后 UnregisterInitStateFeature / Super。",
+			"text": "Hero EndPlay：先bEndingPlay=true，\n停止旧初始化尾部，解绑DetermineCameraModeDelegate。\n按原订阅/资源记录释放自身资源并撤回原镜头；\n不调用旧无参数Handler或收养替代H。\n随后UnregisterInitStateFeature / Super。\n[[Camera/结构#解绑协调与后继保护|自身清理边界]]。",
 			"x": 0,
 			"y": 1430,
 			"width": 420,
-			"height": 245,
+			"height": 290,
 			"color": "3"
 		},
 		{
 			"id": "evidence",
 			"type": "text",
-			"text": "验证边界\nGate22新增、Gate26/27/29复跑：真实GI/BeginPlay/正常无输入解绑；存活GA的真实旧End保留新镜头。\n后继输入/IMC重入、Avatar失配C4分支、死亡GE、完整B6仍未全面验证。\n[[Camera/结构#当前实现与验证边界|有限证据]]；本图描述实现分支，不把全部分支写成已动态证明。",
+			"text": "验证边界\nGate22新增、Gate26/27/29复跑（历史）：真实GI/BeginPlay/正常无输入解绑；存活GA的真实旧End保留新镜头。\n当前Gate66/67已编译、原有三项smoke Success（errors/warnings=0/0），不证明新Manager/Ready/投影联合动态。\n默认原Cleanup接线不等于派生清理全部迁移；后继输入/IMC重入、Avatar失配C4分支、死亡GE、完整B6仍未全面验证。\nM2首次同步、暂停非虚摄影时间戳、资产/PIE/网络等边界仍开放。\n[[Camera/结构#当前实现与验证边界|有限证据]]；本图的接口同步不新增运行证明。",
 			"x": 0,
 			"y": 1735,
 			"width": 890,
-			"height": 200,
+			"height": 270,
 			"color": "6"
 		}
 	],
@@ -138,7 +138,7 @@
 			"fromSide": "right",
 			"toNode": "a",
 			"toSide": "left",
-			"label": "默认模式可用"
+			"label": "合法模式申请 → 原Hero登记"
 		},
 		{
 			"id": "e2",
@@ -154,7 +154,7 @@
 			"fromSide": "right",
 			"toNode": "bend",
 			"toSide": "left",
-			"label": "B 用原接收者 + 精确凭证结束"
+			"label": "原B终止记录 → 精确凭证清理（条件路径）"
 		},
 		{
 			"id": "e4",
@@ -162,7 +162,7 @@
 			"fromSide": "right",
 			"toNode": "aend",
 			"toSide": "left",
-			"label": "A 用原接收者 + 精确凭证结束"
+			"label": "原A终止记录 → 精确凭证清理（条件路径）"
 		},
 		{
 			"id": "e5",
@@ -170,7 +170,7 @@
 			"fromSide": "bottom",
 			"toNode": "restore",
 			"toSide": "top",
-			"label": "A 也结束后"
+			"label": "A也撤回且有效覆盖清空"
 		},
 		{
 			"id": "e6",
@@ -178,7 +178,7 @@
 			"fromSide": "bottom",
 			"toNode": "restore",
 			"toSide": "right",
-			"label": "B 也结束后"
+			"label": "B也撤回且有效覆盖清空"
 		},
 		{
 			"id": "e7",
@@ -202,7 +202,7 @@
 			"fromSide": "bottom",
 			"toNode": "unbind",
 			"toSide": "top",
-			"label": "ASC / Avatar 反初始化"
+			"label": "原Extension / ASC生命周期 → typed Notice"
 		},
 		{
 			"id": "e10",
@@ -210,7 +210,7 @@
 			"fromSide": "right",
 			"toNode": "restore",
 			"toSide": "bottom",
-			"label": "正常解绑且委托仍绑定：下次拉取重新选类"
+			"label": "委托仍绑定且Manager Running：后续Prepare重新选类"
 		},
 		{
 			"id": "e11",
@@ -218,7 +218,7 @@
 			"fromSide": "right",
 			"toNode": "hero-guard",
 			"toSide": "left",
-			"label": "本地匹配才广播到Hero"
+			"label": "原订阅的typed Ready / Refreshed / Released"
 		},
 		{
 			"id": "e12",
@@ -226,15 +226,15 @@
 			"fromSide": "bottom",
 			"toNode": "release-reset",
 			"toSide": "top",
-			"label": "guard未命中或EndPlay"
+			"label": "匹配原H Released → 退休原资源并复核后继"
 		},
 		{
 			"id": "e13",
 			"fromNode": "endplay",
 			"fromSide": "right",
-			"toNode": "hero-guard",
+			"toNode": "release-reset",
 			"toSide": "left",
-			"label": "bEndingPlay=true绕过guard"
+			"label": "EndPlay按自身原生命周期释放资源"
 		}
 	]
 }

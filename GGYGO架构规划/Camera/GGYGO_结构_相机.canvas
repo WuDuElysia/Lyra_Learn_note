@@ -23,7 +23,7 @@
 		{
 			"id": "ga",
 			"type": "text",
-			"text": "## UGGYGOGameplayAbility\n`SetCameraMode(Class)` → 原 Hero/Spec/generation。\n`ApplyCameraOffset(Offset)` → 先 Clear 再 Set。\n仅有效 handle 保存原 Camera/token；\nSetter 拒绝不恢复调用前已 Clear 的资源。\n`EndAbility` 清理先于 Super；\nAvatar/SurvivesDeath 不重放。\n[[AbilitySystem/结构|AbilitySystem]]",
+			"text": "## UGGYGOGameplayAbility\n`SetCameraMode(Class)` → 原 Hero/Spec/generation。\n`ApplyCameraOffset(Offset)` → 先 Clear 再 Set。\n仅有效 handle 保存原 Camera/token；\nSetter 拒绝不恢复调用前已 Clear 的资源。\n默认原 `CleanupAbilityResourcesForTermination(Context)`\n先脱开匹配成员，再释放原记录的精确凭证。\n派生清理及端到端迁移尚未全部完成。\n[[AbilitySystem/结构|AbilitySystem]]",
 			"x": 0,
 			"y": 440,
 			"width": 390,
@@ -33,21 +33,21 @@
 		{
 			"id": "hero",
 			"type": "text",
-			"text": "## UGGYGOHeroComponent\n`DetermineCameraMode()` → 覆盖类/默认类。\n`SetAbilityCameraMode(Class,Spec)` → 代次\n`ClearAbilityCameraMode(Spec,generation)` → 撤销\n唯一 `HandleAbilitySystemUninitialized`：\n清理分支释放输入、覆盖并 Camera Reset。\n后继输入可提前返回；EndPlay 清理。\n[[Input/结构|输入契约]] · [[Camera/结构#解绑协调与后继保护|解绑边界]]",
+			"text": "## UGGYGOHeroComponent\n`DetermineCameraMode()` → 覆盖类/默认类。\n`SetAbilityCameraMode(Class,Spec)` → 代次。\n`ClearAbilityCameraMode(Spec,generation)` → 撤销。\n两个真实 Ready 入口：DataInitialized 转换、\n`InitializePlayerInput` 的输入 guard/资源操作前。\n`ConsumeLocalCameraProviderReady` → 原身份 Activate；\n重复 Ready 不 Restart；镜头失败不吞掉输入初始化。\nTyped H Notice：只退休原 H 所属输入/重试资源；\n复核后继后清原覆盖并 Reset 原 Camera。\nEndPlay 按原生命周期清理。\n[[Input/结构#Hero本地ASC身份订阅与原H清理|Input 原 H 合同]]\n[[Camera/结构#解绑协调与后继保护|解绑边界]]",
 			"x": 500,
 			"y": 300,
 			"width": 420,
-			"height": 290,
+			"height": 360,
 			"color": "5"
 		},
 		{
 			"id": "component",
 			"type": "text",
-			"text": "## UGGYGOCameraComponent\n`GetCameraView(dt, OutView)` → UE 入口。\n`SetCameraOffset(Offset)` → 先校验后发号。\nXYZ/FOV 有限，BlendIn/Out 有限非负。\n成功替换/token；失败一次 Error/Invalid。\n拒绝保持入口 Offset/active/alpha/token/序号。\n`ClearCameraOffset(token)` → 仅当前凭证。\n`ResetCameraRuntimeState()` → 清状态。\n持有 Stack/Offset/恢复比例；序号不重置。\n每次拉取：Offset 后至多一次 ECC_Camera。",
+			"text": "## UGGYGOCameraComponent\n`PrepareCameraView` → 单次求值、Result + Prepared。\nPrepared 的 `TryGetCandidateView` → 只读候选。\n`CommitPreparedCameraView` → 消费候选并写原对象；\n复核上下文，不再求值；失败不发布成功输出。\n兼容 `GetCameraView` 复用同一核心，不以 Super 兜底。\n`ReinitializeCameraEvaluation` → 显式重建 Stack/池；\n保留覆盖与 Offset 凭证，不求值、不发布。\nOffset：合法 Set 才替换/发号；Clear 仅当前 token。\nReset 清运行状态，序号不重置。\n持有 Stack/Offset/唯一碰撞恢复比例；\n每次求值在 Offset 后至多一次 ECC_Camera。",
 			"x": 1020,
 			"y": 300,
 			"width": 420,
-			"height": 315,
+			"height": 350,
 			"color": "5"
 		},
 		{
@@ -73,7 +73,7 @@
 		{
 			"id": "mode",
 			"type": "text",
-			"text": "## UGGYGOCameraMode\n`UpdateCameraMode(dt)` → 清旧请求、调 `UpdateView`、推进权重。\n`GetCameraModeView()` → 单模式 View。\n`GetCameraPenetrationRequest()` → 本帧可选保护请求。\n`GetTargetActor()` → 从 CameraComponent 找目标。",
+			"text": "## UGGYGOCameraMode\n`UpdateCameraMode(dt)` → Result。\n校验原始 dt/配置，清旧请求、UpdateView、推进权重；\n非法输入明确失败，不用默认混合参数。\n`GetCameraModeView()` → 单模式 View。\n`GetCameraPenetrationRequest()` → 可选保护请求。\n`GetTargetActor()` → 从 CameraComponent 找目标。",
 			"x": 500,
 			"y": 680,
 			"width": 420,
@@ -83,7 +83,7 @@
 		{
 			"id": "stack",
 			"type": "text",
-			"text": "## UGGYGOCameraModeStack\n`PushCameraMode(Class)` → 复用实例并置顶。\n`EvaluateStack(dt, OutView, OutRequest)` → View + Request。\n持有实例池/活动栈；按可见贡献聚合。\n`ClearStack()` → 清活动栈，保留实例池。\n不持有 Ability Spec；[[Camera/模式栈实现|实现说明]]。",
+			"text": "## UGGYGOCameraModeStack\n`PushCameraMode(Class)` → Result，复用并置顶。\n空/非法类明确失败，不继续旧栈。\n`EvaluateStack(dt, OutView, OutRequest)` → Result；\n只有完整成功才提交两项输出。\n持有实例池/活动栈；按可见贡献聚合。\n`ClearStack()` → 清活动栈，保留实例池。\n不持有 Ability Spec；[[Camera/模式栈实现|实现说明]]。",
 			"x": 1020,
 			"y": 660,
 			"width": 420,
@@ -103,27 +103,27 @@
 		{
 			"id": "controller",
 			"type": "text",
-			"text": "## Controller / UE Camera View\nCameraComponent 完成最终解析后：\n`ControlRotation` → Pawn Controller；\n`Location / Rotation / FOV` → 组件和 `FMinimalViewInfo`。\n生产 ViewTarget/PIE 另验。",
+			"text": "## AGGYGOPlayerCameraManager / NativeCache\n唯一持久 POV：引擎当前/上一帧原生 Cache。\nManager 只持有准入状态、原身份和确认资格。\n`ActivateCameraEvaluation(Target,Component)`\n`RestartCameraEvaluation(OriginalTarget,OriginalComponent)`\nNotActivated → Running；失败 → Stopped。\nStopped 不自动重试；Restart 只接受精确原失败源，\n重建其 GG Stack 后只尝试一次。\n当前→待切目标顺序 Prepare→预览→修饰检查→Commit；\n原生混合/摄影/Fill 全部有效后才能发布 Cache。\n初始种子不授予确认资格。\n暂停的非虚摄影时间戳入口仍有已知缺口。\n[[Camera/结构#发布准入与显式重启|准入与重启]]",
 			"x": 1020,
 			"y": 980,
 			"width": 420,
-			"height": 230,
+			"height": 350,
 			"color": "1"
 		},
 		{
 			"id": "contract",
 			"type": "text",
-			"text": "## 状态归属与验证边界\nGA 持有原接收者凭证；Hero 持有 Spec+generation；CameraComponent 持有 Offset 单槽 token 与唯一碰撞恢复比例。\nCameraComponent 持有 Stack；Stack 持有模式池/活动栈，输出 View+Request；ThirdPerson 只声明期望视角与保护请求。\nPawnExtension 本地广播到唯一 Hero 入口；后继输入 guard 可提前返回，EndPlay 绕过 guard。\nGate26：完整构建成功，项目 60/60、四 Camera 叶 Success；Offset 活动/回落两状态共 44 次精确拒绝，合法零值通过。\n拒绝 Error 含 Component/Owner/首个字段/原因；耗尽仅静态，GA 先 Clear 的替换事务不在 Setter 保持范围内。\n真实 GI/BeginPlay 解绑仅正常无输入，旧 End 保留新镜头已验；完整 B5/B6/B7、Input/IMC 重入、Avatar 失配、死亡 GE、资产/ViewTarget/PIE/网络仍开放。\n聚合/最终碰撞参数归零与 Mode 混合参数自动替代仍待审查；合法半径0/恢复0/混合时间0继续按正常配置解释。\n[[Camera/结构#当前实现与验证边界|证明范围]] · [[Camera/模式栈实现#已验证与待审查边界|详细边界]] · [[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复]] · [[GGYGO_流程_相机模式求值.canvas|求值流程]]",
+			"text": "## 状态归属与验证边界\nGA 持有原记录/资源凭证；Hero 持有 Spec+generation 并消费 typed H；默认原 Cleanup 已接，派生清理及端到端迁移未全闭合。\nCameraComponent 持有 Offset 单槽 token、唯一碰撞恢复比例和 Stack；Stack 持有模式池/活动栈；ThirdPerson 只声明期望视角与保护请求。\nPrepared 和 Commit 输出只活在单次调用；Manager 的 NotActivated/Running/Stopped 与确认资格不复制 POV；唯一持久 POV 是原生 Cache。\nLocalPlayer 只读取原关联与确认资格，在本地 scratch 运行原生投影并复核；不 Activate/Restart，不新建缓存或帧调度器。\nGate26（历史）：完整构建、项目60/60、四 Camera 叶 Success；Offset 两状态44次精确拒绝，合法零值通过。此证据不扩展为新 Manager 联合动态验收。\n当前 Gate66/67 已编译；原有三项 smoke Success，errors/warnings=0/0。CDO 冷读不是 Ready/首帧/投影的世界动态证明；M2 首次同步待后继任务。\n失败保持原生已确认 Cache；Prepare 内部推进与任意修饰器/Setter 副作用不承诺全局事务回滚。暂停非虚摄影入口的时间戳缺口仍开放。\n非法 dt/类/配置/穿透参数明确失败；合法 dt0、半径0、恢复0和混合时间0仍按正常配置解释。\n父四份与下列两张既有子图均已同步接口并静态核对；不新增运行证明，完整输入重入/派生清理/资产/ViewTarget/PIE/网络验收仍开放。\n[[Camera/结构#当前实现与验证边界|证明范围]] · [[Camera/模式栈实现#已验证与待审查边界|详细边界]]\n[[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复子图]] · [[GGYGO_流程_相机模式求值.canvas|模式求值子图]]",
 			"x": 0,
-			"y": 1560,
+			"y": 1660,
 			"width": 1450,
-			"height": 360,
+			"height": 500,
 			"color": "6"
 		},
 		{
 			"id": "request",
 			"type": "text",
-			"text": "## FGGYGOCameraPenetrationRequest\n`bEnabled / PivotLocation / ProbeRadius / RecoverySpeed`\n只聚合贡献 > 0 且启用的模式。\nPivot 归一加权；Radius 最大；正速度最小。\n全零 Recovery=0 → 立即恢复。\nCameraComponent 消费聚合请求。",
+			"text": "## FGGYGOCameraPenetrationRequest\n`bEnabled / PivotLocation / ProbeRadius / RecoverySpeed`\n只聚合贡献 > 0 且启用的模式。\nPivot 归一加权；Radius 最大；正速度最小。\n非法参数/聚合算术失败，不归零替代。\n合法 Recovery=0 → 立即恢复。\nCameraComponent 消费聚合请求。",
 			"x": 500,
 			"y": 1240,
 			"width": 420,
@@ -133,11 +133,21 @@
 		{
 			"id": "pawnext",
 			"type": "text",
-			"text": "## UGGYGOPawnExtensionComponent\n`UninitializeAbilitySystem(ExpectedASC)`：\n匹配才清本地缓存/广播；共享 ASC 仅 Avatar 匹配时清理。\n同 UObject 去重；Hero 单一协调器。\n[[Combatants/结构|宿主解绑]] · [[Input/结构|输入]]。",
+			"text": "## UGGYGOPawnExtensionComponent\n本地 ASC 身份 Notice（Ready / Refreshed / Released）\n经原 Extension 订阅送至 Hero。\nHero 匹配原订阅/H；只清其所属资源，保护后继。\n宿主/共享 ASC 解绑责任仍由 Extension 持有。\n[[Combatants/结构|宿主解绑]]\n[[Input/结构#Hero本地ASC身份订阅与原H清理|Input 原 H 合同]]",
 			"x": 0,
 			"y": 1260,
 			"width": 390,
 			"height": 230,
+			"color": "4"
+		},
+		{
+			"id": "local-player",
+			"type": "text",
+			"text": "## UGGYGOLocalPlayer\n`GetProjectionData`：核对原 LP/PC/World/Manager。\n`HasConfirmedNativeCameraView()` 才可调用原生投影。\nSuper 只写局部 ProjectionScratch；返回后再次核对。\n成功才写 Out；无关联/未确认/失败保持 Out。\nStopped 若已有确认可继续读取；不触发重启。\n[[System/结构|System]]",
+			"x": 1020,
+			"y": 1380,
+			"width": 420,
+			"height": 240,
 			"color": "4"
 		}
 	],
@@ -164,7 +174,7 @@
 			"fromSide": "right",
 			"toNode": "component",
 			"toSide": "left",
-			"label": "提供模式类；正常解绑调用 Reset"
+			"label": "提供模式类；匹配原 H 后 Reset 原 Camera"
 		},
 		{
 			"id": "e4",
@@ -172,7 +182,7 @@
 			"fromSide": "right",
 			"toNode": "stack",
 			"toSide": "left",
-			"label": "持有栈；Push / Evaluate(View, Request)"
+			"label": "持有 Stack；Push / Evaluate 返回 Result"
 		},
 		{
 			"id": "e5",
@@ -208,11 +218,11 @@
 		},
 		{
 			"id": "e9",
-			"fromNode": "component",
-			"fromSide": "bottom",
-			"toNode": "controller",
-			"toSide": "top",
-			"label": "Offset 后碰撞并写最终视角"
+			"fromNode": "controller",
+			"fromSide": "right",
+			"toNode": "component",
+			"toSide": "right",
+			"label": "Prepare → Preview → Commit（单次调用）"
 		},
 		{
 			"id": "e10",
@@ -236,7 +246,7 @@
 			"fromSide": "right",
 			"toNode": "hero",
 			"toSide": "bottom",
-			"label": "无参数解绑广播到唯一 Hero 入口"
+			"label": "typed H Notice；原订阅匹配与后继保护"
 		},
 		{
 			"id": "e13",
@@ -253,6 +263,22 @@
 			"toNode": "request",
 			"toSide": "right",
 			"label": "聚合贡献 > 0 且启用的请求"
+		},
+		{
+			"id": "e15",
+			"fromNode": "hero",
+			"fromSide": "right",
+			"toNode": "controller",
+			"toSide": "left",
+			"label": "真实 Ready → Activate（原目标/组件）"
+		},
+		{
+			"id": "e16",
+			"fromNode": "local-player",
+			"fromSide": "top",
+			"toNode": "controller",
+			"toSide": "bottom",
+			"label": "只读原关联 + HasConfirmedNativeCameraView"
 		}
 	]
 }

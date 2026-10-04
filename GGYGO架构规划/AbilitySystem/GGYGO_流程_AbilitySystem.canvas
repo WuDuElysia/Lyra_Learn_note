@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# AbilitySystem｜流程图\nASC两来源及Host H1/H2已有限静态接受冻结；未成功整链编译。\nBuild55：UHT通过33生成文件，Failed (OtherCompilationError)；新运行时未链接/未UE，353源/45保护保持。三项机械修正冻结，Hero旧三调用未迁移。\nInput混合注入、GA、Camera真实取舍待用户选择，仅相关线等待。下方两种来源与右侧K3/Task边界保持。\n[[GGYGO_结构_AbilitySystem.canvas|结构图]] · [[AbilitySystem/结构|接口文档]] · [[GGYGO_流程_能力仲裁.canvas|仲裁]] · [[GGYGO_流程_伤害结算.canvas|结算]]",
+      "text": "# AbilitySystem｜流程图\nHost/Extension/Hero A/B1/B2及ASC清理来源已实施并编译；T2 Gate65/66、E14-B Gate66已编译。Gate66 Camera Component两叶＋Admission普通叶既有冒烟通过（0 Error/0 Warning）。\n新Completed/派生/生产/Combo失败传播动态未闭合；Build55/N2与R0原失败保留在父文档，不作为当前未实现状态。\n[[GGYGO_结构_AbilitySystem.canvas|结构图]] · [[AbilitySystem/结构|接口]] · [[GGYGO_流程_原请求终止.canvas|终止子图]] · [[AbilitySystem/计划_原请求终止|T2阶段]] · [[GGYGO_流程_能力仲裁.canvas|仲裁]] · [[GGYGO_流程_伤害结算.canvas|结算]]",
       "x": 0,
       "y": 0,
       "width": 1650,
@@ -23,7 +23,7 @@
     {
       "id": "request",
       "type": "text",
-      "text": "2. 原请求入口已编码；Hero消费者未迁移。\n目标真实Action来源＋原deadline→ReceiveAbilityInputRequest→原ID/首次Spec集合。\nPlayerController::PostProcessInput→ProcessAbilityInput→按原边沿冻结来源→TryActivateAbility。\nQueue完整原Retry为FiniteRetry，不是新首按/-1补窗口；真实Released／Invalidated→End原ID。\nBoss BT::ExecuteTask→TryActivateAbility，无玩家输入证明。\n右侧展开有序边沿；Action物理原则已授权；混合注入技术方案待选，端口未接。",
+      "text": "2. Hero原请求消费者A已接入并编译。\nActionInstance来源/原deadline→ReceiveAbilityInputRequest原ID；Retry→Queue，Released/Invalidated→End原ID。\nPostProcess→Process逐边沿冻结来源→原InputScope内受控Try→bNativeAccepted消费（T3-I Gate67已编译），不raw重试。\nremote接受不证明本地Activation；Boss BT raw/Query无玩家输入证明。\nOnSpawn/BT/RPC、派生/Task终止边界仍开放；新Completed及完整生产动态未验。",
       "x": 470,
       "y": 392,
       "width": 385,
@@ -53,7 +53,7 @@
     {
       "id": "fail",
       "type": "text",
-      "text": "拒绝：NotifyAbilityFailed（final）。\n复制FailureTags→精确一次消费本层评估／完整原来源→Super原失败反馈。\n真实Queued且来源仍有效→OnAbilityInputRetryable(const OriginalRetry&)。\n目标Hero核原ID/Tag/绝对deadline再缓冲／Queue；当前旧Hero未迁移，不用-1或最近Tag补来源。\nHandleAbilityFailed→GA Native／Script；客户端原失败路由保留。\nraw/Query、错对象/已消费/过期不发Retry；Clear推进revision，弱端点/World/Owner/Avatar失效拒绝旧来源。",
+      "text": "拒绝：NotifyAbilityFailed（final）。\n复制FailureTags→精确一次消费本层评估／完整原来源→Super原失败反馈。\n真实Queued且来源仍有效→OnAbilityInputRetryable(const OriginalRetry&)。\nHero A已核原ID/Tag/绝对deadline/Binding再缓冲/Queue；不用-1或最近Tag补来源，已编译。\nHandleAbilityFailed→GA Native／Script；客户端原失败路由保留。\nraw/Query、错对象/已消费/过期不发Retry；Clear推进revision，弱端点/World/Owner/Avatar失效拒绝旧来源。",
       "x": 1430,
       "y": 700,
       "width": 420,
@@ -63,27 +63,27 @@
     {
       "id": "end",
       "type": "text",
-      "text": "5. 现有GA完成／取消→自身清理→GAS结束。\nASC先摘旧组记录，Super后仍空才发组空，保留合法后继。\n统一GA终止入口／同实例Busy及原播放Capture尚未迁移；不能把本节点当作新的K3安全合同。",
+      "text": "5. T2原请求终止核心已编译。\nGA Capture→RequestEnd/Cancel→唯一原Context/资源/Busy→薄Cleanup→GAS执行。\nASC核原Ended＋关联Try；完整虚End/Cancel及Try全退出→封存原结果→退Busy→原Completed Notice。\n组空/Task Completed均不授原终止完成权；raw独立Cancel、锁内移除与legacy派生不承诺协议Completed。\n[[GGYGO_流程_原请求终止.canvas|原身份/退出/失败分支]]",
       "x": 940,
       "y": 878,
       "width": 400,
-      "height": 230,
+      "height": 320,
       "color": "1"
     },
     {
       "id": "damage",
       "type": "text",
-      "text": "命中分支：GE → 属性 → Cue；详见 [[GGYGO_流程_伤害结算.canvas|伤害子图]]。\n\n接口链：Trace::OnMeleeHit → GA::HandleMeleeHit → ApplyGameplayEffectSpecToTarget → DamageExecution::Execute_Implementation。",
+      "text": "命中→BuildHitEffectPayload→GE/Execution/属性→Cue。\n显式空GE是正常仅Context/Cue；非空必需GE的Spec/Def/Context或原源无效→false＋清Out，不降级Cue（E14-B Gate66已编译）。\n实际施加免疫/拒绝归调用方碰撞Cue政策；Combo原动作失败响应未适配。\n[[GGYGO_流程_伤害结算.canvas|伤害子图]]",
       "x": 1430,
       "y": 1242,
       "width": 420,
-      "height": 230,
+      "height": 260,
       "color": "4"
     },
     {
       "id": "k4flow",
       "type": "text",
-      "text": "K4｜事务底层与Host请求链，整链未成功整链编译；H2已有限静态接受冻结\n1. 调用方明确选择TryExecuteAvatarActorInfoTransaction／TryBootstrapAvatarActorInfoTransaction／TryReplaceRevokedAvatarActorInfoTransaction，传原Context、明确Kind／ClearMode、必需同步纯谓词和独立OutPublication。\n2. 入口清输出、Reserve原Operation；进入IsAvatarBindingNativeWriteBusy所描述的RAII窗口。谓词外调前后核对原Operation、Admission对应Current／Unissued／Revoked和原端点，撤销后不复活。\n3. 限定Super：Init→InitAbilityActorInfo；Clear/PreserveOwner→Init(owner,null)；ClearActorInfo→ClearActorInfo；Refresh→RefreshAbilityActorInfo。\n4. Super完整返回后重检→Commit→保存原Kind／Before的不可变Receipt；只有本次真正提交才bCommitted=true和非空凭据。失败明确返回，无改动作／回滚／自动排队；退出仅清原Operation。\n5. Receipt.TryGetCommittedEvidence只读历史，不证明当前执行或Ready；ASC持有唯一当前资源引用。\nHost生产Request已经调用三Try：提交→Extension Install→公布原H/Context/Avatar→真实Publish；Health/Base已源码消费，Hero未接。两项ASC清理来源已静态接受冻结，见下方独立分支；Host H1已接，H2已有限静态接受冻结。失败返回不等于实际cleanup已消费或整链关闭。\nGate43四叶直接三Try并用真实native回调验证Busy／撤销／Clear／Refresh／Receipt；原73保持。R0仍需Host／Extension迁移，不能用Busy拒绝普通Released／Ready续接。",
+      "text": "K4｜事务底层与Host请求链已实施并编译；完整生产动态边界保留\n1. 调用方明确选择TryExecuteAvatarActorInfoTransaction／TryBootstrapAvatarActorInfoTransaction／TryReplaceRevokedAvatarActorInfoTransaction，传原Context、明确Kind／ClearMode、必需同步纯谓词和独立OutPublication。\n2. 入口清输出、Reserve原Operation；进入IsAvatarBindingNativeWriteBusy所描述的RAII窗口。谓词外调前后核对原Operation、Admission对应Current／Unissued／Revoked和原端点，撤销后不复活。\n3. 限定Super：Init→InitAbilityActorInfo；Clear/PreserveOwner→Init(owner,null)；ClearActorInfo→ClearActorInfo；Refresh→RefreshAbilityActorInfo。\n4. Super完整返回后重检→Commit→保存原Kind／Before的不可变Receipt；只有本次真正提交才bCommitted=true和非空凭据。失败明确返回，无改动作／回滚／自动排队；退出仅清原Operation。\n5. Receipt.TryGetCommittedEvidence只读历史，不证明当前执行或Ready；ASC持有唯一当前资源引用。\nHost Request已调用三Try：提交→Extension Install→Host公布原H/Context/Avatar→真实Publish；Health/Base/Hero已消费，Hero B1只退自己的原H。ASC两清理来源与Host H1/H2已实施并编译；失败返回不等于cleanup已消费或动态闭合。\n历史Gate43四叶直接三Try验证Busy/撤销/Clear/Refresh/Receipt，原73保持。R0 Gate42原2 Fail/12错误保留；当前生产已迁源码，未提供完整R0/Destroy动态重验，不能用Busy拒绝普通Released/Ready续接。",
       "x": 0,
       "y": 1750,
       "width": 1850,
@@ -93,7 +93,7 @@
     {
       "id": "k4publish",
       "type": "text",
-      "text": "P1／R1｜一次发布链路已编译；发布与PendingRemove两叶通过\n1. 当前Host源码在Install并公布原资源后调用PublishAvatarBindingNotice(原Receipt,pureQuery)；原Dispatching桥接Extension Ready，未成功整链编译/UE。\n2. 捕获历史副本，核对真实Proof、Pending、完整Context／LastWrite、实际ActorInfo和生命周期；每次Query外调前后重检，查询闭包不持久保存。\n3. 原记录置Dispatching → OnAvatarBindingNotice的唯一原生Broadcast(Receipt, Notice)。接收者仍须校验真实派发及自己的原资源；派发期间不占原生Busy。\n4. 事件后重检；仅原Init＋不同的新有效Pawn进入GA通知。同Pawn Init／Refresh／Clear不走首次出生分支。\n5. 每项原SpecHandle＋弱实例候选：Recheck → FindAbilitySpecFromHandle(..., EConsiderPending::None)＋原实例成员核对 → OnPawnAvatarSet → Recheck。已移除／待移除／脱离原Spec跳过。\n6. OnPawn后重收集Spawn Handle；每项Recheck → 查非PendingRemove原Spec并复制 → TryActivateAbilityOnSpawn → Recheck；不跨外调保留容器引用。\n7. 回调内B合法接管：A返回原历史bCommitted=true＋Stale；原Proof／Context作用域仅撤A，不能清B或继续A通知。纯Query或实际字段失败同样明确关闭原许可。\n8. 最后精确重检 → Consumed并释放当前强Proof引用，只保留派发来源元数据；IsAvatarBindingPublicationContextCurrent仍不等于全局Ready。\n9. 原凭据派发中重入：Busy／PublicationInProgress；成功消费后再发：Rejected／PublicationAlreadyConsumed。Pending／Closed／历史不能通过真实派发认证。\n原R0最近Gate42仍2 Fail／12错误；Host H2已静态接受，Hero消费与实际生产冒烟仍开放，ASC两cleanup来源已实现/冻结未成功整链编译；历史专项不覆盖本次迁移；C1a真实筛选／Busy专项已Gate48通过。",
+      "text": "P1／R1｜一次发布链已编译；历史发布/PendingRemove两叶通过\n1. Host在Install并公布原资源后调用PublishAvatarBindingNotice(原Receipt,pureQuery)；原Dispatching桥接Extension Ready，Hero B1已消费typed本地H；均已编译。\n2. 捕获历史副本，核对真实Proof、Pending、完整Context／LastWrite、实际ActorInfo和生命周期；每次Query外调前后重检，查询闭包不持久保存。\n3. 原记录置Dispatching → OnAvatarBindingNotice的唯一原生Broadcast(Receipt, Notice)。接收者仍须校验真实派发及自己的原资源；派发期间不占原生Busy。\n4. 事件后重检；仅原Init＋不同的新有效Pawn进入GA通知。同Pawn Init／Refresh／Clear不走首次出生分支。\n5. 每项原SpecHandle＋弱实例候选：Recheck → FindAbilitySpecFromHandle(..., EConsiderPending::None)＋原实例成员核对 → OnPawnAvatarSet → Recheck。已移除／待移除／脱离原Spec跳过。\n6. OnPawn后重收集Spawn Handle；每项Recheck → 查非PendingRemove原Spec并复制 → TryActivateAbilityOnSpawn → Recheck；不跨外调保留容器引用。\n7. 回调内B合法接管：A返回原历史bCommitted=true＋Stale；原Proof／Context作用域仅撤A，不能清B或继续A通知。纯Query或实际字段失败同样明确关闭原许可。\n8. 最后精确重检 → Consumed并释放当前强Proof引用，只保留派发来源元数据；IsAvatarBindingPublicationContextCurrent仍不等于全局Ready。\n9. 原凭据派发中重入：Busy／PublicationInProgress；成功消费后再发：Rejected／PublicationAlreadyConsumed。Pending／Closed／历史不能通过真实派发认证。\n原R0 Gate42的2 Fail/12错误保留。Host H1/H2、Hero A/B1/B2与ASC两cleanup来源已实施并编译；完整生产/失败Init/Destroy动态仍开放。历史C1a Gate48筛选/Busy专项不覆盖新增场景；Gate66既有三冒烟不替代这些验证。",
       "x": 0,
       "y": 2470,
       "width": 1850,
@@ -103,7 +103,7 @@
     {
       "id": "k4cancel",
       "type": "text",
-      "text": "C1a／C1b｜独立原归属清理入口\n1. 原清理调用方 → TryCancelAvatarBindingAbilities(捕获的原Context, 显式With／Without, 必需纯原资源Query)；Host已源码调用，先Withdraw原H再取消／全输入退休／Cue保旧Avatar／显式ClearMode；H1适配已接受，未成功整链编译。\n2. 校验Query存在／Busy；外调前复制标签与null模式 → I1 Reserve原Cancel Operation → 同一native Busy作用域。\n3. Query前后按MatchCommittedCleanupContext重检原Operation/Context/原allocation/完整快照及CommittedCleanup目的；成功才关闭匹配原Context发布许可，不撤Binding。\n4. 一次限定Super::CancelAbilities → 完整遍历及原生列表锁析构 → 返回重检 → Complete；均在同一Busy窗口。真实回调内新绑定／取消明确Busy，不自动排队。\n5. Succeeded：仅同步原生调用返回，bCommitted=false、CommittedContext空，无Receipt／Notice；不可取消或WaitingToExecute不承诺End。完整返回后才允许合法后继。\n6. 原归属失效：明确Stale，只退自己的Operation，不追加Clear／输入／Cue／Montage，不清后继、不回滚已发生取消。null With不筛选、非null空With匹配零。\n[[AbilitySystem/结构#原归属限定取消（C1a）|接口与边界]]；C1a Gate48新Cancel叶已通过；ASC两cleanup来源已静态接受冻结，Host H1已消费/H2已有限静态接受冻结，真实生产换绑未验收。\nC1b：原清理调用方→TryRemoveAvatarBindingGameplayCues(原Context,pureQuery)→I1 Remove Reserve／同一native Busy→原归属重检→关匹配发布许可→Super::RemoveAllGameplayCues一次完整返回→重检／Complete。失败仅退原Operation，不签Commit／Notice；原生仅Active Tag／预测，不等于异步全清。已冻结静态接受，Gate49R1已编译／真实Removed与Busy专项通过。[[AbilitySystem/结构#原归属限定Cue清理（C1b）|Cue契约]]",
+      "text": "C1a／C1b｜独立原归属清理入口\n1. 原清理调用方 → TryCancelAvatarBindingAbilities(捕获的原Context, 显式With／Without, 必需纯原资源Query)；Host已调用，先Withdraw原H再取消/全输入退休/Cue保旧Avatar/显式ClearMode；H1已实施并编译。\n2. 校验Query存在／Busy；外调前复制标签与null模式 → I1 Reserve原Cancel Operation → 同一native Busy作用域。\n3. Query前后按MatchCommittedCleanupContext重检原Operation/Context/原allocation/完整快照及CommittedCleanup目的；成功才关闭匹配原Context发布许可，不撤Binding。\n4. 一次限定Super::CancelAbilities → 完整遍历及原生列表锁析构 → 返回重检 → Complete；均在同一Busy窗口。真实回调内新绑定／取消明确Busy，不自动排队。\n5. Succeeded：仅同步原生调用返回，bCommitted=false、CommittedContext空，无Receipt／Notice；不可取消或WaitingToExecute不承诺End。完整返回后才允许合法后继。\n6. 原归属失效：明确Stale，只退自己的Operation，不追加Clear／输入／Cue／Montage，不清后继、不回滚已发生取消。null With不筛选、非null空With匹配零。\n[[AbilitySystem/结构#原归属限定取消（C1a）|接口与边界]]；历史C1a Gate48 Cancel叶通过；ASC两cleanup来源、Host H1/H2与Hero已实施并编译，完整生产换绑/Destroy动态未闭合。\nC1b：原清理调用方→TryRemoveAvatarBindingGameplayCues(原Context,pureQuery)→I1 Remove Reserve／同一native Busy→原归属重检→关匹配发布许可→Super::RemoveAllGameplayCues一次完整返回→重检／Complete。失败仅退原Operation，不签Commit／Notice；原生仅Active Tag／预测，不等于异步全清。已冻结静态接受，Gate49R1已编译／真实Removed与Busy专项通过。[[AbilitySystem/结构#原归属限定Cue清理（C1b）|Cue契约]]",
       "x": 0,
       "y": 3280,
       "width": 1850,
@@ -118,7 +118,7 @@
       "width": 700,
       "height": 670,
       "color": "5",
-      "text": "## Process的重要实现｜已编码、未编译\nReceive冻结原ID/Tag/deadline及首次Spec集合，记录真实原边沿；多个原来源held按OR保持。\nProcess外调前捕原Edges，按每个EdgeIndex冻结InitialSourcesByEdge；Press A→Release A→Press B不让未来B进入A的Can来源。\n同边沿来源OR→同Spec本批最多一次Try；真实剩余边沿进入既有DeferredEdges，下一引擎PostProcess消费，无第二Tick。\nTry只武装自己的许可→final Can独立评估→final Notify消费本层原来源；Query/raw不能借外层。\n真实Queued→完整原Retry通知；Queue核原ID/Tag/deadline＋许可，FiniteRetry不重开窗口。\nReleased最后held才释放，未过期tap可retry；Invalidated不伪Released，deadline过期不松键。\nHero/Action观察端口未迁移；两诊断仅签名已适配，旧-1运行预期未迁移，不能据源码称生产Run或输入通过。\n[[AbilitySystem/结构#单次 Can 评估与输入失败来源（B0）|接口与停止点]]"
+      "text": "## Process的重要实现｜已接Hero并编译\nReceive冻结原ID/Tag/deadline及首次Spec集合，记录真实原边沿；多个原来源held按OR保持。\nProcess外调前捕原Edges，按每个EdgeIndex冻结InitialSourcesByEdge；Press A→Release A→Press B不让未来B进入A的Can来源。\n同边沿来源OR→同Spec本批最多一次Try；真实剩余边沿进入既有DeferredEdges，下一引擎PostProcess消费，无第二Tick。\n原InputScope/Origin包住一次受控Try；Retryable仍先清，bNativeAccepted成功消费。Busy/Rejected不raw重试，remote接受非本地Activation证明。\nTry只武装自己的许可→final Can独立评估→final Notify消费本层原来源；Query/raw不能借外层。\n真实Queued→完整原Retry通知；Queue核原ID/Tag/deadline＋许可，FiniteRetry不重开窗口。\nReleased最后held才释放，未过期tap可retry；Invalidated不伪Released，deadline过期不松键。\nHero A/ActionInstance端口已迁并编译；B1消费typed H，B2装配Source→CMC。旧-1运行夹具/混合来源专项未由编译证明。T3-I已随Gate67编译；OnSpawn/BT/RPC、派生/Task终止边界及新Completed动态仍开放。\n[[AbilitySystem/结构#单次 Can 评估与输入失败来源（B0）|接口与停止点]]"
     },
     {
       "id": "k3-play-result",
@@ -133,7 +133,7 @@
     {
       "id": "k3-original-resource",
       "type": "text",
-      "text": "## K3 2｜Task安装或原资源清理\n外调返回→重检原Task／Ability／ActorInfo。同步Cancel／Destroy的停止义务由栈共持；失效仅凭Result.Guard清原实例，Task仍活但原上下文失效明确诊断。\n已结束Task不安装委托／缩放lease、不再写成员。成功且原源有效→存Handle／Guard→GetTaskMontageInstance按原ID重取。\n直接绑定带原Guard的BlendOut／Ended实例委托→获取自身RootMotionScale lease→SetWaitingOnAvatar；最后外调后无成员写。\nASC唯一provenance认证Local写入；B替换A，停止不复活A。Check不依赖活动实例。\n停止：原Guard＋精确ID，ASC认证且活动ID匹配才CurrentMontageStop；否则只释放精确原本地实例，不清新ASC／GA。\n目标GA收尾Capture与统一End／Busy未实施，激活政策待决。\n[[Animation/结构|Guard唯一身份来源]]",
+      "text": "## K3 2｜Task安装或原资源清理\n外调返回→重检原Task／Ability／ActorInfo。同步Cancel／Destroy的停止义务由栈共持；失效仅凭Result.Guard清原实例，Task仍活但原上下文失效明确诊断。\n已结束Task不安装委托／缩放lease、不再写成员。成功且原源有效→存Handle／Guard→GetTaskMontageInstance按原ID重取。\n直接绑定带原Guard的BlendOut／Ended实例委托→获取自身RootMotionScale lease→SetWaitingOnAvatar；最后外调后无成员写。\nASC唯一provenance认证Local写入；B替换A，停止不复活A。Check不依赖活动实例。\n停止：原Guard＋精确ID，ASC认证且活动ID匹配才CurrentMontageStop；否则只释放精确原本地实例，不清新ASC／GA。\nT2 GA收尾已Capture原播放/相机资源，统一End/Cancel/Busy已编译；资源执行仍归Task/GAS，派生/生产未迁。\n[[GGYGO_流程_原请求终止.canvas|GA原资源与退出契约]]\n[[Animation/结构|Guard唯一身份来源]]",
       "x": 3000,
       "y": 1260,
       "width": 950,
@@ -143,7 +143,7 @@
     {
       "id": "k3-exact-clear",
       "type": "text",
-      "text": "## K3 3｜原BlendOut精确Clear\n原实例携Guard回调→MatchesOriginalMontageCallback→标混出，释放自身缩放。\nTask→TryClearMontageAnimatingAbility(原Handle)。Check通过→qualified基类GA.SetCurrentMontage(null)→Local.AnimatingAbility=null→核对→退休Proof。\n旧A不匹配当前B返回Stale／原因；B停止后仍可清自己。\n不进virtual业务setter后盲清Local，不Stop／延期到技能结束。原上下文／Guard／AbilityTask资格成立才发布原BlendOut或Interrupted事实。\nASC与Task已源码冻结静态接受，未成功整链编译／UE；GA、旧夹具、资产网络开放。\n[[AbilitySystem/计划_AbilitySystem#当前精确Montage增量（K3）|接力与停止点]]",
+      "text": "## K3 3｜原BlendOut精确Clear\n原实例携Guard回调→MatchesOriginalMontageCallback→标混出，释放自身缩放。\nTask→TryClearMontageAnimatingAbility(原Handle)。Check通过→qualified基类GA.SetCurrentMontage(null)→Local.AnimatingAbility=null→核对→退休Proof。\n旧A不匹配当前B返回Stale／原因；B停止后仍可清自己。\n不进virtual业务setter后盲清Local，不Stop／延期到技能结束。原上下文／Guard／AbilityTask资格成立才发布原BlendOut或Interrupted事实。\nASC/Task及T2核心已编译；派生/生产、旧夹具、资产与网络动态边界开放。\n[[AbilitySystem/计划_AbilitySystem#当前精确Montage增量（K3）|接力与停止点]]",
       "x": 3000,
       "y": 2110,
       "width": 950,
@@ -153,7 +153,7 @@
     {
       "id": "k3-task-original-ended",
       "type": "text",
-      "text": "## K3 4｜原Ended事实与自身收尾\n引擎排队的原实例Ended委托载荷→匹配原Guard；不按资产查后继。\n非Interrupted且Guard生命周期／原ActorInfo／ShouldBroadcastAbilityTaskDelegates有效→OnCompleted。\n不Check当前ASC归属，不要求原实例仍活动或存在；正常BlendOut已Clear也保留自然结束事实。\n这不是后继GA End授权；Combo／Boss须另证原能力生命周期，统一GA终止未接。\n→EndTask→OnDestroy仅撤自身Cancel/Event句柄、实例委托和RootMotionScale token；普通Task结束不擅自Stop。\nExternalCancel／AbilityCancel或AbilityEnded+Stop策略才保留原停止义务，精确原实例执行；重复取消不重复通知。\nGuard失效明确诊断，不猜来源；旧夹具未适配，原严格失败未复测。仅源码静态接受，未成功整链编译／UE。\n[[AbilitySystem/结构#Task原实例与资源消费（源码已接，未编译）|事实/权限/资源边界]]",
+      "text": "## K3 4｜原Ended事实与自身收尾\n引擎排队的原实例Ended委托载荷→匹配原Guard；不按资产查后继。\n非Interrupted且Guard生命周期／原ActorInfo／ShouldBroadcastAbilityTaskDelegates有效→OnCompleted。\n不Check当前ASC归属，不要求原实例仍活动或存在；正常BlendOut已Clear也保留自然结束事实。\nTask Completed仅原实例事实；Combo/Boss须另证原能力生命周期，不能替代GA原请求Notice。T2核心已编译，派生未迁。\n→EndTask→OnDestroy仅撤自身Cancel/Event句柄、实例委托和RootMotionScale token；普通Task结束不擅自Stop。\nExternalCancel／AbilityCancel或AbilityEnded+Stop策略才保留原停止义务，精确原实例执行；重复取消不重复通知。\nGuard失效明确诊断，不猜来源；旧夹具未适配、原严格失败未复测。Task已编译，新协议/完整派生动态未验。\n[[AbilitySystem/结构#Task原实例与资源消费（已编译，专项与迁移边界保留）|事实/权限/资源边界]]",
       "x": 3000,
       "y": 2950,
       "width": 950,
@@ -213,7 +213,7 @@
     {
       "id": "k4-committed-cleanup-result",
       "type": "text",
-      "text": "## A5｜typed Clear实际提交出口\n原Super完整返回/重检→Commit→bCommitted=true及Released Receipt。\nHost仅退自己的原H/订阅，再Publish/NotifyLocalResourcesReleased沿既有规则；失败历史不回滚后继。\nClear不重开已关闭组件宿主；cleanup query成功不等于Ready或新工作。\nASC新准入与Host H1仅finite_static_accepted_uncompiled；整链未验收。",
+      "text": "## A5｜typed Clear实际提交出口\n原Super完整返回/重检→Commit→bCommitted=true及Released Receipt。\nHost仅退自己的原H/订阅，再Publish/NotifyLocalResourcesReleased沿既有规则；失败历史不回滚后继。\nClear不重开已关闭组件宿主；cleanup query成功不等于Ready或新工作。\nASC新准入/Host H1已实施并编译；原Destroy/完整生产换绑动态未闭合。",
       "x": 2900,
       "y": 4100,
       "width": 820,
@@ -263,7 +263,7 @@
     {
       "id": "k4-failed-init-retain",
       "type": "text",
-      "text": "## B3｜仅保留仍精确匹配的失败Proof\n原Context元数据等于Before、未commit为该Operation，原allocation/完整WrittenActual仍匹配。\n成员const Proof：OriginalOperation＋Before＋WrittenActual；原Init结果仍失败。\nHost H2原Operation＋pure原scope消费已根有限静态接受冻结；边上“尚未验收”为N2阶段标签。\n后继真实typed/准入legacy写入退休Proof；拒绝/预写入失败不替既有实际源。清理入口不重捕或用旧Context补造。\n[[AbilitySystem/结构#失败Init原写入清理（未提交证明）|未提交来源]]",
+      "text": "## B3｜仅保留仍精确匹配的失败Proof\n原Context元数据等于Before、未commit为该Operation，原allocation/完整WrittenActual仍匹配。\n成员const Proof：OriginalOperation＋Before＋WrittenActual；原Init结果仍失败。\nHost H2原Operation＋pure原scope消费已实施并编译；失败Init完整生产清理动态未闭合。\n后继真实typed/准入legacy写入退休Proof；拒绝/预写入失败不替既有实际源。清理入口不重捕或用旧Context补造。\n[[AbilitySystem/结构#失败Init原写入清理（未提交证明）|未提交来源]]",
       "x": 1440,
       "y": 5250,
       "width": 620,
@@ -313,7 +313,7 @@
     {
       "id": "k4-failed-init-cleanup-failure",
       "type": "text",
-      "text": "## B清理失败｜不提升原Init\n写前原Proof/Query不符→拒绝该次Clear。\nnative已Clear后，原query/后置条件失效→明确失败，Proof已经消费，不重授来源。\n两种结果均无commit/Receipt/Notice/Ready，原Init失败保留；本轮未成功整链编译/UE，不由旧专项推导通过。",
+      "text": "## B清理失败｜不提升原Init\n写前原Proof/Query不符→拒绝该次Clear。\nnative已Clear后，原query/后置条件失效→明确失败，Proof已经消费，不重授来源。\n两种结果均无commit/Receipt/Notice/Ready，原Init失败保留。已编译；原失败动态未重验，不由旧专项/Gate66既有冒烟推导通过。",
       "x": 2980,
       "y": 5940,
       "width": 740,
@@ -360,7 +360,7 @@
       "fromSide": "bottom",
       "toNode": "end",
       "toSide": "right",
-      "label": "EndAbility → RemoveAbilityFromActivationGroup"
+      "label": "原End→ASC摘旧组记录；协议完成须全部关联退出"
     },
     {
       "id": "e6",
@@ -368,7 +368,7 @@
       "fromSide": "bottom",
       "toNode": "damage",
       "toSide": "top",
-      "label": "OnMeleeHit → ApplyGameplayEffectSpecToTarget"
+      "label": "OnMeleeHit→Builder；成功载荷再请求GE/Cue"
     },
     {
       "id": "e7",
@@ -376,7 +376,7 @@
       "fromSide": "left",
       "toNode": "request",
       "toSide": "bottom",
-      "label": "目标OnAbilityGroupFreed→Hero原请求缓冲→Queue完整Retry；Hero未迁移"
+      "label": "OnAbilityGroupFreed→Hero核原ID/Tag/期限→Queue完整Retry；不是终止Completed"
     },
     {
       "id": "e8",
@@ -384,7 +384,7 @@
       "fromSide": "bottom",
       "toNode": "k4publish",
       "toSide": "top",
-      "label": "Host源码Install/公布原H→Publish真实Dispatching桥接Ready；未编译"
+      "label": "Host Install/公布原H→Publish/Dispatching桥接Ready，已编译；动态边界保留"
     },
     {
       "id": "e-request-ordered-edge-detail",
@@ -408,7 +408,7 @@
       "fromSide": "bottom",
       "toNode": "k3-exact-clear",
       "toSide": "top",
-      "label": "Task原Guard实例BlendOut→TryClear原Handle；GA收尾Capture未接"
+      "label": "原Guard BlendOut→TryClear原Handle；T2已Capture原资源，派生未迁"
     },
     {
       "id": "k3-clear-then-original-ended",
@@ -512,7 +512,7 @@
       "fromSide": "right",
       "toNode": "k4-failed-init-consume",
       "toSide": "left",
-      "label": "仅已保存原Proof；H2消费尚未验收"
+      "label": "仅已保存原Proof；H2已实施/编译，动态未闭合"
     },
     {
       "id": "k4-cleanup-b-clear-postcondition",

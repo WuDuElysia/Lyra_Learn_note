@@ -3,31 +3,31 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# 相机模式栈求值与最终保护｜实现子图\n[[Camera/模式栈实现|算法说明]] · [[GGYGO_结构_相机.canvas|类结构]] · [[GGYGO_流程_相机.canvas|返回主流程]]。索引0为顶；Hero先仲裁。View/Request边传递数据；EvaluateStack完成后才施加Offset。\nGate29四Camera叶Success、44次Offset拒绝；完整B5/B6/B7、资产/网络仍开放。[[Camera/模式栈实现#已验证与待审查边界|其它自动替代待审查]]。",
+      "text": "# 相机模式栈求值与最终保护｜实现子图\n[[Camera/模式栈实现|算法说明]] · [[GGYGO_结构_相机.canvas|类结构]] · [[GGYGO_流程_相机.canvas|返回主流程]]。索引0为顶；Hero先仲裁。View/Request边传递数据，完整Evaluate成功后才施加Offset。\nGate29（历史）四Camera叶Success、44次Offset拒绝；当前Gate66/67已编译、原有三项smoke Success（errors/warnings=0/0），不证明新Manager/Ready/投影联合动态。\n完整B5/B6/B7、资产/网络、M2首次同步及暂停非虚摄影时间戳缺口仍开放。[[Camera/模式栈实现#已验证与待审查边界|验证边界]]。",
       "x": 0,
       "y": 0,
       "width": 1900,
-      "height": 150,
+      "height": 200,
       "color": "6"
     },
     {
       "id": "pull",
       "type": "text",
-      "text": "1. 每次GetCameraView生成SafeDeltaTime、UpdateCameraModes。\n有效Class→Push；空类只跳过Push，旧栈继续。\n活动栈空→Super生成View后return。\n同帧多次拉取各按dt求值/推进，无帧号去重。",
+      "text": "1. GG Manager 调 PrepareCameraView(dt, Prepared)。\n使用原始有限非负dt，经UpdateCameraModes取类。\nPush/Evaluate返回真实Result；完整成功才产生候选。\n委托缺失、非法类/空栈明确失败，\n不继续旧栈，不由Super输出替代镜头。\n兼容GetCameraView使用同一Prepare/Commit核心。\n同帧另一次合法调用仍按dt求值，无帧号去重。",
       "x": 0,
       "y": 351,
       "width": 410,
-      "height": 230,
+      "height": 300,
       "color": "5"
     },
     {
       "id": "pool",
       "type": "text",
-      "text": "2. PushCameraMode：按 Class 在实例池查找，未找到才 NewObject；栈顶同类时直接返回。\n\nPushCameraMode 用 Class 查 CameraModeInstances；仅首次 NewObject，活跃栈与实例池分离。",
+      "text": "2. PushCameraMode(Class) → Result。\n先校验原类/CDO、配置与权重。\n按Class查CameraModeInstances；没有才NewObject。\n合法栈顶同类返回Success，不重复激活。\n非法输入返回Failure并向Prepare传播。\n活动栈与实例池分离；日常ClearStack保留池。\n显式Reinitialize才重建原GG Stack/实例池。",
       "x": 480,
       "y": 351,
       "width": 430,
-      "height": 230,
+      "height": 300,
       "color": "5"
     },
     {
@@ -53,11 +53,11 @@
     {
       "id": "update",
       "type": "text",
-      "text": "4. UpdateStack → Mode::UpdateCameraMode：\n清旧Request → UpdateView → 推进Alpha/Weight。\n合法BlendTime>0按SafeDt/Time推进；\n合法0立即满权重（SafeDt0亦可）。\nThirdPerson只输出View/Request，不查询World。\n其它非法混合参数行为仍待审查。",
+      "text": "4. UpdateStack → Mode::UpdateCameraMode → Result。\n清旧Request → UpdateView → 推进Alpha/Weight。\n原始合法dt、BlendTime>0按dt/Time推进；\n合法0时间立即满权重（dt0亦可）。\n非法配置/dt/权重/算术向Evaluate传播Failure，\n不换曲线、不归零或伪造成功。\nThirdPerson只输出View/Request，不查询World。\n内部已推进状态不承诺整体回滚。",
       "x": 1530,
       "y": 729,
       "width": 440,
-      "height": 245,
+      "height": 290,
       "color": "5"
     },
     {
@@ -83,37 +83,37 @@
     {
       "id": "offset",
       "type": "text",
-      "text": "8. UpdateCameraOffsetAlpha → ApplyCameraOffset。\n消费此前被Set接受的单槽；GetView不在此申请。\n非法Set：一次Error、返回Invalid，入口保持。\nGA先Clear旧资源不恢复；[[Camera/模式栈实现#Offset 单槽所有权|完整契约]]。\n合法alpha/正时间：SafeDt0不推进。\n合法零时间：即使SafeDt0也到目标alpha。\n只改合成View，保留单模式原始View。",
+      "text": "8. 完整Evaluate成功 → UpdateCameraOffsetAlpha\n→ ApplyCameraOffset，消费此前Set接受的单槽。\n非法Set：一次Error/Invalid，申请入口状态保持；\nGA先Clear的旧资源不会由Setter恢复。\n[[Camera/模式栈实现#Offset 单槽所有权|完整契约]]。\n合法dt0不推进正时间；零时间可立即到目标alpha。\n非法dt/alpha/配置/运行算术明确失败，不归零替代。\n只改合成View，保留单模式原始View。",
       "x": 0,
       "y": 1110,
       "width": 410,
-      "height": 245,
+      "height": 300,
       "color": "1"
     },
     {
       "id": "write",
       "type": "text",
-      "text": "10. 写回组件与 FMinimalViewInfo；ControlRotation 单独写回 Pawn Controller。",
+      "text": "10. Prepare Success → 调用局部Prepared。\nManager调用TryGetCandidateView只读预览，\nmodifier检查后CommitPreparedCameraView。\nCommit一次消费并复核原上下文，不再求值；\n写原组件/Controller及局部FMinimalViewInfo输出。\n原生混合/摄影/Fill均有效后才发布唯一原生Cache。\n任意Setter/modifier副作用不承诺全局回滚。\n[[GGYGO_流程_相机.canvas|原生发布准入]]。",
       "x": 0,
       "y": 1810,
       "width": 410,
-      "height": 190,
+      "height": 350,
       "color": "1"
     },
     {
       "id": "fallback",
       "type": "text",
-      "text": "更新模式后活动栈仍为空：用同一 SafeDeltaTime 调 UCameraComponent::GetCameraView。\n\n委托空返回但栈非空时不会进入这里。",
+      "text": "失败结果 → GG生产Manager Stopped。\nPrepare/Push/Evaluate/Offset/Resolve逐层传播失败；\n不继续旧栈，不转Super业务兜底。\n受控失败保持最后确认的原生Cache；\n首次失败未确认，LP投影返回false。\n修好配置或重复Ready不自动恢复。\nRestart校验精确原失败Target/Component/PC/World，\n原GG Stack重建后只尝试一次；失败仍停止。\n[[Camera/结构#发布准入与显式重启|原身份Restart]]。",
       "x": 990,
       "y": 1480,
       "width": 430,
-      "height": 210,
+      "height": 350,
       "color": "3"
     },
     {
       "id": "aggregate",
       "type": "text",
-      "text": "7. BlendPenetrationRequests 按实际可见贡献聚合。\n\n只计贡献 > 0 且启用的请求：Pivot 归一化加权，Radius 取最大；存在正 Recovery 时取最小正值，混合中的 0 不覆盖正值，全部为 0 才输出立即恢复 0。",
+      "text": "7. BlendPenetrationRequests 按实际可见贡献聚合。\n只计贡献>0且启用的请求：Pivot归一化加权，\nRadius取最大合法值；正Recovery取最小正值，\n混合中的合法0不覆盖正值，全部0才立即恢复。\n非法参数/聚合算术返回Failure，不替换成零参数。\nEvaluateStack仅在View和Request完整成功后，\n一起提交调用方输出；任何失败逐层返回。",
       "x": 480,
       "y": 1340,
       "width": 430,
@@ -123,11 +123,11 @@
     {
       "id": "collision",
       "type": "text",
-      "text": "9. ResolveCameraPenetration：Offset后最终位置。\n请求启用且World/Target/路径有效→\n每次拉取至多一次ECC_Camera查询。\nRadius>0 sweep；合法0 line trace，忽略Target。\n收近立即；正Recovery渐复、合法0立即恢复。\n无请求/无效路径等→恢复比例1、无查询。",
+      "text": "9. ResolveCameraPenetration：Offset后最终位置。\n有效启用请求及World/Target/路径：\n本次Prepare至多一次ECC_Camera，忽略Target。\nRadius>0 sweep；合法0 line trace。\n收近立即；正Recovery渐复，合法0立即恢复。\n禁用请求或合法退化路径按正常配置解释。\n非法依赖/参数/Hit/恢复算术返回Failure，\n不以恢复比例置1伪造成功。",
       "x": 0,
       "y": 1450,
       "width": 410,
-      "height": 275,
+      "height": 300,
       "color": "5"
     }
   ],
@@ -138,7 +138,7 @@
       "fromSide": "right",
       "toNode": "pool",
       "toSide": "left",
-      "label": "PushCameraMode(Class)"
+      "label": "有效Class → Push Result；失败传播"
     },
     {
       "id": "e2",
@@ -146,7 +146,7 @@
       "fromSide": "right",
       "toNode": "contribution",
       "toSide": "left",
-      "label": "实例池复用 / NewObject"
+      "label": "通过校验的实例池复用 / NewObject"
     },
     {
       "id": "e3",
@@ -154,7 +154,7 @@
       "fromSide": "right",
       "toNode": "bottom",
       "toSide": "left",
-      "label": "首模式 SetBlendWeight(1)"
+      "label": "单模式入栈 → SetBlendWeight(1)"
     },
     {
       "id": "e4",
@@ -162,7 +162,7 @@
       "fromSide": "right",
       "toNode": "update",
       "toSide": "left",
-      "label": "SetBlendWeight → UpdateStack"
+      "label": "合法SetBlendWeight → UpdateStack Result"
     },
     {
       "id": "e5",
@@ -170,7 +170,7 @@
       "fromSide": "right",
       "toNode": "prune",
       "toSide": "left",
-      "label": "权重更新 → 裁剪隐藏项"
+      "label": "Update Success → 裁剪隐藏项"
     },
     {
       "id": "e6",
@@ -182,11 +182,11 @@
     },
     {
       "id": "e7",
-      "fromNode": "blend",
+      "fromNode": "aggregate",
       "fromSide": "left",
       "toNode": "offset",
       "toSide": "right",
-      "label": "合成 View"
+      "label": "Evaluate完整Success：OutView + OutRequest"
     },
     {
       "id": "e8",
@@ -202,7 +202,7 @@
       "fromSide": "bottom",
       "toNode": "fallback",
       "toSide": "top",
-      "label": "更新后活动栈为空"
+      "label": "委托/类/栈/求值Failure → 停止发布"
     },
     {
       "id": "e10",
@@ -226,7 +226,7 @@
       "fromSide": "bottom",
       "toNode": "write",
       "toSide": "top",
-      "label": "最终安全 View"
+      "label": "Resolve Success → Prepared候选（尚未发布）"
     }
   ]
 }

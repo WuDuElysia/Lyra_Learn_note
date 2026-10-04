@@ -3,29 +3,29 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Camera｜流程图\n一次视角拉取的主路径。类与接口见[[GGYGO_结构_相机.canvas|结构图]]、[[Camera/结构|结构文档]]；细节见[[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复]]、[[GGYGO_流程_相机模式求值.canvas|模式求值]]。\nGate30四Camera叶Success、测试errors/warnings=0；完整矩阵/资产/网络仍开放。[[Camera/模式栈实现#已验证与待审查边界|其它自动替代待审查]]。",
+      "text": "# Camera｜流程图\n单次原生更新的项目 GG 路径。[[GGYGO_结构_相机.canvas|结构图]] · [[Camera/结构|结构文档]] · [[Camera/模式栈实现#已验证与待审查边界|验证边界]]。\nGate30（历史）四 Camera 叶 Success，errors/warnings=0；当前 Gate66/67 编译、原有三项 smoke Success（0/0），不等于新 Manager/Ready/投影联合动态通过。\nM2 首次同步、暂停非虚摄影时间戳缺口、资产/PIE/网络等仍开放。两张子图已同步接口并静态核对（不是动态证明）：[[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复子图]] · [[GGYGO_流程_相机模式求值.canvas|模式求值子图]]。",
       "x": 0,
       "y": 0,
       "width": 1890,
-      "height": 145,
+      "height": 190,
       "color": "6"
     },
     {
       "id": "engine",
       "type": "text",
-      "text": "1. UE通过ViewTarget每次拉取GetCameraView。\n入口生成有限非负SafeDeltaTime供本次管线使用。\n同帧多次拉取各按传入dt求值/推进，没有帧号去重。",
+      "text": "1. AGGYGOPlayerCameraManager 原生更新入口。\nNotActivated 不求值；初始种子不是确认视角。\nStopped 保持 Cache，不自动重试。\nRunning 才进入原生 DoUpdateCamera。\nUpdateViewTarget 对选中的 GG 组件调用 Prepare；\n非 GG 目标仍按明确的原生路径处理。\n当前目标→待切目标顺序处理。\n原始 dt 必须有限且非负；dt0 合法。\n没有第二套帧调度器或跨帧 Prepared。",
       "x": 0,
-      "y": 405,
+      "y": 460,
       "width": 385,
-      "height": 230,
+      "height": 300,
       "color": "5"
     },
     {
       "id": "look-input",
       "type": "text",
-      "text": "0. 视角输入先更新 Controller.ControlRotation。\n\n资产：BP_PC_Pyrios 注册 IMC_Default + IMC_MouseLook；IA_Look / IA_MouseLook → Look.Stick / Look.Mouse。\n回调：HeroComponent::Input_Look* → AddControllerYawInput / AddControllerPitchInput。",
+      "text": "0. 视角输入更新 Controller.ControlRotation。\n\n既有资产记录：BP_PC_Pyrios 注册 IMC_Default + IMC_MouseLook；IA_Look / IA_MouseLook → Look.Stick / Look.Mouse（资产/动态另验）。\nHeroComponent::Input_Look* → AddControllerYawInput / AddControllerPitchInput。",
       "x": 0,
-      "y": 190,
+      "y": 230,
       "width": 890,
       "height": 180,
       "color": "4"
@@ -33,72 +33,92 @@
     {
       "id": "choose",
       "type": "text",
-      "text": "2. HeroComponent 从 Ability 覆盖列表或 PawnData 选有效模式。\n\n当前默认：DA_Pawn_Pyrios.DefaultCameraMode → BP_CameraMode_ThirdPerson_Pyrios_C。\nDetermineCameraModeDelegate 返回 Mode Class；空返回不清除已有活动栈。",
+      "text": "2. Prepare 内由 Hero 提供模式类。\nDetermineCameraModeDelegate → Ability 覆盖/默认类。\n委托缺失或类非法明确失败，\n不沿用旧活动栈掩盖缺失配置。\n既有默认资产记录：DA_Pawn_Pyrios →\nBP_CameraMode_ThirdPerson_Pyrios_C。\n原目标/组件/PC/World 与配置在调用内校验。\n[[Camera/结构#与其他模块如何交互|职责与接口]]",
       "x": 470,
-      "y": 405,
+      "y": 460,
       "width": 420,
-      "height": 255,
+      "height": 300,
       "color": "5"
     },
     {
       "id": "push",
       "type": "text",
-      "text": "3. CameraComponent处理本次拉取的模式类并检查栈。\nClass非空→PushCameraMode复用并置顶。\n空Class只跳过Push；已有栈继续。\n只有活动栈空才进入Super分支。",
+      "text": "3. PushCameraMode(Class) → Result。\n合法类复用实例并置顶，已在顶也可成功。\n非法类/配置或空活动栈明确失败。\n不跳过 Push 后继续旧栈，\n不转 UCameraComponent::GetCameraView 业务兜底。\n只有 Push 成功才 EvaluateStack。\n显式 Restart 先重建原 GG Stack/实例池，\n与日常 ClearStack 保留池的语义分开。",
       "x": 970,
-      "y": 405,
+      "y": 460,
       "width": 420,
-      "height": 255,
+      "height": 300,
       "color": "5"
     },
     {
       "id": "evaluate",
       "type": "text",
-      "text": "4. Stack 同时输出混合 View 与聚合穿透请求。\n[[GGYGO_流程_相机模式求值.canvas|展开]]\n\n`EvaluateStack(SafeDt, OutView, OutRequest)`：更新模式、混合 View、按实际贡献聚合请求。",
+      "text": "4. EvaluateStack(dt, OutView, OutRequest) → Result。\n使用本次原始合法 dt 更新模式、混合 View，\n按实际贡献聚合启用的保护请求。\n非法配置/算术逐层传播失败；\n完整成功才提交 View 与 Request。\n内部权重等推进不承诺回滚。\n[[GGYGO_流程_相机模式求值.canvas|求值子图]]",
       "x": 1470,
-      "y": 405,
+      "y": 460,
       "width": 420,
-      "height": 255,
+      "height": 300,
       "color": "5"
     },
     {
       "id": "offset",
       "type": "text",
-      "text": "5. UpdateCameraOffsetAlpha → ApplyCameraOffset。\n消费已接受单槽；Set属申请阶段。\n非法Set：Error/Invalid、入口保持；[[Camera/模式栈实现#Offset 单槽所有权|申请契约]]。\n合法alpha/正时间：SafeDt0不推进。\n合法零时间即到目标，SafeDt0亦可。\nalpha>0且Offset非近零才施加：旋转位置叠加，\nFOV钳5–170；不代替Set拒绝；token管所有权。",
+      "text": "5. UpdateCameraOffsetAlpha → ApplyCameraOffset。\n消费已接受单槽；Set 属申请阶段。\n非法 Set：Error/Invalid、申请入口状态保持。\n[[Camera/模式栈实现#Offset 单槽所有权|申请契约]]。\n合法 dt0 不推进正混合时间；零时间可立即到目标。\n非法 dt/alpha/运行算术明确失败，不重置归零。\nalpha>0 且 Offset 非近零才施加：旋转、位置叠加，\n合法有限 FOV 按正常输出规则钳至5–170。\ntoken 管所有权；GA 先 Clear 的行为不在 Setter 事务内。",
       "x": 1470,
       "y": 820,
       "width": 420,
-      "height": 250,
+      "height": 300,
       "color": "5"
     },
     {
       "id": "output",
       "type": "text",
-      "text": "7. 输出给引擎：两条互斥路径。\n模式：写组件位置/Rotation/FOV和DesiredView；\n有Pawn Controller时同步ControlRotation。\n空栈：Super直接填DesiredView并return，\n不进入项目写回；此节点只表示引擎接收视图。",
+      "text": "7. Manager 预览与发布准入。\nPrepared.TryGetCandidateView → 局部候选。\nApplyCameraModifiers 后先校验候选。\nCommitPreparedCameraView 消费同一 Prepared，\n复核原上下文后写组件/Controller及局部输出，\n不二次求值；候选不保存到成员跨帧复用。\n原生当前/待切目标混合 → 摄影 → Fill：\n原始 Blend 标量与最终 POV 必须有效，\n包括 AllowPhotographyMode=false 路径。\n完整有效后写唯一原生当前/上一帧 Cache，\n才授予 HasConfirmedNativeCameraView。\nPrepare 内部及任意外部副作用不承诺全局回滚。",
       "x": 970,
       "y": 1330,
       "width": 420,
-      "height": 220,
+      "height": 430,
       "color": "1"
     },
     {
       "id": "empty",
       "type": "text",
-      "text": "活动栈空：恢复比例置1；\n同一SafeDt→UCameraComponent::GetCameraView，\n随后直接return到引擎。\n跳过项目Mode/Offset/Resolve/组件/Controller写回。\n空Class但栈非空继续求值，不走此分支。",
+      "text": "失败 / Stopped：一次诊断，保存原失败身份。\nPrepare/修饰/Commit/混合/发布失败统一停止，\n恢复原生 Cache POV/时间及原生额外后处理快照。\n任意 Setter/修饰器副作用不是全局事务。\n已有确认 → 保持该 Cache；首次失败无确认，\nLocalPlayer 返回 false，输入初始化仍独立继续。\n重复 Ready 不重启，不自动重试。\nRestart 只接受精确原失败 Target/Component，\n并复核原 PC/World；原 GG 组件重建栈后尝试一次。\n失败仍 Stopped；禁止换源作为恢复。\n暂停非虚摄影路径时间戳缺口仍开放。\n[[Camera/结构#发布准入与显式重启|状态与 Restart]]",
       "x": 470,
       "y": 1330,
       "width": 420,
-      "height": 220,
+      "height": 430,
       "color": "3"
     },
     {
       "id": "collision",
       "type": "text",
-      "text": "6. ResolveCameraPenetration保护Offset后最终位置。\n启用Request且World/Target/路径有效：\n每次拉取至多一次ECC_Camera查询，忽略Target。\nRadius>0 sweep；合法0 line trace。\n收近立即；正Recovery渐复，合法0立即恢复。\n[[GGYGO_流程_相机模式求值.canvas|详细求值及边界]]。",
+      "text": "6. ResolveCameraPenetration 保护 Offset 后位置。\n有效启用请求：本次至多一次 ECC_Camera，忽略 Target。\nRadius>0 sweep；合法0 line trace。\n收近立即；正 Recovery 渐复，合法0立即恢复。\n正常禁用/合法退化路径按配置处理；\n缺失依赖、非法参数或算术返回失败，不归零替代。\nPrepare 成功才形成不透明、可移动的 Prepared。\n[[GGYGO_流程_相机模式求值.canvas|求值子图]]",
       "x": 1470,
-      "y": 1120,
+      "y": 1160,
       "width": 420,
       "height": 270,
       "color": "5"
+    },
+    {
+      "id": "provider-ready",
+      "type": "text",
+      "text": "Ready：Hero 的两个真实入口先调用 ConsumeLocalCameraProviderReady。\nDataAvailable→DataInitialized（在 InputComponent 空值 guard 前）；InitializePlayerInput（在代次/释放资源前）。\n原 Hero/Pawn/PC/World/LP/Extension/PawnData/Camera/Manager 验证后 → ActivateCameraEvaluation。\n原身份丢失才停止旧回调尾部；镜头失败明确诊断，原上下文有效时输入初始化继续。\n未就绪按真实生命周期返回，不轮询；重复 Ready 不调用 Restart，也不新增 Ready 权威状态。",
+      "x": 970,
+      "y": 230,
+      "width": 920,
+      "height": 200,
+      "color": "4"
+    },
+    {
+      "id": "projection",
+      "type": "text",
+      "text": "UGGYGOLocalPlayer::GetProjectionData\n调用前核对原 LP/PC/World/Manager 关联，\n并要求 HasConfirmedNativeCameraView。\n无关联/NotActivated/未确认种子 → false。\nStopped 已有确认可读取保留 Cache。\nSuper 只写局部 ProjectionScratch；\n返回后再核对关联、确认资格及原生成功结果。\n仅成功才写 OutProjectionData；失败保持 Out。\n不 Activate/Restart，不持有 POV/确认副本，\n不新增帧时钟或投影缓存。\n[[System/结构|System]]",
+      "x": 1470,
+      "y": 1470,
+      "width": 420,
+      "height": 340,
+      "color": "1"
     }
   ],
   "edges": [
@@ -116,7 +136,7 @@
       "fromSide": "right",
       "toNode": "choose",
       "toSide": "left",
-      "label": "GetCameraView → UpdateCameraModes"
+      "label": "GG Prepare → UpdateCameraModes"
     },
     {
       "id": "e2",
@@ -124,7 +144,7 @@
       "fromSide": "right",
       "toNode": "push",
       "toSide": "left",
-      "label": "返回 Class；空类不清旧栈"
+      "label": "有效 Class；无效返回 Failure"
     },
     {
       "id": "e3",
@@ -132,7 +152,7 @@
       "fromSide": "right",
       "toNode": "evaluate",
       "toSide": "left",
-      "label": "活动栈非空 → EvaluateStack"
+      "label": "Push Success → Evaluate Result"
     },
     {
       "id": "e4",
@@ -156,15 +176,15 @@
       "fromSide": "bottom",
       "toNode": "empty",
       "toSide": "top",
-      "label": "活动栈为空"
+      "label": "Push/栈失败 → Manager Stopped"
     },
     {
       "id": "e7",
       "fromNode": "empty",
       "fromSide": "right",
-      "toNode": "output",
+      "toNode": "projection",
       "toSide": "left",
-      "label": "Super直接输出DesiredView到引擎并return"
+      "label": "已有确认的保留 Cache 只读；首次失败 false"
     },
     {
       "id": "e8",
@@ -172,7 +192,39 @@
       "fromSide": "left",
       "toNode": "output",
       "toSide": "right",
-      "label": "最终安全 View"
+      "label": "Prepare Success → 同一 Prepared"
+    },
+    {
+      "id": "e9",
+      "fromNode": "provider-ready",
+      "fromSide": "bottom",
+      "toNode": "engine",
+      "toSide": "top",
+      "label": "实际 Ready → 原身份 Activate"
+    },
+    {
+      "id": "e10",
+      "fromNode": "engine",
+      "fromSide": "bottom",
+      "toNode": "empty",
+      "toSide": "top",
+      "label": "Stopped / 管线 Result Failure"
+    },
+    {
+      "id": "e11",
+      "fromNode": "output",
+      "fromSide": "right",
+      "toNode": "projection",
+      "toSide": "left",
+      "label": "原生 Cache + 确认资格（只读）"
+    },
+    {
+      "id": "e12",
+      "fromNode": "output",
+      "fromSide": "left",
+      "toNode": "empty",
+      "toSide": "right",
+      "label": "修饰/Commit/混合/发布校验失败"
     }
   ]
 }

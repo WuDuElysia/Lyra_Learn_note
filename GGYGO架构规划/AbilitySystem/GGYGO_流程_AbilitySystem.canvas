@@ -123,7 +123,7 @@
     {
       "id": "k3-play-result",
       "type": "text",
-      "text": "## K3 1｜Task请求与完整原生返回\nTask::Activate捕原Ability／ActorInfo allocation／ASC／端点，先注册自己的Cancel／GameplayEvent订阅。\n→TryPlayMontageWithOwnership(原GA／Activation／Montage／参数／必需pureQuery)。查询只读原Task关联和存活。\nASC：捕原来源→GuardScope→一次完整Super::PlayMontage→Complete→复制Result并退出Scope。\nAccepted且源／GA／真实Local一致才签Playback；失败／Superseded无Handle，不退已接受后继。\nTask消费单一栈Result；无全局尝试表/token/新实例扫描，不走非Guard裸播放或正Duration兜底。\n[[AbilitySystem/结构|接口输入输出]]",
+      "text": "## K3 1｜Task请求与完整原生返回\nN0接口可用：创建Task后、Ready前可RegisterNativeCallbacks(五可选单播包)→精确token；仅原Awaiting、非空、无既有包，空/重复/迟到明确拒绝。调用方闭包按值捕原Activation/弱GA/弱原Task；Task不授GA权力。\nN0 Gate68已编译，Combo/Boss尚未迁此接口，native动态未验。\nTask::Activate捕原Ability／ActorInfo allocation／ASC／端点，先注册自己的Cancel／GameplayEvent订阅。\n→TryPlayMontageWithOwnership(原GA／Activation／Montage／参数／必需pureQuery)。查询只读原Task关联和存活。\nASC：捕原来源→GuardScope→一次完整Super::PlayMontage→Complete→复制Result并退出Scope。\nAccepted且源／GA／真实Local一致才签Playback；失败／Superseded无Handle，不退已接受后继。\nTask消费单一栈Result；无全局播放尝试表/播放token/新实例扫描，不走非Guard裸播放或正Duration兜底。\n[[AbilitySystem/结构|接口输入输出]]",
       "x": 3000,
       "y": 392,
       "width": 950,
@@ -143,7 +143,7 @@
     {
       "id": "k3-exact-clear",
       "type": "text",
-      "text": "## K3 3｜原BlendOut精确Clear\n原实例携Guard回调→MatchesOriginalMontageCallback→标混出，释放自身缩放。\nTask→TryClearMontageAnimatingAbility(原Handle)。Check通过→qualified基类GA.SetCurrentMontage(null)→Local.AnimatingAbility=null→核对→退休Proof。\n旧A不匹配当前B返回Stale／原因；B停止后仍可清自己。\n不进virtual业务setter后盲清Local，不Stop／延期到技能结束。原上下文／Guard／AbilityTask资格成立才发布原BlendOut或Interrupted事实。\nASC/Task及T2核心已编译；派生/生产、旧夹具、资产与网络动态边界开放。\n[[AbilitySystem/计划_AbilitySystem#当前精确Montage增量（K3）|接力与停止点]]",
+      "text": "## K3 3｜原BlendOut精确Clear\n原实例携Guard回调→MatchesOriginalMontageCallback→标混出，释放自身缩放。\nTask→TryClearMontageAnimatingAbility(原Handle)。Check通过→qualified基类GA.SetCurrentMontage(null)→Local.AnimatingAbility=null→核对→退休Proof。\n旧A不匹配当前B返回Stale／原因；B停止后仍可清自己。\n不进virtual业务setter后盲清Local，不Stop／延期到技能结束。\n原BlendOut/Interrupted：原包/载荷快照→native及捕获析构返回→弱原Task、同原Guard/ActorInfo/Task资格重检→既有BP；原Task关闭不继续旧BP。\nASC/Task/T2已编译，N0 Gate68已编译；native/析构重入动态、Combo/Boss生产、派生/旧夹具/资产网络仍开放。\n[[AbilitySystem/计划_AbilitySystem#当前精确Montage增量（K3）|接力与停止点]]",
       "x": 3000,
       "y": 2110,
       "width": 950,
@@ -153,7 +153,7 @@
     {
       "id": "k3-task-original-ended",
       "type": "text",
-      "text": "## K3 4｜原Ended事实与自身收尾\n引擎排队的原实例Ended委托载荷→匹配原Guard；不按资产查后继。\n非Interrupted且Guard生命周期／原ActorInfo／ShouldBroadcastAbilityTaskDelegates有效→OnCompleted。\n不Check当前ASC归属，不要求原实例仍活动或存在；正常BlendOut已Clear也保留自然结束事实。\nTask Completed仅原实例事实；Combo/Boss须另证原能力生命周期，不能替代GA原请求Notice。T2核心已编译，派生未迁。\n→EndTask→OnDestroy仅撤自身Cancel/Event句柄、实例委托和RootMotionScale token；普通Task结束不擅自Stop。\nExternalCancel／AbilityCancel或AbilityEnded+Stop策略才保留原停止义务，精确原实例执行；重复取消不重复通知。\nGuard失效明确诊断，不猜来源；旧夹具未适配、原严格失败未复测。Task已编译，新协议/完整派生动态未验。\n[[AbilitySystem/结构#Task原实例与资源消费（已编译，专项与迁移边界保留）|事实/权限/资源边界]]",
+      "text": "## K3 4｜原Ended事实与自身收尾\n引擎排队的原实例Ended委托载荷→匹配原Guard；不按资产查后继。\n非Interrupted且原Guard生命周期/ActorInfo/Task资格有效→原包/载荷快照→native；释放快照且捕获析构返回→弱原Task/原资格重检→BP OnCompleted。\n不Check当前ASC归属，不要求原实例仍活动或存在；正常BlendOut已Clear也保留自然结束事实。\nTask Completed仅原实例事实；Combo/Boss须另证原能力生命周期，不能替代GA原请求Notice。T2核心已编译，派生未迁。\nBP后只重取弱原Task执行自身EndTask收尾。\nOnDestroy先关闭Task并脱native包/token→自身Cancel/Event/实例委托及scale cleanup→Super返回→释放脱出的捕获；此后无Task访问，普通Task结束不擅自Stop。\nExternalCancel/AbilityCancel/FailAndEndTask在派发前标记取消，native/BP各至多一次；启动失败不硬核尚未建立的ActorInfo/Guard，仍核原Task和ShouldBroadcast。\n取消或AbilityEnded+Stop策略保留原停止义务，精确原实例执行；Unregister仅原token脱包，析构重入不清后继注册。\n原Activation仅由调用方闭包捕获，Task不授GA结束权。N0 Gate68已编译；旧Trace叶Success 0/0不证明native/析构重入，Combo/Boss未迁。Guard失效诊断、旧夹具/原严格失败及新Completed/完整派生动态边界保持。\n[[AbilitySystem/结构#Task原实例与资源消费（已编译，专项与迁移边界保留）|事实/权限/资源边界]]",
       "x": 3000,
       "y": 2950,
       "width": 950,
@@ -319,6 +319,16 @@
       "width": 740,
       "height": 340,
       "color": "3"
+    },
+    {
+      "id": "w0-original-input-subscription-flow",
+      "type": "text",
+      "text": "## W0｜原输入Task订阅支线\n调用方：WaitComboInput→SetSourceStep→可选RegisterNativeCallback→ReadyForActivation；工厂/BP签名保持。native闭包按值捕原Activation、弱GA/原Task。\n① Activate外调前捕原弱ASC/Ability、Spec/key、remote/predict模式、自身handle→原桶AbilityReplicatedEventDelegate(InputPressed).Add。零key合法，只定位桶。\n② remote CallReplicatedEventDelegateIfSet返回→重取弱原Task，核开放/原订阅/来源/handle→未回放才最后SetWaitingOnRemotePlayerData；A结束不能写Waiting。\n③ HandlePress：remote GetReplicatedDataOfGenericReplicatedEvent；本地计数，predict才ServerSetReplicatedEventWithPayload→ConsumeGenericReplicatedEvent，均原Spec/key。\nX[0,65535]／Y[1,65535]整数校验保持，非法载荷诊断并消费原事件后拒绝通知。原FScopedPredictionWindow覆盖通知。\n原Consume→不可变native/载荷快照→native与捕获析构返回→弱原Task/精确原订阅重检→原OnPress BP；native结束A不发A BP。\n④ OnDestroy先关、脱native及订阅→原桶remove自身handle→Super返回→释放捕获，之后无Task访问；不Consume后继。\n必需来源非法诊断/结束自身，不从GA current补桶，不新增GA身份或调度。\nW0两源已落盘、冻结并由统筹静态接受；已随Gate69R1统一Editor编译成功（4 actions、18.40秒、UBA16.57秒、exit0），新运行时DLL已链接。Gate69原CMC私有访问失败及修正记录保留。新DLL三项既有必要冒烟均Fail（连段15E、移动停止3E、失败恢复2E），根因与夹具前置正在核对，原报告保持；不能作为W0动态成功证明。native/捕获析构重入、同步回放结束边界及Combo/Boss原生命周期生产迁移尚未验证，不由编译或既有冒烟推导通过。\n[[AbilitySystem/结构#原事件桶与输入Task订阅（W0）|实际接口与验证边界]]",
+      "x": 4150,
+      "y": 392,
+      "width": 950,
+      "height": 860,
+      "color": "5"
     }
   ],
   "edges": [
@@ -537,6 +547,14 @@
       "toNode": "k4-failed-init-cleanup-failure",
       "toSide": "top",
       "label": "native后检查／第二次原Query失败"
+    },
+    {
+      "id": "w0-active-create-input-task",
+      "fromNode": "active",
+      "fromSide": "top",
+      "toNode": "w0-original-input-subscription-flow",
+      "toSide": "top",
+      "label": "GA创建WaitComboInput→可选RegisterNativeCallback→ReadyForActivation"
     }
   ]
 }

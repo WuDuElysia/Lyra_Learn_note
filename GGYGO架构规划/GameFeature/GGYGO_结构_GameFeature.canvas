@@ -3,41 +3,41 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# GameFeature / Experience｜结构图\n服务器装配关系；先后顺序见 [[GGYGO_流程_GameFeature.canvas|流程图]]；[[GameFeature/结构|结构文档]]。",
+      "text": "# GameFeature / Experience｜结构图\nGameMode已源码消费Experience／原Session；Teams三Spawn内部及来源资产仍未迁移。\nGate57编译／UHT通过、运行时与Editor DLL已链接；GF正式运行未验，历史Build56见结构文档。\n[[GGYGO_流程_GameFeature.canvas|流程图]] · [[GameFeature/结构|结构文档]] · [[计划_GameFeature|计划]]",
       "x": 0,
       "y": 0,
       "width": 1450,
-      "height": 130,
+      "height": 180,
       "color": "6"
     },
     {
       "id": "experience",
       "type": "text",
-      "text": "## UGGYGOExperienceDefinition\nGameFeature 插件列表 → 本局加载项；默认 SquadMembers → 无编队时的回退名单。",
+      "text": "## UGGYGOExperienceDefinition\nGameFeaturesToEnable→根；GameFeatureSources→来源；SquadMembers→默认编队。\nTryBuildGameFeatureInput→成功FInput／定位错误；InitGame与IsDataValid共用。\n成功两空才NoGF；失败拒绝。来源资产未迁移。",
       "x": 0,
       "y": 290,
       "width": 400,
-      "height": 200,
+      "height": 270,
       "color": "4"
     },
     {
       "id": "feature",
       "type": "text",
-      "text": "## UGameFeaturesSubsystem（UE）\n`LoadAndActivateGameFeaturePlugin(URL, Callback)` → 异步激活；回调成功/失败均返回 GameMode。",
+      "text": "## UE GameFeatures原生权威\nSession→Controller.LoadAndActivateGameFeaturePlugin（自身handle、根URL）。\n原生执行Active需求、状态／引用合并与迁移。\nGameMode只消费Session结果和当前资格，不裸激活。",
       "x": 0,
       "y": 650,
       "width": 400,
-      "height": 215,
+      "height": 250,
       "color": "4"
     },
     {
       "id": "gm",
       "type": "text",
-      "text": "## AGGYGOGameMode\n`InitGame()` → 取得 Experience。\n`ActivateGameFeatures()` → 发起插件激活。\n`HandleStartingNewPlayer()` → 未就绪先排队。\n`SpawnSquadForPlayer()` → Slot→Pawn 两阶段装配。",
+      "text": "## AGGYGOGameMode｜原场景消费者\nInitGame→Experience成功输入；两空NoGF。\n非空TryCreate→先保存原Session再Start。\nAreGameFeaturesReady→原身份＋IsReadyFor。\nController局部弱快照；三Spawn内部未迁移。\nDestroyed／EndPlay→CloseGameFeatureSession：\n移出原Session后Close、先于Super；GI Loaded保留。",
       "x": 520,
       "y": 390,
       "width": 470,
-      "height": 300,
+      "height": 330,
       "color": "5"
     },
     {
@@ -83,12 +83,102 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## Experience 装配接口契约\nGameMode::InitGame → 读 Experience；ActivateGameFeatures → GameFeaturesSubsystem::LoadAndActivateGameFeaturePlugin(URL, Callback)。\nOnGameFeatureActivated 更新 PendingGameFeatureCount；完成后 SpawnSquadForPendingPlayers。HandleStartingNewPlayer_Implementation 负责未就绪排队。\nSpawnSquadForPlayer → SpawnSquadSlot(PawnData) → InitializeForPawnData/AbilitySet；再 SpawnSquadMember → SetPawnData/AttachAvatar/Possess。\nExperience 是资产配置；GameMode 是权威装配器，PawnData 下发给对应组件。",
+      "text": "## 当前GF请求、装配资格与责任边界\nInitGame→有效Experience.TryBuildGameFeatureInput；失败拒绝，成功两空才显式NoGF。\n非空TryCreate(原World,Label,Error)→先保存GameFeatureSession再Start；完成可同步，观察者弱绑原GameMode／World／Session。\nAreGameFeaturesReady／CanAssembleForGameFeatureContext→原World／实际AuthGM／GI当前World／同Session／调用方开放；非空再读当前IsReadyFor。\nSpawnSquadForPendingPlayers→当前Controller局部弱快照；HandleStartingNewPlayer同资格；每次外部Spawn前后重核，失效停止派发。\nDestroyed／EndPlay在Super前共用CloseGameFeatureSession：封闭／清NoGF→移出原Session→Close；无第二资源、不撤GI Loaded。\n三Spawn内部仍借用登记、部分失败与创建责任未迁移。C15拒绝Borrowed，来源资产／真实插件／PIE Action隔离／网络未验。",
       "x": 0,
       "y": 1270,
       "width": 1450,
-      "height": 300,
+      "height": 330,
       "color": "6"
+    },
+    {
+      "id": "loaded-policy-target",
+      "type": "text",
+      "text": "## 只停用、不卸载｜整体生产目标未完成\n同一GI正常运行／切图／回菜单保原生Loaded。\n对局仅撤自己的Active；只剩Loaded时原生停用，更高需求仍可Active。\nGI结束撤自身持有；原Session真实pending／Active收尾后归还租期，最后owner才释放Loaded。\n不承诺PIE停止后永不卸载；共享插件状态不证明World Action隔离。\n仅实际GF内容；Kevin／Camera／GAS未因此插件化。\n[[计划_GameFeature|实施状态与边界]]",
+      "x": 0,
+      "y": 1690,
+      "width": 710,
+      "height": 430,
+      "color": "3"
+    },
+    {
+      "id": "retention-candidate",
+      "type": "text",
+      "text": "## UGGYGOGameFeatureSubsystem／ordinary owner\nGI collection→Initialize→唯一owner／原Retention。\nPrepareManagedLoadedClosure(World,Input,Completion)→全Managed闭包／真实Loaded／原租期。\nExperience成功值经GameMode保存／Start原Session后传入；GM不直接Prepare／释放GI。\n正常同步policy窗口；AssetManager启动尝试完成不是Ready缓存。\nDeinitialize关准入并撤GI持有；最后租期归还才释放。\nGate57已编译，GF正式运行未验；Borrowed拒绝／C15开放。\n[[GameFeature/结构#GI薄宿主与原World租期（09-G2：已编码，未编译）|接口]]",
+      "x": 800,
+      "y": 1690,
+      "width": 710,
+      "height": 430,
+      "color": "4"
+    },
+    {
+      "id": "loaded-retention-core",
+      "type": "text",
+      "text": "## FGGYGOGameFeatureRetention｜Gate57已编译\n历史Gate55失败，交回时未成功整链编译、未UE冒烟；现GF正式运行未验。\n同一原生Loaded handle；ThreadSafe只保内存，API游戏线程。\nTryCreate(Label,Error)→InitAndRegister(None)。\nLoadAndRetainValidatedManagedClosure(URLs,Completion)→全闭包逐URL真实Load，先登记pending；实际回调／native返回／Loaded状态才成功。\nRetainAlreadyLoaded→仅登记，Submitted非ack。\nReleaseOwnedReferences→先closing，停止未发Load、排空已发真实回调，再ReleaseAndUnregister。\n原生成功＋调用返回＋handle失效才Released；失败不伪装成功。\n[[GameFeature/结构#Loaded 资源核心：提交与精确释放|接口与机制]]",
+      "x": 0,
+      "y": 2240,
+      "width": 710,
+      "height": 610,
+      "color": "4"
+    },
+    {
+      "id": "closure-resolver-core",
+      "type": "text",
+      "text": "## FGGYGOGameFeatureClosureResolver｜历史已编译，GI已有调用\n`ResolveClosureAndDeclaredSources(Subsystem, CurrentPolicy, Input)` → 仅自有FResult候选；无实例、GetPolicy或ready缓存。\n`FInput` → roots＋每个reached GFP的Managed/Borrowed声明；借用Label不证明保护。\n调用方先证明整个同步policy窗口；只支持实际默认policy、稳定installed/mapped file GFP。\n原始JSON／Projects／native Details交叉；全部enabled依赖经ResolvePluginDependency，包括非Activate。\n冲突/循环/缺声明/optional解析失败拒绝，无部分候选；成功空URL须证明非GFP。\n`ResolvedCandidate` → nodes/edges/非GFP证据/待保护借用名单；不是Loaded、所有权或释放权限，不能直接授权Retention。\n[[GameFeature/结构#受限闭包解析：候选，不是权限|范围与调用门禁]]",
+      "x": 800,
+      "y": 2240,
+      "width": 710,
+      "height": 610,
+      "color": "4"
+    },
+    {
+      "id": "native-core-boundary",
+      "type": "text",
+      "text": "## UE原生｜唯一插件状态、引用合并与迁移权威\nRetention→同handle真实逐URL Load／登记Loaded／ReleaseAndUnregister。\nSession→一个None Active GUID，全请求平铺Active→真实根激活→当前全集合Active核对；只释放自身GUID。\nResolver只同步读当前policy／Details；GI／Session共享持有仅保自身资源。GameMode仅原Session请求者和当前资格消费者，无插件计数／第二调度器。\nGameMode外层源码已接；Teams内部创建、C15 Borrowed保护、来源资产／插件运行／PIE Action隔离／网络未完成。",
+      "x": 0,
+      "y": 2950,
+      "width": 1510,
+      "height": 285,
+      "color": "4"
+    },
+    {
+      "id": "gf-loaded-original-lease",
+      "type": "text",
+      "text": "## FGGYGOGameFeatureLoadedLease\n强持原ordinary owner、弱原World；不持GI UObject。\nGetRootPluginURLs→原根；GetActivationPluginURLs→根＋true可达URL。\n私有不可变view，使用保活租期；false-only仍Loaded，值非Active状态／权限。\nIsAdmissionOpenFor(World)→原World／GI准入。\nGameMode保存的原Session消费两view至自身收尾；GM Close不撤GI Loaded。\n[[GameFeature/结构#不可变激活请求URL（09-G4-0：源码冻结，未生产消费）|接口与算法]]",
+      "x": 1620,
+      "y": 1690,
+      "width": 650,
+      "height": 430,
+      "color": "4"
+    },
+    {
+      "id": "gf-experience-source-values",
+      "type": "text",
+      "x": 1620,
+      "y": 290,
+      "width": 650,
+      "height": 630,
+      "color": "4",
+      "text": "## Experience来源数据与转换｜09-G3\nFGGYGOGameFeatureSourceDeclaration：PluginName、Source、ExternalOwnerLabel。\nUnspecified无效；Managed必须空Label；Borrow须有效Label但不授保护。\nTryBuildGameFeatureInput(OutInput,OutErrors)→纯复制根／来源为FInput；全部合法才交值，失败清空并定位Experience／字段／原索引。\nInitGame与IsDataValid实际共用；GameMode先确认true，成功两空才NoGF，非空保存原Session再Start。\n无默认Managed；完整闭包／URL由GI／Resolver校验。来源资产未迁移，Borrowed仍拒绝、C15未关闭。\n[[GameFeature/结构#Experience显式来源配置（09-G3：已编码，未编译）|配置合同]]"
+    },
+    {
+      "id": "gf-original-active-session",
+      "type": "text",
+      "x": 1620,
+      "y": 2240,
+      "width": 650,
+      "height": 650,
+      "color": "4",
+      "text": "## FGGYGOGameFeatureSession｜原Active资源\n普通C++共享资源；弱原World／GI、强原Loaded租期；GT操作，ThreadSafe只保内存。\nTryCreate(World,Label,Error)→完整Session或空＋错误；GameMode先保存再Start。\nStart(非空成功FInput,弱观察者)→原GI真实Loaded，再消费两URL view。\n一个None Active GUID→全请求登记Active(false)→逐根真实Controller激活；无裸API。\nReady需真实全成功、GI／dispatch返回、pending空、全集合当前Active及原准入；失败保原错误并自身收尾。\nIsReadyFor(World)→同原World当前资格、直接读native；GameMode另核AuthGM／GI／同Session，不把通知当权限。\nClose→封闭／撤观察者／停止未发→真实排空→自身release门禁→归还租期。\nGameMode Destroyed／EndPlay先移出原Session并Close、先于Super；不撤GI Loaded。\nTeams内部创建／资产未迁移；新增消费者Gate57已编译，GF正式运行未验。\n[[GameFeature/结构#原World Active会话（09-G4-1：源码冻结，未生产接线）|API与清理]]"
+    },
+    {
+      "id": "gf-detached-active-cleanup",
+      "type": "text",
+      "x": 1620,
+      "y": 3010,
+      "width": 650,
+      "height": 490,
+      "color": "4",
+      "text": "## FDetachedActiveCleanup｜析构资源接管\nSession析构移出同一handle＋原租期。\n独立共享清理记录，无Session AsShared、裸this或World／GI捕获。\nGT执行；异常非GT只借Core已有队列一次投递。\n真实release callback＋调用返回＋GUID失效＋守卫保持→归还租期。\ntrue成功；正常守卫下false记录失败后归还已撤引用的租期。\n原生不可用／守卫丢失／未确认失效GUID／丢回调→诊断并自持保留，可到进程结束。\n未确认不伪造成功；不是插件状态权威或新调度器。\n[[GameFeature/结构#关闭、租期归还与独立清理|收尾边界]]"
     }
   ],
   "edges": [
@@ -98,23 +188,23 @@
       "fromSide": "right",
       "toNode": "gm",
       "toSide": "left",
-      "label": "提供插件列表与默认编队"
+      "label": "Experience配置与TryBuildGameFeatureInput成功值"
     },
     {
       "id": "e2",
-      "fromNode": "gm",
+      "fromNode": "gf-original-active-session",
       "fromSide": "left",
       "toNode": "feature",
       "toSide": "right",
-      "label": "请求插件激活"
+      "label": "自身handle经原生Controller请求Active／真实根激活"
     },
     {
       "id": "e3",
-      "fromNode": "feature",
+      "fromNode": "gf-original-active-session",
       "fromSide": "right",
       "toNode": "gm",
       "toSide": "left",
-      "label": "完成/失败回调结清等待计数"
+      "label": "原弱观察者完成通知；GM重新核当前资格"
     },
     {
       "id": "e4",
@@ -155,6 +245,113 @@
       "toNode": "gm",
       "toSide": "bottom",
       "label": "加载共享资产"
+    },
+    {
+      "id": "e-target-candidate",
+      "fromNode": "loaded-policy-target",
+      "fromSide": "right",
+      "toNode": "retention-candidate",
+      "toSide": "left",
+      "label": "GameMode消费者源码已接；整体运行／资产未验"
+    },
+    {
+      "id": "e-target-loaded-core",
+      "fromNode": "retention-candidate",
+      "fromSide": "bottom",
+      "toNode": "loaded-retention-core",
+      "toSide": "top",
+      "label": "ordinary owner实际强持同一Retention",
+      "color": "4"
+    },
+    {
+      "id": "e-loaded-native",
+      "fromNode": "loaded-retention-core",
+      "fromSide": "bottom",
+      "toNode": "native-core-boundary",
+      "toSide": "top",
+      "label": "原handle登记Loaded／精确释放"
+    },
+    {
+      "id": "e-closure-native",
+      "fromNode": "closure-resolver-core",
+      "fromSide": "bottom",
+      "toNode": "native-core-boundary",
+      "toSide": "top",
+      "label": "实际policy／Details同步只读求值"
+    },
+    {
+      "id": "e-gi-closure",
+      "fromNode": "retention-candidate",
+      "fromSide": "bottom",
+      "toNode": "closure-resolver-core",
+      "toSide": "top",
+      "label": "Prepare同步Resolve显式输入、全Managed准入"
+    },
+    {
+      "id": "e-original-lease-owner",
+      "fromNode": "gf-loaded-original-lease",
+      "fromSide": "left",
+      "toNode": "retention-candidate",
+      "toSide": "right",
+      "label": "共享图中同一ordinary owner，最后归还释放"
+    },
+    {
+      "id": "e-experience-source-values",
+      "fromNode": "experience",
+      "fromSide": "right",
+      "toNode": "gf-experience-source-values",
+      "toSide": "left",
+      "label": "同一Experience持有来源数组并提供转换接口"
+    },
+    {
+      "id": "e-source-values-resolver-target",
+      "fromNode": "gf-experience-source-values",
+      "fromSide": "bottom",
+      "toNode": "closure-resolver-core",
+      "toSide": "right",
+      "label": "成功FInput经GameMode→Session→GI→Resolver；值非权限",
+      "color": "4"
+    },
+    {
+      "id": "e-gm-session-target",
+      "fromNode": "gm",
+      "fromSide": "bottom",
+      "toNode": "gf-original-active-session",
+      "toSide": "top",
+      "label": "TryCreate后先保存再Start；当前IsReadyFor；双入口移出后Close",
+      "color": "4"
+    },
+    {
+      "id": "e-session-prepare-gi",
+      "fromNode": "gf-original-active-session",
+      "fromSide": "top",
+      "toNode": "retention-candidate",
+      "toSide": "right",
+      "label": "Start实际提交原World与显式FInput→Prepare"
+    },
+    {
+      "id": "e-session-original-lease",
+      "fromNode": "gf-original-active-session",
+      "fromSide": "top",
+      "toNode": "gf-loaded-original-lease",
+      "toSide": "bottom",
+      "label": "持原租期；消费根／激活请求view到自身收尾"
+    },
+    {
+      "id": "e-session-native-active",
+      "fromNode": "gf-original-active-session",
+      "fromSide": "left",
+      "toNode": "native-core-boundary",
+      "toSide": "right",
+      "label": "同GUID平铺Active、真实根请求、只撤自己"
+    },
+    {
+      "id": "e-session-detached-cleanup",
+      "fromNode": "gf-original-active-session",
+      "fromSide": "bottom",
+      "toNode": "gf-detached-active-cleanup",
+      "toSide": "top",
+      "label": "析构移出同一handle／lease，由独立记录接管"
     }
   ]
 }

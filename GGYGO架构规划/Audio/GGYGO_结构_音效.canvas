@@ -1,0 +1,142 @@
+{
+  "nodes": [
+    {
+      "id": "audio-nav",
+      "type": "text",
+      "text": "# Audio：结构与接口\n箭头表示调用／配置／持有关系，不代表新增 Audio 框架。\n[[Audio/结构|结构文档]] · [[GGYGO_流程_音效.canvas|流程图]] · [[Audio/计划_音效接入|计划]] · [[计划蓝图|返回]]\nSoundWave／唯一Notify已保存，预览IsPlaying=true；原严格failed保留，R1已加载对象语义通过，契约已同步R1。手动组件另验结束／Stop／自身归还；原Notify结束、听感／新GA／完整Section／GC未验。",
+      "x": 0,
+      "y": 0,
+      "width": 1840,
+      "height": 240,
+      "color": "6"
+    },
+    {
+      "id": "audio-source",
+      "type": "text",
+      "text": "## 解包来源与配置证据\nCLI 导出 WAV／mapping，动作名称关联不证明 Notify 帧。\nPyrois Normal01 Skill：event 667813318；Kevin 独立 PCK，STOP 不等于结束音频。\n完整证据：项目 Audio_Contract.md。\n职责仅提供素材／关联，不驱动运行时。",
+      "x": 0,
+      "y": 360,
+      "width": 540,
+      "height": 360,
+      "color": "4"
+    },
+    {
+      "id": "audio-assets",
+      "type": "text",
+      "text": "## 音频资产【首批SoundWave已保存】\nUSoundBase／SoundWave；以后按需组合SoundCue或MetaSound。\nSoundFactory＋AssetImportTask→单包保存，来源／格式已同进程回读。\nSW_Pyrios_Normal01_Skill：44.1kHz／2ch／1.855351秒，非循环，Volume／Pitch=1。\n原Notify预览已播放；R1只读语义通过，原严格failed保留。\nEndOffset 0→0.0001原始差异保留，其余字段精确；刷新回调未追踪。",
+      "x": 670,
+      "y": 360,
+      "width": 540,
+      "height": 360,
+      "color": "4"
+    },
+    {
+      "id": "audio-notify",
+      "type": "text",
+      "text": "## UAnimNotify_PlaySound【已保存并触发预览】\nAM_Pyrios_Attack_Normal_01：Audio_Normal01轨，唯一PlaySound Notify，第2帧／60fps。\nNotify(MeshComp, Animation, EventReference)→one-shot；非State、Duration=0。\nGetEndTriggerTime→GetTriggerTime，不消费EndTriggerTimeOffset。\n绑定首批SoundWave；Volume／Pitch=1、bFollow=true、AttachName=NAME_None。\n跟随→SpawnSoundAttached；原两窗口／源动作／Blend保持。\n原游戏帧未知，不向GA暴露停止句柄。[[Animation/结构|Animation 接缝]]",
+      "x": 0,
+      "y": 850,
+      "width": 570,
+      "height": 440,
+      "color": "5"
+    },
+    {
+      "id": "audio-hit",
+      "type": "text",
+      "text": "## HitImpact【GAS 所有，政策已编译】\nHandleGameplayCue／OnExecute_Implementation\n→ ResolveImpactPresentation(Target, Parameters)。\n位置显式 HitResult／参数／目标中心，默认真实命中点；错误在 K2／父反馈前拒绝。\nAggregatedTargetTags 按序层级匹配；无表面可选 Generic，有表面漏配默认拒绝（资产可显式允许通用）。\n可选 ImpactSound→PlaySoundAtLocation；一次性，不持 GA 停止句柄。\n[[AbilitySystem/Cues/结构|Cue 接口及配置]] · [[Combat/结构|命中来源]]",
+      "x": 670,
+      "y": 850,
+      "width": 570,
+      "height": 440,
+      "color": "5"
+    },
+    {
+      "id": "audio-lifetime",
+      "type": "text",
+      "text": "## 持续 Cue【目标，未接入】\n原 GA／GE 管 Cue 的开始、结束与 Removed。\nCue 只持自己的 UAudioComponent；Stop／明确淡出只操作原组件。\n换 Pawn、取消与 EndPlay 清原资源，不能清后继。\n不新增动作计时器、网络协议或第二 Cue 执行链。",
+      "x": 1370,
+      "y": 850,
+      "width": 570,
+      "height": 440,
+      "color": "3"
+    },
+    {
+      "id": "audio-play",
+      "type": "text",
+      "text": "## UE 播放资源与执行\n原Notify预览→AudioComponent_124，IsPlaying=true、附着原Mesh、音量音高1；没有手工spawn。\n手动组件458（AutoDestroy=false）另验自然结束／Play／Stop／自身归还。\n原清理TypeError保留，只修原组件签名；GC完成未验。\nR1不主动reload，新UE40416磁盘加载由统筹另证。\n原Notify自然结束、听感／新GA未验；跟随不保证取消即停。\n持续Cue持原组件为未来目标。",
+      "x": 670,
+      "y": 1430,
+      "width": 570,
+      "height": 360,
+      "color": "1"
+    },
+    {
+      "id": "audio-boundary",
+      "type": "text",
+      "text": "## 权威状态不归 Audio\nAnimation：真实姿态／Notify 时间。\nCombat／Physics：命中与表面语义。\nGAS：能力与 Cue 生命周期及复制。\nAudio：选声音、参数、自身播放资源。\n[[Audio/结构#关键实现与使用限制|关键实现与限制]]",
+      "x": 0,
+      "y": 1430,
+      "width": 570,
+      "height": 360,
+      "color": "6"
+    }
+  ],
+  "edges": [
+    {
+      "id": "as-source-assets",
+      "fromNode": "audio-source",
+      "fromSide": "right",
+      "toNode": "audio-assets",
+      "toSide": "left",
+      "label": "已核实素材来源→首批单资产保存"
+    },
+    {
+      "id": "as-notify-assets",
+      "fromNode": "audio-notify",
+      "fromSide": "top",
+      "toNode": "audio-assets",
+      "toSide": "bottom",
+      "label": "已保存 Sound 绑定／显式参数"
+    },
+    {
+      "id": "as-hit-assets",
+      "fromNode": "audio-hit",
+      "fromSide": "top",
+      "toNode": "audio-assets",
+      "toSide": "bottom",
+      "label": "已有 ImpactSound 配置类型；本批未填"
+    },
+    {
+      "id": "as-notify-play",
+      "fromNode": "audio-notify",
+      "fromSide": "bottom",
+      "toNode": "audio-play",
+      "toSide": "left",
+      "label": "引擎 Notify→一次性播放"
+    },
+    {
+      "id": "as-hit-play",
+      "fromNode": "audio-hit",
+      "fromSide": "bottom",
+      "toNode": "audio-play",
+      "toSide": "top",
+      "label": "已有 OnExecute→位置播放"
+    },
+    {
+      "id": "as-lifetime-play",
+      "fromNode": "audio-lifetime",
+      "fromSide": "bottom",
+      "toNode": "audio-play",
+      "toSide": "right",
+      "label": "目标持原组件并停止／释放"
+    },
+    {
+      "id": "as-boundary-notify",
+      "fromNode": "audio-boundary",
+      "fromSide": "top",
+      "toNode": "audio-notify",
+      "toSide": "bottom",
+      "label": "真实触发归 Animation"
+    }
+  ]
+}

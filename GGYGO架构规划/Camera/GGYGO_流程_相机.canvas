@@ -3,17 +3,17 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Camera｜流程图\n一次视角拉取的主路径。类与接口见 [[GGYGO_结构_相机.canvas|结构图]]、[[Camera/结构|结构文档]]；细节见 [[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复]]、[[GGYGO_流程_相机模式求值.canvas|模式求值]]。",
+      "text": "# Camera｜流程图\n一次视角拉取的主路径。类与接口见[[GGYGO_结构_相机.canvas|结构图]]、[[Camera/结构|结构文档]]；细节见[[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复]]、[[GGYGO_流程_相机模式求值.canvas|模式求值]]。\nGate30四Camera叶Success、测试errors/warnings=0；完整矩阵/资产/网络仍开放。[[Camera/模式栈实现#已验证与待审查边界|其它自动替代待审查]]。",
       "x": 0,
       "y": 0,
-      "width": 1720,
+      "width": 1890,
       "height": 145,
       "color": "6"
     },
     {
       "id": "engine",
       "type": "text",
-      "text": "1. UE 通过 ViewTarget 调用 CameraComponent::GetCameraView。\n\n调用：UE PlayerCameraManager/ViewTarget → CameraComponent::GetCameraView(dt, OutMinimalViewInfo)。",
+      "text": "1. UE通过ViewTarget每次拉取GetCameraView。\n入口生成有限非负SafeDeltaTime供本次管线使用。\n同帧多次拉取各按传入dt求值/推进，没有帧号去重。",
       "x": 0,
       "y": 405,
       "width": 385,
@@ -33,7 +33,7 @@
     {
       "id": "choose",
       "type": "text",
-      "text": "2. HeroComponent 从 Ability 覆盖列表或 PawnData 选有效模式。\n\n当前默认：DA_Pawn_Pyrios.DefaultCameraMode → BP_CameraMode_ThirdPerson_Pyrios_C。\n调用：CameraComponent::UpdateCameraModes → DetermineCameraModeDelegate → HeroComponent::DetermineCameraMode；返回 Mode Class。",
+      "text": "2. HeroComponent 从 Ability 覆盖列表或 PawnData 选有效模式。\n\n当前默认：DA_Pawn_Pyrios.DefaultCameraMode → BP_CameraMode_ThirdPerson_Pyrios_C。\nDetermineCameraModeDelegate 返回 Mode Class；空返回不清除已有活动栈。",
       "x": 470,
       "y": 405,
       "width": 420,
@@ -43,52 +43,62 @@
     {
       "id": "push",
       "type": "text",
-      "text": "3. CameraComponent 把模式类交给 CameraModeStack。\n\n调用：CameraModeStack::PushCameraMode(ModeClass)；按类复用模式实例并移至索引 0。",
+      "text": "3. CameraComponent处理本次拉取的模式类并检查栈。\nClass非空→PushCameraMode复用并置顶。\n空Class只跳过Push；已有栈继续。\n只有活动栈空才进入Super分支。",
       "x": 970,
       "y": 405,
       "width": 420,
-      "height": 230,
+      "height": 255,
       "color": "5"
     },
     {
       "id": "evaluate",
       "type": "text",
-      "text": "4. Stack 更新并混合各 CameraMode 的 View。\n[[GGYGO_流程_相机模式求值.canvas|展开]]\n\n调用：CameraModeStack::EvaluateStack(dt, OutView) → Mode::UpdateCameraMode / View::Blend。",
+      "text": "4. Stack 同时输出混合 View 与聚合穿透请求。\n[[GGYGO_流程_相机模式求值.canvas|展开]]\n\n`EvaluateStack(SafeDt, OutView, OutRequest)`：更新模式、混合 View、按实际贡献聚合请求。",
       "x": 1470,
       "y": 405,
       "width": 420,
-      "height": 230,
+      "height": 255,
       "color": "5"
     },
     {
       "id": "offset",
       "type": "text",
-      "text": "5. CameraComponent 对最终 View 叠加 CameraOffset。\n\n调用：CameraComponent 在 EvaluateStack 后应用 FGGYGOCameraOffset；不改各 Mode 的原始 View。",
+      "text": "5. UpdateCameraOffsetAlpha → ApplyCameraOffset。\n消费已接受单槽；Set属申请阶段。\n非法Set：Error/Invalid、入口保持；[[Camera/模式栈实现#Offset 单槽所有权|申请契约]]。\n合法alpha/正时间：SafeDt0不推进。\n合法零时间即到目标，SafeDt0亦可。\nalpha>0且Offset非近零才施加：旋转位置叠加，\nFOV钳5–170；不代替Set拒绝；token管所有权。",
       "x": 1470,
-      "y": 905,
+      "y": 820,
       "width": 420,
-      "height": 230,
+      "height": 250,
       "color": "5"
     },
     {
       "id": "output",
       "type": "text",
-      "text": "6. 写入最终 FOV/位置/Rotation 与 Controller 的 ControlRotation。\n\nGetCameraView 将 View.ControlRotation 写 Controller，View.Location/Rotation/FOV 写 FMinimalViewInfo。",
+      "text": "7. 输出给引擎：两条互斥路径。\n模式：写组件位置/Rotation/FOV和DesiredView；\n有Pawn Controller时同步ControlRotation。\n空栈：Super直接填DesiredView并return，\n不进入项目写回；此节点只表示引擎接收视图。",
       "x": 970,
-      "y": 945,
+      "y": 1330,
       "width": 420,
-      "height": 230,
+      "height": 220,
       "color": "1"
     },
     {
       "id": "empty",
       "type": "text",
-      "text": "兜底：模式类为空或栈为空时，用 UCameraComponent 自身视角。\n\n若委托返回空类或 Stack 无有效 View，调用 Super::GetCameraView(dt, OutView)。",
+      "text": "活动栈空：恢复比例置1；\n同一SafeDt→UCameraComponent::GetCameraView，\n随后直接return到引擎。\n跳过项目Mode/Offset/Resolve/组件/Controller写回。\n空Class但栈非空继续求值，不走此分支。",
       "x": 470,
-      "y": 999,
+      "y": 1330,
       "width": 420,
-      "height": 230,
+      "height": 220,
       "color": "3"
+    },
+    {
+      "id": "collision",
+      "type": "text",
+      "text": "6. ResolveCameraPenetration保护Offset后最终位置。\n启用Request且World/Target/路径有效：\n每次拉取至多一次ECC_Camera查询，忽略Target。\nRadius>0 sweep；合法0 line trace。\n收近立即；正Recovery渐复，合法0立即恢复。\n[[GGYGO_流程_相机模式求值.canvas|详细求值及边界]]。",
+      "x": 1470,
+      "y": 1120,
+      "width": 420,
+      "height": 270,
+      "color": "5"
     }
   ],
   "edges": [
@@ -114,7 +124,7 @@
       "fromSide": "right",
       "toNode": "push",
       "toSide": "left",
-      "label": "DetermineCameraModeDelegate → Mode Class"
+      "label": "返回 Class；空类不清旧栈"
     },
     {
       "id": "e3",
@@ -122,7 +132,7 @@
       "fromSide": "right",
       "toNode": "evaluate",
       "toSide": "left",
-      "label": "PushCameraMode → EvaluateStack"
+      "label": "活动栈非空 → EvaluateStack"
     },
     {
       "id": "e4",
@@ -130,23 +140,23 @@
       "fromSide": "bottom",
       "toNode": "offset",
       "toSide": "top",
-      "label": "EvaluateStack → FGGYGOCameraModeView"
+      "label": "OutView + OutRequest"
     },
     {
       "id": "e5",
       "fromNode": "offset",
-      "fromSide": "right",
-      "toNode": "output",
-      "toSide": "left",
-      "label": "Offset → FMinimalViewInfo"
+      "fromSide": "bottom",
+      "toNode": "collision",
+      "toSide": "top",
+      "label": "Offset 后最终位置"
     },
     {
       "id": "e6",
-      "fromNode": "choose",
+      "fromNode": "push",
       "fromSide": "bottom",
       "toNode": "empty",
       "toSide": "top",
-      "label": "Mode Class 为空"
+      "label": "活动栈为空"
     },
     {
       "id": "e7",
@@ -154,7 +164,15 @@
       "fromSide": "right",
       "toNode": "output",
       "toSide": "left",
-      "label": "Super::GetCameraView 兜底"
+      "label": "Super直接输出DesiredView到引擎并return"
+    },
+    {
+      "id": "e8",
+      "fromNode": "collision",
+      "fromSide": "left",
+      "toNode": "output",
+      "toSide": "right",
+      "label": "最终安全 View"
     }
   ]
 }

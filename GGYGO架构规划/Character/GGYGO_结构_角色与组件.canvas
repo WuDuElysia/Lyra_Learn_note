@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Character｜结构图\n组件职责与跨模块接口。InitState 的先后顺序见 [[GGYGO_流程_角色初始化.canvas|流程图]]。[[Character/结构|结构文档]]",
+      "text": "# Character｜结构图\nHost／Extension／Health／Base及H1/H2已编码冻结；Hero旧三调用未迁移。\nBuild55已UHT写33文件；Build56整链失败，runtime未链接／未新UE，R0未复测。\n[[Character/结构|结构文档]] · [[GGYGO_流程_角色初始化.canvas|流程图]]",
       "x": 0,
       "y": 0,
       "width": 1500,
@@ -13,7 +13,7 @@
     {
       "id": "host",
       "type": "text",
-      "text": "## 外部宿主：AGGYGOCombatantState\n`AttachAvatar(Pawn)` → 同步复制 Avatar、PawnExtension 和 ASC ActorInfo。\n`DetachAvatar(ExpectedPawn)` → 避免旧 Pawn 延迟销毁误清新 Avatar。\n[[Teams/结构]] · [[BossAI/结构]]",
+      "text": "## 外部宿主：AGGYGOCombatantState\nRequestAvatarBinding(原端点,H,Context)\n→Init／Release／Refresh实际步骤历史。\nAttach/Detach/OnRep/EndPlay共用原链。\nH1已提交cleanup／H2未提交Operation已消费冻结。\n已进入UHT／编译；整链失败，未新UE。\n[[Combatants/结构|宿主契约]] · [[Teams/结构]] · [[BossAI/结构]]",
       "x": 0,
       "y": 240,
       "width": 390,
@@ -33,17 +33,17 @@
     {
       "id": "character",
       "type": "text",
-      "text": "## AGGYGOCharacterBase / HeroCharacter\nPawn 是 Avatar。基础角色承载 PawnExtension、Health、CMC；玩家派生再有 Hero 输入/相机职责。",
+      "text": "## AGGYGOCharacterBase / HeroCharacter\nPawn承载Extension／Health／CMC；玩家派生另有Hero。\nPostInitializeComponents Super后先装原订阅→RegisterLocalAbilitySystemNoticeAndCall。\n原记录只持三weak身份/token/退休；晚token只还原Extension，不缓存H/ASC/Set/Context/Ready。\nConsumeLocalAbilitySystemNotice：Ready/Refreshed带H/Context、Released只原H→Health三native入口。\nEndPlay/BeginDestroy退原token；真实新BeginPlay可重开。源码冻结，整链构建未通过。\n[[Character/结构#Base原订阅与typed消费（已编码，未编译）|接口与资源机制]]",
       "x": 510,
       "y": 330,
       "width": 430,
-      "height": 220,
+      "height": 400,
       "color": "5"
     },
     {
       "id": "extension",
       "type": "text",
-      "text": "## UGGYGOPawnExtensionComponent\n`SetPawnData(Data)` → 装配角色静态配置。\n`InitializeAbilitySystem(ASC, Owner)` → 建立 ActorInfo。\n`UninitializeAbilitySystem()` → Avatar 卸载。\nASC 就绪/卸载委托供 Health、CMC 订阅。",
+      "text": "## UGGYGOPawnExtensionComponent\nSetPawnData(Data)→InitState配置协调。\nInitialize／Uninitialize／HandleControllerChanged→原Host请求，不写ActorInfo。\n唯一持本地H；GetGGYGOAbilitySystemComponent仅返回实际Ready的原ASC。\nEndPlay先关新准入，再释放原H；旧缓存已删除。\n源码冻结；已统一UHT／编译，整链未通过。本地API见右侧。",
       "x": 1050,
       "y": 260,
       "width": 430,
@@ -53,17 +53,17 @@
     {
       "id": "health",
       "type": "text",
-      "text": "## UGGYGOHealthComponent\n`InitializeWithAbilitySystem(ASC)` → 绑定 HealthSet。\n`GetHealth/Poise()` → 只读数值。\n`StartDeath()` / `FinishDeath()` → 死亡状态边沿与复制。",
+      "text": "## UGGYGOHealthComponent\n`Initialize/Refresh…LocalAbilitySystemResource(Extension,H,Context,Error)`→原资源安装／同H认证刷新。\n`UninitializeFromLocalAbilitySystemResource(H,Error)`→只释放匹配原H，不RequireReady。\n旧BP共用同机制；Getter／死亡仍归本组件。\nBase typed已正式消费；源码冻结，整链编译链接及运行未完成。",
       "x": 1050,
       "y": 580,
       "width": 430,
-      "height": 230,
+      "height": 280,
       "color": "4"
     },
     {
       "id": "hero",
       "type": "text",
-      "text": "## UGGYGOHeroComponent（玩家）\n`InitializePlayerInput()` → 绑定 Native/Ability Action。\n`DetermineCameraMode()` → 默认/能力覆盖仲裁。\n`SetAbilityCameraMode(Class, SpecHandle)` / `Clear...` → 所有权管理。",
+      "text": "## UGGYGOHeroComponent（玩家）\n`InitializePlayerInput()` → 绑定 Native/Ability Action。\n`DetermineCameraMode()` → 默认/能力覆盖仲裁。\n`SetAbilityCameraMode(Class, SpecHandle)` / `Clear...` → 所有权管理。\n旧AbilityInputTagPressed／AbilityInputTagReleased／QueueAbilityInputRetry(Tag,deadline)未迁移；Build56三处编译错误，能力输入链未闭合。",
       "x": 510,
       "y": 800,
       "width": 430,
@@ -83,17 +83,17 @@
     {
       "id": "pyrios-render",
       "type": "text",
-      "text": "## UGGYGOPyriosRenderComponent（玩家）\n`BeginPlay` → `RefreshMaterials()`：按 Mesh 槽位建 MID，保存原材质。\n`UpdateLighting()`：DirectionalLight 方向/颜色/强度 + 遮挡 → MID；参考强度、响应、Tint 和输出上限可按角色配置。\n`UpdateOutline()`：创建跟随原 Mesh Pose 的描边壳。\n`EndPlay`：恢复材质，销毁描边壳。\n[[Character/渲染实现|实现与限制]] · [[GGYGO_流程_Pyrios渲染.canvas|流程图]]",
+      "text": "## UGGYGOCharacterRenderComponent\n`RefreshMaterials()`：显式槽名/材质 → MID 与原覆盖记录。\n`ReleaseMaterials()`：只释放自身覆盖与描边；同 Mesh/槽恢复原 nullable override。\n`UpdateLighting()`：显式灯/弱缓存 → 受限主光；无灯直接光为零。\n`UpdateOutline()`：显式材质 → Leader Pose 壳。\n[[Character/渲染实现|契约与限制]] · [[GGYGO_流程_Pyrios渲染.canvas|流程图]]",
       "x": 0,
       "y": 850,
       "width": 390,
-      "height": 320,
+      "height": 350,
       "color": "1"
     },
     {
       "id": "pyrios-materials",
       "type": "text",
-      "text": "## Pyrios 材质资产\n`M_Pyrois_Toon`（Unlit）+ Body 1 / Body 2 / Weapon 三个 MI → 角色表面。\n`M_Pyrois_Outline` → 运行时反面扩张描边；FX01 保留原槽位。\n路径：`/Game/Characters/Player/Pyrios/Materials/Generated/`。",
+      "text": "## Pyrios 材质资产\n`M_Pyrois_Toon`（Unlit）+ Body 1 / Body 2 / Weapon 三个 MI → 角色表面。\n`M_Pyrois_Outline` → 运行时反面扩张描边；FX01 槽位绑定 `MI_Pyrois_Body_FX`（父材质 `/Game/Characters/Shared/FX/Materials/M_FX_DissolveMaskLayers`），组件不接管该槽。\n路径：`/Game/Characters/Player/Pyrios/Materials/Generated/`。",
       "x": 0,
       "y": 1235,
       "width": 390,
@@ -103,7 +103,7 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## 宿主与 Avatar 交互契约\nCombatantState::AttachAvatar(Pawn) → PawnExtension::InitializeAbilitySystem(ASC, Owner) → ASC::InitAbilityActorInfo；Owner 是 Slot/BossState，Avatar 是 Pawn。\nPawnExtension::SetPawnData(Data) / ApplyPawnDataToConsumers → MovementSet 给 CMC、输入/默认相机给 Hero；不是 Pawn 自己拥有 ASC。\nPawnExtension 的 ASC 就绪通知 → HealthComponent::InitializeWithAbilitySystem(ASC)；换 Pawn 时 UninitializeAbilitySystem 与 DetachAvatar(ExpectedPawn) 避免误清新绑定。\n玩家 HeroComponent 只管输入和相机；Boss Pawn 无需复用玩家 Hero 输入。",
+      "text": "## 当前链与剩余边界\nHost→ASC事务→Extension Install→Host公布→真实Publish/Dispatching→Ready；原Release不走旧Extension执行器。\nExtension入口／Getter、Health原资源及Base typed消费已接；H1提交cleanup与H2失败Init Operation清理已消费。ASC独占证明/Binding/发布资格。\nHero旧Pressed／Released／Retry未迁移；SetPawnData配置协调保留，能力授予不归Extension。\nBuild55已UHT写33生成文件；Build56三机械错误消除，仍因Hero旧三调用失败，runtime未链接／未新UE。\nR0历史2 Fail／12 errors未复测；源码有限接受不证明整链或资产／网络通过。\n[[Character/结构#ASC 本地资源四阶段接口（L1）|本地API]] · [[Combatants/结构|Host实现与验证边界]]",
       "x": 0,
       "y": 1600,
       "width": 1450,
@@ -113,12 +113,52 @@
     {
       "id": "pyrios-mesh",
       "type": "text",
-      "text": "## Pyrois 骨骼模型 / BP_PC_Pyrios\n`Avatar_Male_Size03_Pyrois_Model` 的 Body 1、Body 2、Weapon 默认槽位已绑定三个 Toon MI。`BP_PC_Pyrios` 的 Mesh 无材质覆盖，故编辑器视口直接显示材质球效果，无需 `BeginPlay`。",
+      "text": "## Pyrois 模型 / BP_PC_Pyrios\n模型三槽已保存 Toon MI，编辑器直接预览表面。\nBP 显式 MaterialSlots / OutlineMaterial 已迁移并冷回读。\n真实 PIE 已验证 MID/描边与主光响应；静态视口仍无运行描边壳。",
       "x": 510,
       "y": 1235,
       "width": 430,
       "height": 265,
       "color": "4"
+    },
+    {
+      "id": "render-compatibility",
+      "type": "text",
+      "text": "## 序列化兼容与配置验收\n`UGGYGOPyriosRenderComponent` 继承通用类，保留旧身份。\nBP 显式槽位、描边与调参已保存重开核对；legacy=false。\n真实 PIE：3 表面 MID + Leader Pose 描边；主光限幅/关灯恢复通过。\n两项渲染自动化通过；视觉还原仍有缺口。\n[[Character/渲染实现|证据与边界]]",
+      "x": 1580,
+      "y": 850,
+      "width": 470,
+      "height": 350,
+      "color": "3"
+    },
+    {
+      "id": "local-asc-resource",
+      "type": "text",
+      "text": "## Extension 本地 ASC 资源（L1）\n原weak ASC／Pawn＋ASC Binding→opaque H；不签新Binding。\nInstallLocalAbilitySystemResources(ASC,Pawn,Context)→Installed未Ready。\nWithdrawLocalAbilitySystemResources(H)→撤原槽，无原生写入／广播。\nNotifyLocalResourcesReleased(H)→原H义务，Context空，不清后继。\nNotifyLocalResourcesReady(H,Receipt)→ASC真实Dispatching认证Ready／Refresh。\nGetCurrentLocalAbilitySystemResource→原槽快照，不授权。\nIsLocalAbilitySystemResourceInstalled/Ready(H)→分别验装配／可用。\nRegisterLocalAbilitySystemNoticeAndCall / Unregister...(Handle)→精确订阅／回放／移除。\nHost／Extension已调用，Health／Base已消费；Hero待迁移。已进入统一构建，整链未通过；历史L1单叶不覆盖Host/R0。\n[[Character/结构#ASC 本地资源四阶段接口（L1）|完整合同]] · [[AbilitySystem/结构|ASC权威]]",
+      "x": 1580,
+      "y": 230,
+      "width": 470,
+      "height": 570,
+      "color": "5"
+    },
+    {
+      "id": "host-request-port",
+      "type": "text",
+      "text": "## IGGYGOAvatarBindingHostInterface\nRequestAvatarBinding(Request)→栈上真实Result/Steps。\n原weak Host／ASC／Pawn／Extension＋Context／opaque H；Init空H，Release/Refresh原H与记录Context。\nASC组件GetOwner固定端口，不猜可变ActorInfo Owner。\nH1：CheckAvatarBindingCleanupContext(原提交Context)认证原清理来源；关闭原Host/Owner显式ClearActorInfo，正常PreserveOwner。\nH2：TryCleanupFailedAvatarActorInfoInit(原Operation,纯原scope)清未提交Init残留；Init仍失败，不产生Receipt/Notice/Ready。\n两权限各由ASC认证；Host只记录实际Steps，不持证明或第二Ready。跨Host旧释放→新绑定，失败未绑定不回滚。\nOptional头已修正，Build55实际UHT；Build56完整runtime未链接／未新UE。\n[[Character/结构#Host原生请求接口（已定义，生产迁移中）|接口定义]] · [[AbilitySystem/结构|清理契约]]",
+      "x": 1580,
+      "y": 1260,
+      "width": 470,
+      "height": 570,
+      "color": "4"
+    },
+    {
+      "id": "health-original-resource-record",
+      "type": "text",
+      "text": "## Health唯一原资源记录｜已编码\ncpp `FAbilitySystemResource`：原Health/Pawn/Extension弱身份、H、ASC/HealthSet弱引用、认证Context、五token、退休标记。\n五lambda只捕原记录；每事件入口复制当时Context。同H Refresh仅更新认证Context，不重绑或重放UI初值。\n`RetireOriginalResource`→先退休/摘自身原槽，再五token精确Remove；失效Set不替换。\nUI／Tag／GameplayEvent／GE外调复核原记录/H/Set/Context；旧安装失败不清同H重建或刷新后的合法后继。\nEndPlay/OnUnregister独立清理，不等待Released；DeathState归Health，数值归HealthSet，不签Binding/Ready。\nBase已正式消费；已进入统一UHT/编译，完整runtime及新UE未通过，旧无H夹具与R0未复测。\n[[Character/结构#Health原资源与五委托（已编码，未编译）|接口与关键实现]]",
+      "x": 2170,
+      "y": 230,
+      "width": 720,
+      "height": 650,
+      "color": "5"
     }
   ],
   "edges": [
@@ -128,7 +168,7 @@
       "fromSide": "right",
       "toNode": "extension",
       "toSide": "left",
-      "label": "注入外部 ASC / Owner"
+      "label": "Host调用Install／Withdraw／真实发布通知"
     },
     {
       "id": "e2",
@@ -152,15 +192,15 @@
       "fromSide": "right",
       "toNode": "health",
       "toSide": "left",
-      "label": "拥有组件"
+      "label": "拥有Health；typed消费→Initialize/Refresh/Uninitialize原资源"
     },
     {
       "id": "e5",
       "fromNode": "extension",
-      "fromSide": "bottom",
-      "toNode": "health",
-      "toSide": "top",
-      "label": "ASC 就绪后绑定 HealthSet"
+      "fromSide": "left",
+      "toNode": "character",
+      "toSide": "right",
+      "label": "Ready/Refreshed带原H/Context；Released只原H→Base"
     },
     {
       "id": "e6",
@@ -192,7 +232,7 @@
       "fromSide": "left",
       "toNode": "pyrios-render",
       "toSide": "right",
-      "label": "HeroCharacter 构造时拥有 StylizedRenderComponent"
+      "label": "Hero 持有旧子类 StylizedRenderComponent，继承通用机制"
     },
     {
       "id": "e10-pyrios-materials",
@@ -200,7 +240,7 @@
       "fromSide": "bottom",
       "toNode": "pyrios-materials",
       "toSide": "top",
-      "label": "按槽位加载 MI / 向 MID 写光照参数"
+      "label": "消费配置中的父材质，建立 MID 并写主光"
     },
     {
       "id": "e11-pyrios-editor-preview",
@@ -209,6 +249,46 @@
       "toNode": "pyrios-mesh",
       "toSide": "left",
       "label": "三个 MI 写入模型默认槽位 → 蓝图编辑器即时预览"
+    },
+    {
+      "id": "e-render-compatibility",
+      "fromNode": "render-compatibility",
+      "fromSide": "left",
+      "toNode": "pyrios-render",
+      "toSide": "right",
+      "label": "旧子类继承；已迁移 BP 提供显式配置"
+    },
+    {
+      "id": "e-extension-local-resource",
+      "fromNode": "extension",
+      "fromSide": "right",
+      "toNode": "local-asc-resource",
+      "toSide": "left",
+      "label": "唯一持原H；Host已调用，Health/Base已消费"
+    },
+    {
+      "id": "e-host-request-port",
+      "fromNode": "host",
+      "fromSide": "right",
+      "toNode": "host-request-port",
+      "toSide": "left",
+      "label": "实现Request端口及H1/H2消费；整链未通过"
+    },
+    {
+      "id": "e-health-original-record",
+      "fromNode": "health",
+      "fromSide": "right",
+      "toNode": "health-original-resource-record",
+      "toSide": "left",
+      "label": "唯一持有原记录与五委托，替代裸ASC/Set缓存"
+    },
+    {
+      "id": "e-health-local-certification",
+      "fromNode": "health-original-resource-record",
+      "fromSide": "left",
+      "toNode": "local-asc-resource",
+      "toSide": "right",
+      "label": "只读认证原H/Context；不复制Binding/Ready权威"
     }
   ]
 }

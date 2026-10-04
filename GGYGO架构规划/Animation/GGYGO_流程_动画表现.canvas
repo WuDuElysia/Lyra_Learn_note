@@ -13,7 +13,7 @@
     {
       "id": "source",
       "type": "text",
-      "text": "1. CMC / ASC / Pawn 在各自引擎生命周期更新权威状态。\n\n来源接口：CMC::GetResolvedGait/HasMoveInput/IsTurnBackCurveDriven，ASC::HasMatchingGameplayTag，Pawn Transform。",
+      "text": "1. CMC / ASC / Pawn 在各自引擎生命周期更新权威状态。\n\n来源接口：CMC::GetResolvedGait/GetWalkRunBlendAlpha/GetStopMotionType/HasMoveInput/GetTurnBackPhase，ASC::HasMatchingGameplayTag，Pawn Transform。",
       "x": 0,
       "y": 405,
       "width": 385,
@@ -23,7 +23,7 @@
     {
       "id": "capture",
       "type": "text",
-      "text": "2. AnimInstanceBase 在 NativeUpdateAnimation 捕获一帧 AnimationStateFrame。\n\n调用：AnimInstanceBase::NativeUpdateAnimation → StateCapture::Capture(OutState, OutDebug, Pawn)；游戏线程一次集中抓取。",
+      "text": "2. AnimInstanceBase 先处理生命周期边界，再捕获一帧 AnimationStateFrame。\n\nInitialize / Uninitialize / Owner 变化共用 Reset；变化帧先清旧状态、绑定当前 Owner，再由 NativeUpdateAnimation → StateCapture::Capture 集中抓取。",
       "x": 470,
       "y": 405,
       "width": 420,
@@ -33,7 +33,7 @@
     {
       "id": "read",
       "type": "text",
-      "text": "3. ABP_Pyrios 读取输入、步态、转身等语义事实。\n\nAnimBP 经 AnimInstanceBase::GetAnimationStateFrame 和 HasAnimationStateTag/IsAnimationRunGait 等只读查询获得事实。",
+      "text": "3. ABP_Pyrios 读取输入、步态、WalkRun 混合、停止与转身语义。\n\nAnimBP 经 AnimationStateFrame 和只读查询获得事实；旧拆分引脚由兼容层填充。",
       "x": 970,
       "y": 405,
       "width": 420,
@@ -63,7 +63,7 @@
     {
       "id": "compat",
       "type": "text",
-      "text": "兼容路径：ZZZ 适配旧 Snapshot，仍推进 StopValue 与 GaitBlendY。\n\n调用：ZZZAnimInstance::NativeUpdateAnimation → LegacySnapshotAdapter::Capture(StateFrame, DebugFrame) → 旧状态记忆。",
+      "text": "兼容路径：ZZZ 适配旧 Snapshot，不持有 Locomotion 计时。\n\n生命周期 Hook 清 Memory、Snapshot、Events 指针上下文与公开表现字段。每帧再执行 LegacySnapshotAdapter::Capture → MapMovementState：WalkRunBlendAlpha → GaitBlendY；StopMotionType → StopValue 0/1/2。",
       "x": 970,
       "y": 972,
       "width": 420,
@@ -73,7 +73,7 @@
     {
       "id": "future",
       "type": "text",
-      "text": "目标：表现记忆回到 AnimBP，MotionProfile/Linked Layer 继续按计划迁移。\n[[计划_动画与表现层]]",
+      "text": "待 UE 资产窗口：创建 Locomotion Profile、写入 MovementSet，并回读 ABP/BlendSpace 接线；源码不再反读 AnimInstance。\n[[计划_动画与表现层]]",
       "x": 470,
       "y": 770,
       "width": 420,
@@ -113,7 +113,7 @@
     {
       "id": "combo_return",
       "type": "text",
-      "text": "## FullBody BlendOut → 移动（待实测）\nSlot 混回持续更新的 locomotion 源姿势。\n检查 End→Idle/Walk/Run 与中断回移动。\n当前无 Slot；Bip001 修正和 CMC 曲线消费须先验证。",
+      "text": "## FullBody BlendOut → 移动（待实测）\nSlot 混回持续更新的 locomotion 源姿势。\n检查 End→Idle/Walk/Run 与中断回移动。\n当前无 Slot；需联合验证 Bip001 修正、独立 Locomotion Profile 与 ABP 接线。",
       "x": 1530,
       "y": 1430,
       "width": 430,
@@ -129,6 +129,16 @@
       "height": 260,
       "text": "## BH3 Kevin DemonBattle：独立导入\n模型/StandBy已保存与预览；75条可导入动画全部成功，4条源空片段未生成。\n独立Skeleton，保留原始根层级；渲染按槽名接线。\n[[Animation/BH3_Kevin_DemonBattle导入|导入说明与验收]]\n[[GGYGO_流程_BH3_DemonBattle导入.canvas|导入流程子图]]",
       "color": "4"
+    },
+    {
+      "id": "kevin_combat",
+      "type": "text",
+      "x": 0,
+      "y": 2300,
+      "width": 650,
+      "height": 310,
+      "color": "5",
+      "text": "## Kevin战斗动画（资产待生成）\n55独立Montage；Ice01/02候选窗口；Prop1端点与独立ABP。\n已有资产只读核验，缺失才创建；Movement提供InPlace并执行位移。\n完整链接与3项Animation安全自动化通过；生产资产及玩法待验收。\n[[Animation/资产生产安全|保护契约]] · [[Animation/Kevin战斗动画实施|实施]] · [[GGYGO_流程_Kevin战斗动画.canvas|生成流程]]"
     }
   ],
   "edges": [
@@ -170,7 +180,7 @@
       "fromSide": "bottom",
       "toNode": "compat",
       "toSide": "left",
-      "label": "迁移期适配"
+      "label": "兼容现有序列化字段"
     },
     {
       "id": "e6",
@@ -186,7 +196,7 @@
       "fromSide": "left",
       "toNode": "future",
       "toSide": "right",
-      "label": "后续移除兼容层"
+      "label": "资产迁移后再清理兼容字段"
     },
     {
       "id": "combo_play_events",
@@ -211,6 +221,14 @@
       "toNode": "combo_return",
       "toSide": "left",
       "label": "End 结束并按 Montage 参数混出"
+    },
+    {
+      "id": "kevin_combat_source",
+      "fromNode": "bh3_import",
+      "fromSide": "bottom",
+      "toNode": "kevin_combat",
+      "toSide": "top",
+      "label": "保留源序列，生成独立战斗资产"
     }
   ]
 }

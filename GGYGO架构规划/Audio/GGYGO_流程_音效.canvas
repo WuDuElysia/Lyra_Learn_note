@@ -1,0 +1,144 @@
+{
+  "nodes": [
+    {
+      "id": "audio-flow-nav",
+      "type": "text",
+      "text": "# Audio：动作声与命中声流程\n[[Audio/结构|结构与接口]] · [[GGYGO_结构_音效.canvas|结构图]] · [[Audio/计划_音效接入|计划]] · [[计划蓝图|返回]]\n两资产已保存，原Notify预览IsPlaying=true；原严格failed保留，R1已加载对象语义通过，契约已同步R1。手动组件另验结束／Stop／自身归还；听感／原Notify结束／新GA／完整Section／GC未验。右侧命中配置未验。",
+      "x": 0,
+      "y": 0,
+      "width": 1760,
+      "height": 220,
+      "color": "6"
+    },
+    {
+      "id": "af-trigger",
+      "type": "text",
+      "text": "## 动作到达原生Notify【已接线保存】\nAM_Pyrios_Attack_Normal_01的Audio_Normal01轨增加唯一PlaySound。\n项目第2帧／60fps（约0.033333秒），原游戏帧仍未知。\n原Montage预览→UAnimNotify_PlaySound::Notify(MeshComp, Animation, EventReference)。\n原两窗口／源动作／Blend保持，不新增动作时钟。",
+      "x": 0,
+      "y": 340,
+      "width": 650,
+      "height": 300,
+      "color": "5"
+    },
+    {
+      "id": "af-check",
+      "type": "text",
+      "text": "## 首批引用／参数已回读\n绑定SW_Pyrios_Normal01_Skill，非循环，Volume／Pitch=1。\nNotify跟随Mesh、NAME_None，无Socket依赖；非State、Duration=0。\nGetEndTriggerTime→GetTriggerTime，不消费EndTriggerTimeOffset；其余字段精确。\n引擎IsOneShot()拒绝非一次性素材；空Sound仍无项目诊断。",
+      "x": 0,
+      "y": 770,
+      "width": 650,
+      "height": 300,
+      "color": "4"
+    },
+    {
+      "id": "af-play",
+      "type": "text",
+      "text": "## 原Notify发起声音【预览已观察】\n保存的Notify→SpawnSoundAttached→AudioComponent_124。\nIsPlaying=true、Sound正确、Volume／Pitch=1，附着DebugSkelMeshComponent_0。\n证据时间17:53:56.298 UTC；没有手工SoundWave spawn。\n非听感／新GA／结束或取消即停证明。",
+      "x": 0,
+      "y": 1200,
+      "width": 650,
+      "height": 300,
+      "color": "1"
+    },
+    {
+      "id": "af-end",
+      "type": "text",
+      "text": "## 一次性结束契约／独立组件证据\n原Notify只观察播放中，自然结束未验；结束由UE执行。\n手动组件458另验自然结束→Play(0)→Stop，已归还自身。\n原清理TypeError保留，只修原组件清理签名。\n不证明Notify／GA取消即停、听感、新GA或GC完成。\n需要取消即停时另走明确持续Cue契约。",
+      "x": 0,
+      "y": 1630,
+      "width": 650,
+      "height": 300,
+      "color": "1"
+    },
+    {
+      "id": "af-reject",
+      "type": "text",
+      "text": "## 无效资源／未定项目触发点\n明确拒绝该实施步骤，记录资产／原因。\n不换声音、默认时间或伪造成功。\n原游戏帧未知不阻挡明确的项目时机配置。\n素材保存／预览播放不能代替完整运行准入。",
+      "x": 1050,
+      "y": 770,
+      "width": 650,
+      "height": 300,
+      "color": "3"
+    },
+    {
+      "id": "af-hit",
+      "type": "text",
+      "text": "## 命中 Cue 支路（政策已编译）\nCombat 原命中→GAS 原载荷／Cue。\nHandleGameplayCue→ResolveImpactPresentation，合法才进 K2／原生反馈；直接 OnExecute 也先解析再 Super。\n位置默认真实 Hit；参数／目标中心须显式选择。无表面 Generic 与有表面漏配分开，后者默认拒绝。\n可选 ImpactSound→PlaySoundAtLocation；不再 Trace，不另建网络路由。真实 BP／播放未验。\n[[AbilitySystem/Cues/结构|接口及配置]]",
+      "x": 1050,
+      "y": 340,
+      "width": 650,
+      "height": 360,
+      "color": "5"
+    },
+    {
+      "id": "af-persistent",
+      "type": "text",
+      "text": "## 持续／取消即停【目标，未实施】\n原 GA／GE 管 Cue 生命周期→Cue 持原 AudioComponent。\n结束／Removed／换 Pawn／EndPlay→原组件 Stop／淡出／释放。\n不是本首批 one-shot 的执行出口。\n[[Audio/结构#持续声／取消即停|所有权与清理限制]]",
+      "x": 1050,
+      "y": 1200,
+      "width": 650,
+      "height": 380,
+      "color": "3"
+    },
+    {
+      "id": "af-evidence",
+      "type": "text",
+      "text": "## 验证边界\n原严格Readback仍failed；EndOffset 0→0.0001原始差异保留，非全文一致。\nR1已加载对象只读语义通过，其余字段精确；刷新回调未追踪，无mutation／脏包。\nR1不主动reload；新UE40416／Gate57DLL磁盘加载由统筹另证。\nGate57编译Succeeded：9actions／37.13秒，不证明新GA实战。\n手动组件不证明原Notify结束；听感／新GA／完整Section／GC／持续／网络未验。\n[[Audio/计划_音效接入#证据与剩余验收|证据和失败边界]]",
+      "x": 1050,
+      "y": 1630,
+      "width": 650,
+      "height": 320,
+      "color": "6"
+    }
+  ],
+  "edges": [
+    {
+      "id": "af-trigger-check",
+      "fromNode": "af-trigger",
+      "fromSide": "bottom",
+      "toNode": "af-check",
+      "toSide": "top",
+      "label": "已保存原 Notify／项目参数"
+    },
+    {
+      "id": "af-check-play",
+      "fromNode": "af-check",
+      "fromSide": "bottom",
+      "toNode": "af-play",
+      "toSide": "top",
+      "label": "素材与 one-shot 条件满足"
+    },
+    {
+      "id": "af-check-reject",
+      "fromNode": "af-check",
+      "fromSide": "right",
+      "toNode": "af-reject",
+      "toSide": "left",
+      "label": "必要资源无效／项目时机未确认"
+    },
+    {
+      "id": "af-play-end",
+      "fromNode": "af-play",
+      "fromSide": "bottom",
+      "toNode": "af-end",
+      "toSide": "top",
+      "label": "原Notify结束待验；手动组件另有证据"
+    },
+    {
+      "id": "af-end-evidence",
+      "fromNode": "af-end",
+      "fromSide": "right",
+      "toNode": "af-evidence",
+      "toSide": "left",
+      "label": "原Notify／手动组件／R1证据分别留账"
+    },
+    {
+      "id": "af-persistent-evidence",
+      "fromNode": "af-persistent",
+      "fromSide": "bottom",
+      "toNode": "af-evidence",
+      "toSide": "top",
+      "label": "独立目标不由 one-shot 冒烟关闭"
+    }
+  ]
+}

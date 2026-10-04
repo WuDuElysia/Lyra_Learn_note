@@ -3,102 +3,292 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# 动画曲线｜采样与消费流程\n[[Animation/曲线处理|实现说明]] · [[GGYGO_结构_动画曲线.canvas|类结构]] · [[计划_动画与表现层#7. 曲线与权威移动的新边界|目标拆环]]。",
+      "text": "# 动画曲线｜移动流程与独立Editor支线\n主线描述UE5.8权威／自主的一次PerformMovement；move／重演走同一CMC链，不另建Profile时钟。关联边只表示数据／触发条件。\n[[Animation/曲线处理|实现与边界]] · [[GGYGO_结构_动画曲线.canvas|类接口结构]] · [[Movement/结构|Movement接口]]\n配置装配、客户端重演、Animation更新各自独立。Editor作者已编译、七Profile与默认Set七引用已保存；冷进程仅引用／19参数／八资产校验通过。完整冷曲线、正式Hero／ABP／Run、网络及视觉未验；Editor不是move步骤。",
       "x": 0,
       "y": 0,
-      "width": 1960,
-      "height": 145,
+      "width": 3860,
+      "height": 320,
       "color": "6"
     },
     {
       "id": "asset",
       "type": "text",
-      "text": "1. 烘焙动画提供 Speed、PosX/Y、Dist、Yaw、DirX/Y 与 Cfg_ClipLength/LoopTime。\n\n数据键：RootMotion_Speed/PosX/PosY/Dist/Yaw/DirX/DirY、Cfg_ClipLength/LoopTime；不是直接位移命令。",
+      "text": "## 0｜显式装配或切换配置\n调用者 → CMC.SetMovementSet(InMovementSet,OutError=nullptr)\n撤销旧绑定/恢复组件基线/复位Locomotion，再校验对象及ValidateMovementSet(Error)。\n成功true：保存已接受MovementSet，应用明确模式/参数/七Profile引用；非法非空输入false，保持未接纳并诊断。\nnullptr是合法解绑：false、清OutError、不报错。\n\n产物是后续move读取的配置状态，不是每移动步重做装配。显式fixed与曲线依赖出错分开。\n[[Movement/结构|配置接口]]",
       "x": 0,
-      "y": 365,
-      "width": 430,
-      "height": 230,
+      "y": 540,
+      "width": 680,
+      "height": 520,
       "color": "4"
     },
     {
       "id": "tick",
       "type": "text",
-      "text": "2. CMC::TickComponent 在 Super 之前、每帧一次调用 SampleAnimCurves(dt)。\n\n调用：CMC::TickComponent → SampleAnimCurves(dt) → Sampler::Sample(AnimInstance, dt, OutCurveMotion)，然后 Super::TickComponent。",
-      "x": 500,
-      "y": 365,
-      "width": 430,
-      "height": 230,
+      "text": "## 1｜UE执行一次move\nUE/服务器move或客户端重演 → PerformMovement(dt)。\n先快照 bHasRootMotionSources=HasRootMotionSources()，按该门禁清理无效Source，再应用累积力。\n\n随后调用UpdateCharacterStateBeforeMovement(dt)。Native其余前置略去；TickComponent没有SampleAnimCurves。\n快照早于Before中的RMS安装；不能仅凭“已安装”宣称本move必定Prepare。",
+      "x": 1040,
+      "y": 540,
+      "width": 760,
+      "height": 400,
       "color": "5"
     },
     {
       "id": "read",
       "type": "text",
-      "text": "3. Sample 用 AnimInstance::GetCurveValue 读取并清理非有限/负值。\n\nSampler::Sample 用 AnimInstance::GetCurveValue(Name)；非有限值归零，累积量保留前帧基线。",
-      "x": 1010,
-      "y": 365,
-      "width": 430,
-      "height": 230,
+      "text": "## 3｜栈内候选选择\nBefore → TryUpdateLocomotion；捕获原执行号，CaptureLocomotionCandidate借用16既有字段。\n候选ResolveGait／混合／段选择保持Start／Stop／TurnBack拓扑。\nIsCurrentMotionFinished(candidate,out,error)：缺／非法依赖失败，不算完成。\n离地／被阻止提交合法None；无持久第二状态机。",
+      "x": 1040,
+      "y": 1320,
+      "width": 760,
+      "height": 430,
       "color": "5"
     },
     {
       "id": "source",
       "type": "text",
-      "text": "4. ClipLength 或旧批次的 Speed/Dir/Dist 判定曲线存在；零速度仍可能是有效曲线。\n\nSampler::Sample 根据 ClipLength 或兼容曲线组设置 bHasCurveSource；Speed=0 不等于来源缺失。",
-      "x": 1520,
-      "y": 365,
-      "width": 440,
-      "height": 230,
+      "text": "## 4｜按段选择执行分支\n普通单段→EvaluateSingleInterval；WalkRun→必需双Profile共相位。\n曲线Stop／TurnBack→Stage暂存原Input／Origin并挂源，等待实际Prepare，不预支区间。\n同Completed Origin在Stage普通求剩余clip并Commit，不重挂原物理执行。\n普通受理Delta保留既有上限；RMS用真实sim／tick。\nStage失败回原请求Reject，不进入挂源分支；缺失／非法Profile明确拒绝，fixed仅显式配置，无动画反读。",
+      "x": 2080,
+      "y": 1320,
+      "width": 760,
+      "height": 430,
       "color": "5"
     },
     {
       "id": "guard",
       "type": "text",
-      "text": "5. 首帧、dt 无效、Dist 回退时只更新基线；动画切段/循环不能算出反向大位移。\n\nSampler::ResetBaseline 用于 Mesh/动画源失效；首帧和 Dist 回退不产差分，防止切段尖峰。",
-      "x": 1520,
-      "y": 864,
-      "width": 440,
-      "height": 230,
+      "text": "## 2｜Before分支\n先CleanupFinishedActionMotion；独立合法动作／原生RootMotion优先，走原权限路径。\n原RMS回放上下文有效／已拒绝且无独立动作：一次Consume匹配Prepared或Reset；不重做普通整帧求值，仍调用Super。\n无已接受配置、来源失败／无执行请求→地面准入；非回放、非Proxy才进普通候选。\nProxy沿复制语义路径。回放边只表示Before后顺序，其它Prepare仍按原生门禁。",
+      "x": 2080,
+      "y": 540,
+      "width": 760,
+      "height": 430,
       "color": "3"
     },
     {
       "id": "diff",
       "type": "text",
-      "text": "6. 正常帧：PosX/Y 和 Yaw 与上帧差分；Speed 直接取值；DirX/Y 优先于差分方向。\n\nSampler::Sample 对累计 Pos/Yaw 求相邻帧差，速度直接取 Speed；Direction 优先读 DirX/Y。",
-      "x": 1010,
-      "y": 918,
-      "width": 430,
-      "height": 230,
+      "text": "## 5｜Profile纯区间调用\nEvaluateInterval(t0,t1,out,error=nullptr)\n入口Reset；校验有限非负时间/顺序与Profile数据。\n非循环Clamp两端；循环相位采Speed/Dir、按周期解绕Yaw。\n\ntrue：完整样本/成功来源，零速合法，正速须方向。\nfalse：完整Reset/可选字段原因。\n不推进时钟。普通单段返回该调用者；WalkRun两侧必需，区间结果返回原调用上下文。",
+      "x": 1040,
+      "y": 2070,
+      "width": 760,
+      "height": 400,
       "color": "5"
     },
     {
       "id": "motion",
       "type": "text",
-      "text": "7. 输出 CurveMotion：Speed、Direction、PositionDelta、YawDelta/YawTotal 与有效性。\n\n写出 FGGYGOAnimCurveMotion；HasUsableSpeed 与 bHasCurveSource 分开，避免误判停止帧。",
-      "x": 500,
-      "y": 986,
-      "width": 430,
-      "height": 230,
+      "text": "## 7｜普通Before成功提交\nCommitLocomotionCandidate写既有段、时间、相位、混合、Sequence、转身与CurveMotion。\n本节点是普通Before路径；原RMS实际区间由native_prepare中的CMC一次Consume。\nProfile／数学层无时钟，候选无独立准入状态。\n无PendingInput才更新普通刹停／转身源；普通移动可无RMS。提交不代表完整物理事务通过。",
+      "x": 1040,
+      "y": 2760,
+      "width": 760,
+      "height": 400,
       "color": "1"
     },
     {
       "id": "consume",
       "type": "text",
-      "text": "8. CMC 的 GetMaxSpeed、PhysicsRotation 和曲线 RootMotionSource 消费本帧结果。\n\nCMC::GetMaxSpeed/PhysicsRotation 消费速度和转角；FRootMotionSource_GGYGOCurve::PrepareRootMotion 消费方向/速度。",
-      "x": 500,
-      "y": 1499,
-      "width": 430,
-      "height": 230,
+      "text": "## 11｜原生进入物理\nPerformMovement：早期速度处理 → UpdateVelocityBeforeMovement(dt) → StartNewPhysics(dt,0)。\n按MovementMode分派PhysWalking/NavWalking等；内部可子步/切换模式。\n\n普通和AnimRM/Override路径在各物理步判定，不是“所有Profile都走RMS”。当前样本由本次Before产生；子步沿用，不另造时钟。\n物理返回且HasValidData才继续AfterMovement。",
+      "x": 3120,
+      "y": 3480,
+      "width": 760,
+      "height": 400,
       "color": "1"
     },
     {
       "id": "target",
       "type": "text",
-      "text": "目标：独立 MotionProfile 给 CMC 提供同一套时钟/曲线；目前仍依赖 AnimInstance。",
-      "x": 1010,
-      "y": 1600,
-      "width": 430,
-      "height": 205,
+      "text": "## 14｜原生条件旋转，再完成move\nAfterMovement之后，若AllowPhysicsRotationDuringAnimRootMotion或无AnimRM → PhysicsRotation(dt)。\n\nGGYGO先处理活动/注册Action及地面准入；非Proxy转身阶段取YawDeltaDegrees，当前非有限值置0；非近零时MoveUpdatedComponent(ZeroVector,NewRotation,true)扫掠转角，该分支返回，其它交Super。\n条件不满足则跳过该回调。\n\n其后还有原生RootMotion旋转/OnMovementUpdated等尾部，完成move；客户端PostUpdate记录输出语义hint。不是Profile再次求值。",
+      "x": 3120,
+      "y": 5090,
+      "width": 760,
+      "height": 480,
       "color": "3"
+    },
+    {
+      "id": "predict",
+      "type": "text",
+      "text": "## 客户端记录／原move重演\nSetMoveFor存普通起始基线；PostUpdate另存原Input／Prepared或Pending，首次挂源也记录，有原Input不合并。\nPrepMoveFor先BeginReplay原上下文，再native Super（可能Prepare SavedRootMotion）；Finish清临时Source组指针。\nBefore一次Consume匹配的已有或实际生成原结果；缺则Reset，不猜整帧区间。普通非RMS仍恢复起始基线求值。\nFAILED不恢复，旧源不失败后继；Clear／EndReplay各清本move引用／上下文。\nResponse清样本／设置权威基线；权威重演阻止旧普通基线覆盖，出口检查原失败／后继关系。\nMoveData仅hint，NetSerialize不传本地Origin；完整网络协调未验。\n[[Animation/曲线处理#5. 预测恢复与Animation只读Capture|重演契约]]",
+      "x": 0,
+      "y": 1320,
+      "width": 680,
+      "height": 490,
+      "color": "4"
+    },
+    {
+      "id": "action",
+      "type": "text",
+      "text": "## Action分支｜跳过Locomotion\nHasActiveActionMotion为true：CurveMotion.Reset → Super Before → 返回原生PerformMovement余下流程。\n\n已有Action/其资源仍由既有Action/GAS/CMC/原生链处理；本图不展开或重建Action生命周期，不替换为Locomotion Profile。\n[[Movement/结构|Action执行接口]]",
+      "x": 3120,
+      "y": 540,
+      "width": 760,
+      "height": 370,
+      "color": "4"
+    },
+    {
+      "id": "admission",
+      "type": "text",
+      "text": "## 准入拒绝｜不补号或业务兜底\n清CurveMotion及自有Brake／TurnBack源；独立合法RootMotion保留。\n无接受配置、来源失败／无执行请求，Enforce地面准入；待原生Montage提取时在物理最终核对。\n清重力平面速度、一次诊断；不借零Acceleration认真实释放。\nSuper Before返回，不选择默认Walk／Run。",
+      "x": 3120,
+      "y": 1320,
+      "width": 760,
+      "height": 400,
+      "color": "1"
+    },
+    {
+      "id": "proxy",
+      "type": "text",
+      "text": "## Proxy代码分支｜主入口之外\n回调中跳过ResolveGait/UpdateLocomotion/UpdateCurveBrake；UpdateTurnBackRootMotion自身对SimulatedProxy返回，然后Super Before。\n\n代理复制语义及原生Simulate/RootMotion入口有各自路径。本图不把权威PerformMovement顺序当作proxy实际运行证明；不展开其物理路径，也不新增本地Profile时钟。\nProxy/网络动态未验。",
+      "x": 3120,
+      "y": 2760,
+      "width": 760,
+      "height": 400,
+      "color": "3"
+    },
+    {
+      "id": "walkrun",
+      "type": "text",
+      "text": "## 4B｜普通双Loop共相位\nEvaluateWalkRunInterval两侧都必需，含alpha端点。\n使用CMC普通受理Delta；有效周期=Lerp两Duration，末相位=起点＋acceptedDt／周期。\n共相位×各Duration构成两个区间；任一依赖／结果失败整体Reset，保留原原因。\n数学返回未回绕末相位，不提交时钟；成功后CMC回绕。",
+      "x": 0,
+      "y": 2070,
+      "width": 680,
+      "height": 400,
+      "color": "5"
+    },
+    {
+      "id": "single_result",
+      "type": "text",
+      "text": "## 6A｜单段返回\n成功：候选样本／段末时间；TurnBack求值成功才推进候选相位。\n失败：原Error→Reject原请求；不提交候选时钟／状态。\n缺曲线依赖不当完成或fixed；显式fixed分开。",
+      "x": 2080,
+      "y": 2070,
+      "width": 760,
+      "height": 400,
+      "color": "1"
+    },
+    {
+      "id": "walk_result",
+      "type": "text",
+      "text": "## 6B｜双侧返回\n全部成功：混合／方向归一／缩放有效，返回样本与数学末相位。\n任一失败：false／Reset／原因，不单侧替代。\n只有成功才把回绕相位写候选；失败不推进。",
+      "x": 3120,
+      "y": 2070,
+      "width": 760,
+      "height": 430,
+      "color": "1"
+    },
+    {
+      "id": "rms_gate",
+      "type": "text",
+      "text": "## 8｜Stage或普通Before尾部\n原Stop／TurnBack Stage已暂存Input并挂原Source；有PendingInput时不再走普通Brake／TurnBack源更新，等待实际Prepare。\n同Completed Origin仅普通求值／Commit剩余clip，不重挂原物理执行。\n无PendingInput：UpdateCurveBrake→Hint，随后UpdateTurnBackRootMotion→Super Before返回；Proxy按原路径返回。\nApply只复用同原Origin的活动自有源，固定BaseYaw／Scale／结束策略。安装不保证当帧Prepare。",
+      "x": 2080,
+      "y": 2760,
+      "width": 760,
+      "height": 450,
+      "color": "5"
+    },
+    {
+      "id": "native_prepare",
+      "type": "text",
+      "text": "## 9｜原生Prepare门禁／实际区间\nBefore返回后原生处理pending launch等；仅早期bHasRootMotionSources快照且非clientUpdating／非serverIgnore时→CurrentRootMotion.PrepareRootMotion(dt,Character,CMC,true)。可含原生Montage pose提取。\n\n本Curve Source以原Origin＋真实sim/tick请求原CMC；Motion起点=MotionTimeOrigin＋(Source.GetTime−SourceTimeOrigin)，终点加实际sim，可partial／zero／catchup。\n原CMC校验原Input／Source关系并调用纯数学，返回Prepared／Finished等；正常Prepare一次Consume，回放在Before消费。\nRMS写返回世界速度及NativeEnd；端点速度×sim/tick，不精确积分位移，不读当前CurveMotion。\nBrake／离地自然结束保动量；TurnBack可留场零速，Z保护。失败／旧源退场见左下。\n安装不保证准备，门禁不满足跳过、不补整帧区间；随后保留原生早期累积与物理顺序。",
+      "x": 1040,
+      "y": 3480,
+      "width": 760,
+      "height": 540,
+      "color": "4"
+    },
+    {
+      "id": "early_accumulate",
+      "type": "text",
+      "text": "## 10｜原生早期速度累积\nPrepare阶段之后、StartNewPhysics之前：\nHasAnimRootMotion优先 → 转世界/计算约束动画根速度。\n否则HasOverrideVelocity且dt>0 → AccumulateOverrideRootMotionVelocity(...NewVelocity) → Velocity。\n两者都无则保留当前普通速度继续。\n\n这一次早期累积不能移到物理或After之后；物理中还会按步应用RootMotion。",
+      "x": 2080,
+      "y": 3480,
+      "width": 760,
+      "height": 400,
+      "color": "4"
+    },
+    {
+      "id": "ordinary",
+      "type": "text",
+      "text": "## 12A｜普通原生速度\nPhysWalking无AnimRM／Override时CalcVelocity查询GetMaxSpeed。\n曲线合法来源取真实Speed×Scale（含0／极小正）；ForceWalk限上界。\n显式fixed取配置；曲线失败／无来源地面门禁0、不回落固定。\n继续ApplyRootMotionToVelocity与胶囊物理；非地面交原生。",
+      "x": 1040,
+      "y": 4310,
+      "width": 760,
+      "height": 520,
+      "color": "5"
+    },
+    {
+      "id": "override_physics",
+      "type": "text",
+      "text": "## 12B｜AnimRM/Override物理\nPhysWalking该步跳过普通CalcVelocity，调用ApplyRootMotionToVelocity(timeTick)。\n项目先检查地面准入，合法路径交Super；原生AnimRM优先，否则累积Override/可能Additive，应用胶囊物理。\n\nRootMotion速度不因Profile提交必然存在；RMS内部安全不由GetMaxSpeed资格校验自动保证。Source退出帧及重力/Z规则保留。",
+      "x": 2080,
+      "y": 4310,
+      "width": 760,
+      "height": 400,
+      "color": "4"
+    },
+    {
+      "id": "after_move",
+      "type": "text",
+      "text": "## 13｜物理返回后回调\nStartNewPhysics完整返回，仍HasValidData → UpdateCharacterStateAfterMovement(dt)。\n\n随后才进入原生PhysicsRotation条件。不得把项目转身Yaw画到Before/Prepare之前；无RMS普通物理也走此返回顺序。\n其它原生碰撞/模式/回调前后置未重建。",
+      "x": 3120,
+      "y": 4310,
+      "width": 760,
+      "height": 370,
+      "color": "4"
+    },
+    {
+      "id": "capture",
+      "type": "text",
+      "text": "## 独立Animation更新｜只读关联\nAnimInstanceBase.NativeUpdateAnimation → StateCapture.Capture(OutState,OutDebug,Pawn)。\n游戏线程先Reset，再读当时Pawn/CMC/ASC；StateFrame给ABP语义，CurveMotion用于DebugFrame。\n\n关联线不是move末执行命令，不规定动画与本move的相对Tick时机。抓帧器无跨帧缓存，不推进Profile或反写CMC。\n[[Animation/结构|Animation接口]] · [[AbilitySystem/结构|ASC事实]]",
+      "x": 0,
+      "y": 2760,
+      "width": 680,
+      "height": 460,
+      "color": "4"
+    },
+    {
+      "id": "boundary",
+      "type": "text",
+      "text": "## 验证与剩余边界\nC37原公开夹具仅有限合成来源覆盖，不证明正式输入。\n本地Origin／实际区间／一次消费／原move重放已实现；六源Gate59／60同版，Runtime已编译。Camera叶仅证其专项，Gate61 Character／Combatants Host两叶Success仅证本专项，不证明移动动态。\n首帧、partial／zero／catchup、后继隔离、完整authority／proxy协调及正式Hero／ABP／PIE／网络／Run未验。\n七Profile完整同进程读回、默认Set七引用保存及冷进程引用／19参数／八资产VALID通过；完整冷曲线未做，原失败保留。\n[[Animation/曲线处理#6. 当前失败消费缺口与实施状态|运行证据]]",
+      "x": 0,
+      "y": 3480,
+      "width": 680,
+      "height": 570,
+      "color": "6"
+    },
+    {
+      "id": "candidate-rejected",
+      "type": "text",
+      "text": "## false｜原请求失败／旧源退场\n普通false：Reject原执行号，非零失败／0号不补；不提交候选，Super Before返回。\n原Prepare失败：只报告仍匹配原Origin的请求；Stale／Unsupported只退自身，不影响后继。\n旧结果不恢复FAILED，不取固定速度／默认方向成功；独立动作、重力及原生后续物理／清理保留。",
+      "x": 0,
+      "y": 4310,
+      "width": 680,
+      "height": 430,
+      "color": "1"
+    },
+    {
+      "id": "editor-explicit-input",
+      "type": "text",
+      "text": "## Editor 1｜明确作者输入\n调用者准备Source与精确SourcePath、fresh完整四曲线原生Snapshot DTO、/Game/Package.Object、DTO原始double duration_seconds与显式Loop。\nReadFloatCurveSnapshot只读值副本；七源完整读取与正式默认根已回读，不重建曲线或写死时长。\n作者脚本098C9EAE…每次仅一个固定目标，已有报告拒绝覆盖；缺失／歧义不能猜PawnData或换源。\n七目标已逐包保存／完整同进程回读，默认Set七引用另由调用者接线保存；完整冷曲线／Run未验。\n[[Animation/结构|Editor接口]]",
+      "x": 4280,
+      "y": 540,
+      "width": 960,
+      "height": 580,
+      "color": "4"
+    },
+    {
+      "id": "editor-author-call",
+      "type": "text",
+      "text": "## Editor 2｜CreateOrInspectProfile\n重新R1读取并全字段位比较 → 临时候选整FRichCurve复制 → ValidateProfile／完整回读。\n既有目标：干净且全部一致才ExistingMatched，差异拒绝、不覆盖。\n缺失目标：CreatePackage后复核身份／源／占用 → NewObject → 完整回读 → MarkPackageDirty后再核对。\nfloat转换前校验有限／正／范围；不SetKeys或重算切线。\n失败只清自己的Profile，无法证明独占的包／rooted或外来内容保留并诊断。\n[[Animation/曲线处理#8. Editor单Profile作者与保存边界|完整实现]]",
+      "x": 4280,
+      "y": 1320,
+      "width": 960,
+      "height": 670,
+      "color": "5"
+    },
+    {
+      "id": "editor-result-handoff",
+      "type": "text",
+      "text": "## Editor 3｜结果与调用者保存\nFailed：无Profile／部分回读，Error定位源、目标与原因。\nCreatedUnsaved：调用者save_packages([Package],True)仅保存精确目标，再查盘与ExistingMatched完整读回。\nExistingMatched：只读一致目标，不保存、不授覆盖权限。\n\n七Profile同进程完整字段／bit已通过；Start固定R1无再次保存，原Registry失败保持。\n默认Set七引用已单包保存；新进程七引用／19参数／八资产VALID通过且无保存，完整冷FRichCurve逐位未做。\n作者接口不注册／保存／接Set；来源指纹为公开曲线BLAKE3，不是整个uasset证明。正式Hero／ABP／Run／网络未验。\n无边接CMC每move链；运行时钟与胶囊执行仍唯一归Movement。\n[[Movement/结构|正式消费者]]",
+      "x": 4280,
+      "y": 2240,
+      "width": 960,
+      "height": 660,
+      "color": "1"
     }
   ],
   "edges": [
@@ -106,17 +296,18 @@
       "id": "e1",
       "fromNode": "asset",
       "fromSide": "right",
-      "toNode": "tick",
+      "toNode": "guard",
       "toSide": "left",
-      "label": "CMC::TickComponent(dt)"
+      "label": "状态输入：已接纳配置/明确模式\n不是每步重做SetMovementSet",
+      "color": "6"
     },
     {
       "id": "e2",
       "fromNode": "tick",
       "fromSide": "right",
-      "toNode": "read",
+      "toNode": "guard",
       "toSide": "left",
-      "label": "SampleAnimCurves → Sampler::Sample"
+      "label": "执行：UpdateCharacterStateBeforeMovement(dt)"
     },
     {
       "id": "e3",
@@ -124,55 +315,280 @@
       "fromSide": "right",
       "toNode": "source",
       "toSide": "left",
-      "label": "AnimInstance::GetCurveValue"
+      "label": "候选运动类型／未提交时间"
     },
     {
       "id": "e4",
       "fromNode": "source",
       "fromSide": "bottom",
-      "toNode": "guard",
+      "toNode": "walkrun",
       "toSide": "top",
-      "label": "bHasCurveSource / 基线判断"
+      "label": "Type=WalkRun → EvaluateWalkRunProfiles"
     },
     {
       "id": "e5",
-      "fromNode": "guard",
-      "fromSide": "right",
+      "fromNode": "source",
+      "fromSide": "left",
       "toNode": "diff",
-      "toSide": "left",
-      "label": "Pos/Yaw 差分"
+      "toSide": "right",
+      "label": "普通单段→纯EvaluateSingleInterval→Profile"
     },
     {
       "id": "e6",
-      "fromNode": "guard",
-      "fromSide": "left",
-      "toNode": "motion",
-      "toSide": "right",
-      "label": "首帧/回退：零增量"
+      "fromNode": "source",
+      "fromSide": "bottom",
+      "toNode": "single_result",
+      "toSide": "top",
+      "label": "显式fixed／None合法未求值；缺依赖走拒绝"
     },
     {
       "id": "e7",
       "fromNode": "diff",
       "fromSide": "right",
-      "toNode": "motion",
+      "toNode": "single_result",
       "toSide": "left",
-      "label": "写 FGGYGOAnimCurveMotion"
+      "label": "返回给单段调用者：true/false + out"
     },
     {
       "id": "e8",
       "fromNode": "motion",
-      "fromSide": "bottom",
-      "toNode": "consume",
-      "toSide": "top",
-      "label": "GetMaxSpeed / PhysicsRotation / RMS"
+      "fromSide": "right",
+      "toNode": "rms_gate",
+      "toSide": "left",
+      "label": "普通Commit后：无Pending才更新普通源"
     },
     {
       "id": "e9",
-      "fromNode": "consume",
-      "fromSide": "right",
+      "fromNode": "after_move",
+      "fromSide": "bottom",
       "toNode": "target",
+      "toSide": "top",
+      "label": "原生先AfterMovement再检查旋转条件"
+    },
+    {
+      "id": "c10",
+      "fromNode": "guard",
+      "fromSide": "right",
+      "toNode": "action",
       "toSide": "left",
-      "label": "目标：MotionProfile 替代反读"
+      "label": "HasActiveActionMotion：true"
+    },
+    {
+      "id": "c11",
+      "fromNode": "guard",
+      "fromSide": "right",
+      "toNode": "admission",
+      "toSide": "left",
+      "label": "无Action且未接纳配置"
+    },
+    {
+      "id": "c12",
+      "fromNode": "guard",
+      "fromSide": "left",
+      "toNode": "read",
+      "toSide": "top",
+      "label": "非原RMS回放、已接纳、非SimulatedProxy"
+    },
+    {
+      "id": "c13",
+      "fromNode": "guard",
+      "fromSide": "right",
+      "toNode": "proxy",
+      "toSide": "top",
+      "label": "回调Role=SimulatedProxy\n其原生入口不在本主线"
+    },
+    {
+      "id": "c14",
+      "fromNode": "action",
+      "fromSide": "bottom",
+      "toNode": "native_prepare",
+      "toSide": "top",
+      "label": "Super Before返回：跳过Locomotion\n继续已有原生/动作路径"
+    },
+    {
+      "id": "c15",
+      "fromNode": "admission",
+      "fromSide": "bottom",
+      "toNode": "native_prepare",
+      "toSide": "top",
+      "label": "Super Before返回：准入最终在物理核对\n不是默认步态替代"
+    },
+    {
+      "id": "c16",
+      "fromNode": "read",
+      "fromSide": "bottom",
+      "toNode": "motion",
+      "toSide": "top",
+      "label": "离地/被阻止：None + Reset，未求值"
+    },
+    {
+      "id": "c17",
+      "fromNode": "walkrun",
+      "fromSide": "right",
+      "toNode": "diff",
+      "toSide": "left",
+      "label": "双Profile必需区间→EvaluateInterval"
+    },
+    {
+      "id": "c18",
+      "fromNode": "walkrun",
+      "fromSide": "bottom",
+      "toNode": "candidate-rejected",
+      "toSide": "left",
+      "label": "非法周期／缺侧→false，不提交相位"
+    },
+    {
+      "id": "c19",
+      "fromNode": "diff",
+      "fromSide": "right",
+      "toNode": "walk_result",
+      "toSide": "left",
+      "label": "返回给WalkRun调用者：两bool/样本\n依调用上下文返回，不是另一次时钟"
+    },
+    {
+      "id": "c20",
+      "fromNode": "single_result",
+      "fromSide": "bottom",
+      "toNode": "motion",
+      "toSide": "top",
+      "label": "成功：候选样本／段时间／转身"
+    },
+    {
+      "id": "c21",
+      "fromNode": "walk_result",
+      "fromSide": "bottom",
+      "toNode": "motion",
+      "toSide": "right",
+      "label": "双成功：候选混合与回绕相位"
+    },
+    {
+      "id": "c22",
+      "fromNode": "rms_gate",
+      "fromSide": "bottom",
+      "toNode": "native_prepare",
+      "toSide": "top",
+      "label": "Stage／普通Before返回→原生Prepare门禁\n挂载不保证当帧Prepare"
+    },
+    {
+      "id": "c23",
+      "fromNode": "native_prepare",
+      "fromSide": "right",
+      "toNode": "early_accumulate",
+      "toSide": "left",
+      "label": "准备或按门禁跳过后\n原生早期AnimRM/Override速度处理"
+    },
+    {
+      "id": "c24",
+      "fromNode": "early_accumulate",
+      "fromSide": "right",
+      "toNode": "consume",
+      "toSide": "left",
+      "label": "先累积速度再StartNewPhysics(dt,0)"
+    },
+    {
+      "id": "c25",
+      "fromNode": "consume",
+      "fromSide": "bottom",
+      "toNode": "ordinary",
+      "toSide": "top",
+      "label": "物理步无AnimRM/Override\n含无任何RMS普通移动"
+    },
+    {
+      "id": "c26",
+      "fromNode": "consume",
+      "fromSide": "bottom",
+      "toNode": "override_physics",
+      "toSide": "top",
+      "label": "物理步有AnimRM/Override"
+    },
+    {
+      "id": "c27",
+      "fromNode": "ordinary",
+      "fromSide": "right",
+      "toNode": "after_move",
+      "toSide": "left",
+      "label": "该物理调用完整返回且HasValidData"
+    },
+    {
+      "id": "c28",
+      "fromNode": "override_physics",
+      "fromSide": "right",
+      "toNode": "after_move",
+      "toSide": "left",
+      "label": "该物理调用完整返回且HasValidData"
+    },
+    {
+      "id": "c29",
+      "fromNode": "predict",
+      "fromSide": "top",
+      "toNode": "tick",
+      "toSide": "bottom",
+      "label": "原move记录／Super前装回放上下文\nSuper可能先准备，再进入PerformMovement"
+    },
+    {
+      "id": "c30",
+      "fromNode": "capture",
+      "fromSide": "right",
+      "toNode": "motion",
+      "toSide": "left",
+      "label": "只读数据关联：动画更新时读当时CMC\n不是此move执行顺序/无反馈",
+      "color": "6"
+    },
+    {
+      "id": "single-reject",
+      "fromNode": "single_result",
+      "fromSide": "bottom",
+      "toNode": "candidate-rejected",
+      "toSide": "right",
+      "label": "false：原区间Error→Reject"
+    },
+    {
+      "id": "walk-reject",
+      "fromNode": "walk_result",
+      "fromSide": "bottom",
+      "toNode": "candidate-rejected",
+      "toSide": "right",
+      "label": "false：任一依赖／合成错误→Reject"
+    },
+    {
+      "id": "editor-call",
+      "fromNode": "editor-explicit-input",
+      "fromSide": "bottom",
+      "toNode": "editor-author-call",
+      "toSide": "top",
+      "label": "显式调用CreateOrInspectProfile，输入完整值与明确目标"
+    },
+    {
+      "id": "editor-return",
+      "fromNode": "editor-author-call",
+      "fromSide": "bottom",
+      "toNode": "editor-result-handoff",
+      "toSide": "top",
+      "label": "返回Failed／CreatedUnsaved／ExistingMatched及完整Readback或Error"
+    },
+    {
+      "id": "stage-curve-rms",
+      "fromNode": "source",
+      "fromSide": "right",
+      "toNode": "rms_gate",
+      "toSide": "right",
+      "label": "Stop/TurnBack→Stage\n原Input／挂或复用源\nCompleted只续clip"
+    },
+    {
+      "id": "prepare-origin-reject",
+      "fromNode": "native_prepare",
+      "fromSide": "left",
+      "toNode": "candidate-rejected",
+      "toSide": "right",
+      "label": "原Prepare失败报告原号\n旧源只退自身，不碰后继"
+    },
+    {
+      "id": "replay-before-return",
+      "fromNode": "guard",
+      "fromSide": "left",
+      "toNode": "early_accumulate",
+      "toSide": "left",
+      "label": "原RMS回放Before消费\n原Prepared／缺则Reset\n随后沿原生余下顺序"
     }
   ]
 }

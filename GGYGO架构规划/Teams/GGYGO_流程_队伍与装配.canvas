@@ -3,82 +3,142 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Teams｜流程图\n一局的编队装配与切换时序。类与接口见 [[GGYGO_结构_队伍与装配.canvas|结构图]]、[[Teams/结构|结构文档]]。",
+      "text": "# Teams｜流程图\n当前服务器创建准备 / 责任交付 / 组件切人 / 原资源终止；橙色为拒绝或未闭合边界。\n触发：HandleStartingNewPlayer或原GF Session成功就绪后的SpawnSquadForPendingPlayers → SpawnSquadForPlayer。\n复用原会话资格；原Context / 同Controller同步保护 / PawnData弱快照，外调后重检。完整创建幂等未闭合。[[GameFeature/结构|启动门禁]]\n[[GGYGO_结构_队伍与装配.canvas|结构图]] · [[Teams/结构#GameMode 创建准备、交付与未交付责任（创建者 A）|创建者完整契约]] · [[计划_队伍与装配|设计与未实施边界]]\n创建者A源码有限接受；Gate58 Failed/exit6，无新DLL、未冒烟；图文不证明运行。",
       "x": 0,
       "y": 0,
-      "width": 1740,
-      "height": 140,
+      "width": 2360,
+      "height": 220,
       "color": "6"
     },
     {
       "id": "preset",
       "type": "text",
-      "text": "1. LocalPlayer 预设解析为本局 Roster；若没有，取 Experience 默认编队。\n\n调用：SquadPresets::ResolveActivePresetRoster(OutRoster) → SquadComponent::SetRoster；否则 Experience 默认编队成员。",
+      "text": "## 1. GameMode选择本次输入\n原Context固定GameMode / World / GF Session / Controller / PlayerState / 唯一Squad / Experience。\n同PC同步重入或存活拒绝残留 → 拒绝新生成，不另存装配 / Ready状态。\n已有Roster优先；为空才TryApplySavedRoster：`ResolveActivePresetRoster(Out)`查原始容量，合法时解析；人数>0才`SetRoster(Out)`。\n无结果 / Set失败且Roster空 → 当前仍用Experience::SquadMembers；默认空报错。\n选定PawnData复制为本次弱快照，不跨外调持有Roster引用；默认运行容量 / 非法保存停止回落未接。",
       "x": 0,
       "y": 405,
-      "width": 400,
-      "height": 230,
+      "width": 440,
+      "height": 480,
       "color": "5"
     },
     {
       "id": "slots",
       "type": "text",
-      "text": "2. GameMode 为每名成员创建 CharacterSlot，先建 ASC/属性并授予 AbilitySet。\n\n调用：GameMode::SpawnSquadSlot → CharacterSlot::InitializeForPawnData → AbilitySet::GiveToAbilitySystem。",
-      "x": 480,
+      "text": "## 2. 阶段一：先准备全部Slot\n`SpawnSquadSlot(Context, PawnData, OutActors)` → native bool，Owner=原Controller。\n`CustomPreSpawnInitialization`仅记录实际OriginalSlot，先于全局 / 项目回调；Spawn返回空也保留原产物。\n`InitializeForPawnData(Data)`后重取原Context / Slot / Owner / World / Authority / PawnData并读完成查询。\ntrue仅准备通过，非交付 / 全配置 / 客户端Ready；false仍在OutActors暴露原身份，交Creator收尾。\n本次原产物由同步栈持有；全部Slot阶段结束后才生成Pawn。",
+      "x": 620,
       "y": 405,
-      "width": 420,
-      "height": 230,
+      "width": 440,
+      "height": 480,
       "color": "5"
     },
     {
       "id": "pawns",
       "type": "text",
-      "text": "3. 再生成 Pawn；PawnExtension 绑定对应 Slot ASC，Pawn 成为 Avatar。\n\n调用：GameMode::SpawnSquadMember → PawnExtension::SetPawnData → Slot::AttachAvatar(Pawn) → InitializeAbilitySystem。",
-      "x": 980,
+"text": "## 3. 阶段二：准备Pawn与绑定请求\n`SpawnSquadMember(Context, PawnData, SpawnTransform, OutActors)` → native bool；pre-spawn捕获OriginalPawn，Owner=原Controller。\nPawnClass须为CharacterBase子类；原Extension必需有效。`SetPawnData(Data)`后重检原Pawn / Extension / 配置；false保留原产物。\n原Slot / Pawn准备仍有效才`Slot::AttachAvatar(Member)`（void）；Host唯一协调绑定，Creator不复制规则 / 清理。\n外调后重检原Context；调用Created接收前移出原对，交付期间Creator关闭不消费这对。",
+      "x": 1240,
       "y": 405,
-      "width": 420,
-      "height": 230,
+      "width": 440,
+      "height": 480,
       "color": "5"
     },
     {
       "id": "active",
       "type": "text",
-      "text": "4. SquadComponent 登记 Slots，PlayerController Possess 当前出战 Pawn。\n\n调用：SquadComponent::RegisterSlot / SwitchToSlot(0) → PlayerController::Possess(ActivePawn)。",
-      "x": 1480,
-      "y": 405,
-      "width": 430,
-      "height": 230,
+      "text": "## 5. 名单与原创建责任共同提交\n新成员`Slots`与`CreatedSlotResources`先提交，早于待命 / 自动激活外部回调。\n`DeactivateSlot`后终止 / 销毁则停止旧栈仍true；有效首位绑定且无出战索引时尝试`SwitchToSlot(0)`。\n真实true表示已接收原责任，不保证激活 / Possess；Creator立即退休责任，回调失效也不反交。\n已交付仅由Squad终止消费者处理；重复不重放，不回滚已交付成员；完整整队事务未闭合。",
+      "x": 1860,
+      "y": 1040,
+      "width": 500,
+      "height": 460,
       "color": "5"
     },
     {
       "id": "switch",
       "type": "text",
-      "text": "5. 换人：先 UnPossess 旧 Pawn，再 Possess 新 Pawn，更新出战索引。\n\n调用：SquadComponent::SwitchToSlot(Index) → Controller::UnPossess / Possess(TargetPawn)，更新 ActiveSlotIndex。",
-      "x": 1480,
-      "y": 932,
-      "width": 430,
-      "height": 230,
+      "text": "## 6. 实际SwitchToSlot(Index)\n首位自动尝试或后续请求；组件终止则拒绝。\n校验Authority、非当前合法索引、目标Avatar可用 / 非死亡及Controller。\n正常顺序：`UnPossess` → `DeactivateSlot` → ActiveSlotIndex → `ActivateSlot` → `Possess` → 活动广播。\n外调后重检原组件 / Controller / Slot / Pawn及终止；关闭或失配停止旧栈，不再写索引或附身。\n显隐 / 碰撞 / 移动同样检查原Slot→Character；不每次重设ActorInfo。\n完整GA退出 / 不可取消准入 / 输入政策 / 原生控制回调事务未接。[[Input/结构|输入边界]]",
+      "x": 1860,
+      "y": 1680,
+      "width": 500,
+      "height": 500,
       "color": "1"
     },
     {
       "id": "persist",
       "type": "text",
-      "text": "待命 Slot 的属性、Buff、冷却继续存在；切换的是 Avatar 和附身关系。\n\nSwitchToSlot 不重建 CharacterSlot/ASC；待命能力仍由各自 Slot 保有，只有控制权切换。",
-      "x": 980,
-      "y": 986,
-      "width": 420,
-      "height": 230,
+      "text": "## 待命的持久状态\nDeactivate隐藏 / 关碰撞 / 停移动；Slot与ASC不重建，GE / CD / 属性仍由各Slot保有。\n当前仅换Controller附身和出战索引，Avatar装配时已绑定。\n复制三层分别负责：Actor相关性、GE信息模式、属性自身条件。\nMixed只管GE信息；健康四量COND_None，Combat基础三量COND_OwnerOnly。\n[[计划_队伍与装配#9.3 D1 采纳的布局：Slot 持有 ASC 的三层结构|复制与宿主约束]]",
+      "x": 1240,
+      "y": 1680,
+      "width": 440,
+      "height": 430,
       "color": "4"
     },
     {
       "id": "remote",
       "type": "text",
-      "text": "缺口：远程玩家自定义编队的服务器上报与联机回归尚待完成。",
-      "x": 480,
-      "y": 760,
-      "width": 420,
-      "height": 180,
+      "text": "## 已接源码与未闭合边界\n创建者A已接原Actor捕获、准备、真实Created bool交付与未交付失败消费 / 拒绝残留；Squad唯一消费已交付原责任。\n保存取得入口 / 非法保存停止回落 / 默认运行容量 / 出生点Identity未修；整队成功政策 / 完整创建幂等未闭合。\nLogout显式终止 / 完整切人GA与输入及控制回调事务未接，C13开放；借用仍无Destroy权限。\nGate57旧DLL不含A；Gate58 Failed/exit6，无新DLL、未冒烟；A无成功统一编译 / 正式创建运行证据。\n远程上报 / 蓝图兼容 / 正式资产 / 网络未验。\n[[Teams/结构|接口与责任]] · [[计划_队伍与装配#9.0 当前实施状态与后续门禁（2026-09-30）|目标与门禁]]",
+      "x": 0,
+      "y": 1680,
+      "width": 440,
+      "height": 590,
       "color": "3"
+    },
+    {
+      "id": "saved-refusal",
+      "type": "text",
+      "text": "## 当前保存超限拒绝 / 错误回落\nPresets原始Members>4：Resolve返回0、Out为空；在AssetManager / 资产加载前拒绝，不截断旧数据。\nTryApplySavedRoster仍把0统一映射为false。\nRoster仍空时GameMode回落Experience默认；未区分非法保存，属于未修复缺口。\n非空默认继续生成；默认也空则报错返回。",
+      "x": 0,
+      "y": 1050,
+      "width": 440,
+      "height": 430,
+      "color": "3"
+    },
+    {
+      "id": "receive-checks",
+      "type": "text",
+      "text": "## 4. private实际创建接收\n`RegisterCreatedSlot(Slot, OriginalCreatedPawn)` → bool；非反射，仅friend GameMode交付真实原对。\nSquad先拒绝终止 / 无效组件，核权威PlayerState唯一Squad / Controller / World。\n合法原身份重复不重放；借用不能升级。新成员核容量 / 完成查询 / Slot-ASC-Avatar-Extension-PawnData / Owner一致。\nfalse提交前不改名单 / 责任 / 控制；原产物仍归Creator。\nCreator先消费返回bool再重检Context，不按当前Avatar / Owner反推历史交付。",
+      "x": 1860,
+      "y": 405,
+      "width": 500,
+      "height": 470,
+      "color": "5"
+    },
+    {
+      "id": "assembly-refusal",
+      "type": "text",
+      "text": "## 准备 / 接收拒绝：未交付原物\n准备false、资格失效或Created接收false → Creator只消费捕获的原Slot→原Pawn，不猜当前Avatar / Owner。\n原生接受 / 失效 / 销毁中逐字段退休请求义务，不等于物理成功。\n拒绝且仍活 → 精确原字段留GameMode台账、定位诊断，停止当前请求；后续同PC拒绝新生成，无Tick / 自动重试。\n原Creator最终无法处理 / 已不可用不能留义务 → 明确Error。\nCreator生命周期先GF Close再同一残留消费；已交付不回滚，摘要计数不证明整队成功，C13开放。",
+      "x": 1240,
+      "y": 1040,
+      "width": 440,
+      "height": 430,
+      "color": "3"
+    },
+    {
+      "id": "termination-entry",
+      "type": "text",
+      "text": "## 7. Squad真实终止入口\nnative `DestroySquad()` / `EndPlay` / `OnComponentDestroyed` → 同一私有`ConsumeCreatedSlotResources`；原生两入口均先于Super。\n先关准入、移出原CreatedSlotResources，清Roster / Slots，ActiveSlotIndex=INDEX_NONE；重入仅外层继续，不再派发。\n仅原PlayerState / Controller / 活动Slot / Pawn双向控制及Owner / World / Authority仍匹配时UnPossess；失配不阻止原创建资源消费。\n首次组件可用时广播空活动角色；旧登记 / 切人 / 显隐栈外调后重检并停止。\n借用成员只退出本组件名单 / 控制关系；不Destroy、不直接解绑、不补显隐或碰撞操作。",
+      "x": 0,
+      "y": 2450,
+      "width": 700,
+      "height": 500,
+      "color": "5"
+    },
+    {
+      "id": "termination-originals",
+      "type": "text",
+      "text": "## 8. 只消费已交付原弱身份\n真实`RegisterCreatedSlot`已交付的原对归唯一CreatedSlotResources；未交付原产物只归GameMode消费。\n每条记录原Slot先Destroy()，OriginalCreatedPawn后Destroy()；不跟随当前Avatar / Owner，不触碰后来接管实体。\n已失效 / 已销毁中不重复；原生接受（含延迟Destroy）只退休字段请求义务，不证明物理清理。\nAuthority丢失或拒绝且仍活 → 诊断，原字段回同一Squad台账；已退休字段不重复。\n最终组件销毁仍有存活未处理原物明确Error；无Tick / 自动重试，借用无Destroy权限。",
+      "x": 830,
+      "y": 2450,
+      "width": 700,
+      "height": 520,
+      "color": "5"
+    },
+    {
+      "id": "termination-host",
+      "type": "text",
+      "text": "## 9. 原Slot原生生命周期 → Host关闭\n原Slot继承CombatantState；Destroyed / EndPlay在Super前共用CloseAvatarBindingLifecycle（H3），覆盖BeginPlay前及owner-only。\nHost只消费自己原H / 已提交Context：有H原Release，无H走ASC认证原Context的真实Clear / Publish，不重捕后继。\nGameMode / Squad不持H / Context，不调用DetachAvatar、Extension Uninitialize、ClearActorInfo或GA取消；Host唯一协调，ASC执行事务。\nDestroy接受不保证Host物理Clear / 发布；Busy / 失败保留诊断。\nGate57旧版已编译；Gate58失败无新DLL / 未冒烟，A无运行证明。Logout / 完整切人未接，C13开放。\n[[Combatants/结构#Host生命周期关闭（H3）|Host H3]] · [[Teams/结构#原始创建资源的唯一终止链（08-05b）|原资源终止契约]]",
+      "x": 1660,
+      "y": 2450,
+      "width": 700,
+      "height": 520,
+      "color": "4"
     }
   ],
   "edges": [
@@ -88,7 +148,7 @@
       "fromSide": "right",
       "toNode": "slots",
       "toSide": "left",
-      "label": "ResolveActivePresetRoster → SetRoster"
+      "label": "选定非空名单"
     },
     {
       "id": "e2",
@@ -96,15 +156,15 @@
       "fromSide": "right",
       "toNode": "pawns",
       "toSide": "left",
-      "label": "InitializeForPawnData → SpawnSquadMember"
+      "label": "阶段一后生成Pawn"
     },
     {
       "id": "e3",
       "fromNode": "pawns",
       "fromSide": "right",
-      "toNode": "active",
+      "toNode": "receive-checks",
       "toSide": "left",
-      "label": "AttachAvatar → RegisterSlot / Possess"
+      "label": "RegisterCreatedSlot(Slot, OriginalCreatedPawn)"
     },
     {
       "id": "e4",
@@ -112,23 +172,88 @@
       "fromSide": "bottom",
       "toNode": "switch",
       "toSide": "top",
-      "label": "SwitchToSlot(Index)"
+      "label": "尝试0 / 后续切人"
     },
     {
       "id": "e5",
       "fromNode": "switch",
-      "fromSide": "right",
+      "fromSide": "left",
       "toNode": "persist",
-      "toSide": "left",
-      "label": "Slot/ASC 保留；只换 Possess"
+      "toSide": "right",
+      "label": "不重建Slot / ASC"
     },
     {
       "id": "e6",
       "fromNode": "preset",
-      "fromSide": "bottom",
+      "fromSide": "left",
       "toNode": "remote",
+      "toSide": "left",
+      "label": "未实施：远程上报",
+      "color": "3"
+    },
+    {
+      "id": "preset-refusal",
+      "fromNode": "preset",
+      "fromSide": "bottom",
+      "toNode": "saved-refusal",
       "toSide": "top",
-      "label": "远程预设需服务器上报（未实现）"
+      "label": "原始保存超限"
+    },
+    {
+      "id": "saved-default",
+      "fromNode": "saved-refusal",
+      "fromSide": "right",
+      "toNode": "slots",
+      "toSide": "bottom",
+      "label": "当前回落非空默认"
+    },
+    {
+      "id": "checks-commit",
+      "fromNode": "receive-checks",
+      "fromSide": "bottom",
+      "toNode": "active",
+      "toSide": "top",
+      "label": "先共同提交原对；true不保证激活"
+    },
+    {
+      "id": "checks-reject",
+      "fromNode": "receive-checks",
+      "fromSide": "left",
+      "toNode": "assembly-refusal",
+      "toSide": "right",
+      "label": "false未接收 → Creator消费原对"
+    },
+    {
+      "id": "pawns-fail",
+      "fromNode": "pawns",
+      "fromSide": "bottom",
+      "toNode": "assembly-refusal",
+      "toSide": "top",
+      "label": "准备 / 资格失败仍保留原产物"
+    },
+    {
+      "id": "slots-fail",
+      "fromNode": "slots",
+      "fromSide": "bottom",
+      "toNode": "assembly-refusal",
+      "toSide": "left",
+      "label": "准备false仍保留原Slot"
+    },
+    {
+      "id": "termination-original-consume",
+      "fromNode": "termination-entry",
+      "fromSide": "right",
+      "toNode": "termination-originals",
+      "toSide": "left",
+      "label": "闭合后消费原创建台账（空则无Destroy）"
+    },
+    {
+      "id": "termination-native-host",
+      "fromNode": "termination-originals",
+      "fromSide": "right",
+      "toNode": "termination-host",
+      "toSide": "left",
+      "label": "实际原Slot原生生命周期发生时；非Teams解绑调用"
     }
   ]
 }

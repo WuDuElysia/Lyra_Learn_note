@@ -3,136 +3,166 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# 动画曲线｜结构子图\n类、数据和关键接口：[[Animation/曲线处理|处理文档]]。实际采样顺序见 [[GGYGO_流程_动画曲线处理.canvas|流程图]]；目标拆环见 [[计划_动画与表现层#7. 曲线与权威移动的新边界]]。",
+      "text": "# 动画曲线｜运行时结构与独立Editor工具\n类、数据、接口及唯一状态归属见本图；箭头标签表示持有、调用、返回与只读数据，预测双向边表示语义／时钟基线往返。\n[[Animation/曲线处理|完整实现说明]] · [[Animation/结构|Animation接口]] · [[Movement/结构|Movement接口]] · [[GGYGO_流程_动画曲线处理.canvas|调用流程]]\n右侧Editor不参与move、无播放时钟。作者已编译，七Profile完整同进程回读与默认Set七引用保存通过；新进程仅引用／19参数／八资产校验通过，完整冷曲线、正式Hero／ABP／Run、网络及视觉未验。",
       "x": 0,
       "y": 0,
-      "width": 1780,
-      "height": 150,
+      "width": 2540,
+      "height": 280,
       "color": "6"
     },
     {
       "id": "asset",
       "type": "text",
-      "text": "## 烘焙动画资产\n`RootMotion_Speed`：即时速度\n`PosX/PosY`：累计位移\n`Dist`：累计路程\n`Yaw`：累计转角\n`DirX/DirY`：烘焙方向\n`Cfg_ClipLength/LoopTime`：来源与循环标记",
+      "text": "## MovementSet：配置与引用\n`UGGYGOMovementSet`（数据资产）\n持有 WalkStart / WalkLoop / RunLoop / StartStop / WalkStop / RunStop / TurnBack 七Profile引用。\n\n`ValidateMovementSet(Error)`\n输入：明确模式、速度/Scale参数、引用。\n曲线模式要求七Profile及Loop约束、Profile校验；显式fixed模式允许空Profile，通用参数仍须合法。\n输出：bool + 可定位Error，不持有播放状态。\n\nCMC的 `SetMovementSet(NewSet)` 仅接受校验成功配置；拒绝后保持未接纳状态。\n[[Movement/结构|Movement配置责任]]",
       "x": 0,
-      "y": 240,
-      "width": 430,
-      "height": 260,
+      "y": 320,
+      "width": 520,
+      "height": 580,
       "color": "4"
     },
     {
       "id": "anim",
       "type": "text",
-      "text": "## UAnimInstance\n`GetCurveValue(Name)` → 供采样器读取当前动画曲线。当前它是 CMC 反读的数据源。",
+      "text": "## Animation：只读表现事实\n`FGGYGOAnimationStateCapture`\n`Capture(OutState,OutDebug,Pawn)`\n由 `AnimInstanceBase::NativeUpdateAnimation` 在游戏线程调用：先Reset输出，只读Pawn/CMC/ASC。\nStateFrame：步态、输入、WalkRun混合、Stop/转身语义；CurveMotion读取用于DebugFrame。\n\n抓帧器无跨帧缓存；ABP选姿态/过渡。\n不反写CMC、不选择Profile或推进移动时钟；Owner/表现帧清理由Animation生命周期负责。\n[[Animation/结构|Animation接口]] · [[AbilitySystem/结构|ASC事实]]",
       "x": 0,
-      "y": 650,
-      "width": 430,
-      "height": 190,
+      "y": 1900,
+      "width": 520,
+      "height": 640,
       "color": "4"
     },
     {
       "id": "sampler",
       "type": "text",
-      "text": "## FGGYGOAnimCurveSampler\n`Sample(AnimInstance, dt, OutMotion)` → 清输出、读曲线、差分累计量。\n`ResetBaseline()` → Mesh/动画源中断后丢弃上一帧基线。\n持有 PreviousPosX/Y、Distance、Yaw。",
-      "x": 530,
-      "y": 340,
-      "width": 460,
-      "height": 265,
+      "text": "## 历史Sampler（当前CMC无调用）\n`FGGYGOAnimCurveSampler`\n`Sample(AnimInstance,dt,out)` / `ResetBaseline()`\n旧GetCurveValue读取Cfg/Speed/Pos/Dist/Yaw/Dir；Cfg或旧信号判来源，持有累计量跨帧基线并差分。\n旧非有限归零、钳零、缺方向差分替代不属于当前Profile契约。\n\n`FGGYGOAnimCurveMotion` 是当前Sample的兼容别名。\n本节点无当前运行时边；不把旧基线清理写成CMC现行机制。\n[[Animation/曲线处理#7. 历史Sampler与Editor读回边界|历史/Editor边界]]",
+      "x": 0,
+      "y": 2880,
+      "width": 520,
+      "height": 610,
       "color": "5"
     },
     {
       "id": "motion",
       "type": "text",
-      "text": "## FGGYGOAnimCurveMotion\n`Speed` / `Direction` / `YawDeltaDegrees` / `YawTotalDegrees`\n`PositionDelta` / `bHasCurveSource`\n`HasUsableSpeed()` → 区分速度可用与曲线缺失。",
-      "x": 530,
-      "y": 820,
-      "width": 460,
-      "height": 230,
+      "text": "## 当前区间样本（CMC owns）\n`FGGYGOLocomotionCurveSample`\nSpeed、Direction、Velocity、DirectionAngle、YawDelta/Total、ClipLength、loop/authored-direction/source标志。\nProfile当前不生成PositionDelta，`bHasPositionDelta=false`。\n\n`bHasCurveSource`：纯求值成功来源，包括合法零速；由CMC持有当前结果并Reset/提交。\n`HasUsableSpeed()`：来源存在且Speed>KINDA_SMALL_NUMBER，仅刹停/RMS幅值判据。\n\n零/极小正速/零Scale的成功来源资格不由该幅值阈值替换。\nAnimation只读当前CMC样本；RMS只消费原CMC返回的Prepared。样本／Prepared均不立第二时钟或配置权威。\n[[Animation/曲线处理#4. 速度、Yaw与原生RMS消费|资格与消费]]",
+      "x": 760,
+      "y": 1900,
+      "width": 620,
+      "height": 720,
       "color": "5"
     },
     {
       "id": "cmc",
       "type": "text",
-      "text": "## UGGYGOCharacterMovementComponent\n`SampleAnimCurves(dt)` → Super Tick 前恰好采一次。\n`GetScaledCurveSpeed()` → Speed × RootMotionScale。\n`GetMaxSpeed()` / `PhysicsRotation()` → 消费速度和 YawDelta。",
-      "x": 1110,
-      "y": 300,
-      "width": 470,
-      "height": 275,
+      "text": "## CMC｜唯一语义／时间／请求\nSetMovementSet校验后接纳；失败非fixed。\n普通Before：16字段Candidate→语义／混合→纯数学→成功Commit；失败Reject原执行号，0号不补号。\n曲线Stop／TurnBack：Stage暂存原Input／Origin并挂源，等待真实Prepare，不预支区间。\n同Completed Origin：普通求剩余clip并Commit，不重挂原物理执行。\nPrepareLocomotionCurveRootMotion校验原关系，native时间＋固定锚点映射Motion区间，返回Prepared／Finished等。\n正常Prepare由CMC一次Consume；回放Prepare只产出结果，Before消费。FAILED不恢复，旧源不失败后继。\nOrigin／Input／Prepared只属原执行身份、输入与派生资源；CMC唯一提交段时间／相位／转身／CurveMotion。\nCMC挂载／退自有源；CMC／原生物理唯一执行胶囊，RMS只提供速度贡献。\nGetMaxSpeed合法值含0；fixed仅显式配置。无动画反读，生产Hero／Run未验。\n[[Movement/结构|接口／生命周期]]",
+      "x": 1620,
+      "y": 320,
+      "width": 800,
+      "height": 900,
       "color": "5"
     },
     {
       "id": "rms",
       "type": "text",
-      "text": "## FRootMotionSource_GGYGOCurve\n`PrepareRootMotion()` → 用段入口 BaseYaw 将 Direction/Speed 转世界速度；保护 Z，退场保留动量。\n`NetSerialize()` → 复制 BaseYaw/Scale/结束策略。",
-      "x": 1110,
-      "y": 760,
-      "width": 470,
-      "height": 260,
+      "text": "## 原生Curve RMS｜原执行贡献\n`FRootMotionSource_GGYGOCurve` 持原Origin；Clone保留同一引用，仍须校验原关系。同名／LocalID不是来源证明。\n\nPrepareRootMotion(实际sim,tick,Character,CMC)\n→ 原CMC.PrepareLocomotionCurveRootMotion\n输入原Source／Origin及真实区间；返回Prepared／Finished／Stale／Failed／UnsupportedOrigin。\n只消费Prepared.OverrideVelocity并SetTime(NativeEnd)，不读取当前CurveMotion或自行选择／求值Profile。\n固定入口BaseYaw旋转缩放端点速度×sim/tick；非精确位移积分。转身入口Yaw，刹停首次安装朝向。\nBrake低／零速及离地按真实生命周期Finished并保动量；TurnBack可留场零水平速度，Z不Override。\n失败只报告仍匹配原请求；旧源仅退自身，不影响后继。\nNetSerialize保留原wire字段／BaseYaw／Scale／策略，加载清本地Origin／Prepared；导入Origin不支持，不以默认来源成功。",
+      "x": 1620,
+      "y": 1900,
+      "width": 800,
+      "height": 750,
       "color": "4"
     },
     {
       "id": "saved",
       "type": "text",
-      "text": "## FSavedMove_GGYGO\n`SetMoveFor()` 保存 CurveMotion；`PrepMoveFor()` 恢复，供预测重演。",
-      "x": 530,
-      "y": 1190,
-      "width": 460,
-      "height": 180,
+      "text": "## SavedMove｜原move记录／重演\n`FSavedMove_GGYGO`\nSetMoveFor保存普通起始语义／段时间／共相位／混合／Sequence／转身基线。\nPostUpdate记录本move原Input／Prepared（含样本和有界候选）或PendingInput；首次挂源也记录，有原Input不合并。\n\nPrepMoveFor先BeginReplay原Input／Prepared／Source组，再native Super；Super可能Prepare SavedRootMotion。Finish清临时组指针。\nBefore一次Consume匹配的已有或实际生成原结果；缺结果Reset，不伪造整帧区间。普通非RMS仍恢复起始基线再求值。\n权威Response清样本／设置基线；权威重演阻止旧普通基线覆盖，出口检查原失败／后继关系。\nClear清本move引用，EndReplay清上下文；残留引用不授准入，FAILED不恢复。\nMoveData仅语义hint；NetSerialize不传本地Origin，完整authority／proxy协调未验。\n[[Animation/曲线处理#5. 预测恢复与Animation只读Capture|重演契约]]",
+      "x": 760,
+      "y": 2880,
+      "width": 620,
+      "height": 830,
       "color": "4"
     },
     {
       "id": "profile",
       "type": "text",
-      "text": "## MotionProfile（目标，未实现）\n离线可独立采样的速度/方向/转角与 PlaybackTime；未来切断 CMC → AnimInstance 反读。",
-      "x": 1110,
-      "y": 1190,
-      "width": 470,
-      "height": 190,
-      "color": "3"
+      "text": "## 独立Locomotion Profile\n`UGGYGOLocomotionMotionProfile`\n数据：Speed(cm/s)、DirX/DirY(X前/Y右)、累计Yaw(deg)、Duration、bLoop、源标识/指纹。\n\n`ValidateProfile(Error)`：曲线/keys/时长校验。\n`EvaluateInterval(t0,t1,out,error)`：\n输入有限非负t0/t1且t1≥t0；入口Reset样本并清可选Error，每次校验。\n非循环：两端Clamp；Speed/Dir取t1。\n循环：相位采Speed/Dir，Yaw按周期增量解绕；YawDelta=Yaw(t1)-Yaw(t0)。\n成功：完整OutSample、true/可选Error空；合法零速有来源，正速须有效方向。\n失败：false、完整Reset、可选字段原因。\n\n纯求值：资产不变，无播放时钟/日志/缓存；调用方负责消费失败。\n[[Animation/曲线处理#2. Profile数据与EvaluateInterval契约|完整区间契约]]",
+      "x": 760,
+      "y": 320,
+      "width": 620,
+      "height": 780,
+      "color": "4"
     },
     {
       "id": "contract",
       "type": "text",
-      "text": "## 曲线接口与时钟边界\nCMC::TickComponent(dt) → SampleAnimCurves(dt) → Sampler::Sample(AnimInstance, dt, OutMotion) → AnimInstance::GetCurveValue(Name)。\nSampler 持有累计量基线，写 CurveMotion；CMC::GetMaxSpeed/PhysicsRotation 与 RMS::PrepareRootMotion 读取它。SavedMove::SetMoveFor/PrepMoveFor 为预测重演保存/恢复。\n当前是 CMC 反读 AnimInstance；MotionProfile 只是拟议替代数据源，不能画作已实现调用。",
-      "x": 0,
-      "y": 1470,
-      "width": 1450,
-      "height": 300,
+      "text": "## 当前验证与剩余边界\nC37单／双数学失败消费已编译，公开AuthorityAndMapping夹具已复测通过；合成来源不证明正式Input或Run。\n本地原Origin／实际区间／Prepared一次消费／原move重放已实现。六源与Gate59／60冻结版一致，Runtime已编译；Camera叶仅证其专项，Gate61 Character／Combatants Host两叶Success仅证本专项，不证明移动动态。\n首帧、partial／zero／catchup、重放后继隔离、完整authority／proxy匹配和校正仍未验。\n七Profile同进程完整字段／bit通过，默认Set七引用已保存；新进程七引用／19参数／八资产VALID通过，无保存。\n完整冷FRichCurve逐位回读、ABP生产接线、正式Hero／PIE／网络／Run未验；原失败保留。\n[[Animation/曲线处理#6. 当前失败消费缺口与实施状态|运行边界]] · [[Animation/曲线处理#8. Editor单Profile作者与保存边界|作者与资产边界]]",
+      "x": 1620,
+      "y": 2880,
+      "width": 800,
+      "height": 930,
       "color": "6"
+    },
+    {
+      "id": "evaluation",
+      "type": "text",
+      "text": "## 无状态数学｜GGYGOLocomotionEvaluation\nEvaluateSingleInterval(Profile,t0,t1,Scale,out,error) → 样本／缩放结果。\nEvaluateWalkRunInterval(Walk,Run,phase,dt,alpha,Scale,out,error) → 双成功混合／未回绕末相位。\n调用Profile.EvaluateInterval，端点也要求双Loop；失败Reset／原原因，不提交调用方时钟。\n无播放状态、缓存、日志；CMC成功后唯一Commit。\n[[Movement/结构|候选与失败接口]]",
+      "x": 760,
+      "y": 1240,
+      "width": 620,
+      "height": 460,
+      "color": "4"
+    },
+    {
+      "id": "editor-readers",
+      "type": "text",
+      "text": "## Editor读取器与值副本\n`UGGYGOAnimationCurveReadLibrary`\nReadFloatCurves(Source,Names,out,Duration,Error) → 完整FFloatCurve与源double时长；唯一读取／校验公开DataModel。\n\n`UGGYGOAnimationCurveSnapshotLibrary`\nReadFloatCurveSnapshot(Source,Names) → Result{succeeded,curves,duration_seconds,error}；只调用R1一次，复制Name／Flags／Default／外推及九键字段。\n\n副本归调用者，无源句柄、缓存、求值或资产修改。七源完整Snapshot及正式默认根已只读回读。当前七Profile已保存，默认Set七引用已接；完整冷曲线／Run未验，资产证据与读取器职责分开。\n[[Animation/曲线处理#7. 历史Sampler与Editor读回边界|读取边界]]",
+      "x": 2700,
+      "y": 320,
+      "width": 960,
+      "height": 760,
+      "color": "4"
+    },
+    {
+      "id": "editor-profile-author",
+      "type": "text",
+      "text": "## Editor单Profile作者｜已编译、七产物通过\n`UGGYGOLocomotionMotionProfileAuthorLibrary`\nCreateOrInspectProfile(Source,SourcePath,ExpectedSnapshot,TargetObjectPath,DurationSeconds,bLoop)\n\n输入：显式源、完整四曲线Snapshot与/Game/Package.Object。重新R1比对源；候选ValidateProfile＋位级回读；整FRichCurve赋值，ExternalCurve空，不重算切线。\n\n输出Result：Failed无Profile＋定位Error；CreatedUnsaved交付待保存Profile；ExistingMatched只读一致目标。既有差异／脏包不覆盖。\n\nProfileReadback：实际float时长／Loop／源标识／指纹／四曲线；源Name／Flags仅入版本化BLAKE3指纹。\n创建／dirty回调返回后复核身份与内容；失败只清本调用Profile，外部包／rooted／外来内容保留诊断。\n\n接口不注册、保存或配置MovementSet，无运行时状态。调用者已逐包精确保存并完整同进程回读；Start固定R1只读、不再保存，原失败保持。\n默认Set七引用已保存，冷进程引用／参数／原生校验通过；完整冷RichCurve／Run未验，CMC仍唯一执行。\n[[Animation/曲线处理#8. Editor单Profile作者与保存边界|完整契约]] · [[Movement/结构|Profile消费者]]",
+      "x": 2700,
+      "y": 1240,
+      "width": 960,
+      "height": 1160,
+      "color": "5"
     }
   ],
   "edges": [
     {
       "id": "e1",
       "fromNode": "asset",
-      "fromSide": "bottom",
-      "toNode": "anim",
-      "toSide": "top",
-      "label": "动画资产暴露曲线"
+      "fromSide": "right",
+      "toNode": "profile",
+      "toSide": "left",
+      "label": "持有：七Profile引用\n曲线模式校验"
     },
     {
       "id": "e2",
       "fromNode": "anim",
-      "fromSide": "right",
-      "toNode": "sampler",
-      "toSide": "left",
-      "label": "GetCurveValue"
+      "fromSide": "top",
+      "toNode": "cmc",
+      "toSide": "bottom",
+      "label": "只读依赖：Capture查询CMC事实\nASC事实由Animation跨模块查询"
     },
     {
       "id": "e3",
-      "fromNode": "sampler",
+      "fromNode": "profile",
       "fromSide": "bottom",
       "toNode": "motion",
       "toSide": "top",
-      "label": "输出本帧结果"
+      "label": "返回：OutSample由CMC接收\n成功完整值 / 失败Reset+可选原因"
     },
     {
       "id": "e4",
-      "fromNode": "motion",
-      "fromSide": "right",
-      "toNode": "cmc",
-      "toSide": "left",
-      "label": "速度 / 转角 / 有效性"
+      "fromNode": "cmc",
+      "fromSide": "bottom",
+      "toNode": "motion",
+      "toSide": "top",
+      "label": "CMC唯一持有／提交CurveMotion\n普通Before Commit／原Prepared一次Consume"
     },
     {
       "id": "e5",
@@ -140,31 +170,57 @@
       "fromSide": "bottom",
       "toNode": "rms",
       "toSide": "top",
-      "label": "装配曲线位移源"
+      "label": "Stage发行原Origin／Input并挂源\nCompleted仅普通剩余clip，不重挂"
     },
     {
       "id": "e6",
-      "fromNode": "motion",
-      "fromSide": "right",
-      "toNode": "rms",
+      "fromNode": "rms",
+      "fromSide": "left",
+      "toNode": "cmc",
       "toSide": "left",
-      "label": "方向和速度"
+      "label": "原Source／真实\nsim/tick请求CMC\n返回原Prepared\n速度／区间／结果"
     },
     {
       "id": "e7",
       "fromNode": "cmc",
-      "fromSide": "bottom",
+      "fromSide": "left",
       "toNode": "saved",
-      "toSide": "top",
-      "label": "保存 / 恢复曲线快照"
+      "toSide": "right",
+      "fromEnd": "arrow",
+      "toEnd": "arrow",
+      "label": "普通基线＋PostUpdate原Input／Prepared\nSuper前BeginReplay／Before一次Consume"
     },
     {
       "id": "e8",
-      "fromNode": "profile",
-      "fromSide": "top",
-      "toNode": "cmc",
+      "fromNode": "cmc",
+      "fromSide": "left",
+      "toNode": "profile",
+      "toSide": "right",
+      "label": "经纯数学层调用Profile区间；消费成功／原错误"
+    },
+    {
+      "id": "e9",
+      "fromNode": "cmc",
+      "fromSide": "bottom",
+      "toNode": "asset",
       "toSide": "bottom",
-      "label": "目标：独立采样输入"
+      "label": "持有：校验成功的MovementSet\nSetMovementSet接纳/撤销"
+    },
+    {
+      "id": "cmc-math",
+      "fromNode": "cmc",
+      "fromSide": "left",
+      "toNode": "evaluation",
+      "toSide": "right",
+      "label": "CMC调用普通单／双区间或实际Prepare区间\n成功结果才由CMC提交"
+    },
+    {
+      "id": "editor-read-to-author",
+      "fromNode": "editor-readers",
+      "fromSide": "bottom",
+      "toNode": "editor-profile-author",
+      "toSide": "top",
+      "label": "显式Snapshot值作为作者输入；作者重新调用R1核对源"
     }
   ]
 }

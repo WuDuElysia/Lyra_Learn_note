@@ -13,11 +13,11 @@
     {
       "id": "source",
       "type": "text",
-      "text": "## CMC / ASC / Pawn（权威）\nCMC：`GetResolvedGait` / `HasMoveInput` / `IsTurnBackCurveDriven`。\nASC：GameplayTag 状态。Pawn：位置与朝向。\n[[Movement/结构]] · [[AbilitySystem/结构]]",
+      "text": "## CMC / ASC / Pawn（权威）\nCMC：`GetResolvedGait` / `GetWalkRunBlendAlpha` / `GetStopMotionType` / `HasMoveInput` / `GetTurnBackPhase`。\nASC：GameplayTag 状态。Pawn：位置与朝向。\n[[Movement/结构]] · [[AbilitySystem/结构]]",
       "x": 0,
       "y": 280,
       "width": 390,
-      "height": 225,
+      "height": 380,
       "color": "4"
     },
     {
@@ -27,47 +27,47 @@
       "x": 500,
       "y": 280,
       "width": 420,
-      "height": 215,
+      "height": 230,
       "color": "5"
     },
     {
       "id": "frame",
       "type": "text",
-      "text": "## FGGYGOAnimationStateFrame\n`bHasMoveInput`、步态、转身相位、状态 Tag 等只读语义；不存 ABP 状态名或连线。",
+      "text": "## FGGYGOAnimationStateFrame\n`bHasMoveInput`、`WalkRunBlendAlpha`、`StopMotionType`、步态、转身相位、状态 Tag 等只读语义；不存 ABP 状态名、资产或连线。",
       "x": 1000,
       "y": 280,
       "width": 420,
-      "height": 210,
+      "height": 260,
       "color": "5"
     },
     {
       "id": "base",
       "type": "text",
-      "text": "## UGGYGOAnimInstanceBase\n`NativeUpdateAnimation(dt)` → 更新 StateFrame。\n`HasAnimationStateTag(Tag)` / `IsAnimationRunGait()` / `IsTurnBackCurveDriven()` → 供 AnimBP 过渡图查询。",
+      "text": "## UGGYGOAnimInstanceBase\nInitialize / Uninitialize / Owner 变化共用幂等 Reset：清 Owner、StateFrame、DebugFrame，再调用派生 Hook。\nOwner 变化帧先清旧状态、绑定新 Owner，再抓取 StateFrame。\n语义查询供 AnimBP 过渡图只读使用。",
       "x": 1000,
       "y": 620,
       "width": 420,
-      "height": 245,
+      "height": 320,
       "color": "5"
     },
     {
       "id": "abp",
       "type": "text",
-      "text": "## ABP_Pyrios\n过渡图读取 StateFrame；GetSeqByKey / GetBlendSpaceByKey 取资产。\nEnterMove / Stop / TurnBack 单次播放。\nWalkRun：X 轴 WalkRunBlendAlpha 读取旧字段 GaitBlendY（蓝图显示 Walk Run Blend Alpha）。",
+      "text": "## ABP_Pyrios\n过渡图读取 StateFrame；GetSeqByKey / GetBlendSpaceByKey 取资产。\nEnterMove / Stop / TurnBack 单次播放。\nWalkRun：X 输入读取旧字段 GaitBlendY（显示 Walk Run Blend Alpha）；轴规范名 WalkRunBlendAlpha 待 UE 回读/保存。",
       "x": 1000,
-      "y": 980,
+      "y": 1060,
       "width": 420,
-      "height": 230,
+      "height": 340,
       "color": "1"
     },
     {
       "id": "compat",
       "type": "text",
-      "text": "## UZZZAnimInstance / Snapshot（兼容）\nStateFrame → 旧 Snapshot 的纯适配。\n`FZZZLocomotionEvents` 当前仍更新 `StateMemory.StopValue` / `GaitBlendY`；迁移计划见 [[计划_动画与表现层]]。",
+      "text": "## UZZZAnimInstance / Snapshot（兼容）\nStateFrame → 旧 Snapshot 的纯适配。派生 Reset Hook 清 Memory、Snapshot、Events 上下文和公开表现字段，保留 AnimSet/Tuning。\n`MapMovementState()` 只复制 WalkRunBlendAlpha 并映射 StopMotionType → StopValue 0/1/2；不再插值或计时。[[计划_动画与表现层]]",
       "x": 500,
       "y": 750,
       "width": 420,
-      "height": 245,
+      "height": 380,
       "color": "3"
     },
     {
@@ -75,17 +75,17 @@
       "type": "text",
       "text": "## FZZZAnimSet / FZZZAnimTuning\n动画键到序列/BlendSpace 的表与混合参数；曲线链见 [[GGYGO_结构_动画曲线.canvas|曲线结构子图]]。",
       "x": 0,
-      "y": 970,
+      "y": 1050,
       "width": 390,
-      "height": 210,
+      "height": 230,
       "color": "4"
     },
     {
       "id": "contract",
       "type": "text",
-      "text": "## 事实到表现的接口边界\nUE → AnimInstanceBase::NativeUpdateAnimation(dt) → StateCapture::Capture(OutState, OutDebug, Pawn)。\nCapture 从 CMC/ASC/Pawn 读权威事实，写 AnimationStateFrame；AnimBP 通过查询函数/StateFrame 决定状态、资产与过渡。\nZZZAnimInstance::NativeUpdateAnimation → LegacySnapshotAdapter::Capture 仅适配旧 Snapshot；StopValue/GaitBlendY 兼容记忆当前仍在 C++，目标才迁入蓝图。\nAnimBP 不应回调 CMC 来决定玩法位移；曲线反读例外见曲线结构子图。",
+      "text": "## 事实到表现的接口边界\n生命周期边界 → ResetAnimationLifecycleState → 基类清理 → OnAnimationLifecycleReset；A → nullptr → B 不复用旧 Pawn 数据。\nUE → AnimInstanceBase::NativeUpdateAnimation(dt) → StateCapture::Capture(OutState, OutDebug, Pawn)。\nCapture 从 CMC/ASC/Pawn 读权威事实，写 AnimationStateFrame；AnimBP 通过查询函数/StateFrame 决定状态、资产与过渡。\nZZZAnimInstance::NativeUpdateAnimation → LegacySnapshotAdapter::Capture → MapMovementState，仅维护现有 ABP 的序列化兼容字段。\nAnimBP 不回调 CMC 决定位移；CMC 的 Locomotion 曲线来自独立 Profile，生产资产接线待 UE 窗口。",
       "x": 0,
-      "y": 1300,
+      "y": 1490,
       "width": 1450,
       "height": 300,
       "color": "6"
@@ -95,9 +95,9 @@
       "type": "text",
       "text": "## 普攻 AnimSequence（已存在）\nNormal_01/02/03 与对应 End：60 fps，共用 Pyrios Skeleton。\n无 Notify，原生 Root Motion=false；含 RootMotion_* 曲线。\n[[Animation/普攻动画实施|资产事实与契约]]",
       "x": 0,
-      "y": 1730,
+      "y": 1920,
       "width": 440,
-      "height": 260,
+      "height": 320,
       "color": "4"
     },
     {
@@ -105,9 +105,9 @@
       "type": "text",
       "text": "## 三份普攻 Montage（初版已保存）\nAM_Pyrios_Attack_Normal_01/02/03。Main → End → 停止，Slot=FullBody。\nMain 全段 + End 前 30/45/90 帧（60 fps）；BlendIn/Out=0.10/0.25 s。\n[[Animation/普攻动画实施|实际帧区间与验证范围]]",
       "x": 520,
-      "y": 1730,
+      "y": 1920,
       "width": 440,
-      "height": 260,
+      "height": 320,
       "color": "3"
     },
     {
@@ -115,7 +115,7 @@
       "type": "text",
       "text": "## 战斗侧 GA（跨模块契约）\nUGGYGOPlayerComboAbility / FGGYGOComboStep 持有各段 Montage 引用。\nGA 决定换段、输入缓存、伤害和异常清理；动画不保存角色级战斗状态。\n[[计划_玩家普攻连段|GA 实施计划]]",
       "x": 1040,
-      "y": 1730,
+      "y": 2100,
       "width": 440,
       "height": 280,
       "color": "3"
@@ -125,30 +125,80 @@
       "type": "text",
       "text": "## GameplayEventWindow（已配置/回读）\n60 fps：Hit=4–14 / 4–15 / 20–54。\nCombo=16–115 / 17–99 / 56–102，分别跨入 End 14/18/18 帧。\n独立轨发 Event.Montage 的 ComboWindow 与 HitWindow Begin/End；游戏内待验收。",
       "x": 520,
-      "y": 2130,
+      "y": 2380,
       "width": 440,
-      "height": 260,
+      "height": 320,
       "color": "3"
     },
     {
       "id": "combo_slot_gate",
       "type": "text",
-      "text": "## FullBody Slot（骨架已注册）\n当前 ABP 主图无 Slot，最终接线暂停。\nModifyBone 固定 Bip001 组件位置；CMC 仍反读 RootMotion_*。\n待移动策略明确后验证网格/胶囊一致性。\n[[Animation/普攻动画实施|证据与当前缺口]]",
+      "text": "## FullBody Slot（骨架已注册）\n当前 ABP 主图无 Slot，最终接线暂停。\nModifyBone 固定 Bip001 组件位置；CMC 已改用独立 Locomotion Profile，不再反读 AnimInstance 曲线。\n待资产接线后验证网格/胶囊一致性。\n[[Animation/普攻动画实施|证据与当前缺口]]",
       "x": 0,
-      "y": 2130,
+      "y": 2380,
       "width": 440,
-      "height": 280,
+      "height": 350,
       "color": "3"
     },
     {
       "id": "bh3_import",
       "type": "text",
       "x": 0,
-      "y": 2570,
+      "y": 2890,
       "width": 600,
-      "height": 260,
+      "height": 310,
       "text": "## BH3 Kevin DemonBattle：独立导入\n模型/StandBy已保存与预览；75条可导入动画全部成功，4条源空片段未生成。\n独立Skeleton，保留原始根层级；渲染按槽名接线。\n[[Animation/BH3_Kevin_DemonBattle导入|导入说明与验收]]\n[[GGYGO_流程_BH3_DemonBattle导入.canvas|导入流程子图]]",
       "color": "4"
+    },
+    {
+      "id": "kevin_combat",
+      "type": "text",
+      "x": 0,
+      "y": 3340,
+      "width": 650,
+      "height": 310,
+      "color": "5",
+      "text": "## Kevin战斗动画（资产待生成）\n55独立Montage；Ice01/02候选窗口；Prop1端点与独立ABP。\n已有资产只读核验，缺失才创建；Movement提供InPlace并执行位移。\n完整链接与3项Animation安全自动化通过；生产资产及玩法待验收。\n[[Animation/资产生产安全|保护契约]] · [[Animation/Kevin战斗动画实施|实施]] · [[GGYGO_流程_Kevin战斗动画.canvas|生成流程]]"
+    },
+    {
+      "id": "montage_guard",
+      "type": "text",
+      "x": 1760,
+      "y": 560,
+      "width": 800,
+      "height": 420,
+      "color": "5",
+      "text": "## UGGYGOMontageGuardAnimInstance\nAnimation Runtime薄原生播放屏障；继承UAnimInstance，项目Base已继承它。\n唯一持有ScopeChain借用登记与LifecycleGeneration/CallId；不拥有Caller栈Scope、引擎实例或GAS播放状态。\nInitialize/Uninitialize/观测Owner变化令身份失效；旧Scope各自按身份注销，不清链释放调用者存储、不停止新Owner播放。\n公开IdentityCurrent与StageQuery；Montage_PlayInternal由既有引擎执行。\n生产AnimClass迁移未完成；严格P1/网络仍开放。\n[[Animation/结构#Montage播放Guard的静态契约|职责与接口]]"
+    },
+    {
+      "id": "montage_scope",
+      "type": "text",
+      "x": 1760,
+      "y": 1120,
+      "width": 800,
+      "height": 440,
+      "color": "4",
+      "text": "## FGGYGOMontagePlayGuardScope\nCaller栈拥有、不可复制/移动；原Guard仅借用登记。\nRequest：OriginalAnimInstance、RequestedMontage、CallerIdentity、IsCallerContextCurrent（原有纯上下文谓词）。\nCanExecute仅准许原生入口；Complete(CallerReturn)封存，GetResult返回Scope内引用，析构前必须复制。\nResult：Identity/Outcome/NativeStage/两返回值；bSealed与NativeStage分开。\n析构只注销原实例自身登记，不停Montage、不清ASC/Task状态。\n没有第二播放执行器/全局attempt表/计时器。"
+    },
+    {
+      "id": "montage_guard_query",
+      "type": "text",
+      "x": 2720,
+      "y": 560,
+      "width": 860,
+      "height": 550,
+      "color": "6",
+      "text": "## 只读阶段查询｜Guard公开方法\nTryGetCurrentMontagePlayGuardStage(CallerIdentity,OutNativeStage,bOutCompleted) const\nGameThread：只看ScopeChain.Last()，登记/原Guard/Caller/生命周期身份匹配。\ntrue复制NativeStage及bSealed；false先Reset为NotEntered/false。\n查询无祖先回查、外部谓词、生命周期刷新或新状态，不要求实例活跃。\n即时副本；外调后重查。Returned不等于ASC Super完成，Completed不等于来源发布；不授Task资源权限。\n生产该查询消费者未接；成功/不可用均非Accepted或ASC/GA权限证明。\n本节点是接口说明面板，不是另一个持状态对象。\n[[Animation/结构#Montage播放Guard的静态契约|查询边界]]"
+    },
+    {
+      "id": "montage_callers",
+      "type": "text",
+      "x": 1760,
+      "y": 1740,
+      "width": 800,
+      "height": 490,
+      "color": "4",
+      "text": "## ASC / Task｜跨模块责任边界\nASC：PlayMontageWithGuard持有Caller栈Scope；CallerIdentity=原ASC，包住完整Super调用并复制结果。Local/Rep/GA/预测状态仍归GAS。\nTask：当前Activate→ASC::PlayMontage；自身维护事件/委托、播放来源核验和RootMotionScale lease，清理自身资源。\n该阶段查询尚无生产消费者；不画Query→ASC/Task已接边。\nReturned/Completed均不授Task播放/停止/lease/委托权限；调用方须验证自身来源与生命周期。\n生产AnimClass迁移、严格P1及网络未闭合。\n[[AbilitySystem/结构|ASC与Task职责]]"
     }
   ],
   "edges": [
@@ -198,7 +248,7 @@
       "fromSide": "right",
       "toNode": "abp",
       "toSide": "left",
-      "label": "仅剩表现记忆与旧调试字段"
+      "label": "兼容字段驱动现有 Select / BlendSpace"
     },
     {
       "id": "e7",
@@ -239,6 +289,55 @@
       "toNode": "combo_slot_gate",
       "toSide": "left",
       "label": "按 FullBody Slot 输出姿势（待接线）"
+    },
+    {
+      "id": "kevin_combat_source",
+      "fromNode": "bh3_import",
+      "fromSide": "bottom",
+      "toNode": "kevin_combat",
+      "toSide": "top",
+      "label": "保留源序列，生成独立战斗资产"
+    },
+    {
+      "id": "guard_base_inherit",
+      "fromNode": "base",
+      "fromSide": "right",
+      "toNode": "montage_guard",
+      "toSide": "left",
+      "label": "当前C++继承（Base → Guard）"
+    },
+    {
+      "id": "guard_scope_registration",
+      "fromNode": "montage_scope",
+      "fromSide": "top",
+      "toNode": "montage_guard",
+      "toSide": "bottom",
+      "label": "构造登记/析构注销原Guard；借用指针，不转移Scope存储"
+    },
+    {
+      "id": "guard_caller_scope",
+      "fromNode": "montage_callers",
+      "fromSide": "top",
+      "toNode": "montage_scope",
+      "toSide": "bottom",
+      "label": "ASC调用栈拥有Scope；覆盖整个Super::PlayMontage"
+    },
+    {
+      "id": "guard_scope_result",
+      "fromNode": "montage_scope",
+      "fromSide": "right",
+      "toNode": "montage_callers",
+      "toSide": "right",
+      "label": "Complete/GetResult：复制结果给ASC；不是Task资源授权"
+    },
+    {
+      "id": "guard_query_contract",
+      "fromNode": "montage_guard",
+      "fromSide": "right",
+      "toNode": "montage_guard_query",
+      "toSide": "left",
+      "label": "公开只读方法契约（接口说明关联）",
+      "color": "6"
     }
   ]
 }

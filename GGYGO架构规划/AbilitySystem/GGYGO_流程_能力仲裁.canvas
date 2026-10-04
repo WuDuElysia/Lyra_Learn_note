@@ -1,124 +1,19 @@
 {
-  "nodes": [
-    {
-      "id": "nav",
-      "type": "text",
-      "text": "# 能力仲裁｜流程子图\n只画申请到激活/拒绝的先后。类与接口见 [[GGYGO_结构_AbilitySystem.canvas|结构图]]；[[计划_AbilitySystem]]。",
-      "x": 0,
-      "y": 0,
-      "width": 1660,
-      "height": 130,
-      "color": "6"
-    },
-    {
-      "id": "request",
-      "type": "text",
-      "text": "1. InputTag 或 ActionTag 形成能力激活请求。\n\n玩家经 ProcessAbilityInput 收集 SpecHandle；Boss 经 ActionTag 定位 SpecHandle，两者最终进 ASC::TryActivateAbility。",
-      "x": 0,
-      "y": 351,
-      "width": 390,
-      "height": 230,
-      "color": "5"
-    },
-    {
-      "id": "tag",
-      "type": "text",
-      "text": "2. ASC 检查基础激活条件和 Tag 关系映射。\n\nASC::CanActivateAbilityByHandle（AI 预检）/ GA::CanActivateAbility（实际准入）检查 Tag、成本与 Mapping；返回 FailureTags。",
-      "x": 470,
-      "y": 351,
-      "width": 390,
-      "height": 230,
-      "color": "5"
-    },
-    {
-      "id": "group",
-      "type": "text",
-      "text": "3. ASC 按组规则、Exclusive 策略和优先级仲裁；同级按 D4。\n\nGA::CanActivateAbility → ASC::IsActivationBlockedByGroup(Ability, OutReason)；读取 GroupConfig 和 ActiveAbilitiesByGroup。",
-      "x": 940,
-      "y": 351,
-      "width": 410,
-      "height": 230,
-      "color": "5"
-    },
-    {
-      "id": "allow",
-      "type": "text",
-      "text": "4A. 允许：取消被压制实例，登记新能力所在组并激活 GA。\n\nASC::NotifyAbilityActivated → AddAbilityToActivationGroup；冲突旧实例按规则取消，随后 GA::ActivateAbility。",
-      "x": 1430,
-      "y": 216,
-      "width": 410,
-      "height": 230,
-      "color": "1"
-    },
-    {
-      "id": "reject",
-      "type": "text",
-      "text": "4B. 拒绝：回传原因；可重试的玩家意图由 HeroComponent 缓冲。\n\nASC::NotifyAbilityFailed(Handle, Ability, FailureReason)；仅 Queued 原因触发 OnAbilityInputRetryable(Tag)。",
-      "x": 1430,
-      "y": 675,
-      "width": 410,
-      "height": 230,
-      "color": "3"
-    },
-    {
-      "id": "freed",
-      "type": "text",
-      "text": "5. 旧 GA 结束释放组；HeroComponent 收到通知再申请一次。\n\nGA::EndAbility → ASC::RemoveAbilityFromActivationGroup → OnAbilityGroupFreed.Broadcast(GroupTag) → HeroComponent::HandleAbilityGroupFreed。",
-      "x": 940,
-      "y": 824,
-      "width": 410,
-      "height": 230,
-      "color": "4"
-    }
-  ],
-  "edges": [
-    {
-      "id": "e1",
-      "fromNode": "request",
-      "fromSide": "right",
-      "toNode": "tag",
-      "toSide": "left",
-      "label": "提交请求"
-    },
-    {
-      "id": "e2",
-      "fromNode": "tag",
-      "fromSide": "right",
-      "toNode": "group",
-      "toSide": "left",
-      "label": "基础条件通过"
-    },
-    {
-      "id": "e3",
-      "fromNode": "group",
-      "fromSide": "right",
-      "toNode": "allow",
-      "toSide": "left",
-      "label": "允许 / 可中断"
-    },
-    {
-      "id": "e4",
-      "fromNode": "group",
-      "fromSide": "right",
-      "toNode": "reject",
-      "toSide": "left",
-      "label": "阻断 / 占组"
-    },
-    {
-      "id": "e5",
-      "fromNode": "reject",
-      "fromSide": "right",
-      "toNode": "freed",
-      "toSide": "left",
-      "label": "可重试"
-    },
-    {
-      "id": "e6",
-      "fromNode": "freed",
-      "fromSide": "left",
-      "toNode": "request",
-      "toSide": "bottom",
-      "label": "重新申请"
-    }
-  ]
+	"nodes":[
+		{"id":"nav","type":"text","text":"# 能力仲裁｜流程子图\n只画申请到激活/拒绝的先后。类与接口见 [[GGYGO_结构_AbilitySystem.canvas|结构图]]；[[计划_AbilitySystem]]。","x":0,"y":0,"width":1660,"height":130,"color":"6"},
+		{"id":"request","type":"text","text":"1. InputTag 或 ActionTag 形成能力激活请求。\n\n玩家经 ProcessAbilityInput 收集 SpecHandle；Boss 经 ActionTag 定位 SpecHandle，两者最终进 ASC::TryActivateAbility。","x":0,"y":351,"width":390,"height":230,"color":"5"},
+		{"id":"tag","type":"text","text":"2. ASC 检查基础激活条件和 Tag 关系映射。\n\nASC::CanActivateAbilityByHandle（AI 预检）/ GA::CanActivateAbility（实际准入）检查 Tag、成本与 Mapping；返回 FailureTags。","x":470,"y":351,"width":390,"height":230,"color":"5"},
+		{"id":"group","type":"text","text":"3. ASC 按组规则、Exclusive 和优先级仲裁。\n\nSingleInstance 先检查旧实例可取消性，再按优先级/平手策略决定。Queued 只拒绝占用；Coexist 保持共存。","x":940,"y":351,"width":410,"height":230,"color":"5"},
+		{"id":"allow","type":"text","text":"4A. ASC 为 PreActivate 分配跨实例单调 sequence 并登记预留；ActiveCount++ 后再最终裁决。\n\n基类 Activate 捕获本次 sequence：Finalize 先让较新 pending 拒绝较旧 pending，再取消 settled 冲突；终检只读 ActiveAbilitiesByGroup 权威登记，已注销但仍在结束广播栈的 Spec 实例不参与。旧 resolver 若自身已拒绝立即退出；最后只完成自己的 sequence，合格才进入相机/BP 业务。","x":1430,"y":216,"width":410,"height":230,"color":"1"},
+		{"id":"reject","type":"text","text":"4B. 拒绝：回传原因；可重试的玩家意图由 HeroComponent 缓冲。\n\nASC::NotifyAbilityFailed(Handle, Ability, FailureReason)；仅 Queued 原因触发 OnAbilityInputRetryable(Tag)。","x":1430,"y":675,"width":410,"height":230,"color":"3"},
+		{"id":"freed","type":"text","text":"5. End 先摘旧组登记，再调用 GAS Super。\n\nSuper 减少 ActiveCount 并广播结束；回调可重激活。返回后仅组仍空才发 OnAbilityGroupFreed，HeroComponent 重试自己的缓冲。","x":940,"y":824,"width":410,"height":230,"color":"4"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"request","fromSide":"right","toNode":"tag","toSide":"left","label":"提交请求"},
+		{"id":"e2","fromNode":"tag","fromSide":"right","toNode":"group","toSide":"left","label":"基础条件通过"},
+		{"id":"e3","fromNode":"group","fromSide":"right","toNode":"allow","toSide":"left","label":"预检允许 → 登记预留"},
+		{"id":"e4","fromNode":"group","fromSide":"right","toNode":"reject","toSide":"left","label":"阻断 / 占组"},
+		{"id":"e5","fromNode":"reject","fromSide":"right","toNode":"freed","toSide":"left","label":"可重试"},
+		{"id":"e6","fromNode":"freed","fromSide":"left","toNode":"request","toSide":"bottom","label":"重新申请"}
+	]
 }

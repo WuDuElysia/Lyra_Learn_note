@@ -3,92 +3,112 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Teams｜结构图\n玩家编队的持久层次。装配/换人顺序见 [[GGYGO_流程_队伍与装配.canvas|流程图]]；[[Teams/结构|结构文档]]。Boss 只共用底层宿主契约。",
+      "text": "# Teams｜结构图\n持久编队层次与关键静态接缝；箭头标签说明持有、继承、数据或调用。\n[[Teams/结构|结构文档]] · [[计划_队伍与装配|设计与缺口]] · [[GGYGO_流程_队伍与装配.canvas|装配与终止流程]]\n创建者A已捕获/准备并真实交付；Creator只管未交付，Squad只管已交付原责任，Host关闭原绑定。\nGate58 Failed/exit6，无新DLL、未冒烟；完整创建/Logout/切人仍开放，C13不关闭。Boss只共用底层宿主。",
       "x": 0,
       "y": 0,
-      "width": 1480,
-      "height": 140,
+      "width": 1690,
+      "height": 180,
       "color": "6"
     },
     {
       "id": "presets",
       "type": "text",
-      "text": "## UGGYGOSquadPresets\n`SetPresetMembers(Index, IDs)` → 保存资产 ID。\n`SetActivePresetIndex(Index)` → 选出战预设。\n`ResolveActivePresetRoster(Out)` → 解析本局成员。",
+      "text": "## UGGYGOSquadPresets\n输入：Index、FPrimaryAssetId[]（含空位）。\n`SetPresetMembers` → bool；超限拒绝，原名单不变。\n`ResolveActivePresetRoster(Out)` → 人数 / PawnData[]；超限0且不加载，输出空。\n`HandlePostLoad` → 保留超限旧数据，不截断。\n本地SaveGame；编辑后由调用方显式保存。",
       "x": 0,
       "y": 280,
-      "width": 410,
-      "height": 245,
+      "width": 440,
+      "height": 370,
       "color": "4"
     },
     {
       "id": "state",
       "type": "text",
-      "text": "## AGGYGOPlayerState\n拥有 `UGGYGOSquadComponent`；队伍数据跨 Pawn 死亡/更换仍保留。",
-      "x": 490,
+      "text": "## AGGYGOPlayerState\n构造唯一Squad默认子对象。\n`GetSquadComponent()` → 实际队伍指针。\n登记核对此唯一实例，不接受第二组件。\nController / PlayerState双向身份及同World/Authority。",
+      "x": 600,
       "y": 220,
-      "width": 420,
-      "height": 195,
+      "width": 500,
+      "height": 230,
       "color": "4"
     },
     {
       "id": "pc",
       "type": "text",
-      "text": "## AGGYGOPlayerController\n`Possess(Pawn)` → 控制出战 Avatar。\n`PostProcessInput()` → 调当前 ASC 消费本帧能力输入。",
-      "x": 490,
-      "y": 1030,
-      "width": 420,
-      "height": 220,
+      "text": "## AGGYGOPlayerController\n`Possess(Pawn)` → Authority执行出战控制。\nSquad终止仅在原活动控制链仍匹配时请求`UnPossess`。\n`PostProcessInput(dt, bPaused)` → 当前ASC::ProcessAbilityInput。\n[[Input/结构|输入生命周期]]；完整切人GA退出 / 输入释放政策未接。",
+      "x": 600,
+      "y": 1150,
+      "width": 500,
+      "height": 270,
       "color": "4"
     },
     {
       "id": "squad",
       "type": "text",
-      "text": "## UGGYGOSquadComponent\n`SetRoster(Data[])` → 装配前设置名单。\n`RegisterSlot(Slot)` → 登记已创建位置。\n`GetActiveSlot()` / `SwitchToSlot(Index)` → 当前出战与换人。\n持有 Roster、Slots、ActiveSlotIndex。",
-      "x": 490,
+      "text": "## UGGYGOSquadComponent\nPlayerState唯一队伍；Roster意图 / Slots成员 / ActiveSlotIndex出战。\n`SetRoster(Data[])` → bool；权威、未装配；终止后拒绝。\n`RegisterSlot(Slot)` → bool，仅借用。\nprivate friend GameMode：`RegisterCreatedSlot(Slot, OriginalCreatedPawn)` → 接原创建责任。\n新接收校验初始化 / 容量 / 连接与绑定；true不保证Possess。\n`SwitchToSlot(Index)` → 控制请求；外调后重检原对象与终止。\n`DestroySquad` / `EndPlay` / `OnComponentDestroyed` → 同一私有`ConsumeCreatedSlotResources`。\n先关闭名单 / 准入再外调；借用不Destroy；不持H / Context或写ActorInfo。\n[[Teams/结构|接口与终止契约]]",
+      "x": 600,
       "y": 565,
-      "width": 420,
-      "height": 290,
+      "width": 500,
+      "height": 510,
       "color": "5"
     },
     {
       "id": "slot",
       "type": "text",
-      "text": "## AGGYGOCharacterSlot\n`InitializeForPawnData(Data)` → 授予 AbilitySets / 配 ASC 规则。\n继承 `AttachAvatar(Pawn)`；每个 Slot 独立 HealthSet / CombatSet。",
+      "text": "## AGGYGOCharacterSlot\n`InitializeForPawnData(Data)` → Authority一次配置 / 授予。\n`IsPawnDataInitializationComplete()` → bool纯查询，GameMode准备与Squad新准入读取。\n仅PawnData非空 + 原授予循环完成；不保证全部配置 / 客户端Ready。\n`GetPawnData()`与继承ASC / Avatar getter → 绑定来源。\n继承`AttachAvatar(Pawn)`，void不保证接收；Squad验证绑定，不复制执行器。\n不持有队伍 / 输入状态。",
       "x": 1270,
-      "y": 578,
+      "y": 620,
       "width": 420,
-      "height": 260,
+      "height": 390,
       "color": "5"
     },
     {
       "id": "base",
       "type": "text",
-      "text": "## AGGYGOCombatantState\n`GetGGYGOAbilitySystemComponent()` → 访问持久 ASC。\n`AttachAvatar(Pawn)` / `DetachAvatar(Expected)` → 更新 ActorInfo 与复制引用。",
+      "text": "## AGGYGOCombatantState\n持有ASC、基础属性和复制Avatar。\n`AttachAvatar` / `DetachAvatar(ExpectedPawn)` → 原绑定接口。\n`Destroyed` / `EndPlay` → Super前唯一`CloseAvatarBindingLifecycle`。\n消费原H / Context；ASC真实Clear，后继隔离；Busy / 失败保留。\nTeams只触发原Slot原生销毁，不复制解绑。\n[[Combatants/结构|宿主接口与H3]] · [[AbilitySystem/结构|GAS]]",
       "x": 1270,
       "y": 215,
       "width": 420,
-      "height": 240,
+      "height": 350,
       "color": "4"
     },
     {
       "id": "pawn",
       "type": "text",
-      "text": "## AGGYGOCharacterBase / PawnExtension\n`InitializeAbilitySystem(ASC, Owner)` → Pawn 接入 Slot 持有的 GAS 状态。\n换人不重建 Slot。",
+      "text": "## AGGYGOCharacterBase / UGGYGOPawnExtensionComponent\n`SetPawnData(Data)` → Authority注入Pawn配置。\n`InitializeAbilitySystem(ASC, Owner)` → 本地绑定宿主。\n`GetGGYGOAbilitySystemComponent()` / `GetPawnData<T>()` → 缓存读回，非ASC所有者。\n`UninitializeAbilitySystem(ExpectedASC)` → 匹配才解绑。\n[[Character/结构|PawnExtension]] · [[Input/结构|Hero输入]]",
       "x": 1270,
-      "y": 1035,
+      "y": 1070,
       "width": 420,
-      "height": 220,
+      "height": 410,
       "color": "1"
     },
     {
       "id": "contract",
       "type": "text",
-      "text": "## 编队、宿主与控制权接口链\nSquadPresets::ResolveActivePresetRoster(OutRoster) → SquadComponent::SetRoster(PawnData[])：存档意图先于局内装配。\nGameMode::SpawnSquadSlot → Slot::InitializeForPawnData → AbilitySet::GiveToAbilitySystem；GameMode::SpawnSquadMember → Slot::AttachAvatar(Pawn) → PawnExtension::InitializeAbilitySystem。\nSquadComponent::RegisterSlot → SwitchToSlot(Index) → PlayerController::Possess(Pawn)：只换控制权和 ActiveSlotIndex，待命 Slot/ASC 不销毁。\nBossState 仅共用 CombatantState 的 ASC/Avatar 契约，不参加 Squad/Presets。",
+      "text": "## GameMode / Experience：原创建者与配置\n[[GameFeature/结构|原会话装配门禁]] · [[Teams/结构#GameMode 创建准备、交付与未交付责任（创建者 A）|完整类型 / 输入输出 / 失败契约]]。\n`SpawnSquadSlot(Context, PawnData, OutActors)` / `SpawnSquadMember(Context, PawnData, SpawnTransform, OutActors)` → native准备bool，false仍保留实际原产物。\n原Context / 同PC同步保护 / PawnData弱快照；native pre-spawn捕获原Actor，先全Slot再Pawn；原配置与原Extension严格读回。\n`AttachAvatar(Member)`后重检原资格；调用private `RegisterCreatedSlot(Slot, Member)`前移出原对，先消费真实bool再重检Context：true只归Squad，false归Creator回收。\nCreator唯一请求原Slot→原Pawn销毁；拒绝且仍活保留原字段并拒绝同PC新生成；Destroyed/EndPlay先GF Close再同一残留消费、再Super，不持H/Context。\n`Experience::IsDataValid(Context)`仅编辑期容量；非法保存回落 / 默认运行容量 / 出生点Identity / 整队政策 / Logout / 完整切人未闭合，C13开放。\nGate57旧DLL不含A；Gate58 Failed/exit6，无新DLL、未冒烟；A无成功统一编译或运行证据，资产 / 网络未验。",
       "x": 0,
-      "y": 1350,
-      "width": 1450,
+      "y": 1530,
+      "width": 1690,
       "height": 300,
       "color": "6"
+    },
+    {
+      "id": "capacity",
+      "type": "text",
+      "text": "## GGYGOSquad：容量词汇\n`IsMemberCountWithinCapacity(Count)` → bool。\nint32原始数量：0～4 true；负数 / 超限 false。\n仅校验，不截断、缓存或加载。\n0是否业务可用归调用方；唯一上限4。\nPresets / Squad / Experience共享规则。",
+      "x": 0,
+      "y": 690,
+      "width": 440,
+      "height": 250,
+      "color": "4"
+    },
+    {
+      "id": "created",
+      "type": "text",
+      "text": "## Squad已交付原创建责任\n`CreatedSlotResources`：原Slot / OriginalCreatedPawn弱身份，index+serial比较，不复制。\n真实`RegisterCreatedSlot`先共同提交名单 / 责任；true不反交，不保证激活。\n不跟随当前Avatar / Owner，不是第二名单；借用不能升级。\n终止移出唯一已交付台账，仅原Slot后原Pawn请求Destroy。\n接受 / 失效 / 销毁中逐字段退休请求义务；不证明物理清理。\n拒绝存活原字段留原台账并诊断；最终未处理明确Error，无Tick / 自动重试。\n未交付原产物由GameMode负责，不进入本台账；C13开放。",
+      "x": 0,
+      "y": 1010,
+      "width": 440,
+      "height": 420,
+      "color": "3"
     }
   ],
   "edges": [
@@ -98,7 +118,7 @@
       "fromSide": "right",
       "toNode": "squad",
       "toSide": "left",
-      "label": "解析成局内 Roster"
+      "label": "PawnData[]供Roster"
     },
     {
       "id": "e2",
@@ -106,7 +126,7 @@
       "fromSide": "bottom",
       "toNode": "squad",
       "toSide": "top",
-      "label": "拥有组件"
+      "label": "持有唯一Squad默认子对象"
     },
     {
       "id": "e3",
@@ -114,15 +134,15 @@
       "fromSide": "right",
       "toNode": "slot",
       "toSide": "left",
-      "label": "保存多个 Slot / 激活一个"
+      "label": "持有Slots并只读绑定；借用无Destroy权限"
     },
     {
       "id": "e4",
-      "fromNode": "base",
-      "fromSide": "bottom",
-      "toNode": "slot",
-      "toSide": "top",
-      "label": "基类契约"
+      "fromNode": "slot",
+      "fromSide": "top",
+      "toNode": "base",
+      "toSide": "bottom",
+      "label": "继承CombatantState"
     },
     {
       "id": "e5",
@@ -130,7 +150,7 @@
       "fromSide": "bottom",
       "toNode": "pawn",
       "toSide": "top",
-      "label": "Owner ASC 绑定 Avatar"
+      "label": "继承AttachAvatar协调绑定"
     },
     {
       "id": "e6",
@@ -138,7 +158,7 @@
       "fromSide": "bottom",
       "toNode": "pc",
       "toSide": "top",
-      "label": "请求切换出战目标"
+      "label": "切人请求附身；终止仅原匹配链UnPossess"
     },
     {
       "id": "e7",
@@ -146,7 +166,31 @@
       "fromSide": "right",
       "toNode": "pawn",
       "toSide": "left",
-      "label": "Possess 出战 Pawn"
+      "label": "Possess出战Avatar"
+    },
+    {
+      "id": "capacity-presets",
+      "fromNode": "presets",
+      "fromSide": "bottom",
+      "toNode": "capacity",
+      "toSide": "top",
+      "label": "查原始ID容量"
+    },
+    {
+      "id": "capacity-squad",
+      "fromNode": "squad",
+      "fromSide": "left",
+      "toNode": "capacity",
+      "toSide": "right",
+      "label": "查原始/成员容量"
+    },
+    {
+      "id": "created-resources",
+      "fromNode": "squad",
+      "fromSide": "left",
+      "toNode": "created",
+      "toSide": "right",
+      "label": "持有并消费已交付原责任；未交付归Creator"
     }
   ]
 }

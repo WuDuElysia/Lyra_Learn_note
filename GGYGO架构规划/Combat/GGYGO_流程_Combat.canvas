@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Combat｜近战判定流程\n结构与接口见 [[GGYGO_结构_Combat.canvas|结构图]]；伤害后续见 [[GGYGO_流程_伤害结算.canvas]]。\n普攻目标：[[GGYGO_流程_玩家普攻连段.canvas|连段流程]] · [[计划_玩家普攻连段]]。",
+      "text": "# Combat｜近战判定流程\n结构见 [[GGYGO_结构_Combat.canvas|结构图]]；伤害后续见 [[GGYGO_流程_伤害结算.canvas]]。\n02a 完整构建及冷启动近战自动化通过，无错误/警告；验证边界见 [[Combat/结构]]。真实动画接入待验收。",
       "x": 0,
       "y": 0,
       "width": 1710,
@@ -13,7 +13,7 @@
     {
       "id": "open",
       "type": "text",
-      "text": "1. GA 收到 Montage Event，BeginTraceWindow 设置 Socket/Radius，清本窗口已命中集合。\n\n调用：BossMeleeAbility::HandleMontageEvent → MeleeTrace::BeginTraceWindow(StartSocket, EndSocket, Radius)，重置去重集合。",
+      "text": "1. GA 校验当前 Montage/播放实例/主 Mesh，混出后拒绝 Begin。\nBeginTraceWindow 校验 Socket/半径/预算，无效保持关闭；有效时重置去重和基线。\nBossMelee 忽略重复 Begin，不清当前命中集合。",
       "x": 0,
       "y": 392,
       "width": 430,
@@ -33,7 +33,7 @@
     {
       "id": "sweep",
       "type": "text",
-      "text": "3. 后续每帧用上一帧与本帧线段连续扫掠，按通道过滤候选。\n\nTickComponent → PerformTrace：以上一帧/本帧 Socket 采样点做 SweepMultiByChannel。",
+      "text": "3. PerformTrace 按长度/半径确定分段数，逐点 SweepMultiByChannel。\n查询请求 PhysicalMaterial；需求超过 MaxTraceSegments 时关闭并告警。\n按帧间直线近似；大角度旋转仍有误差。",
       "x": 1000,
       "y": 392,
       "width": 430,
@@ -43,7 +43,7 @@
     {
       "id": "dedupe",
       "type": "text",
-      "text": "4. 已命中 Actor 跳过；新命中进入窗口集合，广播 OnMeleeHit。\n\nPerformTrace 查 HitActorsThisWindow；首次命中 OnMeleeHit.Broadcast(Actor, HitResult)。",
+      "text": "4. 查 HitActorsThisWindow；新 Actor 入集合后 OnMeleeHit.Broadcast。\n广播返回检查 bIsTracing/WindowSerial；关闭或重开立即退出旧查询，禁止写回旧基线。",
       "x": 1500,
       "y": 392,
       "width": 430,
@@ -53,7 +53,7 @@
     {
       "id": "ge",
       "type": "text",
-      "text": "5. GA 解释 HitResult、材质和目标，应用伤害 GE/Cue。\n\nGA::HandleMeleeHit 接委托 → SourceASC::MakeOutgoingSpec / Spec::SetSetByCallerMagnitude / SourceASC::ApplyGameplayEffectSpecToTarget。",
+      "text": "5. GA 把 HitResult、目标与命中时源位置交给共享 BuildHitEffectPayload。\n\n共享路径生成 Context/Spec/Cue；GA 填 SetByCaller、尝试应用 GE，并在碰撞成立后独立执行 Cue。",
       "x": 1500,
       "y": 918,
       "width": 430,
@@ -63,7 +63,7 @@
     {
       "id": "close",
       "type": "text",
-      "text": "6. Montage Event 结束或 GA 取消时 EndTraceWindow，停止判定 Tick。\n\n调用：BossMeleeAbility 事件结束或 EndAbility → MeleeTrace::EndTraceWindow；停止 Tick 扫掠。",
+      "text": "6. NotifyEnd、BlendOut、EndAbility、Deactivate、OnUnregister 或 EndPlay → EndTraceWindow。\n幂等关闭 Tick并清端点、基线和去重；活动窗口递增 WindowSerial。\nGA 最终结束还须解绑委托、恢复 Mesh 与释放自有任务/位移句柄。",
       "x": 1000,
       "y": 972,
       "width": 430,

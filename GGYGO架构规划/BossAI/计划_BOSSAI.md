@@ -8,6 +8,8 @@
 > `GameplayCue.Hit.Flesh` 已由运行时 Cue Map 注册；命中 Notify 尚未配置可见/可听表现。
 > Brain 暂停、死亡单次边沿与 Dedicated Server 复制仍待专项回归。
 >
+> 2026-09-30：14a E10/E11代码/测试已冻结，统筹完成UHT、完整C++构建及三项BossSelection自动化（`ModuleRepairGate_20260930_9`，项目38/38、0 warning/error）。14b E9回收源码/测试已冻结，统筹第13次门禁完整Editor构建及两项Encounter专项自动化通过（项目47/47、succeededWithWarnings/failed/notRun均0）；真实BT SafeStop/异步Abort、BT→GAS、PIE世界EndPlay与联机仍待验，不将夹具覆盖扩大为完整动态验收。
+>
 > 本文专门规划 Boss 战斗 AI、阶段/形态切换与持久 ASC 宿主。总体架构依据见
 > [[计划蓝图]]，当前代码事实见 [[模块参考]]，配套图见 [[GGYGO_流程_BossAI.canvas]]。
 >
@@ -251,15 +253,22 @@ Controller 不持有生命、阶段、冷却或 Buff。
 
 ### 4.6 `AGGYGOBossEncounter`
 
-负责关卡/遭遇生命周期：
+当前已实现：按Definition生成State、Controller与初始Avatar，提供EncounterSeed及公开实例查询。14b新增显式创建责任与失败/EndPlay统一回收；源码和两项测试已冻结，统筹完整Editor构建及两项专项自动化通过，真实BT/PIE/联机仍待验。
 
-- 生成 BossState、Controller 与初始形态；
+- 三份弱创建记录由实际Spawn返回值登记，独立于公开引用、Actor Owner和当前Avatar；只回收自己创建的State/Controller/初始Avatar，不回收替换进来的外部Avatar。
+- 实际装配为State初始化 → Controller生成/Seed初始化 → Deferred Avatar/SetPawnData → State `AttachAvatar` → `FinishSpawningActor` → Controller `Possess` → 核对创建记录、对象与关联后发布三引用；回调清理/EndPlay后旧装配不得继续发布成功。
+- `EndPlay`先标记结束，再调用protected `CleanupCreatedBoss`；装配失败`FailSpawn`也调用同一入口。清理先快照、清公开引用/创建记录，再`ClearActionSelection`/Brain `StopLogic` → `UnPossess` → State `DetachAvatar(CurrentAvatar)` → 仅Destroy创建Avatar/Controller/State。每步复核有效性，重复清理无重复副作用。
+- State当前Avatar若是外部Pawn，只经宿主接口解绑并解除Controller关系；Owner指向Encounter也不销毁。初始创建Avatar即使Owner改变仍回收。ExpectedASC/ActorInfo清理归CombatantState/PawnExtension，Encounter不重复实现。
+- 同步装配/清理守卫拒绝回调重入Spawn；EndPlay结束标志拒绝后续生成。失败回滚后可重试；不新增阶段/动作状态机或第二帧调度器。
+
+完整Director的后续目标（未实现）：
+
 - 保存出生点、战斗区域和参与者；
-- 开战、脱战重置、胜利、奖励和销毁；
+- 开战、脱战重置、胜利和奖励；
 - BossState 的生命周期上限由 Encounter 决定；
 - 不参与逐个技能选择。
 
-第一版可由 GameMode/关卡 Actor 承担生成，待多 Boss 遭遇出现后再抽成完整 Director。
+当前关卡Actor已承担最小生成/回收；待多Boss遭遇需求出现后再评估完整Director。契约与验收边界见[[BossAI/结构#14b：Encounter创建责任与回收（完整构建、两项专项自动化通过）|Encounter回收说明]]，时序见[[GGYGO_流程_BossAI.canvas|主流程撤场分支]]。
 
 ---
 
@@ -321,6 +330,8 @@ FGGYGOBossActionDefinition
 ```
 
 ActionSet 不包含：冷却、伤害、Montage、GE、移动实现。
+
+14a 的 `ValidateConfiguration(OutError)` 与编辑器 `IsDataValid` 共用全集规则：Tag 唯一且与有效能力类的 ActionTag 匹配，所有数值有限，权重/距离非负，角度0–180，惩罚0–1，最远距离为0或不小于最近距离。坏行令整集拒绝，包括基础权重为零的行；空集/全基础零合法。有效上限保持 `max(MaxWeight, BaseWeight)`。`FindAction` 不能在重复 Tag 时返回第一条掩盖歧义。
 
 - 冷却与资源：GA/GE；
 - 伤害和表现：GA；
@@ -392,28 +403,31 @@ MoveGoal（短期）
 
 服务器执行：
 
-1. 从当前 Phase 取得 ActionSet；
-2. 过滤 Form/Phase/状态 Tag；
+1. 清旧请求和 Blackboard 选择，从当前 Phase 取得 ActionSet，进行全集校验；
+2. 排除 BaseWeight=0，过滤 RequiredTags/BlockedTags（可包含 Form/Phase/状态）；
 3. 过滤目标、距离、角度、视线；
 4. 查询对应 AbilitySpec 是否存在；
-5. 调用 GAS 可激活性检查，冷却、资源和组冲突不重复实现；
-6. 对剩余项按基础权重、连续使用惩罚和未使用补偿选一个；
-7. 只把 ActionTag/SpecHandle 写入短期上下文。
+5. 复制原 SpecHandle 后调用 GAS 可激活性检查；保存请求前复核初始 Phase、Set、ASC 和 Pawn，冷却、资源和组冲突不重复实现；
+6. `Controller::SelectAction` 对合格项加权抽签；合格项的惩罚权重全部耗尽时只恢复它们的基础权重，随后继续选择；
+7. `StoreActionSelection` 记录来源 Set/Phase/ASC/Tag/Class/Spec/Avatar，Blackboard 仍只写 SelectedAction 的 Tag 名。
 
-随机只发生在服务器。为了复现问题，可由 EncounterSeed + 决策序号生成 `FRandomStream`，
-并在开发构建记录候选、淘汰原因、最终权重和选择结果。
+14a 将 `RepeatPenalty=0` 定义为软避重，不让唯一合法候选永久饿死。BaseWeight=0 保持禁用，不能被恢复逻辑重新启用；无合法候选不抽签。权重更新与求和使用双精度中间值防溢出，随机流只在成功选择时消费一次；ActionSet 来源变化清旧派生权重。
+
+当前使用 EncounterSeed 初始化服务器 `FRandomStream`，后续选择顺序推进该随机流；不另存第二个决策序号。完整候选淘汰原因与最终权重的开发日志仍属后续诊断增强。
 
 ### 6.4 `UBTTask_GGYGOActivateAbility`
 
 职责：
 
-1. 按选中的唯一 ActionTag 找到 AbilitySpecHandle；
-2. 将 CombatTarget 当前目标写入统一 TargetContext；
+1. `ConsumeActionSelection` 先消费一次请求并核对当前 Set/Phase/ASC/Tag/Class/Spec/Avatar，再清 Blackboard；失败也消费，成功只返回选择时的原 SpecHandle。清黑板可能触发观察者，激活前再次检查来源和原 Spec；
+2. TargetContext/CombatTarget 仍属阶段D目标接口，当前不实现；
 3. 调用 `TryActivateAbility`；
-4. 精确监听该 Spec/实例的 AbilityEnded；
-5. 激活失败立即返回 Failed，并输出失败 Tag；
-6. 能力结束后返回 Succeeded，重新决策；
+4. 按原 SpecHandle 筛选 AbilityEnded；当前未引入独立激活实例标识；
+5. 激活失败立即返回 Failed；当前未输出最终激活失败 Tag；
+6. 能力正常结束返回 Succeeded，取消返回 Failed；同步结束也走相同判定；
 7. BT 被 Abort 时解除监听，不默认强制取消不可取消的 GA。
+
+短期记录是请求身份，不是第二个动作/阶段状态机；重选、种子重置、附身变化和 EndPlay 清理，来源变化或原 Spec 被移除后拒绝旧请求，不改 BB 资产，也不绕过 `TryActivateAbility` 的最终准入。14a已完整构建并通过三项专项自动化；真实BT→GAS集成和生产资产/PIE验证仍另列。
 
 AI 不调用：
 
@@ -596,6 +610,14 @@ GameplayEvent → Jump Montage Section
 玩家攻击与 Boss 攻击都可以复用这个基类。具体 GA 资产主要填数据，避免每个技能复制一张
 EventGraph。
 
+### 9.2.1 当前Boss近战共享伤害接缝（15F）
+
+当前`UGGYGOBossMeleeAbility`已保留`DamageEffect`覆盖，并提供蓝图默认false的`bUseSharedDamageEffectWhenUnset`。配置校验`ValidateMeleeConfiguration`与命中`HandleMeleeHit`复用`UGGYGOGameData::ResolveDamageGameplayEffect(覆盖, 显式bool)`：非空覆盖始终优先；空覆盖且false失败；空覆盖且true只有共享GE快照可用才选择成功，共享缺失仍失败。原Montage/Socket/数值/动作配置和激活门禁保留，命中经过原能力状态、窗口、ASC及Authority门禁后解析；解析类缺失在`BuildHitEffectPayload`前报错返回，不GE、不Cue，不能成为Boss无伤害成功。选择矩阵见[[BossAI/结构#15F：Boss近战伤害GE选择（已构建，未专项动态验证）|当前结构契约]]。
+
+[[System/结构|System]]独占启动预载与共享快照；GA仅持有本次解析结果，不新增加载器、重试或跨帧缓存。类可用后继续由[[AbilitySystem/结构|共享载荷构建接口]]生成`BuildHitEffectPayload`，GA填SetByCaller并请求GAS执行。非空类后Spec失败/GE免疫等原执行语义未在15F改变；CMC位移、Animation窗口与CombatTrace查询/去重及清理责任保持原接口。此接缝已经实现，不把上节计划中的通用基类写成已实现。
+
+统筹第15次GGYGOEditor完整构建Succeeded（6 actions/22.10秒）；常规原47项Success，但新增`GGYGO.Input.Fixture.LocalSessionReady`为1 Fail，不是48/48。尚无Boss选择/命中矩阵专项动态证明；实际蓝图默认值回读、PIE与专用服务器/cook继续待验。第15次日志/自动化JSON及本项目`AAADocs/Module_Repair_14b_Validation.md`记录证据。15F结构图与主流程已按独立租约同步实际选择/校验/命中边界并冻结；Boss选择/命中矩阵仍未专项动态验证。
+
 ### 9.3 优先级建议
 
 ```text
@@ -743,7 +765,7 @@ Content/Abilities/Boss/<BossId>/
 - [x] `AGGYGOBossState`：Minimal ASC、Form/Phase 复制、全部形态能力去重后一次授予；
 - [x] `AGGYGOBossCharacter`：复用 Health/CMC/PawnExtension 的纯 Avatar；
 - [x] `AGGYGOBossAIController`：显式 Possess，换 Avatar 时暂停但不清理 Brain；
-- [x] `AGGYGOBossEncounter`：按 State → Deferred Avatar → Controller 的顺序完成最小装配；
+- [x] `AGGYGOBossEncounter`：当前按 State → Controller → Deferred Avatar 的顺序生成，再AttachAvatar/FinishSpawning/Possess并核对装配；14b回收增量完整构建与两项专项自动化通过，真实BT/PIE/联机仍待验；
 - [x] Avatar 销毁时 `CombatantState` 自动 Detach，死亡后不残留旧 Avatar；
 - [x] Editor Target 与独立 Game Target 编译通过；
 - [x] 创建单 Form/单 Phase 的 `DA_Boss_Test`、`DA_Pawn_Boss_Test` 与 `BP_Boss_Test`；
@@ -777,6 +799,19 @@ Content/Abilities/Boss/<BossId>/
 - [ ] 组装一条可见/可听的命中 Cue 表现资产（当前已发 Cue，但测试 Notify 尚未配置 Niagara/音效）；
 - [ ] 专项自动化验证“暂停 Brain 后不再发起新攻击、已激活 GA 能自行收尾”；
 - [ ] Dedicated Server 验证能力、伤害与 Cue 的权威/复制链。
+
+### 整改增量：14a / 14b（2026-09-30）
+
+- [x] 14a E10/E11：全集配置校验、候选耗尽恢复、一次性来源/原Spec身份契约已冻结；统筹完整构建与三项BossSelection自动化通过。
+- [ ] 14a真实BT→GAS、黑板观察者重入、生产资产与PIE集成验收。
+- [x] 14b E9：显式创建记录、生成失败/EndPlay共用幂等回收及回调重入防护源码已冻结。
+- [x] 两项Encounter测试源码及结构/主流程图文已冻结：`GGYGO.BossAI.Encounter.CleanupLifecycle`、`GGYGO.BossAI.Encounter.ExplicitCreationOwnership`。
+- [x] 14b UHT、完整GGYGOEditor构建与上述两项自动化通过；真实夹具断言覆盖成功/重复生成、部分失败/重试、装配与清理重入、提前失效、Owner变化及外部Avatar保留，不扩大为实际BT或PIE/联机结论。
+- [ ] 实际BT SafeStop/异步Abort及BT→GAS结束顺序；可观测测试Brain只观察StopLogic调用入口，不验证异步停止完成。
+- [ ] PIE/世界卸载的Encounter EndPlay派发；当前无BeginPlay夹具显式调用真实EndPlay，不以Destroy替代此门禁。
+- [ ] 联机/专用服务器的Encounter生命周期与复制验证。
+
+14b的调用顺序为清引用/记录 → StopLogic → UnPossess → DetachAvatar → 只销毁创建对象，详见[[GGYGO_流程_BossAI.canvas|主流程]]及[[BossAI/结构|接口职责]]。第13次门禁证据：项目`Saved/Logs/ModuleRepairBuildGate_20260930_13.log`完整构建Succeeded、25.49秒、UHT写入12份生成文件、6 actions；`Saved/AutomationReports/ModuleRepairGate_20260930_13/index.json`项目47/47、succeededWithWarnings/failed/notRun均0、totalDuration为0.472851783秒，两项Encounter各Success且errors/warnings0，UE进程exit0由统筹报告。旧RootMotionBake预期拒绝与启动诊断不视为项目测试失败。项目详细记录见`AAADocs/Module_Repair_14b_Validation.md`；E9源码/专项自动化通过，完整动态验收仍有上列缺口。两张Canvas已按独立租约同步完整构建/两项专项通过并再冻结；真实BT/PIE/联机仍未验，最新门禁以本节和验证记录为准。完整形态切换、目标/仇恨、Kevin接线保持后续范围。
 
 ### 阶段 D：目标、仇恨与移动
 

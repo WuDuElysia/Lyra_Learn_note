@@ -1,0 +1,20 @@
+{
+	"nodes":[
+		{"id":"action-nav","type":"text","x":0,"y":0,"width":1800,"height":150,"color":"6","text":"# 显式动作曲线｜执行子图\n运行时已编码，完整构建/UE资产生成/运行验收待完成。[[Movement/动作曲线执行|契约与证据]] · [[Movement/结构]] · [[GGYGO_流程_移动与位移.canvas|主流程]]。首版服务器地面动作；普通玩家 locomotion 不改。"},
+		{"id":"action-author","type":"text","x":0,"y":240,"width":410,"height":260,"color":"4","text":"## 离线资产生产\naudit_kevin_action_motion.py 核验 JSON RootT/RootQ → FBX 单位/反射。\nKevinMotionAssetBuilder 核验 FBX → UE component-space 父链、起点/旋转。\n同一轨迹剥除派生 AS + 生成累计 CV；原75序列保留。"},
+		{"id":"action-profile","type":"text","x":490,"y":240,"width":410,"height":260,"color":"4","text":"## UGGYGOActionMotionProfile\nTranslationCurve：累计位移 cm / 秒，Mesh Component 空间，首帧0。\nDuration：源动画时长。TranslationScale：资产配置。\nValidateMotion → 拒绝无效曲线。具体Kevin资产待生成。"},
+		{"id":"action-ga","type":"text","x":0,"y":630,"width":410,"height":270,"color":"5","text":"## GA 蓝图/资产编排\n配置 Profile 与 Montage / PlayRate。\n同一起点调用 BeginActionMotion(Profile, rate)，保存返回 Handle；INDEX_NONE 为失败。\n调用方暂停AI路径；不维护另一份运动计时/速度。[[BossAI/结构]] · [[AbilitySystem/结构]]"},
+		{"id":"action-begin","type":"text","x":490,"y":630,"width":410,"height":290,"color":"5","text":"## CMC::BeginActionMotion\n检查 authority、接地、互斥和数据。捕获入口 Mesh 世界旋转/缩放。\n移除旧 Brake/TurnBack，重置采样基线，暂停旧曲线/自动旋转。\nApplyRootMotionSource → source ID；独立 owner Handle 返回GA。不读BossAction/BT。"},
+		{"id":"action-sample","type":"text","x":990,"y":630,"width":410,"height":290,"color":"5","text":"## FRootMotionSource_GGYGOActionCurve\nPrepareRootMotion：按自身时间与 PlayRate 差分累计位移。\n固定入口 Mesh 基准 → 世界XY；除 MovementTickTime → Override速度。\n零速帧继续持有；尾帧clamp保留。CMC处理碰撞/坡面，Z留给地面/重力。"},
+		{"id":"action-clean","type":"text","x":1490,"y":630,"width":410,"height":290,"color":"1","text":"## 结束与恢复\n正常 BlendOut 只关Trace，位移走到曲线末尾；Completed/Cancel → EndActionMotion(Handle)。\n旧Handle忽略；当前Handle移除自己的RMS，清水平余速/曲线基线。\n自然到期/离地 → CleanupFinishedActionMotion，释放门控，无残留锁。"},
+		{"id":"action-scope","type":"text","x":490,"y":1050,"width":1410,"height":200,"color":"6","text":"## 验证边界\nTimingAndOwnership 自动化已编写、待执行：尾帧、rate=2、零速、起点归零、Mesh缩放、互斥/旧Handle、自然结束旋转恢复。\n派生重建残差由builder报告；真实胶囊运动/碰撞、联机尚未验收。RootQ保持姿态；不支持中途变速/跳段或空中动作。"}
+	],
+	"edges":[
+		{"id":"action-e1","fromNode":"action-author","fromSide":"right","toNode":"action-profile","toSide":"left","label":"生成归零累计曲线与Profile"},
+		{"id":"action-e2","fromNode":"action-profile","fromSide":"bottom","toNode":"action-begin","toSide":"top","label":"提供只读轨迹/时长/缩放"},
+		{"id":"action-e3","fromNode":"action-ga","fromSide":"right","toNode":"action-begin","toSide":"left","label":"申请动作源并持有Handle"},
+		{"id":"action-e4","fromNode":"action-begin","fromSide":"right","toNode":"action-sample","toSide":"left","label":"挂载带固定入口基准的RMS"},
+		{"id":"action-e5","fromNode":"action-sample","fromSide":"right","toNode":"action-clean","toSide":"left","label":"到期/离地或GA显式取消"},
+		{"id":"action-e6","fromNode":"action-clean","fromSide":"bottom","toNode":"action-scope","toSide":"right","label":"验证恢复与不重复消费边界"}
+	]
+}

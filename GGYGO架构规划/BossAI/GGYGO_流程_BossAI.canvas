@@ -1,18 +1,33 @@
 {
 	"nodes":[
-		{"id":"nav","type":"text","text":"# BossAI｜主流程图\nA–C 已实现；D–F 尚是计划。类与接口见 [[GGYGO_结构_BossAI.canvas|结构图]]、[[BossAI/结构|结构文档]]。选招 [[GGYGO_流程_Boss选招.canvas|子图]] · 换形态 [[GGYGO_流程_Boss换形态.canvas|目标子图]]。","x":0,"y":0,"width":1800,"height":155,"color":"6"},
-		{"id":"spawn","type":"text","text":"1. BossEncounter 由 Definition 创建 BossState、BossCharacter 和 AIController。\n\n调用：BossEncounter::SpawnBoss → BossState::InitializeFromDefinition → 生成 Avatar/AIController；返回可用的三对象绑定。","x":0,"y":405,"width":410,"height":230,"color":"5"},
-		{"id":"bind","type":"text","text":"2. BossState 持有 ASC/属性；PawnExtension 绑定当前 Avatar。\n\n调用：BossState::AttachAvatar(Pawn) → PawnExtension::InitializeAbilitySystem(ASC, BossState)；ASC/属性仍归 State。","x":490,"y":405,"width":410,"height":230,"color":"5"},
-		{"id":"brain","type":"text","text":"3. AIController 驱动 BT，选择 ActionTag；详见 [[GGYGO_流程_Boss选招.canvas|选招子图]]。\n\n调用：ChooseBossAction::ExecuteTask 读 Form/Phase/ActionSet，选中 ActionTag 写 Blackboard。","x":980,"y":405,"width":420,"height":230,"color":"5"},
-		{"id":"ga","type":"text","text":"4. BT 申请 GAS 能力；GA 执行 Montage、MeleeTrace、GE 与 Cue。\n\n调用：ActivateAbility::ExecuteTask → ASC::TryActivateAbility(Handle)；OnAbilityEnded 回填 BT 结果。","x":1480,"y":405,"width":420,"height":230,"color":"1"},
+		{"id":"nav","type":"text","text":"# BossAI｜主流程图\n14a完整构建/三项专项自动化通过，真实BT→GAS/资产/PIE待验。14b完整构建/两专项通过；真实BT SafeStop/异步Abort/结束顺序、PIE世界EndPlay/联机待验，E9完整动态未验。D–F仍为目标设计。\n[[GGYGO_结构_BossAI.canvas|结构图]] · [[BossAI/结构|结构文档]] · [[GGYGO_流程_Boss选招.canvas|选招子图]] · [[GGYGO_流程_Boss换形态.canvas|换形态目标]]","x":0,"y":0,"width":1800,"height":175,"color":"6"},
+		{"id":"spawn","type":"text","text":"## 1. Authority请求SpawnBoss\n已有对象/创建记录、装配/清理中、销毁或EndPlay后 → 拒绝false。\n有效Definition → Spawn State并立即记创建责任，InitializeFromDefinition。\nSpawn Controller并立即记录，InitializeDecisionStream(Seed)。\nDeferred Spawn初始Avatar并立即记录，SetPawnData。\n每次关键回调后复核Encounter/记录/对象，失败走统一回滚。","x":0,"y":405,"width":410,"height":365,"color":"5"},
+		{"id":"bind","type":"text","text":"## 2. 完成装配并核对\nState::AttachAvatar(Pawn) → PawnExtension::InitializeAbilitySystem(ASC, State)。\nFinishSpawningActor → Avatar初始化。\nController::Possess → 关联Pawn，并启动已配置BT。\n各回调后复核创建记录/对象/当前关联；一致后发布BossState/Controller/Avatar并返回true。\n清理/EndPlay已发生 → 旧调用栈不得发布成功。","x":490,"y":405,"width":410,"height":365,"color":"5"},
+		{"id":"brain","type":"text","text":"3. BT 选择并保存一次请求。\nChooseBossAction::ExecuteTask → ActionSet::ValidateConfiguration → Tag/目标/GAS 准入 → Controller::SelectAction。\nStoreActionSelection 保存来源及原 Spec，Blackboard 写 Tag。\n[[GGYGO_流程_Boss选招.canvas|校验、耗尽与消费分支]]","x":980,"y":405,"width":420,"height":320,"color":"5"},
+		{"id":"ga","type":"text","text":"## 4. 向GAS提交原Spec\nActivateAbility::ExecuteTask → ConsumeActionSelection；来源/原Spec有效才TryActivateAbility，失败也消费。\nValidateMeleeConfiguration / HandleMeleeHit\n→ System：UGGYGOGameData::ResolveDamageGameplayEffect(覆盖,bool)。\nDamageEffect非空优先；蓝图bUseSharedDamageEffectWhenUnset默认false。\n空false/共享缺失→校验失败；命中原门禁后解析空→BuildHitEffectPayload前拒绝，无GE/Cue。\n类非空→Builder/GAS；Spec失败/免疫语义不变。\n只读快照，不加载/缓存。GA管Montage/Trace/CMC句柄，EndAbility广播前释放；OnAbilityEnded回填BT。\n15F已编译；矩阵未动态验，BT/资产/PIE待验。\n[[System/结构|System]] · [[AbilitySystem/结构|GAS]] · [[BossAI/计划_Kevin_DemonBattle战斗接入|Kevin]]","x":1480,"y":405,"width":420,"height":540,"color":"1"},
 		{"id":"future","type":"text","text":"D–F 目标：目标/仇恨、阶段与形态切换事务。\n[[GGYGO_流程_Boss换形态.canvas|换形态目标子图]]\n\n计划接口尚未落地：Phase 转换锁、目标服务、换 Pawn 事务；此节点不是当前 C++ 调用链。","x":980,"y":972,"width":420,"height":230,"color":"3"},
-		{"id":"persist","type":"text","text":"换形态时应保留 BossState 的属性、Buff、冷却和 AI 目标；当前完整事务未实现。\n\n目标不变量：DetachAvatar(OldPawn) / AttachAvatar(NewPawn) 不重建 ASC，Buff/冷却在 State 延续。","x":1480,"y":972,"width":420,"height":230,"color":"3"}
+		{"id":"persist","type":"text","text":"换形态时应保留 BossState 的属性、Buff、冷却和 AI 目标；当前完整事务未实现。\n\n目标不变量：DetachAvatar(OldPawn) / AttachAvatar(NewPawn) 不重建 ASC，Buff/冷却在 State 延续。","x":1480,"y":972,"width":420,"height":230,"color":"3"},
+		{"id":"cleanup-trigger","type":"text","text":"## 引擎触发Encounter EndPlay\nEndPlay(Reason) → bEndingPlay=true → CleanupCreatedBoss → Super::EndPlay。\n结束后所有SpawnBoss请求拒绝。\n当前测试显式调用真实EndPlay；PIE/世界卸载派发待验。\n[[BossAI/结构|回收边界]]","x":0,"y":905,"width":410,"height":285,"color":"1"},
+		{"id":"spawn-rollback","type":"text","text":"## 装配检查失败 / 回调已清理\nSpawnBoss::FailSpawn → CleanupCreatedBoss → 返回false。\n无效PawnClass、生成/关联失败或关键回调后失效均回滚已记录对象。\n入口门禁/缺Definition直接false，无本次创建资源。\n未EndPlay且回滚完毕可重试；回调重入Spawn拒绝。","x":490,"y":905,"width":410,"height":310,"color":"3"},
+		{"id":"cleanup-clear","type":"text","text":"## 回收1：守卫、快照、清引用\nCleanupCreatedBoss：已在清理则返回。\n进入bCleaningUpBoss守卫，快照三创建对象。\n清BossState/Controller/Avatar与Created记录，再调用生命周期接口。\n公开引用虽空，清理重入Spawn仍拒绝；重复清理无资源副作用。","x":0,"y":1450,"width":410,"height":315,"color":"5"},
+		{"id":"cleanup-stop","type":"text","text":"## 回收2：先请求Brain停止\n有效创建Controller → ClearActionSelection。\nGetBrainComponent有效 → StopLogic(Reason)。\n先于UnPossess、Detach与Destroy。\n测试Brain只观察入口；实际BT SafeStop/异步Abort是否完成仍待验证，调用返回不作为完成证据。","x":490,"y":1450,"width":410,"height":315,"color":"5"},
+		{"id":"cleanup-unpossess","type":"text","text":"## 回收3：解除Controller/Pawn\n复核创建Controller仍有效且有Pawn → UnPossess。\n可能解除外部当前Avatar的关系。\nController的OnUnPossess只PauseLogic；最终停止已由上一步发起。\n回调可能销毁对象，下一步重新检查有效性。","x":980,"y":1450,"width":420,"height":290,"color":"5"},
+		{"id":"cleanup-detach","type":"text","text":"## 回收4：宿主解绑当前Avatar\n创建State仍有效且有CurrentAvatar → DetachAvatar(CurrentAvatar)。\nCombatantState/PawnExtension按ExpectedASC解除关系，保留Owner并清ASC Avatar/本地缓存。\nEncounter不写ActorInfo，不复制解绑链。\n当前Avatar可以是外部Pawn；这里只解绑，不登记销毁责任。\n[[Combatants/结构|宿主契约]]","x":1480,"y":1450,"width":420,"height":340,"color":"5"},
+		{"id":"cleanup-destroy","type":"text","text":"## 回收5：仅销毁创建对象\n从先前创建快照依序Destroy：初始Avatar → Controller → State。\n每步重新IsValid，提前失效对象跳过。\n初始Avatar Owner改变仍回收；外部Avatar Owner指向Encounter也保留。\n创建记录已空，重复/重入清理不重复释放；统一清理结束后退出守卫。\n14b完整构建/两专项通过；真实BT/PIE/联机待验，E9完整动态未验。","x":1980,"y":1450,"width":420,"height":340,"color":"1"}
 	],
 	"edges":[
-		{"id":"e1","fromNode":"spawn","fromSide":"right","toNode":"bind","toSide":"left","label":"Owner / Avatar 装配"},
-		{"id":"e2","fromNode":"bind","fromSide":"right","toNode":"brain","toSide":"left","label":"战斗状态就绪"},
-		{"id":"e3","fromNode":"brain","fromSide":"right","toNode":"ga","toSide":"left","label":"ActionTag 申请"},
-		{"id":"e4","fromNode":"ga","fromSide":"bottom","toNode":"future","toSide":"top","label":"后续阶段触发"},
-		{"id":"e5","fromNode":"future","fromSide":"right","toNode":"persist","toSide":"left","label":"目标保持状态连续"}
+		{"id":"e1","fromNode":"spawn","fromSide":"right","toNode":"bind","toSide":"left","label":"已记录三创建对象，PawnData就绪"},
+		{"id":"e2","fromNode":"bind","fromSide":"right","toNode":"brain","toSide":"left","label":"Attach/Finish/Possess一致；配置BT才进入决策"},
+		{"id":"e3","fromNode":"brain","fromSide":"right","toNode":"ga","toSide":"left","label":"一次性来源身份 + 原 SpecHandle"},
+		{"id":"e4","fromNode":"ga","fromSide":"bottom","toNode":"future","toSide":"top","label":"目标：阶段条件成立后进入事务"},
+		{"id":"e5","fromNode":"future","fromSide":"right","toNode":"persist","toSide":"left","label":"目标保持状态连续"},
+		{"id":"e-spawn-rollback","fromNode":"spawn","fromSide":"bottom","toNode":"spawn-rollback","toSide":"top","label":"生成/配置/回调复核失败"},
+		{"id":"e-bind-rollback","fromNode":"bind","fromSide":"bottom","toNode":"spawn-rollback","toSide":"top","label":"绑定/Finish/Possess后失效"},
+		{"id":"e-endplay-cleanup","fromNode":"cleanup-trigger","fromSide":"bottom","toNode":"cleanup-clear","toSide":"top","label":"EndPlay复用统一清理"},
+		{"id":"e-rollback-cleanup","fromNode":"spawn-rollback","fromSide":"bottom","toNode":"cleanup-clear","toSide":"top","label":"FailSpawn复用统一清理"},
+		{"id":"e-cleanup-stop","fromNode":"cleanup-clear","fromSide":"right","toNode":"cleanup-stop","toSide":"left","label":"清引用后才进入外部回调"},
+		{"id":"e-stop-unpossess","fromNode":"cleanup-stop","fromSide":"right","toNode":"cleanup-unpossess","toSide":"left","label":"停止请求在解绑前"},
+		{"id":"e-unpossess-detach","fromNode":"cleanup-unpossess","fromSide":"right","toNode":"cleanup-detach","toSide":"left","label":"Controller解除关系后"},
+		{"id":"e-detach-destroy","fromNode":"cleanup-detach","fromSide":"right","toNode":"cleanup-destroy","toSide":"left","label":"宿主解绑后仅回收创建对象"}
 	]
 }

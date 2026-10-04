@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# 相机模式栈求值｜实现子图\n[[Camera/模式栈实现|算法说明]] · [[GGYGO_结构_相机.canvas|类结构]] · [[GGYGO_流程_相机.canvas|返回主流程]]。栈索引 0 是栈顶，HeroComponent 已先仲裁有效模式。",
+      "text": "# 相机模式栈求值与最终保护｜实现子图\n[[Camera/模式栈实现|算法说明]] · [[GGYGO_结构_相机.canvas|类结构]] · [[GGYGO_流程_相机.canvas|返回主流程]]。索引0为顶；Hero先仲裁。View/Request边传递数据；EvaluateStack完成后才施加Offset。\nGate29四Camera叶Success、44次Offset拒绝；完整B5/B6/B7、资产/网络仍开放。[[Camera/模式栈实现#已验证与待审查边界|其它自动替代待审查]]。",
       "x": 0,
       "y": 0,
       "width": 1900,
@@ -13,7 +13,7 @@
     {
       "id": "pull",
       "type": "text",
-      "text": "1. GetCameraView 调 UpdateCameraModes，从委托取得有效 Mode Class。\n\n调用：CameraComponent::GetCameraView → UpdateCameraModes → DetermineCameraModeDelegate → Stack::PushCameraMode(Class)。",
+      "text": "1. 每次GetCameraView生成SafeDeltaTime、UpdateCameraModes。\n有效Class→Push；空类只跳过Push，旧栈继续。\n活动栈空→Super生成View后return。\n同帧多次拉取各按dt求值/推进，无帧号去重。",
       "x": 0,
       "y": 351,
       "width": 410,
@@ -53,11 +53,11 @@
     {
       "id": "update",
       "type": "text",
-      "text": "4. UpdateStack：Mode 先 UpdateView，再按 dt/BlendTime 推进 Alpha 并套缓动函数得到 Weight。\n\nEvaluateStack → UpdateStack(dt) → 每个 Mode::UpdateCameraMode(dt)：UpdateView + BlendAlpha/缓动推进。",
+      "text": "4. UpdateStack → Mode::UpdateCameraMode：\n清旧Request → UpdateView → 推进Alpha/Weight。\n合法BlendTime>0按SafeDt/Time推进；\n合法0立即满权重（SafeDt0亦可）。\nThirdPerson只输出View/Request，不查询World。\n其它非法混合参数行为仍待审查。",
       "x": 1530,
       "y": 729,
       "width": 440,
-      "height": 230,
+      "height": 245,
       "color": "5"
     },
     {
@@ -73,9 +73,9 @@
     {
       "id": "blend",
       "type": "text",
-      "text": "6. BlendStack：从数组末尾的栈底 View 开始，逐层混到索引 0；旋转插值使用归一化角差。\n\nEvaluateStack → BlendStack：从栈底 View 开始，逐层 View::Blend(UpperView, UpperWeight)。",
+      "text": "6. BlendStack：从栈底 View 开始，逐层混到索引 0；旋转插值使用归一化角差。\n\nView 的实际可见关系同时提供给穿透请求聚合。",
       "x": 480,
-      "y": 1026,
+      "y": 1030,
       "width": 430,
       "height": 230,
       "color": "5"
@@ -83,19 +83,19 @@
     {
       "id": "offset",
       "type": "text",
-      "text": "7. CameraComponent 在合成 View 之后施加局部位置/FOV 微调，Alpha 按进入/回落时间线性变化。",
+      "text": "8. UpdateCameraOffsetAlpha → ApplyCameraOffset。\n消费此前被Set接受的单槽；GetView不在此申请。\n非法Set：一次Error、返回Invalid，入口保持。\nGA先Clear旧资源不恢复；[[Camera/模式栈实现#Offset 单槽所有权|完整契约]]。\n合法alpha/正时间：SafeDt0不推进。\n合法零时间：即使SafeDt0也到目标alpha。\n只改合成View，保留单模式原始View。",
       "x": 0,
-      "y": 790,
+      "y": 1110,
       "width": 410,
-      "height": 220,
+      "height": 245,
       "color": "1"
     },
     {
       "id": "write",
       "type": "text",
-      "text": "8. 写回组件与 FMinimalViewInfo；ControlRotation 单独写回 Pawn Controller。",
+      "text": "10. 写回组件与 FMinimalViewInfo；ControlRotation 单独写回 Pawn Controller。",
       "x": 0,
-      "y": 1170,
+      "y": 1810,
       "width": 410,
       "height": 190,
       "color": "1"
@@ -103,12 +103,32 @@
     {
       "id": "fallback",
       "type": "text",
-      "text": "无有效类且活动栈为空：直接调用 UCameraComponent::GetCameraView。",
+      "text": "更新模式后活动栈仍为空：用同一 SafeDeltaTime 调 UCameraComponent::GetCameraView。\n\n委托空返回但栈非空时不会进入这里。",
       "x": 990,
-      "y": 1170,
+      "y": 1480,
       "width": 430,
-      "height": 180,
+      "height": 210,
       "color": "3"
+    },
+    {
+      "id": "aggregate",
+      "type": "text",
+      "text": "7. BlendPenetrationRequests 按实际可见贡献聚合。\n\n只计贡献 > 0 且启用的请求：Pivot 归一化加权，Radius 取最大；存在正 Recovery 时取最小正值，混合中的 0 不覆盖正值，全部为 0 才输出立即恢复 0。",
+      "x": 480,
+      "y": 1340,
+      "width": 430,
+      "height": 285,
+      "color": "5"
+    },
+    {
+      "id": "collision",
+      "type": "text",
+      "text": "9. ResolveCameraPenetration：Offset后最终位置。\n请求启用且World/Target/路径有效→\n每次拉取至多一次ECC_Camera查询。\nRadius>0 sweep；合法0 line trace，忽略Target。\n收近立即；正Recovery渐复、合法0立即恢复。\n无请求/无效路径等→恢复比例1、无查询。",
+      "x": 0,
+      "y": 1450,
+      "width": 410,
+      "height": 275,
+      "color": "5"
     }
   ],
   "edges": [
@@ -163,18 +183,18 @@
     {
       "id": "e7",
       "fromNode": "blend",
-      "fromSide": "right",
+      "fromSide": "left",
       "toNode": "offset",
-      "toSide": "left",
-      "label": "BlendStack → 合成 View"
+      "toSide": "right",
+      "label": "合成 View"
     },
     {
       "id": "e8",
       "fromNode": "offset",
       "fromSide": "bottom",
-      "toNode": "write",
+      "toNode": "collision",
       "toSide": "top",
-      "label": "Offset → GetCameraView 输出"
+      "label": "Offset 后最终位置"
     },
     {
       "id": "e9",
@@ -182,7 +202,31 @@
       "fromSide": "bottom",
       "toNode": "fallback",
       "toSide": "top",
-      "label": "无有效模式 → Super::GetCameraView"
+      "label": "更新后活动栈为空"
+    },
+    {
+      "id": "e10",
+      "fromNode": "blend",
+      "fromSide": "bottom",
+      "toNode": "aggregate",
+      "toSide": "top",
+      "label": "相同遮盖关系 / 实际贡献"
+    },
+    {
+      "id": "e11",
+      "fromNode": "aggregate",
+      "fromSide": "left",
+      "toNode": "collision",
+      "toSide": "right",
+      "label": "聚合 Request"
+    },
+    {
+      "id": "e12",
+      "fromNode": "collision",
+      "fromSide": "bottom",
+      "toNode": "write",
+      "toSide": "top",
+      "label": "最终安全 View"
     }
   ]
 }

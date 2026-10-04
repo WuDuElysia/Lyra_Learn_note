@@ -3,51 +3,51 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Boss 选招｜流程子图\nA–C 当前实现。类关系见 [[GGYGO_结构_BossAI.canvas|结构图]]；[[计划_BOSSAI]]。",
+      "text": "# Boss 选招｜流程子图\n14a E10/E11 已编码冻结，未构建/运行验收；图示为本批接口契约。\n[[GGYGO_流程_BossAI.canvas|返回主流程]] · [[GGYGO_结构_BossAI.canvas|结构图]] · [[BossAI/结构|完整契约]] · [[计划_BOSSAI|设计与验收]]",
       "x": 0,
       "y": 0,
-      "width": 1690,
-      "height": 130,
+      "width": 1940,
+      "height": 175,
       "color": "6"
     },
     {
       "id": "tick",
       "type": "text",
-      "text": "1. BehaviorTree 到达选招任务，读 BossState 的当前 Form/Phase。\n\nUE BT 调 ChooseBossAction::ExecuteTask；读取 BossState::GetCurrentFormTag/GetCurrentPhaseTag 与目标 Blackboard。",
+      "text": "1. BT → ChooseBossAction::ExecuteTask。\nClearActionSelection + Blackboard::ClearValue 清旧请求。\n按 BossState::GetCurrentPhaseTag 从 Definition 取得 ActionSet。\nValidateConfiguration 失败 → 整集拒绝并诊断。",
       "x": 0,
       "y": 351,
       "width": 410,
-      "height": 230,
+      "height": 300,
       "color": "5"
     },
     {
       "id": "candidates",
       "type": "text",
-      "text": "2. ActionSet 给出 ActionTag 候选及权重；按距离、角度、可激活性过滤。\n\n遍历 BossActionSet 动作；按 Form/Phase、距离/角度筛选，再调 ASC::CanActivateAbilityByHandle(Handle, FailureTags)。",
+      "text": "2. 只保留合法可执行候选。\nBaseWeight=0 禁用；检查 Required/Blocked Tags、距离、角度、视线。\n复制原 SpecHandle 后调用 ASC::CanActivateAbilityByHandle。\n无候选 → Failed，不抽签。",
       "x": 480,
       "y": 351,
       "width": 420,
-      "height": 230,
+      "height": 300,
       "color": "5"
     },
     {
       "id": "random",
       "type": "text",
-      "text": "3. BossAIController 的确定性随机流抽取候选，记录选择。\n\n调用：BossAIController::GetActionWeight / DrawActionWeight(Total) / RecordActionSelection；选中 ActionTag 写 Blackboard。",
+      "text": "3. Controller::SelectAction(Set, EligibleTags)。\n读取派生权重；全集合法且候选有正权重时 DrawActionWeight 一次抽签。\nRecordActionSelection 更新权重，StoreActionSelection 保存来源和原 Spec。\nBlackboard::SetValueAsName 写 Tag。",
       "x": 980,
       "y": 351,
       "width": 420,
-      "height": 230,
+      "height": 330,
       "color": "5"
     },
     {
       "id": "request",
       "type": "text",
-      "text": "4. 激活任务用 ActionTag 找对应 GA，向 BossState ASC 申请激活。\n\n调用：ActivateAbility::ExecuteTask 从 ActionTag 找 SpecHandle → ASC::TryActivateAbility(Handle)，登记结束委托。",
+      "text": "4. ActivateAbility::ExecuteTask 消费请求。\nConsumeActionSelection 检查 Set/Phase/ASC/Tag/Class/Spec/Avatar。\n成功或失败都清一次性记录/黑板。\n成功先订阅结束，再 TryActivateAbility(原 Handle)，不按 Class 重找 Spec。",
       "x": 1480,
       "y": 351,
-      "width": 420,
-      "height": 230,
+      "width": 460,
+      "height": 330,
       "color": "5"
     },
     {
@@ -63,11 +63,21 @@
     {
       "id": "fail",
       "type": "text",
-      "text": "5B. 拒绝或无候选：BT 走失败/其他动作，不在任务里直接造成伤害。\n\n无候选或 TryActivateAbility=false → EBTNodeResult::Failed；OnTaskFinished/CleanupBinding 防残留回调。",
+      "text": "5B. 失败 → BT 返回 Failed。\n整集无效、无合法候选、来源/Spec 改变或 GAS 拒绝均不执行动作。\nCleanupBinding 清结束监听；重选/重置种子/附身变化/EndPlay 清短期请求。\nBaseWeight=0 不被恢复逻辑启用。",
       "x": 980,
       "y": 824,
       "width": 420,
-      "height": 230,
+      "height": 310,
+      "color": "3"
+    },
+    {
+      "id": "recover",
+      "type": "text",
+      "text": "3A. 合格候选惩罚全部耗尽。\nSelectAction 只恢复这些候选 BaseWeight，再继续本次抽签。\nRepeatPenalty=0 是软避重；唯一合法动作可再次选择。\n不恢复被目标/GAS 过滤的动作，不新增计时器。",
+      "x": 480,
+      "y": 824,
+      "width": 420,
+      "height": 300,
       "color": "3"
     }
   ],
@@ -78,7 +88,7 @@
       "fromSide": "right",
       "toNode": "candidates",
       "toSide": "left",
-      "label": "ResolveCurrentActionSet(Form/Phase)"
+      "label": "全集校验通过 → 按 Phase 的 ActionSet 筛选"
     },
     {
       "id": "e2",
@@ -86,7 +96,7 @@
       "fromSide": "right",
       "toNode": "random",
       "toSide": "left",
-      "label": "CanActivateAbilityByHandle=true"
+      "label": "合法候选 Tag + 原 SpecHandle"
     },
     {
       "id": "e3",
@@ -94,7 +104,7 @@
       "fromSide": "right",
       "toNode": "request",
       "toSide": "left",
-      "label": "DrawActionWeight → Blackboard ActionTag"
+      "label": "StoreActionSelection + Blackboard Tag"
     },
     {
       "id": "e4",
@@ -110,7 +120,7 @@
       "fromSide": "right",
       "toNode": "fail",
       "toSide": "left",
-      "label": "TryActivateAbility=false → Failed"
+      "label": "来源失效/激活拒绝 → Failed"
     },
     {
       "id": "e6",
@@ -119,6 +129,30 @@
       "toNode": "fail",
       "toSide": "left",
       "label": "候选为空 → ClearValue / Failed"
+    },
+    {
+      "id": "e7",
+      "fromNode": "random",
+      "fromSide": "bottom",
+      "toNode": "recover",
+      "toSide": "top",
+      "label": "全部合格候选惩罚权重为零"
+    },
+    {
+      "id": "e8",
+      "fromNode": "recover",
+      "fromSide": "left",
+      "toNode": "random",
+      "toSide": "left",
+      "label": "恢复基础权重 → 本次抽签"
+    },
+    {
+      "id": "e9",
+      "fromNode": "tick",
+      "fromSide": "bottom",
+      "toNode": "fail",
+      "toSide": "bottom",
+      "label": "配置无效 → 整集拒绝"
     }
   ]
 }

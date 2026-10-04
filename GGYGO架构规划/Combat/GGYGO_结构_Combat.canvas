@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Combat｜结构图\n窗口、连续扫掠和命中输出。[[Combat/结构|结构文档]] · [[GGYGO_流程_Combat.canvas|运行流程]]",
+      "text": "# Combat｜结构图\n窗口、逐点跨帧扫掠和命中输出。[[Combat/结构|结构文档]] · [[GGYGO_流程_Combat.canvas|运行流程]]\n02a 完整构建及冷启动近战自动化通过，无错误/警告；验证边界见 [[Combat/结构]]。真实动画接入待验收。",
       "x": 0,
       "y": 0,
       "width": 1540,
@@ -23,7 +23,7 @@
     {
       "id": "trace",
       "type": "text",
-      "text": "## UGGYGOMeleeTraceComponent\n`TickComponent()` / `PerformTrace()` → 上帧至本帧连续扫掠。\n`IsTracing()` → 窗口状态。\n`OnMeleeHit(Actor, Hit)` → 命中广播。",
+      "text": "## UGGYGOMeleeTraceComponent\n`BeginTraceWindow` → 校验 Socket/数值。\n`PerformTrace` → 分段球扫掠并请求 PhysicalMaterial。\n`EndTraceWindow` → 唯一窗口清理。\n`OnMeleeHit(Actor, Hit)` → 命中广播。",
       "x": 550,
       "y": 270,
       "width": 460,
@@ -43,7 +43,7 @@
     {
       "id": "memory",
       "type": "text",
-      "text": "## 窗口内状态\nPreviousStart/End：跨帧轨迹基线。\nHitActorsThisWindow：弱引用去重；新窗口清空。",
+      "text": "## 窗口内状态\nPreviousStart/End：跨帧基线，首帧不命中。\nHitActorsThisWindow：窗口内弱引用去重。\nWindowSerial：回调关闭/重开后旧查询立即退出。\nDeactivate/OnUnregister/EndPlay 均幂等清理。",
       "x": 550,
       "y": 670,
       "width": 460,
@@ -53,7 +53,7 @@
     {
       "id": "gas",
       "type": "text",
-      "text": "## AbilitySystem / Physics\nGA 接命中后应用 GE/Cue；HitResult 可携材质标签。[[AbilitySystem/结构]] · [[Physics/结构]]",
+      "text": "## AbilitySystem / Physics\nGA 用共享命中载荷生成 GE/Cue；HitResult 携带所请求的物理材质。Trace 不依赖 GAS。[[AbilitySystem/结构]] · [[Physics/结构]]",
       "x": 1110,
       "y": 690,
       "width": 430,
@@ -63,7 +63,7 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## 窗口与命中接口契约\nGA/Montage Event → MeleeTrace::BeginTraceWindow(StartSocket, EndSocket, Radius)；EndTraceWindow 关闭判定。\nMeleeTrace::TickComponent → PerformTrace；Mesh::GetSocketLocation 与 SweepMultiByChannel 产 HitResult，HitActorsThisWindow 在窗口内去重。\nOnMeleeHit.Broadcast(Actor, Hit) → BossMeleeAbility::HandleMeleeHit → SourceASC::MakeOutgoingSpec / ApplyGameplayEffectSpecToTarget；Trace 只报告命中，不拥有伤害公式。",
+      "text": "## 窗口与命中接口契约\nGA/Montage Event → BeginTraceWindow；NotifyEnd/GA 收尾或组件 Deactivate/OnUnregister/EndPlay → EndTraceWindow。\nPerformTrace 用 bReturnPhysicalMaterial 的 SweepMultiByChannel 产 HitResult，并在窗口内去重。\nOnMeleeHit → PlayerCombo/BossMelee → BuildHitEffectPayload / ApplyGameplayEffectSpecToTarget / ExecuteGameplayCue；Trace 只报告命中，不拥有 Context、伤害或表现规则。",
       "x": 0,
       "y": 1000,
       "width": 1450,

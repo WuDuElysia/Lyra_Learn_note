@@ -3,17 +3,17 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Input｜流程图\n按键到能力申请的时间顺序。类与接口见 [[GGYGO_结构_输入与意图.canvas|结构图]]、[[Input/结构|结构文档]]。\n普攻目标：[[GGYGO_流程_玩家普攻连段.canvas|连段流程]] · [[计划_玩家普攻连段]]。",
+      "text": "# Input｜流程图\n上方：原Action能力请求／轴值；下方：原生出生、Source事实与Hero资源装配。A/B1/B2及原H清理已Gate59编译。\n必要无输入Camera叶通过；正式Hero输入／移动／Run／网络未验。Gate54私有InputKey注入与FAILED旧失败保持。\nH Ready只关联能力输入；真实映射重建装配移动。上下路径通过原Session GetRequest接口关联。\n[[GGYGO_结构_输入与意图.canvas|结构图]] · [[Input/结构|结构文档]] · [[计划_输入与意图|计划]] · [[GGYGO_流程_玩家普攻连段.canvas|连段]]",
       "x": 0,
       "y": 0,
-      "width": 1600,
+      "width": 1900,
       "height": 200,
       "color": "6"
     },
     {
       "id": "action",
       "type": "text",
-      "text": "1. Enhanced Input 发出 InputAction 轴值或按下/松开。\n\nUE Enhanced Input 触发 InputAction::Started/Completed 或 Triggered 轴值；不直接激活 GA。",
+      "text": "1. EnhancedInput发出真实Action回调。\n能力来源是原Action绑定／输入会话，允许原生Injected／Chord／Combo。\nCompleted/Canceled结束能力请求；不证明物理Movement Released。",
       "x": 0,
       "y": 378,
       "width": 385,
@@ -23,7 +23,7 @@
     {
       "id": "map",
       "type": "text",
-      "text": "2. InputConfig 与 InputComponent 将 Action 绑定到对应 Tag 回调。\n\nHeroComponent::InitializePlayerInput → InputComponent::BindNativeAction/BindAbilityActions(InputConfig, Callbacks)。",
+      "text": "2. InitializePlayerInput按InputConfig绑定原Action并持native句柄。\nMove实例lambda捕原Scope；Look保留原Native回调；Ability绑定原来源Triggered/Completed/Canceled。",
       "x": 470,
       "y": 378,
       "width": 400,
@@ -33,7 +33,7 @@
     {
       "id": "branch",
       "type": "text",
-      "text": "3. HeroComponent 按输入类型分流。\n\n回调：HeroComponent::Input_Move / Input_LookMouse / Input_LookStick / Input_AbilityInputTagPressed/Released。",
+      "text": "3. Hero按已绑定回调分流。\nInput_Move(instance,原Scope)、Input_LookMouse/Stick；Input_AbilityActionTriggered/Released。\n请求与资源不换用后继来源。",
       "x": 950,
       "y": 378,
       "width": 385,
@@ -43,7 +43,7 @@
     {
       "id": "move",
       "type": "text",
-      "text": "移动/视角轴值：直接交给 CMC / Controller。\n[[Movement/结构]]\n\nInput_Move → Pawn::AddMovementInput；Input_Look* → Pawn::AddControllerYawInput/AddControllerPitchInput；不走 ASC。",
+      "text": "移动：核原Scope／Session／Binding，Source GetRequest真held才按原yaw AddMovementInput。\n视角：原Controller yaw/pitch。\n轴零不等于释放；均不走ASC。\n[[Movement/结构]]",
       "x": 1430,
       "y": 216,
       "width": 420,
@@ -53,11 +53,11 @@
     {
       "id": "ability",
       "type": "text",
-      "text": "Ability InputTag：Pressed/Released 先写入 ASC 缓存。\n\nInput_AbilityInputTagPressed/Released(Tag) → ASC::AbilityInputTagPressed/Released(Tag)；只写 Handle 集。",
+      "text": "能力：首次Triggered先锁存观察／固定deadline，再Receive原ID；未Ready／拒绝也不补发。\nCompleted与Canceled→End原ID Released；生命周期失效→Invalidated。\n原Action来源不要求通用硬件证明；无全ASC.Clear。\nGate59编译，正式输入未验。\n[[AbilitySystem/结构|原请求接口]]",
       "x": 1430,
       "y": 743,
       "width": 420,
-      "height": 230,
+      "height": 310,
       "color": "1"
     },
     {
@@ -73,11 +73,71 @@
     {
       "id": "retry",
       "type": "text",
-      "text": "可重试拒绝：HeroComponent 暂存意图，组释放后再请求。\n[[GGYGO_流程_能力仲裁.canvas]]\n\nASC::OnAbilityInputRetryable → HeroComponent::BufferAbilityInput；OnAbilityGroupFreed → HandleAbilityGroupFreed 重交 Tag。",
+      "text": "ASC真实Queued→完整原Retry→Hero核原ID/Tag/deadline后Buffer。\nGroupFreed→Queue完整原Retry，不续期／制造Pressed。\nASC唯一held／queued聚合。\nHero A已接并编译；旧Retry诊断的-1预期／人工来源边界未重验。\n[[GGYGO_流程_能力仲裁.canvas|仲裁]]",
       "x": 1430,
       "y": 1269,
       "width": 420,
-      "height": 230,
+      "height": 340,
+      "color": "3"
+    },
+    {
+      "id": "prepare",
+      "type": "text",
+      "text": "A. Hero B2真实映射重建装配\nInitialize先持原Scope／薄Observer再添加自身IMC；真实ControlMappingsRebuilt且自身注册记录齐备才进入。H Ready不是前置，Add返回／Triggered不Begin。\n重检原Scope→退原Session/Binding→原CMC serial→Source Begin并持Session→CMC Bind CAS并保存Binding→Attach。\nBegin仅准备；Attach显式Opened，不造Neutral／Unresolved，重复Attach不替换。\nCold资格来自原出生资源，跨Producer缺转交拒绝。失败／晚返回只退原局部资源，不清重入后继。\nGate59编译，正式装配动态未验。\n[[Input/结构#Hero移动来源装配与精确退出（B2）|B2接口]]",
+      "x": 0,
+      "y": 2520,
+      "width": 570,
+      "height": 530,
+      "color": "3"
+    },
+    {
+      "id": "observe",
+      "type": "text",
+      "text": "B. 原生事实→Movement投影\nInputKey捕原Producer/Session→Observe唯一raw/Revision→Project只读事实/自身义务→Super一次→重检原观察／路由。\nCold真实有效设备首数字Press；会话前held／Repeat／模拟／不完整轴不借Cold。\nIssue原Request/Event→Consume原Claim→重检→Started；失败无Started，不复用号。\nUnknown不自行复活；真Neutral先封原Released/Neutral再同步交付。\nEnd/Adopt仅Movement屏障；数字真release及必要轴真零起始均晚于边界。真实Flush记缺口，合成松键不恢复。\nGate59编译；正式物理链未验。\n[[Input/结构#原生观察与Movement义务分离|事实与义务]]",
+      "x": 670,
+      "y": 2520,
+      "width": 570,
+      "height": 530,
+      "color": "5"
+    },
+    {
+      "id": "dispatch",
+      "type": "text",
+      "text": "C. 原事实交付与CMC唯一执行\nHero Receiver固定原Session／Binding／弱Scope／原CMC，验证双身份后直交Consume；回调不收养后继。\nCMC核原Binding／事件／ModeProof；Cold一次且不解FAILED，Rearm仍真Neutral。Recorded不等于执行成功。\n实际新Request才由CMC分配执行身份；Recorded执行失败保留原请求及真实释放链，不退资源自动重试。\nSessionInvalidated清原槽；匹配协议Rejected/Stale退原资源。End原Session／Invalidate原Binding不构成物理Released。\nGate59已编译，正式Hero移动／MoveData／Run未验，无第二帧调度器。",
+      "x": 1340,
+      "y": 2520,
+      "width": 560,
+      "height": 530,
+      "color": "1"
+    },
+    {
+      "id": "origin",
+      "type": "text",
+      "text": "0. 初次资格／原生出生链｜D7已编译，D8～D10源码冻结已Gate44编译、夹具已验／正式出生未验\n真实LocalPlayer.Added捕获原Controller→Super→OriginResource.InitializeFromPlayerAdded。资源由宿主保有；未登记Controller通知会退休，不特判授Cold。\nController.InitInputSystem：Idle→Running；先验证真实配置或已有对象实际类，获取原资源→BeginNativeCreation(原Controller,配置类)→捕获原Ticket→Super一次。\nD10已实现：原生NewObject内PlayerInput.PostInitProperties捕获原关系→Super→重验→RecordNativeCreatedProducer；CDO／模板和无LP不登记，缺本地依赖明确诊断。默认类已切项目类，Blueprint Override待验。原生赋槽后D9完整重验原关系／配置／对象→Complete，缺Record明确MissingConstructionWitness，不把创建成功冒充资格成功。\n所有早退只Close原票据；失效／销毁后不写Controller。嵌套Running返回Busy、不Super／不排队；非暂态Rejected锁存至Actor结束，纠正依赖后重新创建，不由Tick自动重试。无LP原生路径不授资格。\nD12-B Source已编码：GetQualification／Claim只认领；实际首Request提交后、Started外调前Consume。End／flush／路由失效须Retire，Removed／Destroy封闭生命周期。Cold首个真实按下已批准，Rearm仍真实释放再按；跨Producer物理快照转交仍未接；Hero B2装配已随Gate59编译、正式输入未验，联机dummy语义待决。\nD11仅共享Mode／Proof值已Gate45编译；CMC校验／Cold一次窗口Gate48合成专项通过；Source D12-B发行已冻结／根静态接受，Gate49R1已编译／夹具已验／正式Source未验。",
+      "x": 0,
+      "y": 1750,
+      "width": 1900,
+      "height": 660,
+      "color": "3"
+    },
+    {
+      "id": "hero-local-asc-prepare",
+      "type": "text",
+      "text": "## 原H通知／能力输入关联（B1）\nBeginPlay先持原记录→RegisterLocalAbilitySystemNoticeAndCall；Ready认证原H／真实PublishedContext，只关联既有输入并绑定原retry。\nRefreshed同H不重绑／改代次／IMC；后建输入在Initialize尾部关联。H Ready不装配Source／CMC。\n原记录退订／晚返回token只归自身；matching Released先匹配原H，再撤回资格并进入下方按归属清理。\nGate59编译；必要无输入Camera叶通过，正式输入未验。\n[[Input/结构#Hero本地ASC身份订阅与原H清理|接口与清理]]",
+      "x": 0,
+      "y": 3190,
+      "width": 1900,
+      "height": 330,
+      "color": "3"
+    },
+    {
+      "id": "cleanup",
+      "type": "text",
+      "text": "## 原资源精确退出／matching H Released\n输入退出先摘原槽／Scope／Observer／Action绑定，原ForceWalk=false先于Source/CMC/ASC外调；End原Source Session／Invalidate原CMC Binding后重检原输入／订阅代次，再退原ASC ID／retry、native绑定及自身IMC注册。\nmatching H Released：捕原订阅/H/Pawn/Camera弱身份及输入/retry/镜头代次→撤H与关联→确有原输入归属才ReleasePlayerInput，只有原retry归属则仅解绑，无关输入保持。\n汇合后核原记录仍当前、H空、预期槽／代次及镜头请求代次未变→清原overrides、仅Reset入口原Camera；无Controller／InputComponent仍清镜头。旧H／新Ready／新输入或retry／新镜头请求停止旧清理，Reset后无Hero写入。\n协议失败只退原资源；CMC Recorded执行失败保留原请求与真释放链。H撤回／SessionInvalidated都不伪造物理Released。\nGate59必要Camera叶通过；Camera Reset内部生命周期归Camera，正式Input/Run/网络未验。\n[[Input/结构#Hero移动来源装配与精确退出（B2）|原输入退出]] · [[Input/结构#Hero本地ASC身份订阅与原H清理|原H镜头清理]]",
+      "x": 0,
+      "y": 3660,
+      "width": 1900,
+      "height": 360,
       "color": "3"
     }
   ],
@@ -88,7 +148,7 @@
       "fromSide": "right",
       "toNode": "map",
       "toSide": "left",
-      "label": "BindNativeAction / BindAbilityActions"
+      "label": "按原Action/Tag绑定并持native句柄"
     },
     {
       "id": "e2",
@@ -96,7 +156,7 @@
       "fromSide": "right",
       "toNode": "branch",
       "toSide": "left",
-      "label": "HeroComponent 输入回调"
+      "label": "原绑定回调→Hero分流"
     },
     {
       "id": "e3",
@@ -104,7 +164,7 @@
       "fromSide": "right",
       "toNode": "move",
       "toSide": "left",
-      "label": "AddMovementInput / AddControllerYawInput"
+      "label": "Move经原Source GetRequest；Look原Controller入口"
     },
     {
       "id": "e4",
@@ -112,7 +172,7 @@
       "fromSide": "right",
       "toNode": "ability",
       "toSide": "left",
-      "label": "ASC::AbilityInputTagPressed/Released"
+      "label": "原Action观察→Receive/End原ID"
     },
     {
       "id": "e5",
@@ -128,7 +188,55 @@
       "fromSide": "right",
       "toNode": "retry",
       "toSide": "left",
-      "label": "OnAbilityInputRetryable → BufferAbilityInput"
+      "label": "真实Queued完整原Retry→Buffer；组释放Queue原请求"
+    },
+    {
+      "id": "e7",
+      "fromNode": "prepare",
+      "fromSide": "right",
+      "toNode": "observe",
+      "toSide": "left",
+      "label": "原装配完成→原Session参与真实观察"
+    },
+    {
+      "id": "e8",
+      "fromNode": "observe",
+      "fromSide": "right",
+      "toNode": "dispatch",
+      "toSide": "left",
+      "label": "Receiver原Binding与原Fact；不冒充准入"
+    },
+    {
+      "id": "e9",
+      "fromNode": "origin",
+      "fromSide": "bottom",
+      "toNode": "prepare",
+      "toSide": "top",
+      "label": "原出生资格供Source Begin选择Cold/Rearm；不证明执行"
+    },
+    {
+      "id": "e-hero-local-asc-prepare",
+      "fromNode": "hero-local-asc-prepare",
+      "fromSide": "bottom",
+      "toNode": "cleanup",
+      "toSide": "top",
+      "label": "matching原H Released→按归属输入/retry及原镜头清理"
+    },
+    {
+      "id": "e-prepare-cleanup",
+      "fromNode": "prepare",
+      "fromSide": "left",
+      "toNode": "cleanup",
+      "toSide": "left",
+      "label": "Begin/Bind/Attach失败：只退原局部资源"
+    },
+    {
+      "id": "e-dispatch-cleanup",
+      "fromNode": "dispatch",
+      "fromSide": "right",
+      "toNode": "cleanup",
+      "toSide": "right",
+      "label": "协议Rejected/Stale或原SessionInvalidated：原资源清理"
     }
   ]
 }

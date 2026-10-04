@@ -1,24 +1,24 @@
 {
 	"nodes":[
-		{"id":"nav","type":"text","text":"# BossAI｜结构图\n实线写当前 A–C 实现，目标/仇恨与换形态见计划子图。[[BossAI/结构|结构文档]] · [[GGYGO_流程_Boss选招.canvas|选招]] · [[GGYGO_流程_Boss换形态.canvas|换形态]]","x":0,"y":0,"width":1520,"height":150,"color":"6"},
-		{"id":"definition","type":"text","text":"## UGGYGOBossDefinition / ActionSet\nDefinition：Form/Phase、PawnClass、AbilitySet 与动作池配置。\nActionSet：ActionTag、权重与筛选条件。\n[[计划_BOSSAI]]","x":0,"y":250,"width":410,"height":235,"color":"4"},
-		{"id":"encounter","type":"text","text":"## AGGYGOBossEncounter\n`SpawnBoss()` → 创建 State、Avatar、AIController 并建立绑定。\n`GetBossState/Avatar/Controller()` → 对外取三者。","x":0,"y":620,"width":410,"height":225,"color":"5"},
-		{"id":"state","type":"text","text":"## AGGYGOBossState\n`InitializeFromDefinition(Data)` → 授予全形态能力并设置初始标签。\n`GetCurrentFormTag()` / `GetCurrentPhaseTag()` → 复制状态。\n继承 `AttachAvatar()` 与持久 ASC。","x":540,"y":250,"width":440,"height":260,"color":"5"},
+		{"id":"nav","type":"text","text":"# BossAI｜结构图\n14a完整构建与三项专项自动化通过；真实BT→GAS/资产/PIE待验。14b完整构建/两专项通过；真实BT SafeStop/异步Abort/结束顺序、PIE世界EndPlay/联机待验，E9完整动态未验。D–F仍为目标设计。\n[[BossAI/结构|结构文档]] · [[GGYGO_流程_BossAI.canvas|主流程]] · [[GGYGO_流程_Boss选招.canvas|选招]] · [[GGYGO_流程_Boss换形态.canvas|换形态目标]]","x":0,"y":0,"width":1520,"height":175,"color":"6"},
+		{"id":"definition","type":"text","text":"## UGGYGOBossDefinition / ActionSet\nDefinition 提供 Form/Phase 与动作池。\nValidateConfiguration(OutError) → 全集 Tag/类/数值校验；IsDataValid 复用。\n坏行整集拒绝，空集/全基础零合法。\n[[计划_BOSSAI]]","x":0,"y":250,"width":410,"height":300,"color":"4"},
+		{"id":"encounter","type":"text","text":"## AGGYGOBossEncounter\nbool SpawnBoss() → 仅Authority生成；拒绝已有对象、装配/清理重入及EndPlay后生成。\n前提：EditInstanceOnly属性BossDefinition已配置，Definition不是函数参数。\nGetBossState/Avatar/Controller → 查询装配成功的公开引用。\nCreatedBossState/Controller/Avatar → 弱创建责任，独立于Owner/当前Avatar。\nprotected EndPlay / CleanupCreatedBoss → 失败/撤场共用幂等回收；外部Avatar只解绑，不销毁。\n14b完整构建/两专项通过；真实BT/PIE/联机待验。","x":0,"y":620,"width":410,"height":365,"color":"5"},
+		{"id":"state","type":"text","text":"## AGGYGOBossState : AGGYGOCombatantState\nInitializeFromDefinition(Data) → 授予全形态能力、初始标签。\nGetCurrentFormTag / GetCurrentPhaseTag → 复制状态查询。\n继承AttachAvatar(NewPawn) / DetachAvatar(ExpectedPawn) → 权威绑定/身份安全解绑。\n持久ASC与Avatar引用归宿主；ExpectedASC/ActorInfo清理归宿主/PawnExtension。\n[[Combatants/结构|宿主接口]]","x":540,"y":250,"width":440,"height":330,"color":"5"},
 		{"id":"avatar","type":"text","text":"## AGGYGOBossCharacter\n`GetMeleeTraceComponent()` → GA 开关判定窗口。\nPawnExtension 绑定 BossState ASC；Mesh/CMC/碰撞属于当前形态 Pawn。","x":540,"y":640,"width":440,"height":240,"color":"4"},
-		{"id":"controller","type":"text","text":"## AGGYGOBossAIController\n`InitializeDecisionStream(Seed)` → 可复现随机流。\n`GetActionWeight(Action)` / `DrawActionWeight(Total)` → 加权选招。\n`RecordActionSelection` → 记录选择。","x":1100,"y":250,"width":420,"height":270,"color":"5"},
-		{"id":"tasks","type":"text","text":"## BT 任务接口\n`ChooseBossAction::ExecuteTask` → 过滤并选 ActionTag。\n`ActivateAbility::ExecuteTask` → 找 GA 并请求 ASC 激活；`OnTaskFinished` 清结束绑定。","x":1100,"y":630,"width":420,"height":245,"color":"4"},
-		{"id":"ga","type":"text","text":"## UGGYGOCombatActionAbility / BossMeleeAbility\n`ActionTag` → 决策与执行的语义键。\n`ActivateAbility()` → Montage Task；Event 打开 Trace。\n`HandleMeleeHit()` → 应用 GE 与 Cue。","x":1100,"y":1000,"width":420,"height":255,"color":"1"},
+		{"id":"controller","type":"text","text":"## AGGYGOBossAIController\nSelectAction → 耗尽恢复/确定性抽签。\nStore/ConsumeActionSelection → 弱来源身份，一次消费原Spec。\nClearActionSelection → 清失效请求。\n持有BrainComponent；GetBrainComponent供Encounter请求StopLogic。\nUnPossess → 解除Pawn；换Avatar只PauseLogic。\n请求/派生权重归AI，冷却与执行归GAS。","x":1100,"y":250,"width":420,"height":370,"color":"5"},
+		{"id":"tasks","type":"text","text":"## BT 任务接口\nChooseBossAction::ExecuteTask → 校验/筛选，存原候选Spec，写Tag。\nActivateAbility::ExecuteTask → 消费请求并以原Handle请求GAS。\nOnTaskFinished/CleanupBinding → 解绑结束监听。\n14a完整构建/三项自动化通过；真实BT→GAS/资产/PIE仍待验。","x":1100,"y":630,"width":420,"height":300,"color":"4"},
+		{"id":"ga","type":"text","text":"## UGGYGOBossMeleeAbility\nDamageEffect非空优先；蓝图bUseSharedDamageEffectWhenUnset默认false。\nValidateMeleeConfiguration / HandleMeleeHit\n→ System：UGGYGOGameData::ResolveDamageGameplayEffect(覆盖,显式bool)\n只读预载快照，不加载/缓存。解析空在\nBuildHitEffectPayload前拒绝，不GE/Cue；\n有效类经AbilitySystem Builder/GAS执行。\nGA管Montage/Trace/CMC句柄，EndAbility广播前释放。\n15F已编译；选择/命中矩阵未专项动态验。\n[[System/结构|System]] · [[AbilitySystem/结构|AbilitySystem]]","x":1100,"y":1000,"width":420,"height":350,"color":"1"},
 		{"id":"future","type":"text","text":"## 目标设计（D–F，未实现）\n仇恨/目标服务、转阶段锁、换 Pawn 事务；BossState 持续持有 ASC，Controller 保持 Brain。\n[[GGYGO_流程_Boss换形态.canvas]]","x":540,"y":1050,"width":440,"height":230,"color":"3"},
-		{"id":"contract","type":"text","text":"## 决策与执行接口契约\nBossEncounter::SpawnBoss → BossState::InitializeFromDefinition + AttachAvatar(Pawn) → ASC ActorInfo 指向当前 Pawn，状态留在 BossState。\nBT ChooseBossAction::ExecuteTask → ASC::CanActivateAbilityByHandle(Handle, FailureTags) → Controller::DrawActionWeight → Blackboard ActionTag。\nBT ActivateAbility::ExecuteTask → ASC::TryActivateAbility(Handle) → OnAbilityEnded/HandleAbilityEnded 返回 BT；GA::HandleMeleeHit → GE/Cue。\n目标服务/阶段事务目前未实现；换形态应重绑 Avatar 而非复制 ASC。","x":0,"y":1370,"width":1450,"height":300,"color":"6"}
+		{"id":"contract","type":"text","text":"## 状态归属与验证边界\nEncounter持有创建责任与装配成功查询引用，调用Controller/Brain和宿主公共接口回收；不写ASC内部状态。\nState持有ASC/属性/Form/Phase及当前Avatar；PawnExtension仅缓存当前绑定；外部Avatar不自动转为Encounter创建对象。\nController持有Brain、随机流、派生权重和一次请求；GA持有任务/资源，GAS结算伤害，CMC执行位移。\n14a完整构建/专项自动化通过；14b完整构建/两专项通过，测试Brain只观察StopLogic调用入口。实际BT SafeStop/异步Abort、BT→GAS结束顺序、PIE世界EndPlay及联机仍待验。\n[[BossAI/结构|职责与门禁]] · [[Combatants/结构|解绑契约]] · [[Movement/结构|位移职责]] · [[BossAI/计划_Kevin_DemonBattle战斗接入|Kevin缺口]]\n目标/仇恨、完整阶段/换形态事务与Kevin接线保持后续范围。","x":0,"y":1370,"width":1450,"height":330,"color":"6"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"definition","fromSide":"right","toNode":"state","toSide":"left","label":"初始化 Form / Phase 与能力"},
-		{"id":"e2","fromNode":"encounter","fromSide":"right","toNode":"state","toSide":"left","label":"创建持久宿主"},
-		{"id":"e3","fromNode":"encounter","fromSide":"right","toNode":"avatar","toSide":"left","label":"创建当前 Avatar"},
-		{"id":"e4","fromNode":"encounter","fromSide":"right","toNode":"controller","toSide":"left","label":"创建并 Possess"},
-		{"id":"e5","fromNode":"state","fromSide":"bottom","toNode":"avatar","toSide":"top","label":"Owner ASC 绑定 Avatar"},
+		{"id":"e2","fromNode":"encounter","fromSide":"right","toNode":"state","toSide":"left","label":"创建并记录责任；调用初始化 / DetachAvatar"},
+		{"id":"e3","fromNode":"encounter","fromSide":"right","toNode":"avatar","toSide":"left","label":"创建初始Avatar；保留回收责任"},
+		{"id":"e4","fromNode":"encounter","fromSide":"right","toNode":"controller","toSide":"left","label":"创建；调用Possess/UnPossess；查询Brain"},
+		{"id":"e5","fromNode":"state","fromSide":"bottom","toNode":"avatar","toSide":"top","label":"Attach/Detach经PawnExtension绑定/解绑"},
 		{"id":"e6","fromNode":"controller","fromSide":"bottom","toNode":"tasks","toSide":"top","label":"驱动 BT 任务"},
-		{"id":"e7","fromNode":"tasks","fromSide":"right","toNode":"ga","toSide":"left","label":"以 ActionTag 请求能力"},
+		{"id":"e7","fromNode":"tasks","fromSide":"right","toNode":"ga","toSide":"left","label":"经 ASC 激活已校验原 SpecHandle"},
 		{"id":"e8","fromNode":"ga","fromSide":"left","toNode":"avatar","toSide":"right","label":"Montage / Trace 作用于当前 Pawn"},
 		{"id":"e9","fromNode":"future","fromSide":"top","toNode":"state","toSide":"bottom","label":"目标：转阶段更新持久状态"}
 	]

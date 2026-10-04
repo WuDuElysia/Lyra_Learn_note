@@ -3,72 +3,92 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# System｜结构图\n项目语义键与共享资产入口。[[System/结构|结构文档]] · [[计划蓝图|模块导航]]",
+      "text": "# System｜结构图\n公共语义键、一次启动预载与显式GE类选择。边标签区分调用、加载持有及数据输出。\n[[System/结构|结构文档]] · [[计划蓝图|模块导航]]",
       "x": 0,
       "y": 0,
-      "width": 1530,
+      "width": 1630,
       "height": 125,
       "color": "6"
     },
     {
       "id": "tags",
       "type": "text",
-      "text": "## GGYGOGameplayTags\n原生 Tag 常量：Input/Ability/Group/State/Restriction/Event/Cue/Message。\n各模块只认同一语义键。",
+      "text": "## GGYGOGameplayTags\n原生Input/Ability/State/Event/Cue/Message等语义键。\nUE_DEFINE_GAMEPLAY_TAG → 模块加载时注册到UGameplayTagsManager。\nInput/ASC/AI/消息消费同一键；项目AssetManager不参与注册。",
       "x": 0,
       "y": 260,
       "width": 420,
-      "height": 215,
+      "height": 245,
       "color": "4"
     },
     {
       "id": "manager",
       "type": "text",
-      "text": "## UGGYGOAssetManager\n`Get()` → 单例或错误日志+兜底。\n`StartInitialLoading()` → 启动预载。\n`GetGameData()` → 可空共享资产；按类缓存。",
+      "text": "## UGGYGOAssetManager\nTryGet() → 游戏线程读取引擎实际Manager，未就绪/类型不符返回空；不新建/Root/替换。\nStartInitialLoading() → 父类索引后，一次预载GameData+三GE。\nGetGameData()/GetSharedDamageGameplayEffect()等 → 完成后只读对象/类或空，不加载重试。\n四项UPROPERTY(Transient)强引用由Manager唯一持有；完成前不发布部分快照。\nHasCompletedSharedAssetPreload() → 整次尝试结束且可读，不等于全成功。",
       "x": 550,
       "y": 260,
       "width": 440,
-      "height": 245,
+      "height": 420,
       "color": "5"
     },
     {
       "id": "data",
       "type": "text",
-      "text": "## UGGYGOGameData\n`Get()` → 可空。\nDamage / Heal / SelfDestruct GE 类引用；项目级 C++ 共用资产。",
+      "text": "## UGGYGOGameData\n软配置输入：\n- DamageGameplayEffect_SetByCaller\n- HealGameplayEffect_SetByCaller\n- SelfDestructGameplayEffect\n\nGet() → TryGet后转发GetGameData，可空。\nGetSharedDamageGameplayEffect()\nGetSharedHealGameplayEffect()\nGetSharedSelfDestructGameplayEffect()\n→ 转发Manager同名快照getter，返回GE类或空，不另存资源。\n角色AbilitySet/PawnData仍归各自模块。",
       "x": 1110,
       "y": 260,
-      "width": 420,
-      "height": 210,
+      "width": 520,
+      "height": 420,
       "color": "5"
     },
     {
       "id": "consumers",
       "type": "text",
-      "text": "## AbilitySystem / Input / GameMode\n消费 Tag 与共享 GE；角色专属 AbilitySet/PawnData 仍归各自模块。[[AbilitySystem/结构]] · [[GameFeature/结构]]",
+      "text": "## 共享GE与Tag消费者\n玩家/Boss输入DamageEffect和显式bool给ResolveDamageGameplayEffect；C++开关初始化false，蓝图实际值未回读。\nPlayerCombo空覆盖：shared=false为显式无GE正常模式，原门禁/Builder成功/CueTag有效时可Cue；shared=true且共享缺失仍走无GE Builder/Cue，是E14待修缺口，不推荐，尚未修复。\nBossMelee：校验与命中同规则；类缺失拒绝，无GE/Cue。\nHealth：自毁覆盖优先；空时GetSharedSelfDestructGameplayEffect，仍空则不结算。\nTag由Input/ASC/AI/消息直接消费。\n[[AbilitySystem/结构|玩家与GAS]] · [[BossAI/结构|Boss接缝]] · [[Character/结构|Health]]",
       "x": 550,
-      "y": 700,
+      "y": 760,
       "width": 440,
-      "height": 220,
+      "height": 460,
       "color": "1"
     },
     {
       "id": "contract",
       "type": "text",
-      "text": "## 共享基础接口\nGGYGOGameplayTags 提供静态 Tag 语义键，Input/ASC/AI/消息只共享键，不经 System 互相调用。\nUGGYGOAssetManager::Get/GetGameData → UGGYGOGameData 的 Damage/Heal/SelfDestruct GE；调用方处理可空值与资产缺失。\nPawnData/AbilitySet 是关卡或角色配置，不应塞进全局 GameData；System 不持有角色状态。",
+      "text": "## 配置、资源与验证边界\nDefaultEngine.ini指定AssetManagerClassName；无效类路径可能引擎先Fatal。DefaultGame.ini指定GGYGOGameDataPath，三GE软字段是配置输入。\n运行共享快照不刷新；更改配置并保存后重启才重载。启动加载不设置Cook包含规则，Cook需另配置/验收。\nSystem只管理共享预载资源与类选择；GA/GE/AttributeSet执行结算，不持有角色权威状态。[[GameFeature/结构|实际装配]]\nE12/E13有限复核：实际TryGet、一次预载、四强引用及只读快照契约一致。Gate62R1统一编译Succeeded，仅源码编译证据，预载/GC/Cook/BP/network未验。\n历史Gate22：完整构建Succeeded（5 actions/22.16秒），55/55项目常规Success（非预载专项），0 warning/error；T2-0已编译，T2a11编辑/T2b四真实World族通过。\nT2c1普通Take/重复Take；T2c1b中间Health冲突后继续B、只记录/注销新增A/B，基础保持：均实际通过。\n共享预载逐项失败/GC/覆盖选择、生产蓝图值、Cook、构造/OwnerOuter、非Authority/client、GA/GE资源仍未验。[[计划_实施状态|全局状态]]",
       "x": 0,
-      "y": 1010,
-      "width": 1450,
-      "height": 300,
+      "y": 1240,
+      "width": 1630,
+      "height": 290,
       "color": "6"
+    },
+    {
+      "id": "load-states",
+      "type": "text",
+      "text": "## EGGYGOSharedAssetLoadState\nGetGameDataLoadState()及三项\nGetSharedDamageLoadState()\nGetSharedHealLoadState()\nGetSharedSelfDestructLoadState() → 各项状态：\n- NotReady：未完成或读取线程不符\n- NotConfigured：该项软路径为空\n- LoadFailed：加载失败/类型不符\n- DependencyUnavailable：GameData不可用，三GE未尝试\n- Ready：本项已载入并保持\n完成可含失败；一项GE失败不阻止其它项。TryGet空时先处理Manager不可用。",
+      "x": 0,
+      "y": 760,
+      "width": 420,
+      "height": 400,
+      "color": "4"
+    },
+    {
+      "id": "selection",
+      "type": "text",
+      "text": "## GameData｜无状态类选择\nResolveDamageGameplayEffect / ResolveHealGameplayEffect\n输入：EffectOverride、必须显式传入的bUseSharedWhenUnset（无默认实参）。\n- 覆盖非空 → 返回覆盖，不访问Manager\n- 覆盖空+false → 返回空，不读共享\n- 覆盖空+true → 对应GetShared*；缺失仍空\n输出：GE类或空；不加载/重试/缓存/施加GE。共享读取限游戏线程。\nHeal机制已有，本批未新增治疗GA消费者。",
+      "x": 1110,
+      "y": 760,
+      "width": 520,
+      "height": 400,
+      "color": "5"
     }
   ],
   "edges": [
     {
       "id": "e1",
       "fromNode": "tags",
-      "fromSide": "bottom",
+      "fromSide": "right",
       "toNode": "consumers",
       "toSide": "left",
-      "label": "公共语义键"
+      "label": "直接消费原生语义键"
     },
     {
       "id": "e2",
@@ -76,23 +96,39 @@
       "fromSide": "right",
       "toNode": "data",
       "toSide": "left",
-      "label": "加载并缓存"
+      "label": "启动加载GameData；读取三GE软配置"
     },
     {
       "id": "e3",
-      "fromNode": "data",
-      "fromSide": "bottom",
-      "toNode": "consumers",
-      "toSide": "right",
-      "label": "提供共享 GE"
+      "fromNode": "selection",
+      "fromSide": "top",
+      "toNode": "data",
+      "toSide": "bottom",
+      "label": "空覆盖+true才调用对应GetShared*"
     },
     {
-      "id": "e4",
-      "fromNode": "tags",
+      "id": "e5",
+      "fromNode": "consumers",
       "fromSide": "right",
-      "toNode": "manager",
+      "toNode": "selection",
       "toSide": "left",
-      "label": "启动注册/全局访问"
+      "label": "玩家/Boss调用\nResolveDamageGameplayEffect(覆盖,bool)"
+    },
+    {
+      "id": "e6",
+      "fromNode": "data",
+      "fromSide": "top",
+      "toNode": "manager",
+      "toSide": "top",
+      "label": "Get/GetShared*调用TryGet并转发只读getter"
+    },
+    {
+      "id": "e7",
+      "fromNode": "manager",
+      "fromSide": "left",
+      "toNode": "load-states",
+      "toSide": "right",
+      "label": "发布整次完成标记与各项状态"
     }
   ]
 }

@@ -1,134 +1,20 @@
 {
-  "nodes": [
-    {
-      "id": "combo-s-nav",
-      "type": "text",
-      "text": "# 玩家普攻｜原生结构已编码，完整构建通过\n[[计划_玩家普攻连段]] · [[AbilitySystem/结构]] · [[GGYGO_流程_玩家普攻连段.canvas|流程]]\n独立 Montage 已保存回读；GA/ABP/移动集成待决，完整动作运行验收待完成。",
-      "x": 0,
-      "y": 0,
-      "width": 1510,
-      "height": 140,
-      "color": "6"
-    },
-    {
-      "id": "combo-s-input",
-      "type": "text",
-      "text": "## 输入边界\nIA_Attack 已保存 Pressed，类型回读通过。\nASC::AbilitySpecInputPressed → WaitComboInput。\nHeroComponent 只缓存激活失败。\n[[Input/结构]]",
-      "x": 0,
-      "y": 240,
-      "width": 450,
-      "height": 260,
-      "color": "4"
-    },
-    {
-      "id": "combo-s-ga",
-      "type": "text",
-      "text": "## UGGYGOPlayerComboAbility\n继承 UGGYGOGameplayAbility，持有段序和任务。\nActivateAbility → StartStep(0)。\nTryAdvanceCombo → 窗口内消费唯一请求。\nEndAbility → 清任务/Trace，恢复 Mesh Tick。\nGA_Attack_Light 尚待改父类。",
-      "x": 530,
-      "y": 240,
-      "width": 450,
-      "height": 300,
-      "color": "5"
-    },
-    {
-      "id": "combo-s-config",
-      "type": "text",
-      "text": "## FGGYGOComboStep[]\n原生结构已定义，蓝图默认值待配置。\nMontage、Main/End、NextStepIndex、PlayRate、Damage/PoiseDamage、Socket/Radius。\nValidateComboConfiguration → 校验配置。",
-      "x": 1060,
-      "y": 240,
-      "width": 450,
-      "height": 260,
-      "color": "4"
-    },
-    {
-      "id": "combo-s-task",
-      "type": "text",
-      "text": "## Montage Task\nPlayMontageAndWaitForEvent → ASC 播放。\n验证 Montage/实例 ID/ASC 所有权。\nReleaseMontageTask → 解绑回调，再 EndTask。\nSetStartTimeSeconds → 纠正播放位置。",
-      "x": 530,
-      "y": 650,
-      "width": 450,
-      "height": 260,
-      "color": "5"
-    },
-    {
-      "id": "combo-s-anim",
-      "type": "text",
-      "text": "## 三份独立 Main→End Montage\n资产、FullBody、窗口已保存回读。\nNotifyState → ComboWindowBegin/End。\nHitWindowBegin/End 独立。\nABP Slot 与 GA 默认值尚未接入。\n[[Animation/结构]]",
-      "x": 1060,
-      "y": 650,
-      "width": 450,
-      "height": 260,
-      "color": "1"
-    },
-    {
-      "id": "combo-s-hit",
-      "type": "text",
-      "text": "## Hero MeleeTrace / GE\nHeroCharacter 持有 MeleeTraceComponent。\n服务器 BeginTraceWindow → 清去重集合。\nOnMeleeHit → DamageEffect/Cue。\nEndTraceWindow → 停止扫掠。\nSocket/GE 配置与命中验证待完成。\n[[Combat/结构]]",
-      "x": 0,
-      "y": 650,
-      "width": 450,
-      "height": 260,
-      "color": "4"
-    },
-    {
-      "id": "combo-s-network",
-      "type": "text",
-      "text": "## WaitComboInput / ASC 纠正\n输入任务持有 SourceStep、递增 RequestId。\nGAS VectorPayload(X,Y) → 服务器验证段序与窗口。\nClientCorrectComboStep → 预测键、Revision、段/位置/窗口。\nCorrectPredictedStep → 忽略旧确认，拒绝时回退。\n联机延迟和拒绝路径尚未运行验收。",
-      "x": 530,
-      "y": 1040,
-      "width": 600,
-      "height": 300,
-      "color": "5"
-    }
-  ],
-  "edges": [
-    {
-      "id": "combo-se-input",
-      "fromNode": "combo-s-input",
-      "fromSide": "right",
-      "toNode": "combo-s-ga",
-      "toSide": "left",
-      "label": "InputPressed → 单请求"
-    },
-    {
-      "id": "combo-se-config",
-      "fromNode": "combo-s-config",
-      "fromSide": "left",
-      "toNode": "combo-s-ga",
-      "toSide": "right",
-      "label": "提供段关系与参数"
-    },
-    {
-      "id": "combo-se-task",
-      "fromNode": "combo-s-ga",
-      "fromSide": "bottom",
-      "toNode": "combo-s-task",
-      "toSide": "top",
-      "label": "持有并控制 Task"
-    },
-    {
-      "id": "combo-se-anim",
-      "fromNode": "combo-s-task",
-      "fromSide": "right",
-      "toNode": "combo-s-anim",
-      "toSide": "left",
-      "label": "播放 / 接收事件"
-    },
-    {
-      "id": "combo-se-hit",
-      "fromNode": "combo-s-ga",
-      "fromSide": "left",
-      "toNode": "combo-s-hit",
-      "toSide": "top",
-      "label": "服务器调用 Trace/GE"
-    },
-    {
-      "id": "combo-se-network",
-      "fromNode": "combo-s-ga",
-      "fromSide": "bottom",
-      "toNode": "combo-s-network",
-      "toSide": "left",
-      "label": "持有输入任务；接收权威纠正"
-    }
-  ]
+	"nodes":[
+		{"id":"combo-s-nav","type":"text","text":"# 玩家普攻｜第04批代码冻结，专项回归通过\n[[计划_玩家普攻连段]] · [[AbilitySystem/结构]] · [[GGYGO_流程_玩家普攻连段.canvas|流程]]\n第二轮完整 C++ 构建已通过；第五次自动化中 Combo 两项与 MontageTask 共 3/3 通过且 0 warning，真实 Mesh、CVar 优先级与具体 lease owner 夹具已验证。GA/ABP/移动集成和完整动作验收待完成。","x":0,"y":0,"width":1510,"height":140,"color":"6"},
+		{"id":"combo-s-input","type":"text","text":"## 输入边界\nIA_Attack 已保存 Pressed，类型回读通过。\nASC::AbilitySpecInputPressed → WaitComboInput。\nHeroComponent 只缓存激活失败。\n[[Input/结构]]","x":0,"y":240,"width":450,"height":260,"color":"4"},
+		{"id":"combo-s-ga","type":"text","text":"## UGGYGOPlayerComboAbility\n管理段序、窗口与单请求缓存。\nSuper/Commit/Ready 返回校验本地激活代次。\nStartStep 校验段 token 与任务身份。\nEnd 在 Super 前清旧任务/Trace/Timer、恢复 Mesh。\nGA_Attack_Light 尚待改父类。","x":530,"y":240,"width":450,"height":300,"color":"5"},
+		{"id":"combo-s-config","type":"text","text":"## FGGYGOComboStep[]\n原生结构已定义，蓝图默认值待配置。\nMontage、Main/End、NextStepIndex、PlayRate、Damage/PoiseDamage、Socket/Radius。\nValidateComboConfiguration → 校验配置。","x":1060,"y":240,"width":450,"height":260,"color":"4"},
+		{"id":"combo-s-task","type":"text","text":"## Montage Task\nASC 执行播放，Task 持有资源与回调。\n固定原 AnimInstance/Character/播放实例。\n有效速率快照供 watchdog 使用。\nRootMotionScale 按 owner/token 恢复基线。\n测试夹具复用 UE 5.8 默认 Slot、真实 UAnimComposite segment 与带 render data 的引擎 Mesh；CVar 按原 SetBy 恢复。\n引擎嵌套播放写回限制见计划。","x":530,"y":650,"width":450,"height":260,"color":"5"},
+		{"id":"combo-s-anim","type":"text","text":"## 三份独立 Main→End Montage\n资产、FullBody、窗口已保存回读。\nNotifyState → ComboWindowBegin/End。\nHitWindowBegin/End 独立。\nABP Slot 与 GA 默认值尚未接入。\n[[Animation/结构]]","x":1060,"y":650,"width":450,"height":260,"color":"1"},
+		{"id":"combo-s-hit","type":"text","text":"## Hero MeleeTrace / GE\nHeroCharacter 持有 MeleeTraceComponent。\n服务器 BeginTraceWindow → 清去重集合。\nOnMeleeHit → DamageEffect/Cue。\nEndTraceWindow → 停止扫掠。\nSocket/GE 配置与命中验证待完成。\n[[Combat/结构]]","x":0,"y":650,"width":450,"height":260,"color":"4"},
+		{"id":"combo-s-network","type":"text","text":"## 输入 / 强类型纠正\nWaitComboInput → 来源段、RequestId。\nASC ClientCorrectAbilityState → Spec/实例/key。\nFGGYGOComboCorrectionData → 段/位置/窗口/Revision。\nCombo ReceiveAbilityCorrection → 类型与范围校验。\n旧接受不撤销新预测；本批联机待验。","x":530,"y":1040,"width":600,"height":300,"color":"5"}
+	],
+	"edges":[
+		{"id":"combo-se-input","fromNode":"combo-s-input","fromSide":"right","toNode":"combo-s-ga","toSide":"left","label":"InputPressed → 单请求"},
+		{"id":"combo-se-config","fromNode":"combo-s-config","fromSide":"left","toNode":"combo-s-ga","toSide":"right","label":"提供段关系与参数"},
+		{"id":"combo-se-task","fromNode":"combo-s-ga","fromSide":"bottom","toNode":"combo-s-task","toSide":"top","label":"持有并控制 Task"},
+		{"id":"combo-se-anim","fromNode":"combo-s-task","fromSide":"right","toNode":"combo-s-anim","toSide":"left","label":"播放 / 接收事件"},
+		{"id":"combo-se-hit","fromNode":"combo-s-ga","fromSide":"left","toNode":"combo-s-hit","toSide":"top","label":"服务器调用 Trace/GE"},
+		{"id":"combo-se-network","fromNode":"combo-s-ga","fromSide":"bottom","toNode":"combo-s-network","toSide":"left","label":"持有输入任务；接收权威纠正"}
+	]
 }

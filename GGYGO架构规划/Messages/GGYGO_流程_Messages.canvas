@@ -1,0 +1,152 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# Messages｜发布与重入流程\n主路径已构建；旧12及LateCreate两例通过，E8其余边界开放。[[Messages/结构|契约文档]] · [[GGYGO_结构_Messages.canvas|结构图]] · [[GGYGO_流程_伤害结算.canvas|上游伤害流程]]",
+      "x": 0,
+      "y": 0,
+      "width": 1680,
+      "height": 150,
+      "color": "6"
+    },
+    {
+      "id": "pre",
+      "type": "text",
+      "text": "## GAS → PreGameplayEffectExecute\n输入：一个 Modifier 的属性、幅度、EffectSpec。\n免疫校验通过后建立配对的同步上下文；拒绝路径不留下待处理记录。",
+      "x": 0,
+      "y": 230,
+      "width": 490,
+      "height": 235,
+      "color": "4"
+    },
+    {
+      "id": "write",
+      "type": "text",
+      "text": "## GAS写Current → PostAttributeChange\n输入：属性与实际Old/New。初始meta记录Modifier贡献；直接属性/结算setter提交数值与锁存。\nQueueAttributeResult/QueueMessageResult暂存事实；native随后可重入GE。Changed先于对应边沿。",
+      "x": 590,
+      "y": 230,
+      "width": 490,
+      "height": 265,
+      "color": "5"
+    },
+    {
+      "id": "post",
+      "type": "text",
+      "text": "## PostGameplayEffectExecute\n配对Modifier；Damage先调用QueueMessageResult保存原幅度。\nmeta先扣自身贡献，setter返回后读最新Health/Poise并Clamp结算；直接属性不重写。\n移除准确帧→FlushPendingResults；不覆盖重入状态。",
+      "x": 1180,
+      "y": 230,
+      "width": 490,
+      "height": 265,
+      "color": "5"
+    },
+    {
+      "id": "nested",
+      "type": "text",
+      "text": "## native委托 → 嵌套GAS调用\n重入可发生在Pre/Post之间或setter内，再走PreGameplayEffectExecute配对独立Modifier。\n仍有Modifier帧或属性联动未退出→FlushPendingResults暂不发布；结果只在同步栈内缓冲。",
+      "x": 590,
+      "y": 600,
+      "width": 490,
+      "height": 240,
+      "color": "3"
+    },
+    {
+      "id": "publish",
+      "type": "text",
+      "text": "## FlushPendingResults → 同步发布\nModifier帧和属性联动均退出后，先swap结果到局部数组，再发属性/死亡/破韧委托。\nBroadcastMessage(Verb, FGGYGOVerbMessage)发布Damage/真实PoiseBreak；来源/幅度为本次快照，新GE不复用旧结果。",
+      "x": 1180,
+      "y": 960,
+      "width": 490,
+      "height": 270,
+      "color": "1"
+    },
+    {
+      "id": "rep",
+      "type": "text",
+      "text": "## 属性复制 → OnRep_Health/OnRep_Poise\nBeginRepNotifyFrame(Attribute) → 弱Outer/ASC及实际注册校验。\nGAMEPLAYATTRIBUTE_REPNOTIFY宏内：\nOnAttributeAggregatorCreated → 匹配未判定帧记迟到创建，含外层。\nPostAttributeChange → GE/Expected/Base配对优先；其余未判定→抑制回退→等待最终→捕获一次有效值/锁存先于native提交；迟到创建后的Post走真实变化。\nEndRepNotifyFrame(Frame) → 宏Scope按准确身份出栈。\nincoming/有效历史 → Changed；正值→0且旧锁存未触发→归零边沿。原历史不取消，不回写旧锁存，不发GameplayMessage。\n[[Messages/结构#HealthSet 的复制调用作用域|阶段、来源失配与宏契约]]",
+      "x": 0,
+      "y": 1350,
+      "width": 490,
+      "height": 490,
+      "color": "4"
+    },
+    {
+      "id": "consumer",
+      "type": "text",
+      "text": "## 目标消费者：UI / 音频 / 统计\n按 Verb 只读订阅；实际蓝图接线待验证。\n载荷是事件快照，实时 ASC 可能已经有后续变化。\n复制需要的数据；按生命周期注销订阅。",
+      "x": 590,
+      "y": 960,
+      "width": 490,
+      "height": 270,
+      "color": "3"
+    },
+    {
+      "id": "next",
+      "type": "text",
+      "text": "## 后续Modifier / GE与证明范围\n每个Modifier独立执行，Health/Poise不原子提交。\n已验：旧12、LateCreate无聚合器复制/native内Infinite +5/宏后移除，两例归零及Poise Break幅度5。\n未全面验：已有聚合器新持续GE、嵌套OnRep、重登记/迁移、meta、网络/批处理/预测；E8开放。",
+      "x": 0,
+      "y": 960,
+      "width": 490,
+      "height": 270,
+      "color": "6"
+    }
+  ],
+  "edges": [
+    {
+      "id": "p1",
+      "fromNode": "pre",
+      "fromSide": "right",
+      "toNode": "write",
+      "toSide": "left",
+      "label": "校验通过→GAS应用本Modifier"
+    },
+    {
+      "id": "p2",
+      "fromNode": "write",
+      "fromSide": "right",
+      "toNode": "post",
+      "toSide": "left",
+      "label": "引擎逐 Modifier Post"
+    },
+    {
+      "id": "p3",
+      "fromNode": "write",
+      "fromSide": "bottom",
+      "toNode": "nested",
+      "toSide": "top",
+      "label": "原生委托同步重入"
+    },
+    {
+      "id": "p4",
+      "fromNode": "nested",
+      "fromSide": "left",
+      "toNode": "pre",
+      "toSide": "bottom",
+      "label": "嵌套 Modifier"
+    },
+    {
+      "id": "p5",
+      "fromNode": "post",
+      "fromSide": "bottom",
+      "toNode": "publish",
+      "toSide": "top",
+      "label": "移除配对帧→Flush门禁允许发布"
+    },
+    {
+      "id": "p6",
+      "fromNode": "publish",
+      "fromSide": "left",
+      "toNode": "consumer",
+      "toSide": "right",
+      "label": "本地消息（目标接入）"
+    },
+    {
+      "id": "p8",
+      "fromNode": "publish",
+      "fromSide": "bottom",
+      "toNode": "next",
+      "toSide": "bottom",
+      "label": "引擎继续后续执行"
+    }
+  ]
+}

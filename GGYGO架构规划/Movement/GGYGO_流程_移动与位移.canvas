@@ -3,17 +3,17 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Movement｜流程图\n一次本地移动预测的主路径。结构接口见 [[GGYGO_结构_移动与位移.canvas|结构图]]、[[Movement/结构|结构文档]]；曲线细节 [[GGYGO_流程_动画曲线处理.canvas|子图]]。",
+      "text": "# Movement｜流程图\n原生移动模拟：普通段与Stop／TurnBack分支；回放由原SavedMove安装上下文。\n[[GGYGO_结构_移动与位移.canvas|结构图]] · [[Movement/结构#本地 CurveRMS 原资源与实际区间|原资源／区间／清理]] · [[GGYGO_流程_动作曲线执行.canvas|独立动作子图]]\n四源已有限静态接受，未编译／动态；七Profile／当前Run／物理Hero和网络未验。",
       "x": 0,
       "y": 0,
       "width": 1750,
-      "height": 145,
+      "height": 220,
       "color": "6"
     },
     {
       "id": "input",
       "type": "text",
-      "text": "1. HeroComponent 提交移动轴值或 ForceWalk。\n\nInput_Move(Value) → AddMovementInput；ForceWalk Pressed/Released → CMC::SetForceWalkRequested。\nGA_Dodge / RequestRunOnNextMove 调用链未接入，当前仅占位。",
+      "text": "1. HeroComponent 提交移动轴值或 ForceWalk。\n\nInput_Move(Value) → AddMovementInput；ForceWalk Pressed/Released → CMC::SetForceWalkRequested。",
       "x": 0,
       "y": 392,
       "width": 385,
@@ -23,47 +23,47 @@
     {
       "id": "resolve",
       "type": "text",
-      "text": "3. CMC 在移动更新前解算步态、转身/急停与限制 Tag。\n\nUpdateCharacterStateBeforeMovement：有输入先 Walk；持续满 MovementSet.WalkToRunHoldSeconds（默认 1.5 秒）升 Run；ForceWalk 保持 Walk；随后推进 TurnBack/Stop。",
+      "text": "3. 分支：普通段求值／RMS挂原源。\n普通段：IsCurrentMotionFinished分成功／完成；EvaluateSingleInterval／EvaluateWalkRunInterval成功后Commit，双Loop必需。\nStop／TurnBack：StageLocomotionCurveRootMotion(tick,Candidate,error)保存原Input，签发原Origin并Apply源。\nOrigin含原CMC／Set／Binding／真实请求／执行号／片段与时间锚点；Stage不预支整帧时间。\n已Completed原片段不重新挂同一物理源。",
       "x": 970,
       "y": 392,
       "width": 420,
-      "height": 230,
+      "height": 390,
       "color": "5"
     },
     {
       "id": "curve",
       "type": "text",
-      "text": "2. CMC::TickComponent 在 Super 前采当前动画曲线。\n\nSampleAnimCurves(dt) → Sampler::Sample；建立本帧 CurveMotion，供随后 CMC 更新读取；动作源仍经 RMS::PrepareRootMotion。",
+      "text": "2. Before准备原move候选。\n`TryUpdateLocomotion(dt,...)` 捕获既有语义、输入／Gait，CMC唯一持有时间和请求。\n普通段交下步纯求值；Stop／TurnBack不提前求值整帧RMS。\n回放：原Input／Prepared已在native Super前安装；Before只Consume同引用一次，无原区间不制造模拟。\n来源失败／无执行请求拒绝，不由Acceleration补号。",
       "x": 470,
       "y": 392,
       "width": 420,
-      "height": 230,
+      "height": 330,
       "color": "5"
     },
     {
       "id": "physics",
       "type": "text",
-      "text": "4. CMC 的 GetMaxSpeed、PhysicsRotation 与原生物理/碰撞执行位移。\n\nCMC::GetMaxSpeed/PhysicsRotation 消费 CurveMotion；Super CMC Tick 与 UE 物理碰撞推进位移。",
+      "text": "4. 原生Prepare与胶囊执行。\nWalkStart／WalkRun：GetMaxSpeed＋原生物理；显式曲线false才固定步态，曲线失败0。\nRMS：native PrepareRootMotion(sim,tick)→原CMC PrepareLocomotionCurveRootMotion。\nt0=原MotionTime+(Source.GetTime−原SourceTime)；t1=t0+真实sim。\n终点Speed／Dir＋区间Yaw，速度乘sim/tick；CMC Consume一次Commit，RMS只装结果／原生时间／标志。\nHasUsableSpeed仅正常幅值；合法低速／离地保留动量。独立Action优先级及原生碰撞／PhysicsRotation保持。\n不是精确平移积分；partial／zero／catchup未动态验。",
       "x": 1470,
       "y": 392,
       "width": 420,
-      "height": 230,
+      "height": 460,
       "color": "5"
     },
     {
       "id": "saved",
       "type": "text",
-      "text": "5. SavedMove 记录自定义状态，客户端预测和服务器重演使用相同输入。\n\nFSavedMove_GGYGO::SetMoveFor/PrepMoveFor 保存恢复 Gait、转身与 CurveMotion；CanCombineWith 防不兼容合并。",
+      "text": "5. 原move预测与回放。\nSetMoveFor保存起始语义；PostUpdate保存原Input／Prepared，相关move不合并。\nPrepMoveFor先BeginLocomotionCurveReplay安装原记录，再native Super；Before一次Consume重算／保留的原Prepared。\n无原区间不补整帧；FAILED与后继准入不由旧结果恢复。\nClear／回放退出清自身引用。\nNetSerialize wire未扩，加载清本地Origin／Prepared；导入／authority／proxy校正未关闭。",
       "x": 1470,
       "y": 932,
       "width": 420,
-      "height": 230,
+      "height": 360,
       "color": "1"
     },
     {
       "id": "anim",
       "type": "text",
-      "text": "6. CMC 的步态发布给 WalkRun BlendSpace。\n\nGetResolvedGait → AnimationStateCapture → GaitBlendY（Run=1、Walk=0）→ WalkRun X 轴 WalkRunBlendAlpha。\nEnterMove 单次播放 → 剩余比例 ≤ 0.03 → Moving；避免起步循环挡住 WalkRun。",
+      "text": "6. AnimationStateFrame 把移动事实发布给现有 AnimBP。\n\nWalkRunBlendAlpha → 旧 GaitBlendY 兼容字段 → BlendSpace X；StopMotionType → StopValue 0/1/2。AnimBP 保留 EnterMove / WalkRun / Stop / TurnBack 拓扑，不反向决定胶囊位移。",
       "x": 970,
       "y": 986,
       "width": 420,
@@ -73,22 +73,62 @@
     {
       "id": "target",
       "type": "text",
-      "text": "目标拆环：MotionProfile 成为权威移动曲线来源，当前尚未落地。",
+      "text": "## 当前配置与验证缺口\n正式七Profile仍null／未接线；未保存ABP／BS轴名修正。\n四源仅finite_static_accepted_uncompiled；新编译、原生区间／失败回放、当前Run／物理Hero／网络未验。\nABP／旧Git为组长只读来源；Gadge／Dodge保持占位，后续统一GAS。",
       "x": 470,
       "y": 750,
       "width": 420,
-      "height": 180,
+      "height": 280,
       "color": "3"
     },
     {
       "id": "movement-test-validation",
       "type": "text",
       "x": 0,
-      "y": 1350,
+      "y": 1460,
       "width": 1390,
       "height": 270,
       "color": "6",
-      "text": "## 单人 PIE 验证入口｜L_Movement_Test\nOpen map → BP_GameMode::SpawnSquadForPlayer → PlayerStart → Pyrios。\nInject IA_Move：静置 1s → 前向 31s → 反向 3s → 松开 3s。\n4513 帧均 Grounded；胶囊中心 Z≈90.15 cm。Walk 首帧 1.0123s → Run 2.5183s。\n反向后 Turning 32.0113s → Braking 32.3363s → RunOut 33.053s，最终 Yaw=180°。\n覆盖 Enhanced Input → HeroComponent → CMC；物理键盘、联机、导航/流送未验收。[[Movement/移动测试关卡|配置与证据]]"
+      "text": "## 历史单人PIE入口｜L_Movement_Test\nOpen map → BP_GameMode::SpawnSquadForPlayer → PlayerStart → Pyrios。\nInject IA_Move：静置 1s → 前向 31s → 反向 3s → 松开 3s。\n4513 帧均 Grounded；胶囊中心 Z≈90.15 cm。Walk 首帧 1.0123s → Run 2.5183s。\n反向后 Turning 32.0113s → Braking 32.3363s → RunOut 33.053s，最终 Yaw=180°。\n新来源门禁前证据，不证明当前Run；历史覆盖Enhanced Input→Hero→CMC；物理键盘、联机、导航/流送未验收。[[Movement/移动测试关卡|配置与证据]]"
+    },
+    {
+      "id": "explicit-action",
+      "type": "text",
+      "x": 0,
+      "y": 1750,
+      "width": 1390,
+      "height": 260,
+      "color": "5",
+      "text": "## 独立入口：GA显式申请动作曲线\nGA蓝图/资产选择Profile与Montage/PlayRate → CMC::BeginActionMotion返回Handle → 独立ActionCurve RMS推进胶囊。\n动作在场跳过旧曲线采样、转身/刹停与自动旋转；原地AS表现姿态。\nEndActionMotion只认当前Handle；自然到期/离地由CleanupFinishedActionMotion清理。\nC++通用执行，具体动作配置留给资产。[[GGYGO_流程_动作曲线执行.canvas|完整子图]] · [[Movement/动作曲线执行|契约/验证状态]]"
+    },
+    {
+      "id": "evaluation-failure",
+      "type": "text",
+      "text": "## 拒绝／失败／旧源退场\n普通求值false → RejectLocomotionEvaluation(originalSerial,error)。\nRMS实际区间失败 → ReportLocomotionCurveRootMotionFailure(原Origin,Reason) → 既有Fail原请求。\n不提交候选，不恢复FAILED；旧Origin只退自身贡献，不失败／清后继或独立Action。\nReset／EndPlay／回放结束清原资源／派生引用；原生Prepare遍历不移除数组。\n无补号、默认方向／速度或自动重试。",
+      "x": 470,
+      "y": 1060,
+      "width": 420,
+      "height": 360,
+      "color": "1"
+    },
+    {
+      "id": "input-consumer",
+      "type": "text",
+      "text": "独立入口｜CMC消费真实来源事实（底层已编译，Hero生产未接）\nInput接收委托 → ConsumeMovementInputFact(原Binding, Fact, OutError) → 校验原绑定／完整ModeProof布局／事件。精确同Event Duplicate不执行；篡改Rejected、旧事实Stale。\nSessionOpened：记录Cold／Rearm，Cold且无FAILED才开一次窗；重复Opened／Reset／配置变化不重开。\nRequestStarted：新来源号＋无未释放请求；ColdPhysicalPress要未用Cold首窗，ReleasedThenPhysicalPress要已消费真实Neutral。合格后先关窗→既有唯一执行号准入→配置失败锁原请求，Recorded不保证成功。\nRequestReleased→NeutralConfirmed：精确释放原open后才记中立，不清FAILED；后续真实新请求才能再准入。旧请求高Event不更新水位。\nSourceUnresolved：关Cold并撤原关联，保留原open等真Release；未发行请求不补号／伪FAILED。SessionInvalidated只清原绑定，失效不等于Release。\nGate48原Rearm及新合成Cold／Rearm叶通过；不是物理首按证明；真实Source动态／Hero／MoveData及Run未验；FAILED恢复Gate49诊断匹配（Fail／2原Error）。[[Input/结构|发行与装配边界]]",
+      "x": 0,
+      "y": 2110,
+      "width": 1890,
+      "height": 470,
+      "color": "6"
+    },
+    {
+      "id": "local-asc-prepare-flow",
+      "type": "text",
+      "text": "## 独立资源链：ASC身份消费（新调用未编译／专项）\nBeginPlay → Cache → 原Owner查Extension → PrepareLocalAbilitySystemSubscription一次 → RegisterLocalAbilitySystemNoticeAndCall；原记录先持有，同步回放／返回Handle只归原订阅，失败一次定位诊断。\nReady → ConsumeLocalAbilitySystemNotice核对原opaque／Owner／真实Ready／PublishedContext → 新资源更新派生ASC并Reset；同opaque重复Ready／Refreshed不Reset。CantMove → 原const Ready Getter → 查询原Tag。\nReleased只清原opaque，晚R保留S；EndPlay退CurveRMS／清回放→Release精确Unregister原Handle→原Input失效→Super。\n当前Host／Extension及其它消费者整链须冻结后统一新DLL／新World验收；ASC资源不是CurveRMS／移动请求权威。[[Movement/结构|接口与边界]] · [[Character/结构|通知来源]]",
+      "x": 0,
+      "y": 2700,
+      "width": 1890,
+      "height": 340,
+      "color": "3"
     }
   ],
   "edges": [
@@ -98,7 +138,7 @@
       "fromSide": "right",
       "toNode": "curve",
       "toSide": "left",
-      "label": "本帧移动请求"
+      "label": "轴值／ForceWalk进入模拟，不认证原请求"
     },
     {
       "id": "e2",
@@ -106,7 +146,7 @@
       "fromSide": "right",
       "toNode": "resolve",
       "toSide": "left",
-      "label": "CurveMotion 供移动更新读取"
+      "label": "TryUpdateLocomotion：原Candidate／输入／Gait"
     },
     {
       "id": "e3",
@@ -114,7 +154,7 @@
       "fromSide": "right",
       "toNode": "physics",
       "toSide": "left",
-      "label": "Gait / 速度上限 / RootMotion"
+      "label": "普通段Commit；RMS Stage原Input／Origin并挂源"
     },
     {
       "id": "e4",
@@ -122,7 +162,7 @@
       "fromSide": "bottom",
       "toNode": "saved",
       "toSide": "top",
-      "label": "预测重演"
+      "label": "PostUpdate持原Input／Prepared，禁止有关合并"
     },
     {
       "id": "e5",
@@ -130,7 +170,7 @@
       "fromSide": "right",
       "toNode": "anim",
       "toSide": "left",
-      "label": "只读语义输出"
+      "label": "Capture只读提交后的移动事实"
     },
     {
       "id": "e6",
@@ -138,7 +178,31 @@
       "fromSide": "bottom",
       "toNode": "target",
       "toSide": "top",
-      "label": "后续替换采样来源"
+      "label": "null配置／资产保存和新运行仍待验"
+    },
+    {
+      "id": "evaluation-reject",
+      "fromNode": "resolve",
+      "fromSide": "bottom",
+      "toNode": "evaluation-failure",
+      "toSide": "top",
+      "label": "普通求值false：原原因→Reject原请求"
+    },
+    {
+      "id": "saved-before-original-replay",
+      "fromNode": "saved",
+      "fromSide": "left",
+      "toNode": "curve",
+      "toSide": "top",
+      "label": "PrepMoveFor先装原上下文→Before一次Consume"
+    },
+    {
+      "id": "native-prepare-original-failure",
+      "fromNode": "physics",
+      "fromSide": "bottom",
+      "toNode": "evaluation-failure",
+      "toSide": "right",
+      "label": "原Prepare失败→Report原Origin；旧源仅退场"
     }
   ]
 }

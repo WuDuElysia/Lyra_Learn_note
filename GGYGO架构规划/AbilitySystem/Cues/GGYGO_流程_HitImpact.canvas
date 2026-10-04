@@ -1,0 +1,196 @@
+{
+  "nodes": [
+    {
+      "id": "hitimpact-flow-nav",
+      "type": "text",
+      "text": "# HitImpact｜Executed 执行流程\n按箭头看实际入口、校验与反馈；这里只展开原生实现路径，BP 覆写拓扑须资产验收。\n[[AbilitySystem/Cues/结构|结构与接口]] · [[GGYGO_结构_HitImpact.canvas|静态关系]] · [[计划_HitImpact反馈#实施与验证状态|编译/冒烟/资产状态]] · [[AbilitySystem/结构|父模块]]\n源码/原测试已冻；Gate64R1 编译与五原叶有限通过。true 不证明实际父类/BP/媒体或网络反馈。",
+      "x": 0,
+      "y": 0,
+      "width": 2340,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "hitimpact-flow-handle",
+      "type": "text",
+      "text": "## Cue 路由 → HandleGameplayCue\n输入原 Target / EventType / Parameters。\nExecuted 进入首门禁；其它事件直接按 Super 原路由派发。\n此时尚未调用 K2_HandleGameplayCue。\n[[GGYGO_流程_伤害结算.canvas|GA/GAS 上游]]",
+      "x": 0,
+      "y": 260,
+      "width": 420,
+      "height": 290,
+      "color": "4"
+    },
+    {
+      "id": "hitimpact-flow-first-resolve",
+      "type": "text",
+      "text": "## ResolveImpactPresentation const\n验证 Target/World、所选模式的有限输入、明确表面政策与父类落点兼容。\n原点/Overlap 不因零值或非 Blocking 被判非法。\n产物：按值结果 / 原因 / Effect 借用。\n通过后只复制 Location/Normal，借用在 K2 外调前结束；不写原 Context。",
+      "x": 520,
+      "y": 260,
+      "width": 480,
+      "height": 320,
+      "color": "5"
+    },
+    {
+      "id": "hitimpact-flow-k2-dispatch",
+      "type": "text",
+      "text": "## 首门禁通过 → Super::HandleGameplayCue\n携原参数副本：只替换选定 Location/Normal，保留 EffectContext。\n原生顺序：K2_HandleGameplayCue → OnExecute。\n原生 OnExecute 或 BP 调用父实现时进入下方；BP 自行播放路径另验。\n首门禁失败不会进入这些反馈。",
+      "x": 1100,
+      "y": 260,
+      "width": 540,
+      "height": 320,
+      "color": "1"
+    },
+    {
+      "id": "hitimpact-flow-direct-native",
+      "type": "text",
+      "text": "## 直接原生执行入口\n调用 OnExecute_Implementation(Target,Parameters)。\n即使没有经过 Handle，也必须进入同一第二门禁。\n输入仍为所选资产模式的原载荷。",
+      "x": 1800,
+      "y": 710,
+      "width": 540,
+      "height": 240,
+      "color": "4"
+    },
+    {
+      "id": "hitimpact-flow-second-resolve",
+      "type": "text",
+      "text": "## OnExecute → Resolve（Super 前）\n失败立即诊断并返回 false。\n通过：复制位置/旋转与参数；所选粒子/声音持调用期强引用；捕原 Target/World 弱身份。\n结束 Effect 借用后才允许外调，配置数组重入不会使旧借用悬空。\n没有成员任务或第二权威状态。",
+      "x": 1100,
+      "y": 710,
+      "width": 540,
+      "height": 320,
+      "color": "5"
+    },
+    {
+      "id": "hitimpact-flow-input-reject",
+      "type": "text",
+      "text": "## 输入 / 配置 / 父类定位拒绝\nReportFailure：资产、目标、模式、Tags、原因/详情；每对象每原因最多一次。\nHandle 返回 void；原生 OnExecute 返回 false。\n首门禁拒绝：无 K2/父子反馈。\n第二门禁拒绝：不进入 Super/自身反馈。\nInheritedPlacementConflict 是配置兼容失败，合法原点/Overlap 本身未被改判。",
+      "x": 520,
+      "y": 1160,
+      "width": 480,
+      "height": 340,
+      "color": "3"
+    },
+    {
+      "id": "hitimpact-flow-super-burst",
+      "type": "text",
+      "text": "## Super::OnExecute_Implementation\n原生 DefaultSpawnCondition 决定 BurstEffects / OnBurst。\n定位兼容预检没有提前运行 ShouldSpawn，也没有改原 Context。\n父类即使播放也固定返回 false；这里不将它当播放失败或空配置。\n可能存在 OnBurst 重入。",
+      "x": 1100,
+      "y": 1160,
+      "width": 540,
+      "height": 300,
+      "color": "5"
+    },
+    {
+      "id": "hitimpact-flow-own-feedback",
+      "type": "text",
+      "text": "## 原回调返回 → 自身反馈\n先重检原 Target/World 与所选资源。\n资源非空：Niagara::SpawnSystemAtLocation(原World,所选资源,选定位置/旋转)。\n再次重检，再 PlaySoundAtLocation(原World,所选声音,选定位置)。\n可选输出为空不换另一资产；这些输出不新增音频时序链。",
+      "x": 1800,
+      "y": 1160,
+      "width": 540,
+      "height": 340,
+      "color": "1"
+    },
+    {
+      "id": "hitimpact-flow-post-callback-reject",
+      "type": "text",
+      "text": "## 外调后依赖失效\nReportFailure → false，停止剩余自身反馈。\n不换 Target/World/资产，不回滚已发生的父类/BP/粒子反馈。\n调用期引用随退出释放；没有静默重试。",
+      "x": 1100,
+      "y": 1610,
+      "width": 540,
+      "height": 260,
+      "color": "3"
+    },
+    {
+      "id": "hitimpact-flow-accepted-return",
+      "type": "text",
+      "text": "## 同步派发结束 → true\n输入通过并完成本次同步调用。\n不是粒子可见、声音可听、全 Cue 结束或网络到达证明。\n调用期强引用在返回时释放。",
+      "x": 1800,
+      "y": 1610,
+      "width": 540,
+      "height": 240,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "hitimpact-flow-handle-resolve",
+      "fromNode": "hitimpact-flow-handle",
+      "fromSide": "right",
+      "toNode": "hitimpact-flow-first-resolve",
+      "toSide": "left",
+      "label": "Executed：在 K2 前 Resolve 原输入"
+    },
+    {
+      "id": "hitimpact-flow-first-pass",
+      "fromNode": "hitimpact-flow-first-resolve",
+      "fromSide": "right",
+      "toNode": "hitimpact-flow-k2-dispatch",
+      "toSide": "left",
+      "label": "IsSuccess；复制选定参数、结束借用"
+    },
+    {
+      "id": "hitimpact-flow-first-fail",
+      "fromNode": "hitimpact-flow-first-resolve",
+      "fromSide": "bottom",
+      "toNode": "hitimpact-flow-input-reject",
+      "toSide": "top",
+      "label": "失败：首门禁阻断全部后续反馈"
+    },
+    {
+      "id": "hitimpact-flow-k2-native",
+      "fromNode": "hitimpact-flow-k2-dispatch",
+      "fromSide": "bottom",
+      "toNode": "hitimpact-flow-second-resolve",
+      "toSide": "top",
+      "label": "K2 后原生 OnExecute / BP 调用父实现"
+    },
+    {
+      "id": "hitimpact-flow-direct-resolve",
+      "fromNode": "hitimpact-flow-direct-native",
+      "fromSide": "left",
+      "toNode": "hitimpact-flow-second-resolve",
+      "toSide": "right",
+      "label": "直接调用也在 Super 前 Resolve"
+    },
+    {
+      "id": "hitimpact-flow-second-fail",
+      "fromNode": "hitimpact-flow-second-resolve",
+      "fromSide": "left",
+      "toNode": "hitimpact-flow-input-reject",
+      "toSide": "right",
+      "label": "再次失败：报告并返回 false"
+    },
+    {
+      "id": "hitimpact-flow-second-pass",
+      "fromNode": "hitimpact-flow-second-resolve",
+      "fromSide": "bottom",
+      "toNode": "hitimpact-flow-super-burst",
+      "toSide": "top",
+      "label": "成功：快照资源 / 原弱身份后调用 Super"
+    },
+    {
+      "id": "hitimpact-flow-super-own",
+      "fromNode": "hitimpact-flow-super-burst",
+      "fromSide": "right",
+      "toNode": "hitimpact-flow-own-feedback",
+      "toSide": "left",
+      "label": "父类返回；先核原输入再执行自身反馈"
+    },
+    {
+      "id": "hitimpact-flow-own-stale",
+      "fromNode": "hitimpact-flow-own-feedback",
+      "fromSide": "left",
+      "toNode": "hitimpact-flow-post-callback-reject",
+      "toSide": "right",
+      "label": "任一次回调后原依赖失效"
+    },
+    {
+      "id": "hitimpact-flow-own-done",
+      "fromNode": "hitimpact-flow-own-feedback",
+      "fromSide": "bottom",
+      "toNode": "hitimpact-flow-accepted-return",
+      "toSide": "top",
+      "label": "原输入仍有效；自身同步派发结束"
+    }
+  ]
+}

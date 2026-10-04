@@ -1,19 +1,240 @@
 {
-	"nodes":[
-		{"id":"nav","type":"text","text":"# 能力镜头覆盖与恢复｜流程子图\n模式所有权在 HeroComponent；类关系见 [[GGYGO_结构_相机.canvas|结构图]]，每帧求值见 [[GGYGO_流程_相机.canvas|主流程]]。","x":0,"y":0,"width":1710,"height":140,"color":"6"},
-		{"id":"default","type":"text","text":"1. PawnData 提供 DefaultCameraMode。\n\n读取：HeroComponent::DetermineCameraMode → PawnData->DefaultCameraMode；这是覆盖列表为空时的回退类。","x":0,"y":392,"width":400,"height":230,"color":"5"},
-		{"id":"a","type":"text","text":"2. GA A 激活：以自己的 SpecHandle 登记模式 A，A 成为有效模式。\n\n调用：GA::SetCameraMode(A) → HeroComponent::SetAbilityCameraMode(A, SpecHandle_A)；登记所有权。","x":470,"y":392,"width":420,"height":230,"color":"5"},
-		{"id":"b","type":"text","text":"3. GA B 激活：以 B 的 SpecHandle 登记模式 B，B 暂时覆盖 A。\n\n调用：GA::SetCameraMode(B) → SetAbilityCameraMode(B, SpecHandle_B)；B 排在 A 前。","x":970,"y":392,"width":420,"height":230,"color":"5"},
-		{"id":"bend","type":"text","text":"4A. B 结束：只移除 B 条目；A 仍有效则恢复 A。\n\n调用：GA_B::ClearCameraMode → HeroComponent::ClearAbilityCameraMode(SpecHandle_B)；下一帧 DetermineCameraMode 返回 A。","x":1470,"y":243,"width":420,"height":230,"color":"1"},
-		{"id":"aend","type":"text","text":"4B. A 先结束：只移除 A 条目；B 不受影响。\n\n调用：GA_A::ClearCameraMode → ClearAbilityCameraMode(SpecHandle_A)；B 仍在列表中。","x":1470,"y":743,"width":420,"height":230,"color":"3"},
-		{"id":"restore","type":"text","text":"5. 所有覆盖清空后，HeroComponent 再选 PawnData 默认模式；CameraModeStack 平滑混合。\n\n调用：DetermineCameraMode 返回 PawnData 默认类 → CameraComponent::UpdateCameraModes → Stack::PushCameraMode/ EvaluateStack。","x":970,"y":1080,"width":420,"height":230,"color":"1"}
+	"nodes": [
+		{
+			"id": "nav",
+			"type": "text",
+			"text": "# 能力镜头覆盖、凭证与解绑恢复｜流程子图\n模式所有权在 HeroComponent，Offset 单槽在 CameraComponent；类关系见 [[GGYGO_结构_相机.canvas|结构图]]，每次视图拉取见 [[GGYGO_流程_相机.canvas|主流程]]。",
+			"x": 0,
+			"y": 0,
+			"width": 1710,
+			"height": 140,
+			"color": "6"
+		},
+		{
+			"id": "default",
+			"type": "text",
+			"text": "1. PawnData 提供 DefaultCameraMode。\n\n读取：HeroComponent::DetermineCameraMode → PawnData->DefaultCameraMode；这是覆盖列表为空时的回退类。",
+			"x": 0,
+			"y": 392,
+			"width": 400,
+			"height": 230,
+			"color": "5"
+		},
+		{
+			"id": "a",
+			"type": "text",
+			"text": "2. GA A 激活：向当前 Hero 登记 SpecHandle_A，取得 Generation_A。\n\nGA 保存原 Hero / Spec / Generation；A 成为有效模式。结束时不会按当前 Avatar 重新查接收者。",
+			"x": 470,
+			"y": 392,
+			"width": 420,
+			"height": 245,
+			"color": "5"
+		},
+		{
+			"id": "b",
+			"type": "text",
+			"text": "3. GA B 激活：向同一 Hero 登记 SpecHandle_B，取得 Generation_B。\n\nB 暂时覆盖 A；A 的请求仍保留。GA B 独立保存自己的原接收者与精确凭证。",
+			"x": 970,
+			"y": 392,
+			"width": 420,
+			"height": 245,
+			"color": "5"
+		},
+		{
+			"id": "bend",
+			"type": "text",
+			"text": "4A. B 结束：向原 Hero 清 `Spec_B + Generation_B`；A 仍有效则恢复 A。\n\n迟到、无效或不匹配 generation 的清理返回 false，不影响当前条目。",
+			"x": 1470,
+			"y": 243,
+			"width": 420,
+			"height": 245,
+			"color": "1"
+		},
+		{
+			"id": "aend",
+			"type": "text",
+			"text": "4B. A 先结束：只清 `Spec_A + Generation_A`；B 不受影响。\n\n清理先于 GA 的 Super::EndAbility；无效的迟到 End 先被 IsEndAbilityValid 拒绝。",
+			"x": 1470,
+			"y": 743,
+			"width": 420,
+			"height": 245,
+			"color": "3"
+		},
+		{
+			"id": "restore",
+			"type": "text",
+			"text": "5. 所有覆盖清空后，HeroComponent 再选 PawnData 默认模式；CameraModeStack 平滑混合。\n\n委托返回默认类 → CameraComponent::UpdateCameraModes → Stack::PushCameraMode / EvaluateStack。",
+			"x": 970,
+			"y": 1200,
+			"width": 420,
+			"height": 245,
+			"color": "1"
+		},
+		{
+			"id": "replace",
+			"type": "text",
+			"text": "同一 Spec 显式替换：先精确归还旧 Generation，再登记并取得更大的新 Generation。\n\n若旧清理稍后再次到达，它不能移除后继请求；generation 到上限后拒绝新请求，不回绕复用。",
+			"x": 470,
+			"y": 760,
+			"width": 420,
+			"height": 250,
+			"color": "3"
+		},
+		{
+			"id": "unbind",
+			"type": "text",
+			"text": "PawnExtension 本地解绑入口\n`UninitializeAbilitySystem(ExpectedASC)`\n本地缓存空/Expected失配 → return，不广播。\n匹配先清本地缓存；共享ASC仅Pawn/Avatar匹配清理。\n随后广播（Avatar失配也通知本地Hero）。\nHero BeginPlay 唯一订阅；[[Camera/结构#解绑协调与后继保护|精确条件]]。",
+			"x": 0,
+			"y": 1070,
+			"width": 420,
+			"height": 290,
+			"color": "4"
+		},
+		{
+			"id": "hero-guard",
+			"type": "text",
+			"text": "Hero 唯一 `HandleAbilitySystemUninitialized`\n!bEndingPlay 且有效输入会话：\n输入ASC与当前缓存/Avatar匹配，或刚建立且\n输入ASC缓存与两项旧订阅均无 → return。\n跳过输入/Camera清理；其它情况走下方分支。\n[[Camera/结构#解绑协调与后继保护|完整guard条件]]。",
+			"x": 470,
+			"y": 1070,
+			"width": 420,
+			"height": 290,
+			"color": "3"
+		},
+		{
+			"id": "release-reset",
+			"type": "text",
+			"text": "Hero 清理分支：`ReleasePlayerInput()`\n→ 清模式覆盖 → 有Camera时ResetCameraRuntimeState。\ngeneration/token序号保持，不重放旧请求。\n正常解绑可走e10；EndPlay清理后结束。\nIMC释放可同步重入，该组合仍待独立验证。",
+			"x": 470,
+			"y": 1430,
+			"width": 420,
+			"height": 245,
+			"color": "4"
+		},
+		{
+			"id": "endplay",
+			"type": "text",
+			"text": "Hero EndPlay：先设 `bEndingPlay=true`。\n解绑 `DetermineCameraModeDelegate`；\n再调用同一Handler，绕过guard。\n清理后 UnregisterInitStateFeature / Super。",
+			"x": 0,
+			"y": 1430,
+			"width": 420,
+			"height": 245,
+			"color": "3"
+		},
+		{
+			"id": "evidence",
+			"type": "text",
+			"text": "验证边界\nGate22新增、Gate26/27/29复跑：真实GI/BeginPlay/正常无输入解绑；存活GA的真实旧End保留新镜头。\n后继输入/IMC重入、Avatar失配C4分支、死亡GE、完整B6仍未全面验证。\n[[Camera/结构#当前实现与验证边界|有限证据]]；本图描述实现分支，不把全部分支写成已动态证明。",
+			"x": 0,
+			"y": 1735,
+			"width": 890,
+			"height": 200,
+			"color": "6"
+		}
 	],
-	"edges":[
-		{"id":"e1","fromNode":"default","fromSide":"right","toNode":"a","toSide":"left","label":"默认模式可用"},
-		{"id":"e2","fromNode":"a","fromSide":"right","toNode":"b","toSide":"left","label":"后来的覆盖置顶"},
-		{"id":"e3","fromNode":"b","fromSide":"right","toNode":"bend","toSide":"left","label":"B 先结束"},
-		{"id":"e4","fromNode":"b","fromSide":"right","toNode":"aend","toSide":"left","label":"A 先结束"},
-		{"id":"e5","fromNode":"bend","fromSide":"bottom","toNode":"restore","toSide":"top","label":"A 也结束后"},
-		{"id":"e6","fromNode":"aend","fromSide":"bottom","toNode":"restore","toSide":"right","label":"B 也结束后"}
+	"edges": [
+		{
+			"id": "e1",
+			"fromNode": "default",
+			"fromSide": "right",
+			"toNode": "a",
+			"toSide": "left",
+			"label": "默认模式可用"
+		},
+		{
+			"id": "e2",
+			"fromNode": "a",
+			"fromSide": "right",
+			"toNode": "b",
+			"toSide": "left",
+			"label": "后来的 Spec + generation 覆盖置顶"
+		},
+		{
+			"id": "e3",
+			"fromNode": "b",
+			"fromSide": "right",
+			"toNode": "bend",
+			"toSide": "left",
+			"label": "B 用原接收者 + 精确凭证结束"
+		},
+		{
+			"id": "e4",
+			"fromNode": "b",
+			"fromSide": "right",
+			"toNode": "aend",
+			"toSide": "left",
+			"label": "A 用原接收者 + 精确凭证结束"
+		},
+		{
+			"id": "e5",
+			"fromNode": "bend",
+			"fromSide": "bottom",
+			"toNode": "restore",
+			"toSide": "top",
+			"label": "A 也结束后"
+		},
+		{
+			"id": "e6",
+			"fromNode": "aend",
+			"fromSide": "bottom",
+			"toNode": "restore",
+			"toSide": "right",
+			"label": "B 也结束后"
+		},
+		{
+			"id": "e7",
+			"fromNode": "a",
+			"fromSide": "bottom",
+			"toNode": "replace",
+			"toSide": "top",
+			"label": "同 Spec 再登记"
+		},
+		{
+			"id": "e8",
+			"fromNode": "replace",
+			"fromSide": "right",
+			"toNode": "restore",
+			"toSide": "left",
+			"label": "仅当前 generation 可清"
+		},
+		{
+			"id": "e9",
+			"fromNode": "default",
+			"fromSide": "bottom",
+			"toNode": "unbind",
+			"toSide": "top",
+			"label": "ASC / Avatar 反初始化"
+		},
+		{
+			"id": "e10",
+			"fromNode": "release-reset",
+			"fromSide": "right",
+			"toNode": "restore",
+			"toSide": "bottom",
+			"label": "正常解绑且委托仍绑定：下次拉取重新选类"
+		},
+		{
+			"id": "e11",
+			"fromNode": "unbind",
+			"fromSide": "right",
+			"toNode": "hero-guard",
+			"toSide": "left",
+			"label": "本地匹配才广播到Hero"
+		},
+		{
+			"id": "e12",
+			"fromNode": "hero-guard",
+			"fromSide": "bottom",
+			"toNode": "release-reset",
+			"toSide": "top",
+			"label": "guard未命中或EndPlay"
+		},
+		{
+			"id": "e13",
+			"fromNode": "endplay",
+			"fromSide": "right",
+			"toNode": "hero-guard",
+			"toSide": "left",
+			"label": "bEndingPlay=true绕过guard"
+		}
 	]
 }

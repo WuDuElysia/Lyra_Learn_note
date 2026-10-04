@@ -1,168 +1,24 @@
 {
-  "nodes": [
-    {
-      "id": "combo-f-nav",
-      "type": "text",
-      "text": "# 玩家普攻｜原生流程已编码，完整构建通过\n[[计划_玩家普攻连段]] · [[GGYGO_结构_玩家普攻连段.canvas|结构]] · [[GGYGO_流程_AbilitySystem.canvas|主流程]]\nGA 蓝图与动画接线待完成，尚未运行验收。窗口内立即换段；第三段后重新起手。",
-      "x": 0,
-      "y": 0,
-      "width": 1510,
-      "height": 145,
-      "color": "6"
-    },
-    {
-      "id": "combo-f-start",
-      "type": "text",
-      "text": "1. 首次按下\nASC::ProcessAbilityInput → ActivateAbility。\n校验 → CommitAbility → StartStep(0)。\n忽略激活键的已按下状态。",
-      "x": 0,
-      "y": 250,
-      "width": 450,
-      "height": 260,
-      "color": "5"
-    },
-    {
-      "id": "combo-f-main",
-      "type": "text",
-      "text": "2. StartStep(i) → Main\n关闭旧 Trace/窗口，解绑旧任务。\nASC PlayMontage(Main, Rate)。\n默认 Main → 对应 End。",
-      "x": 530,
-      "y": 250,
-      "width": 450,
-      "height": 260,
-      "color": "5"
-    },
-    {
-      "id": "combo-f-input",
-      "type": "text",
-      "text": "3. WaitComboInput → HandleInputPressed\n发送 SourceStep + RequestId，先消费 GAS 事件。\n拒绝旧请求号、错误段、已关窗或终段。\n否则刷新唯一 Pending 与有效期。\nTryAdvanceCombo()",
-      "x": 1060,
-      "y": 250,
-      "width": 450,
-      "height": 260,
-      "color": "5"
-    },
-    {
-      "id": "combo-f-window",
-      "type": "text",
-      "text": "4. NotifyState → HandleMontageEvent\n无 ASC: 预览静默返回，游戏世界警告。\n有 ASC: Task 验 Montage/实例/所有权，GA 验主 Mesh。\nBegin → 开窗并 TryAdvanceCombo。\nEnd → 关窗、清缓存、拒绝待处理请求。\nHitWindow 独立且服务器判定。",
-      "x": 1060,
-      "y": 650,
-      "width": 450,
-      "height": 260,
-      "color": "5"
-    },
-    {
-      "id": "combo-f-branch",
-      "type": "text",
-      "text": "5. TryAdvanceCombo\nif 开窗 && Pending未过期 && next有效:\n  消费 Pending → StartStep(next)\nelse: 保持 Main/End\n每请求最多推进一段。",
-      "x": 530,
-      "y": 650,
-      "width": 450,
-      "height": 260,
-      "color": "5"
-    },
-    {
-      "id": "combo-f-end",
-      "type": "text",
-      "text": "6. 没有合法后续请求\nMain → End → OnCompleted → EndAbility。\n第三段不循环。\n下次按下重新激活第一段。",
-      "x": 0,
-      "y": 650,
-      "width": 450,
-      "height": 260,
-      "color": "5"
-    },
-    {
-      "id": "combo-f-clean",
-      "type": "text",
-      "text": "结束 / 中断 / 取消\nEndAbility → 清 Trace/窗口/缓存/任务/兜底计时器。\n服务器恢复 Mesh Tick/URO。\n基类释放组与相机覆盖。\n旧通知不得污染新段。",
-      "x": 530,
-      "y": 1040,
-      "width": 450,
-      "height": 260,
-      "color": "5"
-    },
-    {
-      "id": "combo-f-correct",
-      "type": "text",
-      "text": "权威确认 / 拒绝\n服务器 SendAuthoritativeStep → ASC ClientCorrectComboStep。\n匹配预测键及新 Revision 才调用 CorrectPredictedStep。\n拒绝清缓存并 StartStep(服务器段,位置)，恢复窗口。\n旧接受通知不撤销较新的客户端预测。",
-      "x": 1060,
-      "y": 1040,
-      "width": 450,
-      "height": 300,
-      "color": "3"
-    }
-  ],
-  "edges": [
-    {
-      "id": "combo-fe-start",
-      "fromNode": "combo-f-start",
-      "fromSide": "right",
-      "toNode": "combo-f-main",
-      "toSide": "left",
-      "label": "StartStep(0)"
-    },
-    {
-      "id": "combo-fe-input",
-      "fromNode": "combo-f-main",
-      "fromSide": "right",
-      "toNode": "combo-f-input",
-      "toSide": "left",
-      "label": "活跃期的新按下"
-    },
-    {
-      "id": "combo-fe-window",
-      "fromNode": "combo-f-input",
-      "fromSide": "bottom",
-      "toNode": "combo-f-window",
-      "toSide": "top",
-      "label": "接收动画窗口"
-    },
-    {
-      "id": "combo-fe-eval",
-      "fromNode": "combo-f-window",
-      "fromSide": "left",
-      "toNode": "combo-f-branch",
-      "toSide": "right",
-      "label": "检查请求"
-    },
-    {
-      "id": "combo-fe-next",
-      "fromNode": "combo-f-branch",
-      "fromSide": "top",
-      "toNode": "combo-f-main",
-      "toSide": "bottom",
-      "label": "合法下一段"
-    },
-    {
-      "id": "combo-fe-end",
-      "fromNode": "combo-f-branch",
-      "fromSide": "left",
-      "toNode": "combo-f-end",
-      "toSide": "right",
-      "label": "不满足 → 默认收尾"
-    },
-    {
-      "id": "combo-fe-clean",
-      "fromNode": "combo-f-branch",
-      "fromSide": "bottom",
-      "toNode": "combo-f-clean",
-      "toSide": "top",
-      "label": "取消/播放失败"
-    },
-    {
-      "id": "combo-fe-finish",
-      "fromNode": "combo-f-end",
-      "fromSide": "bottom",
-      "toNode": "combo-f-clean",
-      "toSide": "left",
-      "label": "自然完成清理"
-    },
-    {
-      "id": "combo-fe-correct",
-      "fromNode": "combo-f-input",
-      "fromSide": "right",
-      "toNode": "combo-f-correct",
-      "toSide": "right",
-      "label": "请求处理结果 → 可靠纠正"
-    }
-  ]
+	"nodes":[
+		{"id":"combo-f-nav","type":"text","text":"# 玩家普攻｜第04批代码冻结，专项回归通过\n[[计划_玩家普攻连段]] · [[GGYGO_结构_玩家普攻连段.canvas|结构]] · [[GGYGO_流程_AbilitySystem.canvas|主流程]]\n第二轮完整 C++ 构建已通过；第五次自动化中 Combo 两项与 MontageTask 共 3/3 通过且 0 warning。真实引擎 Mesh、CVar 优先级保存/恢复及具体 lease owner 夹具已验证。GA/动画接线和完整动作仍待验收。","x":0,"y":0,"width":1510,"height":145,"color":"6"},
+		{"id":"combo-f-start","type":"text","text":"1. 首次按下 → ActivateAbility\n先初始化本地激活代次，再调用 Super。\n校验 → Commit → StartStep(0)。\n同步回调返回均核对代次。\n忽略激活键的已按下状态。","x":0,"y":250,"width":450,"height":260,"color":"5"},
+		{"id":"combo-f-main","type":"text","text":"2. StartStep(i) → Main\n关旧 Trace/窗口，解绑旧任务。\nTask 保存实际有效速率，ASC 播放。\nReady 后核对激活/段/任务身份。\nMain → End；watchdog 仅作异常兜底。","x":530,"y":250,"width":450,"height":260,"color":"5"},
+		{"id":"combo-f-input","type":"text","text":"3. WaitComboInput → HandleInputPressed\n发送 SourceStep + RequestId，先消费 GAS 事件。\n拒绝旧请求号、错误段、已关窗或终段。\n否则刷新唯一 Pending 与有效期。\nTryAdvanceCombo()","x":1060,"y":250,"width":450,"height":260,"color":"5"},
+		{"id":"combo-f-window","type":"text","text":"4. NotifyState → HandleMontageEvent\n无 ASC: 预览静默返回，游戏世界警告。\n有 ASC: Task 验 Montage/实例/所有权，GA 验主 Mesh。\nBegin → 开窗并 TryAdvanceCombo。\nEnd → 关窗、清缓存、拒绝待处理请求。\nHitWindow 独立且服务器判定。","x":1060,"y":650,"width":450,"height":260,"color":"5"},
+		{"id":"combo-f-branch","type":"text","text":"5. TryAdvanceCombo\nif 开窗 && Pending未过期 && next有效:\n  消费 Pending → StartStep(next)\nelse: 保持 Main/End\n每请求最多推进一段。","x":530,"y":650,"width":450,"height":260,"color":"5"},
+		{"id":"combo-f-end","type":"text","text":"6. 没有合法后续请求\nMain → End → OnCompleted → EndAbility。\n第三段不循环。\n下次按下重新激活第一段。","x":0,"y":650,"width":450,"height":260,"color":"5"},
+		{"id":"combo-f-clean","type":"text","text":"结束 / 中断 / 取消\n先过 GAS 有效性与 ScopeLock 门禁。\n清旧 Trace/窗口/任务/Timer、恢复 Mesh。\n全部任务委托解绑，TaskOwnerEnded。\n最后 Super；广播后不写实例。\n延期 End 也校验原激活代次。","x":530,"y":1040,"width":450,"height":260,"color":"5"},
+		{"id":"combo-f-correct","type":"text","text":"权威确认 / 拒绝\nSendAuthoritativeStep → ASC ClientCorrectAbilityState。\nASC 筛 Spec/活动实例/key，转发通用载荷。\nCombo 校验确切类型/范围/Revision。\n纠正 StartStep 后再核对激活与段。\n联机与引擎嵌套播放限制见计划。","x":1060,"y":1040,"width":450,"height":300,"color":"3"}
+	],
+	"edges":[
+		{"id":"combo-fe-start","fromNode":"combo-f-start","fromSide":"right","toNode":"combo-f-main","toSide":"left","label":"StartStep(0)"},
+		{"id":"combo-fe-input","fromNode":"combo-f-main","fromSide":"right","toNode":"combo-f-input","toSide":"left","label":"活跃期的新按下"},
+		{"id":"combo-fe-window","fromNode":"combo-f-input","fromSide":"bottom","toNode":"combo-f-window","toSide":"top","label":"接收动画窗口"},
+		{"id":"combo-fe-eval","fromNode":"combo-f-window","fromSide":"left","toNode":"combo-f-branch","toSide":"right","label":"检查请求"},
+		{"id":"combo-fe-next","fromNode":"combo-f-branch","fromSide":"top","toNode":"combo-f-main","toSide":"bottom","label":"合法下一段"},
+		{"id":"combo-fe-end","fromNode":"combo-f-branch","fromSide":"left","toNode":"combo-f-end","toSide":"right","label":"不满足 → 默认收尾"},
+		{"id":"combo-fe-clean","fromNode":"combo-f-branch","fromSide":"bottom","toNode":"combo-f-clean","toSide":"top","label":"取消/播放失败"},
+		{"id":"combo-fe-finish","fromNode":"combo-f-end","fromSide":"bottom","toNode":"combo-f-clean","toSide":"left","label":"自然完成清理"},
+		{"id":"combo-fe-correct","fromNode":"combo-f-input","fromSide":"right","toNode":"combo-f-correct","toSide":"right","label":"请求处理结果 → 可靠纠正"}
+	]
 }

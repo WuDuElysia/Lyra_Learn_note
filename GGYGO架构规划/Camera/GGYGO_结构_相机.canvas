@@ -1,29 +1,258 @@
 {
-	"nodes":[
-		{"id":"nav","type":"text","text":"# Camera｜结构图\n当前实现的类和接口关系。执行顺序见 [[GGYGO_流程_相机.canvas|流程图]]；详细说明见 [[Camera/结构|结构文档]]。","x":0,"y":0,"width":1410,"height":130,"color":"6"},
-		{"id":"pawn","type":"text","text":"## UGGYGOPawnData\n`DefaultCameraMode: TSubclassOf<UGGYGOCameraMode>` → 每个角色/形态选择默认 CameraMode 类。\n当前 `DA_Pawn_Pyrios` 选择 Pyrios 参数蓝图。","x":0,"y":200,"width":390,"height":210,"color":"4"},
-		{"id":"ga","type":"text","text":"## UGGYGOGameplayAbility\n`SetCameraMode(Class)` → 登记本 GA 的模式覆盖。\n`ClearCameraMode()` → 能力结束时撤销自己的覆盖。\n`ApplyCameraOffset(Offset)` / `ClearCameraOffset()` → 叠加/回落镜头微调。\n详见 [[AbilitySystem/结构|AbilitySystem]]。","x":0,"y":440,"width":390,"height":245,"color":"4"},
-		{"id":"hero","type":"text","text":"## UGGYGOHeroComponent\n`DetermineCameraMode()` → 覆盖栈顶或 PawnData 默认类。\n`SetAbilityCameraMode(Class, SpecHandle)` → 按能力句柄置顶。\n`ClearAbilityCameraMode(SpecHandle)` → 只移除该能力。\n它管理所有权，不计算视角。","x":500,"y":300,"width":420,"height":270,"color":"5"},
-		{"id":"component","type":"text","text":"## UGGYGOCameraComponent\n`GetCameraView(dt, OutView)` → UE 每帧拉取镜头的入口。\n`DetermineCameraModeDelegate` → 从 Hero 取有效模式类。\n`SetCameraOffset(Offset)` / `ClearCameraOffset()` → 设置/回落最终微调。\n持有 `CameraModeStack`，输出最终视角。","x":1020,"y":300,"width":420,"height":270,"color":"5"},
-		{"id":"third","type":"text","text":"## UGGYGOCameraMode_ThirdPerson（C++）\n`UpdateView(dt)` → 从 Pawn 视点与控制朝向计算跟随视角；扫球处理遮挡。\n保留算法与安全默认值，设计参数由派生蓝图覆盖。","x":0,"y":740,"width":390,"height":215,"color":"4"},
-		{"id":"pyrios-mode","type":"text","text":"## BP_CameraMode_ThirdPerson_Pyrios\n`/Game/Camera/Modes/`\nClass Defaults：TargetOffset、FOV、Pitch、Blend、穿墙参数。\n父类为 C++ ThirdPerson；当前由 DA_Pawn_Pyrios 选择。","x":0,"y":1000,"width":390,"height":220,"color":"1"},
-		{"id":"mode","type":"text","text":"## UGGYGOCameraMode\n`UpdateCameraMode(dt)` → 调 `UpdateView` 并推进权重。\n`UpdateView(dt)` → 子类计算单模式视角。\n`GetCameraModeView()` → 交给栈混合。\n`GetTargetActor()` → 从 CameraComponent 找跟随对象。","x":500,"y":680,"width":420,"height":255,"color":"4"},
-		{"id":"stack","type":"text","text":"## UGGYGOCameraModeStack\n`PushCameraMode(Class)` → 按类复用实例并置顶。\n`EvaluateStack(dt, OutView)` → 更新所有模式、从栈底向栈顶混合。\n`ClearStack()` → Avatar 切换时清空。\n它不保存 Ability SpecHandle。","x":1020,"y":660,"width":420,"height":260,"color":"5"},
-		{"id":"view","type":"text","text":"## FGGYGOCameraModeView\n`Location` / `Rotation` → 镜头位置和画面朝向。\n`ControlRotation` → 输入所用控制朝向。\n`FieldOfView` / `Blend(Other, Weight)` → 视场角和加权合成。","x":500,"y":980,"width":420,"height":220,"color":"1"},
-		{"id":"controller","type":"text","text":"## Controller / UE Camera View\n组件将 `View.ControlRotation` 写回 Controller，把 `Location` / `Rotation` / `FOV` 写入 `FMinimalViewInfo`；UE 再渲染这一帧。","x":1020,"y":980,"width":420,"height":215,"color":"1"},
-		{"id":"contract","type":"text","text":"## 所有权、求值与输出（接口链）\nGA::SetCameraMode(Class) → HeroComponent::SetAbilityCameraMode(Class, SpecHandle)：Hero 管覆盖所有权；结束用 ClearAbilityCameraMode(Handle) 精确撤回。\nUE → CameraComponent::GetCameraView(dt, OutView) → DetermineCameraModeDelegate → HeroComponent::DetermineCameraMode：返回 Class，不返回模式实例。\nCameraComponent → Stack::PushCameraMode(Class) / EvaluateStack(dt, View) → Mode::UpdateCameraMode(dt) / View::Blend：Stack 管实例复用与混合。\nCameraComponent 写 Controller.ControlRotation 与 FMinimalViewInfo；CameraOffset 在栈求值后作用，不污染模式 View。","x":0,"y":1290,"width":1450,"height":300,"color":"6"}
+	"nodes": [
+		{
+			"id": "nav",
+			"type": "text",
+			"text": "# Camera｜结构图\n箭头按标签表示调用、持有、数据输出或继承。[[Camera/结构|结构文档]] · [[GGYGO_流程_相机.canvas|主流程]]",
+			"x": 0,
+			"y": 0,
+			"width": 1410,
+			"height": 130,
+			"color": "6"
+		},
+		{
+			"id": "pawn",
+			"type": "text",
+			"text": "## UGGYGOPawnData\n`DefaultCameraMode: TSubclassOf<UGGYGOCameraMode>` → 角色/形态选择默认类。\n既有 DA_Pawn_Pyrios 记录选择 Pyrios 参数蓝图；资产回读另验。",
+			"x": 0,
+			"y": 200,
+			"width": 390,
+			"height": 210,
+			"color": "4"
+		},
+		{
+			"id": "ga",
+			"type": "text",
+			"text": "## UGGYGOGameplayAbility\n`SetCameraMode(Class)` → 原 Hero/Spec/generation。\n`ApplyCameraOffset(Offset)` → 先 Clear 再 Set。\n仅有效 handle 保存原 Camera/token；\nSetter 拒绝不恢复调用前已 Clear 的资源。\n`EndAbility` 清理先于 Super；\nAvatar/SurvivesDeath 不重放。\n[[AbilitySystem/结构|AbilitySystem]]",
+			"x": 0,
+			"y": 440,
+			"width": 390,
+			"height": 285,
+			"color": "4"
+		},
+		{
+			"id": "hero",
+			"type": "text",
+			"text": "## UGGYGOHeroComponent\n`DetermineCameraMode()` → 覆盖类/默认类。\n`SetAbilityCameraMode(Class,Spec)` → 代次\n`ClearAbilityCameraMode(Spec,generation)` → 撤销\n唯一 `HandleAbilitySystemUninitialized`：\n清理分支释放输入、覆盖并 Camera Reset。\n后继输入可提前返回；EndPlay 清理。\n[[Input/结构|输入契约]] · [[Camera/结构#解绑协调与后继保护|解绑边界]]",
+			"x": 500,
+			"y": 300,
+			"width": 420,
+			"height": 290,
+			"color": "5"
+		},
+		{
+			"id": "component",
+			"type": "text",
+			"text": "## UGGYGOCameraComponent\n`GetCameraView(dt, OutView)` → UE 入口。\n`SetCameraOffset(Offset)` → 先校验后发号。\nXYZ/FOV 有限，BlendIn/Out 有限非负。\n成功替换/token；失败一次 Error/Invalid。\n拒绝保持入口 Offset/active/alpha/token/序号。\n`ClearCameraOffset(token)` → 仅当前凭证。\n`ResetCameraRuntimeState()` → 清状态。\n持有 Stack/Offset/恢复比例；序号不重置。\n每次拉取：Offset 后至多一次 ECC_Camera。",
+			"x": 1020,
+			"y": 300,
+			"width": 420,
+			"height": 315,
+			"color": "5"
+		},
+		{
+			"id": "third",
+			"type": "text",
+			"text": "## UGGYGOCameraMode_ThirdPerson（C++）\n`UpdateView(dt)` → 从 Pawn 视点与控制朝向计算期望位置，并输出穿透请求。\n不访问 World、不 sweep、不保存恢复比例；设计参数仍由派生蓝图覆盖。",
+			"x": 0,
+			"y": 740,
+			"width": 390,
+			"height": 235,
+			"color": "4"
+		},
+		{
+			"id": "pyrios-mode",
+			"type": "text",
+			"text": "## BP_CameraMode_ThirdPerson_Pyrios\n`/Game/Camera/Modes/`\nClass Defaults：构图/混合/穿墙参数。\nDA_Pawn_Pyrios 选类；继承 ThirdPerson。\n[[Camera/结构#设计参数与碰撞策略的归属|参数记录]]；资产回读/PIE 待验。",
+			"x": 0,
+			"y": 1000,
+			"width": 390,
+			"height": 220,
+			"color": "1"
+		},
+		{
+			"id": "mode",
+			"type": "text",
+			"text": "## UGGYGOCameraMode\n`UpdateCameraMode(dt)` → 清旧请求、调 `UpdateView`、推进权重。\n`GetCameraModeView()` → 单模式 View。\n`GetCameraPenetrationRequest()` → 本帧可选保护请求。\n`GetTargetActor()` → 从 CameraComponent 找目标。",
+			"x": 500,
+			"y": 680,
+			"width": 420,
+			"height": 275,
+			"color": "4"
+		},
+		{
+			"id": "stack",
+			"type": "text",
+			"text": "## UGGYGOCameraModeStack\n`PushCameraMode(Class)` → 复用实例并置顶。\n`EvaluateStack(dt, OutView, OutRequest)` → View + Request。\n持有实例池/活动栈；按可见贡献聚合。\n`ClearStack()` → 清活动栈，保留实例池。\n不持有 Ability Spec；[[Camera/模式栈实现|实现说明]]。",
+			"x": 1020,
+			"y": 660,
+			"width": 420,
+			"height": 275,
+			"color": "5"
+		},
+		{
+			"id": "view",
+			"type": "text",
+			"text": "## FGGYGOCameraModeView\n`Location` / `Rotation` → 镜头位置和画面朝向。\n`ControlRotation` → 输入所用控制朝向。\n`FieldOfView` / `Blend(Other, Weight)` → 视场角和加权合成。",
+			"x": 500,
+			"y": 980,
+			"width": 420,
+			"height": 220,
+			"color": "1"
+		},
+		{
+			"id": "controller",
+			"type": "text",
+			"text": "## Controller / UE Camera View\nCameraComponent 完成最终解析后：\n`ControlRotation` → Pawn Controller；\n`Location / Rotation / FOV` → 组件和 `FMinimalViewInfo`。\n生产 ViewTarget/PIE 另验。",
+			"x": 1020,
+			"y": 980,
+			"width": 420,
+			"height": 230,
+			"color": "1"
+		},
+		{
+			"id": "contract",
+			"type": "text",
+			"text": "## 状态归属与验证边界\nGA 持有原接收者凭证；Hero 持有 Spec+generation；CameraComponent 持有 Offset 单槽 token 与唯一碰撞恢复比例。\nCameraComponent 持有 Stack；Stack 持有模式池/活动栈，输出 View+Request；ThirdPerson 只声明期望视角与保护请求。\nPawnExtension 本地广播到唯一 Hero 入口；后继输入 guard 可提前返回，EndPlay 绕过 guard。\nGate26：完整构建成功，项目 60/60、四 Camera 叶 Success；Offset 活动/回落两状态共 44 次精确拒绝，合法零值通过。\n拒绝 Error 含 Component/Owner/首个字段/原因；耗尽仅静态，GA 先 Clear 的替换事务不在 Setter 保持范围内。\n真实 GI/BeginPlay 解绑仅正常无输入，旧 End 保留新镜头已验；完整 B5/B6/B7、Input/IMC 重入、Avatar 失配、死亡 GE、资产/ViewTarget/PIE/网络仍开放。\n聚合/最终碰撞参数归零与 Mode 混合参数自动替代仍待审查；合法半径0/恢复0/混合时间0继续按正常配置解释。\n[[Camera/结构#当前实现与验证边界|证明范围]] · [[Camera/模式栈实现#已验证与待审查边界|详细边界]] · [[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复]] · [[GGYGO_流程_相机模式求值.canvas|求值流程]]",
+			"x": 0,
+			"y": 1560,
+			"width": 1450,
+			"height": 360,
+			"color": "6"
+		},
+		{
+			"id": "request",
+			"type": "text",
+			"text": "## FGGYGOCameraPenetrationRequest\n`bEnabled / PivotLocation / ProbeRadius / RecoverySpeed`\n只聚合贡献 > 0 且启用的模式。\nPivot 归一加权；Radius 最大；正速度最小。\n全零 Recovery=0 → 立即恢复。\nCameraComponent 消费聚合请求。",
+			"x": 500,
+			"y": 1240,
+			"width": 420,
+			"height": 255,
+			"color": "1"
+		},
+		{
+			"id": "pawnext",
+			"type": "text",
+			"text": "## UGGYGOPawnExtensionComponent\n`UninitializeAbilitySystem(ExpectedASC)`：\n匹配才清本地缓存/广播；共享 ASC 仅 Avatar 匹配时清理。\n同 UObject 去重；Hero 单一协调器。\n[[Combatants/结构|宿主解绑]] · [[Input/结构|输入]]。",
+			"x": 0,
+			"y": 1260,
+			"width": 390,
+			"height": 230,
+			"color": "4"
+		}
 	],
-	"edges":[
-		{"id":"e1","fromNode":"pawn","fromSide":"right","toNode":"hero","toSide":"left","label":"默认模式类"},
-		{"id":"e2","fromNode":"ga","fromSide":"right","toNode":"hero","toSide":"left","label":"按 SpecHandle 登记 / 撤销覆盖"},
-		{"id":"e3","fromNode":"hero","fromSide":"right","toNode":"component","toSide":"left","label":"委托返回当前有效模式"},
-		{"id":"e4","fromNode":"component","fromSide":"right","toNode":"stack","toSide":"left","label":"持有并推入模式类"},
-		{"id":"e5","fromNode":"stack","fromSide":"left","toNode":"mode","toSide":"right","label":"复用并求值模式实例"},
-		{"id":"e6","fromNode":"third","fromSide":"right","toNode":"mode","toSide":"left","label":"继承并实现 UpdateView"},
-		{"id":"e7","fromNode":"mode","fromSide":"right","toNode":"view","toSide":"left","label":"输出单个模式视角"},
-		{"id":"e8","fromNode":"stack","fromSide":"left","toNode":"view","toSide":"right","label":"按权重合成最终视角"},
-		{"id":"e9","fromNode":"component","fromSide":"bottom","toNode":"controller","toSide":"top","label":"写入最终视角与 ControlRotation"},
-		{"id":"e10","fromNode":"pawn","fromSide":"bottom","toNode":"pyrios-mode","toSide":"top","label":"Pyrios 选择默认模式蓝图"},
-		{"id":"e11","fromNode":"pyrios-mode","fromSide":"top","toNode":"third","toSide":"bottom","label":"继承算法，覆盖 Class Defaults"}
+	"edges": [
+		{
+			"id": "e1",
+			"fromNode": "pawn",
+			"fromSide": "right",
+			"toNode": "hero",
+			"toSide": "left",
+			"label": "默认模式类"
+		},
+		{
+			"id": "e2",
+			"fromNode": "ga",
+			"fromSide": "right",
+			"toNode": "hero",
+			"toSide": "left",
+			"label": "调用模式接口：Spec + generation"
+		},
+		{
+			"id": "e3",
+			"fromNode": "hero",
+			"fromSide": "right",
+			"toNode": "component",
+			"toSide": "left",
+			"label": "提供模式类；正常解绑调用 Reset"
+		},
+		{
+			"id": "e4",
+			"fromNode": "component",
+			"fromSide": "right",
+			"toNode": "stack",
+			"toSide": "left",
+			"label": "持有栈；Push / Evaluate(View, Request)"
+		},
+		{
+			"id": "e5",
+			"fromNode": "stack",
+			"fromSide": "left",
+			"toNode": "mode",
+			"toSide": "right",
+			"label": "持有/复用实例；UpdateCameraMode"
+		},
+		{
+			"id": "e6",
+			"fromNode": "third",
+			"fromSide": "right",
+			"toNode": "mode",
+			"toSide": "left",
+			"label": "继承并实现 UpdateView"
+		},
+		{
+			"id": "e7",
+			"fromNode": "mode",
+			"fromSide": "right",
+			"toNode": "view",
+			"toSide": "left",
+			"label": "输出单模式 View"
+		},
+		{
+			"id": "e8",
+			"fromNode": "stack",
+			"fromSide": "left",
+			"toNode": "view",
+			"toSide": "right",
+			"label": "按权重合成 View"
+		},
+		{
+			"id": "e9",
+			"fromNode": "component",
+			"fromSide": "bottom",
+			"toNode": "controller",
+			"toSide": "top",
+			"label": "Offset 后碰撞并写最终视角"
+		},
+		{
+			"id": "e10",
+			"fromNode": "pawn",
+			"fromSide": "bottom",
+			"toNode": "pyrios-mode",
+			"toSide": "top",
+			"label": "Pyrios 选择默认模式蓝图"
+		},
+		{
+			"id": "e11",
+			"fromNode": "pyrios-mode",
+			"fromSide": "top",
+			"toNode": "third",
+			"toSide": "bottom",
+			"label": "继承算法，覆盖 Class Defaults"
+		},
+		{
+			"id": "e12",
+			"fromNode": "pawnext",
+			"fromSide": "right",
+			"toNode": "hero",
+			"toSide": "bottom",
+			"label": "无参数解绑广播到唯一 Hero 入口"
+		},
+		{
+			"id": "e13",
+			"fromNode": "mode",
+			"fromSide": "bottom",
+			"toNode": "request",
+			"toSide": "top",
+			"label": "输出本帧穿透请求"
+		},
+		{
+			"id": "e14",
+			"fromNode": "stack",
+			"fromSide": "bottom",
+			"toNode": "request",
+			"toSide": "right",
+			"label": "聚合贡献 > 0 且启用的请求"
+		}
 	]
 }

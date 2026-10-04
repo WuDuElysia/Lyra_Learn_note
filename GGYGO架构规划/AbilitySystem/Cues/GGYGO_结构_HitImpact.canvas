@@ -1,0 +1,134 @@
+{
+  "nodes": [
+    {
+      "id": "hitimpact-structure-nav",
+      "type": "text",
+      "text": "# HitImpact｜静态结构\n所属 AbilitySystem / Cues。箭头标签表示数据、持有、继承或调用关系。\n[[AbilitySystem/Cues/结构|接口与职责]] · [[GGYGO_流程_HitImpact.canvas|执行流程]] · [[计划_HitImpact反馈|实施与验收]] · [[AbilitySystem/结构|父模块]]",
+      "x": 0,
+      "y": 0,
+      "width": 1730,
+      "height": 170,
+      "color": "6"
+    },
+    {
+      "id": "hitimpact-structure-input",
+      "type": "text",
+      "text": "## 载荷提供者与输入\nCombat::OnMeleeHit → GA::BuildHitEffectPayload → Context / 可选 Spec / Cue。\n输入：原 Target、World、FGameplayCueParameters；EffectContext.HitResult、Location/Normal、AggregatedTargetTags。\nPhysics 仅提供材质 Tags，普通材质无项目 Tags。\n[[Combat/结构|碰撞职责]] · [[Physics/结构|材质职责]] · [[AbilitySystem/结构|GA/GAS 契约]]",
+      "x": 0,
+      "y": 250,
+      "width": 470,
+      "height": 360,
+      "color": "4"
+    },
+    {
+      "id": "hitimpact-structure-cue",
+      "type": "text",
+      "text": "## UGGYGOGameplayCueNotify_HitImpact\nHandleGameplayCue(Target,Event,Params) → Executed 在 K2 前校验。\nOnExecute_Implementation(Target,Params) → Super 前再校验并同步派发。\nResolveImpactPresentation(Target,Params) const → 无播放/Context 写入，返回只读结果。\n持有配置及每原因一次诊断标记；无命中权威、Tick 或第二调度器。\n[[AbilitySystem/Cues/结构#关键接口契约|输入/作用/输出]]",
+      "x": 570,
+      "y": 250,
+      "width": 580,
+      "height": 430,
+      "color": "5"
+    },
+    {
+      "id": "hitimpact-structure-config",
+      "type": "text",
+      "text": "## Cue BP 配置 / FGGYGOHitImpactEffect\nLocationMode 默认 HitResult；可显式选 ParametersLocation / TargetCenter。\nNoSurfacePolicy 默认 Generic；可选 Reject。\nbAllowUnmatchedSurfaceGeneric 默认 false。\nSurfaceEffects 按顺序层级匹配；DefaultEffect 仅按明确政策使用。\nEffect：SurfaceTag、可选 ImpactEffect / ImpactSound。\n继承 Burst 配置须兼容选定落点。",
+      "x": 1250,
+      "y": 250,
+      "width": 480,
+      "height": 430,
+      "color": "3"
+    },
+    {
+      "id": "hitimpact-structure-result",
+      "type": "text",
+      "text": "## FGGYGOHitImpactResolveResult\n按值输出：Failure、Location、Normal、Detail、const Effect 借用指针。\nIsSuccess → Failure=None 且 Effect 非空。\nEffect 只借用当前 Cue 配置；外调前复制所需资源并结束借用。\n不保存命中权威状态，不签发另一生命周期资源。",
+      "x": 0,
+      "y": 790,
+      "width": 470,
+      "height": 300,
+      "color": "4"
+    },
+    {
+      "id": "hitimpact-structure-burst",
+      "type": "text",
+      "text": "## 引擎 UGameplayCueNotify_Burst\n提供 DefaultSpawnCondition / DefaultPlacementInfo / BurstEffects。\nOnExecute → 原生 Burst 与 OnBurst；即使播放也固定返回 false。\n本类只读预检已配置空间输出；落点冲突明确拒绝，反射类型变化明确失败。\n不提前运行 ShouldSpawn，不修改引擎或伪造 BlockingHit。",
+      "x": 570,
+      "y": 790,
+      "width": 580,
+      "height": 300,
+      "color": "4"
+    },
+    {
+      "id": "hitimpact-structure-playback",
+      "type": "text",
+      "text": "## 同一 Cue 的调用期资源 / 播放接口\nOnExecute 复制位置/旋转、参数与强粒子/声音引用，捕原 Target/World 弱身份。\nSuper / OnBurst 后重检；自身用 Niagara::SpawnSystemAtLocation 与 GameplayStatics::PlaySoundAtLocation。\n退出释放调用期强引用；失效中止剩余反馈，不换资源。\n[[Audio/结构|声音资源职责]]",
+      "x": 1250,
+      "y": 790,
+      "width": 480,
+      "height": 330,
+      "color": "1"
+    },
+    {
+      "id": "hitimpact-structure-status",
+      "type": "text",
+      "text": "## 当前边界\n源码及原测试迁移已冻结；Gate64R1 编译成功、五原叶均 Success 各 0E/0W；原 Gate64 C2662、C4996 与全烟启动 13Error/2Warning 保留。[[计划_HitImpact反馈#实施与验证状态|验证状态]]\n返回 true 不是实际播放证明。父类冲突配置的完整适配、正式 BP/材质接线、实际父类/BP/媒体与网络未验。\n伤害仍归 GA/GE/Execution/AttributeSet；没有新增命中、音频或帧调度权威。",
+      "x": 0,
+      "y": 1210,
+      "width": 1730,
+      "height": 200,
+      "color": "6"
+    }
+  ],
+  "edges": [
+    {
+      "id": "hitimpact-structure-input-cue",
+      "fromNode": "hitimpact-structure-input",
+      "fromSide": "right",
+      "toNode": "hitimpact-structure-cue",
+      "toSide": "left",
+      "label": "调用入口携带原 Target / Cue 参数"
+    },
+    {
+      "id": "hitimpact-structure-cue-config",
+      "fromNode": "hitimpact-structure-cue",
+      "fromSide": "right",
+      "toNode": "hitimpact-structure-config",
+      "toSide": "left",
+      "label": "持有资产策略与反馈配置"
+    },
+    {
+      "id": "hitimpact-structure-cue-result",
+      "fromNode": "hitimpact-structure-cue",
+      "fromSide": "bottom",
+      "toNode": "hitimpact-structure-result",
+      "toSide": "top",
+      "label": "Resolve 返回按值结果与只读借用"
+    },
+    {
+      "id": "hitimpact-structure-cue-base",
+      "fromNode": "hitimpact-structure-cue",
+      "fromSide": "bottom",
+      "toNode": "hitimpact-structure-burst",
+      "toSide": "top",
+      "label": "继承 Burst；校验通过才调用 Super"
+    },
+    {
+      "id": "hitimpact-structure-cue-playback",
+      "fromNode": "hitimpact-structure-cue",
+      "fromSide": "bottom",
+      "toNode": "hitimpact-structure-playback",
+      "toSide": "top",
+      "label": "调用期复制资源并调用播放 API"
+    },
+    {
+      "id": "hitimpact-structure-config-playback",
+      "fromNode": "hitimpact-structure-config",
+      "fromSide": "bottom",
+      "toNode": "hitimpact-structure-playback",
+      "toSide": "top",
+      "label": "提供选中粒子 / 声音引用"
+    }
+  ]
+}

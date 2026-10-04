@@ -1,0 +1,186 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "x": 0,
+      "y": 0,
+      "width": 1570,
+      "height": 200,
+      "text": "# Kevin战斗动画｜生成与运行接缝\n完整链接、8项Python及3项Animation安全自动化通过；RootMotion加强断言冷启动复测通过。资产生成及命中验收待执行。\n[[Animation/Kevin战斗动画实施|接口与窗口]] · [[Animation/资产生产安全|保护与失败边界]] · [[Animation/结构|结构文档]] · [[GGYGO_流程_动画表现.canvas|主流程]]",
+      "color": "6"
+    },
+    {
+      "id": "source",
+      "type": "text",
+      "x": 0,
+      "y": 300,
+      "width": 430,
+      "height": 300,
+      "text": "## 1. 只读源证据\n审计79份FBX/JSON → 75有效、4空。\n无HitWindow/事件导出；55条独立Montage候选，其余保留状态/姿态/测试。\nWeapon全顶点权重1 → Bip001 Prop1。\n审计脚本不读写人工配置。",
+      "color": "4"
+    },
+    {
+      "id": "config",
+      "type": "text",
+      "x": 550,
+      "y": 300,
+      "width": 460,
+      "height": 330,
+      "text": "## 2. 人工资产配置\nBH3_Kevin_Combat_Montage_Config.json\n片段/派生覆盖、Slot、混合、窗口与ABP路径。\nIce01=45–55帧；Ice02=8–24帧，均manual_candidate。\nIce02是Prop1动画离手扫剑，无独立弹体系统；其他53条无伤害窗口。",
+      "color": "4"
+    },
+    {
+      "id": "movement",
+      "type": "text",
+      "x": 1110,
+      "y": 300,
+      "width": 460,
+      "height": 330,
+      "text": "## 3. Movement派生资产准备\nGGYGO.BuildKevinMotionAssets audit/build\n先核验类型/所有权/脏包/磁盘及骨轨曲线基线；差异即停止。\n已有输出保留，build仅创建缺失项。\nAnimation读取InPlace，RootMotion=false。\n[[Movement/结构|唯一执行胶囊位移]]",
+      "color": "4"
+    },
+    {
+      "id": "builder",
+      "type": "text",
+      "x": 0,
+      "y": 780,
+      "width": 430,
+      "height": 350,
+      "text": "## 4. BuildMontage（未执行）\nGGYGO.BuildKevinCombatAssets [配置路径]\n已有：只读核验片段/Slot/Section/窗口，保留人工Notify和混合。\n缺失：创建单次完整片段、Main→None及GameplayEventWindow。\n脏包/未知来源/差异 → 失败保留。仅保存新建对象。",
+      "color": "5"
+    },
+    {
+      "id": "sockets",
+      "type": "text",
+      "x": 550,
+      "y": 780,
+      "width": 460,
+      "height": 350,
+      "text": "## 5. BuildSockets（待验收）\n核验LOD0武器section刚性绑定Prop1。\n已有完整自有端点：核验父骨/线段，保留位置。\n两端缺失：参考局部点→PCA两端；半组/异常：停止。\nmesh-only KevinWeaponTraceStart/End。\n报告实际端点；GA配置TraceRadius。",
+      "color": "5"
+    },
+    {
+      "id": "abp",
+      "type": "text",
+      "x": 1110,
+      "y": 780,
+      "width": 460,
+      "height": 350,
+      "text": "## 6. BuildAnimBP（待执行）\n已有：核验骨架、编译状态、Slot存在，保留人工图，不编译/保存。\nSlot存在不证明有效输出链。\n缺失：StandBy→DefaultSlot→Output，CompileBlueprint成功才保存。\nAnimation维护图；Combat引用。\n初版无完整移动状态机。",
+      "color": "5"
+    },
+    {
+      "id": "runtime",
+      "type": "text",
+      "x": 0,
+      "y": 1280,
+      "width": 430,
+      "height": 340,
+      "text": "## 7. GA播放与Montage事件（待运行验收）\nGA的AttackMontage引用派生Ice Montage。\nGameplayEventWindow → Event.Montage.HitWindowBegin/End。\n动画只提供姿态/窗口，不持有伤害或移动权威。\n[[BossAI/结构|GA生命周期接缝]]",
+      "color": "1"
+    },
+    {
+      "id": "combat",
+      "type": "text",
+      "x": 550,
+      "y": 1280,
+      "width": 460,
+      "height": 340,
+      "text": "## 8. Combat消费窗口（待联合验收）\nGA → BeginTraceWindow(StartSocket, EndSocket, Radius)。\n同窗口去重，命中交GA应用GE；结束/中断关闭。\nSocket随Prop1动画运动，不能从无轨道HitBox推断开关。\n[[Combat/结构|判定职责]]",
+      "color": "1"
+    },
+    {
+      "id": "report",
+      "type": "text",
+      "x": 1110,
+      "y": 1280,
+      "width": 460,
+      "height": 340,
+      "text": "## 验证出口\nSaved/Codex/kevin_combat_asset_report.json\nsuccess / status / saved_this_run；验证通过不等于本次保存。\n失败保留已有内容；部分新建保存失败须人工处理后重试。\n安全自动化已通过，待生产资产回读；再验派生动画+胶囊、扫剑和取消。",
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "kevin-edge-0",
+      "fromNode": "source",
+      "fromSide": "right",
+      "toNode": "config",
+      "toSide": "left",
+      "label": "来源事实与人工候选分离"
+    },
+    {
+      "id": "kevin-edge-1",
+      "fromNode": "movement",
+      "fromSide": "bottom",
+      "toNode": "builder",
+      "toSide": "top",
+      "label": "先生成派生资产供Load"
+    },
+    {
+      "id": "kevin-edge-2",
+      "fromNode": "config",
+      "fromSide": "bottom",
+      "toNode": "builder",
+      "toSide": "top",
+      "label": "读取路径/窗口/混合"
+    },
+    {
+      "id": "kevin-edge-3",
+      "fromNode": "builder",
+      "fromSide": "bottom",
+      "toNode": "sockets",
+      "toSide": "left",
+      "label": "同配置生成武器端点"
+    },
+    {
+      "id": "kevin-edge-4",
+      "fromNode": "sockets",
+      "fromSide": "right",
+      "toNode": "abp",
+      "toSide": "left",
+      "label": "准备共同Mesh/Skeleton"
+    },
+    {
+      "id": "kevin-edge-5",
+      "fromNode": "builder",
+      "fromSide": "bottom",
+      "toNode": "runtime",
+      "toSide": "top",
+      "label": "输出独立Montage"
+    },
+    {
+      "id": "kevin-edge-6",
+      "fromNode": "runtime",
+      "fromSide": "right",
+      "toNode": "combat",
+      "toSide": "left",
+      "label": "Begin/End事件由GA消费"
+    },
+    {
+      "id": "kevin-edge-7",
+      "fromNode": "abp",
+      "fromSide": "bottom",
+      "toNode": "runtime",
+      "toSide": "top",
+      "label": "DefaultSlot提供姿态播放路径"
+    },
+    {
+      "id": "kevin-edge-8",
+      "fromNode": "combat",
+      "fromSide": "right",
+      "toNode": "report",
+      "toSide": "top",
+      "label": "运行验收结果"
+    },
+    {
+      "id": "kevin-edge-9",
+      "fromNode": "abp",
+      "fromSide": "bottom",
+      "toNode": "report",
+      "toSide": "top",
+      "label": "记录编译与保存"
+    }
+  ]
+}

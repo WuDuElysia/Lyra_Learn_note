@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Movement｜流程图\n原生移动模拟：普通段与Stop／TurnBack分支；回放由原SavedMove安装上下文。\n[[GGYGO_结构_移动与位移.canvas|结构图]] · [[Movement/结构#本地 CurveRMS 原资源与实际区间|原资源／区间／清理]] · [[GGYGO_流程_动作曲线执行.canvas|独立动作子图]]\nCurveRMS／E1、M2／W0已编译；七Profile已保存／接线／冷回读。Gate70原Stop叶Success／0E0W；M3／Hero1、Owner网络／真实Run仍未验，69R1历史失败与FAILED红叶保留。",
+      "text": "# Movement｜流程图\n原生移动模拟：普通段与Stop／TurnBack分支；回放由原SavedMove安装上下文。\n[[GGYGO_结构_移动与位移.canvas|结构图]] · [[Movement/结构#正式 MovementSet 分发与只读查询|配置前置]] · [[GGYGO_流程_角色初始化.canvas|Character初始化]] · [[GGYGO_流程_动作曲线执行.canvas|独立动作子图]]\nM3／Hero1已接／编译；Gate80只验启动与实际accepted配置，真实首W／Run／网络未验，历史失败保持。",
       "x": 0,
       "y": 0,
       "width": 1750,
@@ -73,7 +73,7 @@
     {
       "id": "target",
       "type": "text",
-      "text": "## 当前配置与验证缺口\n正式七Profile已保存／接线／冷回读；ABP／BS轴名显示修正仍未保存。\n四源／M2已编译，Gate70原Stop叶恢复；M3／Hero1、原生Owner／回放、当前Run／物理输入／网络未验。\nABP／旧Git为组长只读来源；Gadge／Dodge保持占位，后续统一GAS。",
+      "text": "## 当前配置与验证边界\n七Profile已保存／接线／冷回读；Gate80原CMC实际接受DA_Movement_Default，原Extension／Hero均GameplayReady。\nGetMovementSet为只读结果；GI注册和分发见[[Movement/结构#正式 MovementSet 分发与只读查询|启动契约]]。\nM3／Hero1已接／编译；无W证据，首按／Run／网络未验，旧轴名未保存。\nGadge／Dodge占位，后续统一GAS。",
       "x": 470,
       "y": 750,
       "width": 420,
@@ -113,7 +113,7 @@
     {
       "id": "input-consumer",
       "type": "text",
-      "text": "独立入口｜CMC消费真实来源事实（B2转发已编译，Hero1待接）\nInput接收委托 → ConsumeMovementInputFact(原Binding, Fact, OutError) → 校验原绑定／完整ModeProof布局／事件。精确同Event Duplicate不执行；篡改Rejected、旧事实Stale。\nSessionOpened：记录Cold／Rearm，Cold且无FAILED才开一次窗；重复Opened／Reset／配置变化不重开。\nRequestStarted：新来源号＋无未释放请求；ColdPhysicalPress要未用Cold首窗，ReleasedThenPhysicalPress要已消费真实Neutral。合格后先关窗→既有唯一执行号准入→配置失败锁原请求，Recorded不保证成功。\nRequestReleased→NeutralConfirmed：精确释放原open后才记中立，不清FAILED；后续真实新请求才能再准入。旧请求高Event不更新水位。\nSourceUnresolved：关Cold并撤原关联，保留原open等真Release；未发行请求不补号／伪FAILED。SessionInvalidated只清原绑定，失效不等于Release。\nGate48原Rearm及新合成Cold／Rearm叶通过；不是物理首按证明；Source／Hero B2及M1／M2已编译；Hero1、服务端输入认证、物理输入／Run／网络未验；FAILED恢复Gate49诊断匹配（Fail／2原Error）。[[Input/结构|发行与装配边界]]",
+      "text": "独立入口｜CMC消费真实来源事实（B2／Hero1接线已编译，动态来源未验）\nInput接收委托 → ConsumeMovementInputFact(原Binding, Fact, OutError) → 校验原绑定／完整ModeProof布局／事件。精确同Event Duplicate不执行；篡改Rejected、旧事实Stale。\nSessionOpened：记录Cold／Rearm，Cold且无FAILED才开一次窗；重复Opened／Reset／配置变化不重开。\nRequestStarted：新来源号＋无未释放请求；ColdPhysicalPress要未用Cold首窗，ReleasedThenPhysicalPress要已消费真实Neutral。合格后先关窗→既有唯一执行号准入→配置失败锁原请求，Recorded不保证成功。\nRequestReleased→NeutralConfirmed：精确释放原open后才记中立，不清FAILED；后续真实新请求才能再准入。旧请求高Event不更新水位。\nSourceUnresolved：关Cold并撤原关联，保留原open等真Release；未发行请求不补号／伪FAILED。SessionInvalidated只清原绑定，失效不等于Release。\nGate48原Rearm及新合成Cold／Rearm叶通过；不是物理首按证明；Source／Hero B2及M1／M2已编译；Hero1、服务端输入认证、物理输入／Run／网络未验；FAILED恢复Gate49诊断匹配（Fail／2原Error）。[[Input/结构|发行与装配边界]]",
       "x": 0,
       "y": 2110,
       "width": 1890,
@@ -138,7 +138,7 @@
       "width": 1890,
       "height": 520,
       "color": "3",
-      "text": "## 独立原生链｜Owner同步（M2已编译；Ready不授输入准入）\n订阅方→CMC `GetMovementOwnerSyncScope`取原Scope→`SubscribeMovementOwnerSync`先安装／写原Observer，再同步Replay Waiting／Ready；回调后重验。`UnsubscribeMovementOwnerSync`精确原句柄，含在途Invalidated未调用项。\n原`SetMoveFor`捕获Scope／nonce／当时generation→`ClientFillNetworkMoveData`复制Owner v2；后续Ready不补写旧move。M1 SourceCheckpoint仍是事实运输。\n真实packed `ServerMove_PerformMovement`→native接受timestamp／正delta／PC就绪→`MoveAutonomous`核对原指针／Pawn／PC／连接／nonce，取得同一CMC唯一owner generation的原receipt。\n`ServerFillResponseData`匹配原PendingAdjustment timestamp→v2 ACK或correction→`ClientHandleMoveResponse`核对原Scope／端点／nonce／代际→native处理全部返回→发布Ready。\n真实owner更替退休旧Scope，Invalidated清原订阅／在途资源；EndPlay先封闭自身执行，再外部失效通知，不触及后继。\nReady仅Owner同步就绪。M3唯一Waiting／`TryAdmitInitialMovementInputRequest`执行与认证消费未实现（该接口仅声明）；Hero1原Observer资源／Source真实Held查询／一次准入待接。\nInput唯一拥有Press／Held／Release；普通首次可等待原Held请求，Failed／重绑／真实owner更替仍真Release→Press，不合成Press。\nGate70原Stop叶Success／0E0W只证明夹具驱动现有Prepare；M2 Owner网络／真实Run未验，69R1历史失败与刻意两Error红叶保留。\n[[Movement/结构#原生移动Owner同步（M2：已编译，M3／Hero1待接）|M2接口与边界]] · [[Movement/计划_移动与动作位移#10.2.1 原生Owner同步与首次准入分层（M2／M3／Hero1）|实施分层]]"
+      "text": "## 独立原生链｜Owner同步（M2已编译；Ready不授输入准入）\n订阅方→CMC `GetMovementOwnerSyncScope`取原Scope→`SubscribeMovementOwnerSync`先安装／写原Observer，再同步Replay Waiting／Ready；回调后重验。`UnsubscribeMovementOwnerSync`精确原句柄，含在途Invalidated未调用项。\n原`SetMoveFor`捕获Scope／nonce／当时generation→`ClientFillNetworkMoveData`复制Owner v2；后续Ready不补写旧move。M1 SourceCheckpoint仍是事实运输。\n真实packed `ServerMove_PerformMovement`→native接受timestamp／正delta／PC就绪→`MoveAutonomous`核对原指针／Pawn／PC／连接／nonce，取得同一CMC唯一owner generation的原receipt。\n`ServerFillResponseData`匹配原PendingAdjustment timestamp→v2 ACK或correction→`ClientHandleMoveResponse`核对原Scope／端点／nonce／代际→native处理全部返回→发布Ready。\n真实owner更替退休旧Scope，Invalidated清原订阅／在途资源；EndPlay先封闭自身执行，再外部失效通知，不触及后继。\nReady仅Owner同步就绪。M3在既有请求状态中持Waiting／`TryAdmitInitialMovementInputRequest`，认证消费已有实现；Hero1原Observer资源／Source真实Held查询／一次准入已接，均已编译。正式首按／Run／网络动态未验。\nInput唯一拥有Press／Held／Release；普通首次可等待原Held请求，Failed／重绑／真实owner更替仍真Release→Press，不合成Press。\nGate70原Stop叶Success／0E0W只证明夹具驱动现有Prepare；M2 Owner网络／真实Run未验，69R1历史失败与刻意两Error红叶保留。\n[[Movement/结构#原生移动Owner同步（M2：已编译，M3／Hero1待接）|M2接口与边界]] · [[Movement/计划_移动与动作位移#10.2.1 原生Owner同步与首次准入分层（M2／M3／Hero1）|实施分层]]"
     }
   ],
   "edges": [

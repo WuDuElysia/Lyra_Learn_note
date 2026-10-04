@@ -3,11 +3,11 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Character｜初始化流程图\nHost／Extension／Health原资源源码已冻结未编译；Base typed已源码接入、未编译，Hero未接通。\n[[GGYGO_结构_角色与组件.canvas|结构图]] · [[Character/结构|结构文档]]",
+      "text": "# Character｜初始化流程图\nGate80已验证同GI注册、原Extension/Hero GameplayReady与原CMC accepted配置；首W／Run／网络未验。\nASC／Health节点保留上次检查点正文，专项另核；InitState不授ASC Ready。\n[[GGYGO_结构_角色与组件.canvas|结构图]] · [[Character/结构|结构文档]]",
       "x": 0,
       "y": 0,
       "width": 1650,
-      "height": 140,
+      "height": 160,
       "color": "6"
     },
     {
@@ -43,21 +43,21 @@
     {
       "id": "init",
       "type": "text",
-      "text": "4. InitState分发MovementSet；Base已在PostInitializeComponents Super后建立原typed订阅。\nReady→Initialize／Refreshed→Refresh／Released原H→Uninitialize；直接调用Health native入口，不读当前H或借Ready清理。\n旧无参数消费已撤；本轮未编译，Hero仍未接通。重要机制见右侧。",
+      "text": "## 4. Extension｜唯一配置分发\nSetPawnData／Controller／feature通知→CheckDefaultInitialization；先推进其他feature。\n原Manager查询：\n`HaveAllFeaturesReachedInitState`\n`(Pawn,DataAvailable)`\n所有feature≥DataAvailable→DataInitialized→`ApplyPawnDataToConsumers`→原CMC `SetMovementSet(PawnData->MovementSet)`。\n各feature独立推进；本链与ASC绑定、Base／Health订阅独立，不发布ASC Ready。\n[[Character/结构#InitState 注册与 PawnData 分发（Gate80 有限验收）|守卫与验收]]",
       "x": 1460,
       "y": 405,
       "width": 430,
-      "height": 245,
+      "height": 390,
       "color": "5"
     },
     {
       "id": "hero",
       "type": "text",
-      "text": "玩家分支：HeroComponent 完成输入绑定、能力重试和相机模式委托。\n\n调用：HeroComponent::InitializePlayerInput → InputComponent::BindNativeAction/BindAbilityActions；绑定 DetermineCameraModeDelegate。",
+      "text": "## 玩家分支｜Hero原生输入装配\nBeginPlay／CharacterBase::SetupPlayerInputComponent→InitializePlayerInput；输入与相机委托沿既有入口。\nHero只等待Extension≥DataAvailable，可先到GameplayReady；Setup可独立建立输入会话。\nM3接线已编译：原Started／OwnerSync Ready→查原Source仍Held→`TryAdmitInitialMovementInputRequest`。\n原Session／Binding／Observer精确清理；实际首W／Run未验。\n[[Movement/结构|输入准入与执行]]",
       "x": 1460,
       "y": 878,
       "width": 430,
-      "height": 230,
+      "height": 340,
       "color": "1"
     },
     {
@@ -119,6 +119,16 @@
       "height": 760,
       "color": "5",
       "text": "## Base→Health原资源链｜已编码、未编译\nBase PostInitializeComponents Super后先装原订阅，再RegisterAndCall；同步回放先退休时，晚token精确还原Extension。\nBase Consume复制原订阅/整Notice：Ready带明确Extension/H/PublishedContext→`InitializeWithLocalAbilitySystemResource`验证原Pawn、真实Ready、实际HealthSet。\n唯一原记录安装五token→原DeathState投影→三次UI初值；每外调复核原记录与Context，失效停止并仅清本次原记录，不清合法后继。\nBase Refreshed同H→`RefreshLocalAbilitySystemResource`认证新Context，不重装token或重复UI；事件lambda每入口复制当前认证Context。\nBase Released仅通知原H→`UninitializeFromLocalAbilitySystemResource`：匹配原记录→先退休/摘自身槽→五精确Remove，不RequireReady。\nEndPlay/OnUnregister先关闭自身准入，独立退休原资源，不依赖Extension广播。\nBase EndPlay/BeginDestroy先闭准入退原通知token，Health独立退五token；普通消费尾部仅诊断不清后继，真实新BeginPlay才重开。\n旧BP wrapper保留签名共用真实原H机制；Base不再调用旧BP/无参数回调。\n未新编译/UE；旧无H夹具历史成功不适用。\n[[Character/结构#Health原资源与五委托（已编码，未编译）|完整接口与停止点]]"
+    },
+    {
+      "id": "system-initstate-order",
+      "type": "text",
+      "text": "## System｜同GI原生启动前置\nUGameInstance::Init→SubsystemCollection.Initialize→UGGYGOInitStateRegistrationSubsystem::Initialize。\n`InitializeDependency<UGameFrameworkComponentManager>()`取得同一原GI的Manager；RegisterInitState按四阶段锚点登记。\n相邻正向true／逆向false全通过后才输出RegisteredOrder；顺序与feature状态唯一归原Manager，已有逆序明确失败。\nReceiveInit早于本前置；本地StateChain／feature注册不登记全局顺序。\n[[System/结构|System注册契约]]",
+      "x": 2030,
+      "y": 0,
+      "width": 720,
+      "height": 335,
+      "color": "4"
     }
   ],
   "edges": [
@@ -140,27 +150,27 @@
     },
     {
       "id": "e3",
-      "fromNode": "bind",
-      "fromSide": "right",
+      "fromNode": "spawn",
+      "fromSide": "top",
       "toNode": "init",
-      "toSide": "left",
-      "label": "Avatar 绑定完成"
+      "toSide": "top",
+      "label": "PawnData／Controller原生事件→检查feature链，独立于Host绑定"
     },
     {
       "id": "e4",
-      "fromNode": "init",
-      "fromSide": "right",
-      "toNode": "hero",
-      "toSide": "left",
-      "label": "玩家 Pawn"
+      "fromNode": "hero",
+      "fromSide": "top",
+      "toNode": "init",
+      "toSide": "bottom",
+      "label": "Hero DataAvailable通知唤醒；门禁接受较晚状态"
     },
     {
       "id": "e5",
-      "fromNode": "init",
+      "fromNode": "bind",
       "fromSide": "bottom",
       "toNode": "boss",
       "toSide": "top",
-      "label": "Boss Pawn"
+      "label": "Boss调用方读取Host ASC；配置分发另线"
     },
     {
       "id": "e6",
@@ -196,11 +206,19 @@
     },
     {
       "id": "e-init-health-mechanism",
-      "fromNode": "init",
+      "fromNode": "local-asc-phases",
       "fromSide": "right",
       "toNode": "health-original-resource-flow",
-      "toSide": "left",
-      "label": "PostInit RegisterAndCall→typed Consume→Health三native入口（未编译）"
+      "toSide": "bottom",
+      "label": "原typed通知→Health消费；Base先建原订阅，独立于InitState"
+    },
+    {
+      "id": "e-system-initstate-order",
+      "fromNode": "system-initstate-order",
+      "fromSide": "left",
+      "toNode": "init",
+      "toSide": "top",
+      "label": "同GI全局顺序注册→提供≥比较前置"
     }
   ]
 }

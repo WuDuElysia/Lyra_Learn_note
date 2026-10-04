@@ -421,13 +421,13 @@ MoveGoal（短期）
 
 1. `ConsumeActionSelection` 先消费一次请求并核对当前 Set/Phase/ASC/Tag/Class/Spec/Avatar，再清 Blackboard；失败也消费，成功只返回选择时的原 SpecHandle。清黑板可能触发观察者，激活前再次检查来源和原 Spec；
 2. TargetContext/CombatTarget 仍属阶段D目标接口，当前不实现；
-3. 调用 `TryActivateAbility`；
-4. 按原 SpecHandle 筛选 AbilityEnded；当前未引入独立激活实例标识；
-5. 激活失败立即返回 Failed；当前未输出最终激活失败 Tag；
-6. 能力正常结束返回 Succeeded，取消返回 Failed；同步结束也走相同判定；
-7. BT 被 Abort 时解除监听，不默认强制取消不可取消的 GA。
+3. 先登记ASC原`OnAbilityTerminationCompleted`订阅，再对消费出的原Handle调用`TryActivateAbilityWithTerminationBoundary`；不按Class重找Spec；
+4. 只保存返回的固定`OriginalActivation`。同步完成核对Result里的`OriginalTerminationCompleted`原历史，异步`HandleTerminationCompleted`仅匹配该Original；不再以同Spec的`OnAbilityEnded`冒充原动作完成；
+5. 未取得Accepted/nativeAccepted/可等待原身份即清自身订阅并失败，Busy不自动排队/重开；当前未输出最终激活失败Tag；
+6. 原Completed正常结束返回Succeeded，取消返回Failed；先`CleanupBinding`，再返回同步结果或调用原生`FinishLatentTask`，之后不清后继成员；
+7. BT Abort/销毁只释放本等待，不强制取消GA。无原执行来源的`OnTaskFinished`不再清监听，`bNotifyTaskFinished=false`。
 
-短期记录是请求身份，不是第二个动作/阶段状态机；重选、种子重置、附身变化和 EndPlay 清理，来源变化或原 Spec 被移除后拒绝旧请求，不改 BB 资产，也不绕过 `TryActivateAbility` 的最终准入。14a已完整构建并通过三项专项自动化；真实BT→GAS集成和生产资产/PIE验证仍另列。
+短期选择记录和BT等待分别归Controller与BTTask，只持请求/资源来源，不成为第二个动作或阶段状态机。重选、种子重置、附身变化和EndPlay清选择请求；来源变化或原Spec被移除拒绝旧请求。14a配置/选择专项保持历史通过；B1原Completed消费者已编译，真实BT→GAS生产运行、黑板观察者重入和资产/PIE验收仍另列。原Completed后的新请求也必须重新走受控入口，不把历史值当当前可重开证明。
 
 AI 不调用：
 
@@ -612,11 +612,19 @@ EventGraph。
 
 ### 9.2.1 当前Boss近战共享伤害接缝（15F）
 
-当前`UGGYGOBossMeleeAbility`已保留`DamageEffect`覆盖，并提供蓝图默认false的`bUseSharedDamageEffectWhenUnset`。配置校验`ValidateMeleeConfiguration`与命中`HandleMeleeHit`复用`UGGYGOGameData::ResolveDamageGameplayEffect(覆盖, 显式bool)`：非空覆盖始终优先；空覆盖且false失败；空覆盖且true只有共享GE快照可用才选择成功，共享缺失仍失败。原Montage/Socket/数值/动作配置和激活门禁保留，命中经过原能力状态、窗口、ASC及Authority门禁后解析；解析类缺失在`BuildHitEffectPayload`前报错返回，不GE、不Cue，不能成为Boss无伤害成功。选择矩阵见[[BossAI/结构#15F：Boss近战伤害GE选择（已构建，未专项动态验证）|当前结构契约]]。
+当前`UGGYGOBossMeleeAbility`保留`DamageEffect`覆盖与蓝图默认false的`bUseSharedDamageEffectWhenUnset`。`ValidateMeleeConfiguration`和`HandleOriginalMeleeHit`复用`UGGYGOGameData::ResolveDamageGameplayEffect(覆盖,显式bool)`：覆盖优先；空覆盖/false失败；true仅共享快照可用才选择成功。命中先核对固定原Activation、原Trace/Window/ASC/Avatar/World和Authority；缺类在Builder前拒绝当前hit伤害/Cue。选择矩阵见[[BossAI/结构#15F：Boss近战伤害GE选择（已构建，未专项动态验证）|当前结构契约]]。
 
-[[System/结构|System]]独占启动预载与共享快照；GA仅持有本次解析结果，不新增加载器、重试或跨帧缓存。类可用后继续由[[AbilitySystem/结构|共享载荷构建接口]]生成`BuildHitEffectPayload`，GA填SetByCaller并请求GAS执行。非空类后Spec失败/GE免疫等原执行语义未在15F改变；CMC位移、Animation窗口与CombatTrace查询/去重及清理责任保持原接口。此接缝已经实现，不把上节计划中的通用基类写成已实现。
+[[System/结构|System]]独占预载与共享快照，GA不新增资产加载、重试或跨帧缓存。类可用后由[[AbilitySystem/结构|共享载荷构建接口]]执行`BuildHitEffectPayload`；当前必需GE Spec构造失败只拒绝该hit伤害/Cue，不套玩家Combo整动作故障End。有效载荷在GE免疫/拒绝应用时仍允许碰撞Cue。CMC唯一执行位移，Animation管窗口语义，Combat查询/去重，原资源按Context清理；详见[[BossAI/结构#原激活与资源收尾（当前契约）|Boss消费者当前契约]]。上节通用能力基类仍为计划。
 
-统筹第15次GGYGOEditor完整构建Succeeded（6 actions/22.10秒）；常规原47项Success，但新增`GGYGO.Input.Fixture.LocalSessionReady`为1 Fail，不是48/48。尚无Boss选择/命中矩阵专项动态证明；实际蓝图默认值回读、PIE与专用服务器/cook继续待验。第15次日志/自动化JSON及本项目`AAADocs/Module_Repair_14b_Validation.md`记录证据。15F结构图与主流程已按独立租约同步实际选择/校验/命中边界并冻结；Boss选择/命中矩阵仍未专项动态验证。
+统筹第15次GGYGOEditor完整构建Succeeded（6 actions/22.10秒）；常规原47项Success，但新增`GGYGO.Input.Fixture.LocalSessionReady`为1 Fail，不是48/48。尚无Boss选择/命中矩阵专项动态证明；实际蓝图默认值回读、PIE与专用服务器/cook继续待验。第15次日志/自动化JSON及本项目`AAADocs/Modules/BossAI/Module_Repair_14b_Validation.md`记录证据。15F结构图与主流程已按独立租约同步实际选择/校验/命中边界并冻结；Boss选择/命中矩阵仍未专项动态验证。
+
+### 9.2.2 当前共同GAS生命周期迁移与验收
+
+BossMelee已从派生原生Activate/End覆盖迁到 `InitializeAbilityActivation(Original) → ActivateAbilityBody(Original,…)` 与 `CleanupAbilityResourcesForTermination(Context)`。统一final Activate/End/Cancel及原Completed由[[AbilitySystem/计划_原请求终止|GA/ASC契约]]拥有；Boss只持固定原身份下的Mesh、N0 Task包、Owned Trace/命中、原World timer及可选原CMC动作句柄。匹配Context后先退休原批次再释放，禁止借后继接收者清理或请求拒绝后强制End；常改招式配置仍留蓝图/资产。
+
+B1已先订阅原Completed再受控Try，保存原Result/Original，以原历史正常/取消判定结果；Abort只撤自身等待。核心raw边界是缺受控Try外层返回见证，而非任意直接End/Cancel不受支持；raw原身份仍可Cleanup，UnsupportedEntry不发布协议Completed。详细资源与调用顺序见[[BossAI/结构#原激活与资源收尾（当前契约）|当前契约]]及[[GGYGO_流程_Boss选招.canvas|选招流程]]。
+
+本批源码已编译；Gate73/79 `GGYGO.BossAI.Melee.NormalLifecycle` 均Success/0E0W，只证明合成A原Mesh/Cleanup/Completed→请求与通知完整返回→受控B（不同Original）→正常恢复。Gate71原 `EndReentry` Fail/4E/0W及完整严格raw/helper/8断言保留，Busy拒绝广播内立即重开，不改成通过。当前本批有限接受不等于阶段C的正式新DLL战斗、N0 Montage/Notify、Trace/GE/watchdog/CMC、B1生产BT、Kevin资产或PIE/网络/专用服务器/cook已验；旧2026-09-17竖切仅是历史证据。记录见 `AAADocs/Modules/BossAI/Module_Repair_14b_Validation.md`。
 
 ### 9.3 优先级建议
 
@@ -800,6 +808,8 @@ Content/Abilities/Boss/<BossId>/
 - [ ] 专项自动化验证“暂停 Brain 后不再发起新攻击、已激活 GA 能自行收尾”；
 - [ ] Dedicated Server 验证能力、伤害与 Cue 的权威/复制链。
 
+以上2026-09-17条目保留当时源码/资产的竖切证据；当前原激活/资源迁移和普通Mesh链以第9.2.2节为准，不用旧PIE证明新生产生命周期整链通过。
+
 ### 整改增量：14a / 14b（2026-09-30）
 
 - [x] 14a E10/E11：全集配置校验、候选耗尽恢复、一次性来源/原Spec身份契约已冻结；统筹完整构建与三项BossSelection自动化通过。
@@ -811,7 +821,7 @@ Content/Abilities/Boss/<BossId>/
 - [ ] PIE/世界卸载的Encounter EndPlay派发；当前无BeginPlay夹具显式调用真实EndPlay，不以Destroy替代此门禁。
 - [ ] 联机/专用服务器的Encounter生命周期与复制验证。
 
-14b的调用顺序为清引用/记录 → StopLogic → UnPossess → DetachAvatar → 只销毁创建对象，详见[[GGYGO_流程_BossAI.canvas|主流程]]及[[BossAI/结构|接口职责]]。第13次门禁证据：项目`Saved/Logs/ModuleRepairBuildGate_20260930_13.log`完整构建Succeeded、25.49秒、UHT写入12份生成文件、6 actions；`Saved/AutomationReports/ModuleRepairGate_20260930_13/index.json`项目47/47、succeededWithWarnings/failed/notRun均0、totalDuration为0.472851783秒，两项Encounter各Success且errors/warnings0，UE进程exit0由统筹报告。旧RootMotionBake预期拒绝与启动诊断不视为项目测试失败。项目详细记录见`AAADocs/Module_Repair_14b_Validation.md`；E9源码/专项自动化通过，完整动态验收仍有上列缺口。两张Canvas已按独立租约同步完整构建/两项专项通过并再冻结；真实BT/PIE/联机仍未验，最新门禁以本节和验证记录为准。完整形态切换、目标/仇恨、Kevin接线保持后续范围。
+14b的调用顺序为清引用/记录 → StopLogic → UnPossess → DetachAvatar → 只销毁创建对象，详见[[GGYGO_流程_BossAI.canvas|主流程]]及[[BossAI/结构|接口职责]]。第13次门禁证据：项目`Saved/Logs/ModuleRepairBuildGate_20260930_13.log`完整构建Succeeded、25.49秒、UHT写入12份生成文件、6 actions；`Saved/AutomationReports/ModuleRepairGate_20260930_13/index.json`项目47/47、succeededWithWarnings/failed/notRun均0、totalDuration为0.472851783秒，两项Encounter各Success且errors/warnings0，UE进程exit0由统筹报告。旧RootMotionBake预期拒绝与启动诊断不视为项目测试失败。项目详细记录见`AAADocs/Modules/BossAI/Module_Repair_14b_Validation.md`；E9源码/专项自动化通过，完整动态验收仍有上列缺口。两张Canvas已按独立租约同步完整构建/两项专项通过并再冻结；真实BT/PIE/联机仍未验，最新门禁以本节和验证记录为准。完整形态切换、目标/仇恨、Kevin接线保持后续范围。
 
 ### 阶段 D：目标、仇恨与移动
 

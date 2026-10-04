@@ -4,7 +4,7 @@
 
 > 历史 Build55：Failed (OtherCompilationError)，UHT通过并写33个生成文件，新运行时未链接、未UE冒烟，构建中353源/45保护保持；当时三项机械修正已冻结，Hero旧三调用尚未迁移。保留该失败记录，不作为当前源码状态。
 >
-> 当前（2026-10-04）：ASC两项清理来源、Host H1/H2与Hero A/B1/B2已实施并编译（Gate59及后续）；T2原请求终止核心已编译Gate65/66，E14-B Builder已编译Gate66。Gate66三项既有必要冒烟（Camera Component两叶＋Admission普通叶）通过，均0 Error/0 Warning；新Completed、派生清理、生产消费者与Combo失败传播没有新动态证明。入口：[[AbilitySystem/计划_原请求终止|原请求终止计划]] · [[GGYGO_流程_原请求终止.canvas|终止子图]]。
+> 当前（2026-10-05）：原生原身份发行、final生命周期、Initialize/Body/Context Cleanup、Combo/Boss/Admission及Process/OnSpawn/Boss BT受控消费已落盘并编译。Gate79四RuntimeHit Case行为PASS，原四普通叶0E0W；七叶报告5 Success/2 Fail/0 Warning，故障叶只保留真实生产Error。当前有限验收及剩余入口见[[AbilitySystem/计划_原请求终止|原请求终止计划]]、[[GGYGO_流程_原请求终止.canvas|子图]]；严格红测、正式资产与网络不关闭。
 
 ## 3. AbilitySystem 层：照抄 Lyra 的部分
 
@@ -57,7 +57,7 @@ ActorInfo三Try／一次发布、历史C1a Gate47～48与C1b Gate49R1有编译�
 | Host H2消费 | 已实施并编译：Initialize及owner-only失败分支消费原Operation/pure原scope，原Init失败保留 | 编译不证明失败Init完整生产清理；两种来源分别保留动态边界。 |
 | 生产／验证 | Health/Base已消费原H；Hero A已接原输入ID/完整Retry，B1已接typed本地H，B2已接Source→CMC装配；Gate59及后续编译已覆盖 | 历史Build55失败及R0 Gate42的2 Fail／12错误保留；未重跑的原失败不能标关闭。Gate66既有三冒烟通过不替代Host／Extension整链、资产或联机验收。 |
 
-两个ASC源码收尾的技术方案与接口已实施并编译。来源契约、作用域及寿命/释放责任见[[AbilitySystem/结构#原已提交清理来源（Destroy）|提交来源]]、[[AbilitySystem/结构#失败Init原写入清理（未提交证明）|失败Init来源]]及[[AbilitySystem/结构#清理调用方与本轮验证边界|调用方/门禁]]。GA受控入口政策已确认并落实T2核心；派生/生产迁移、严格原失败复现、资产与联机边界继续开放。
+两个ASC清理来源、Host H1/H2与Hero消费已实施并编译，来源职责仍见[[AbilitySystem/结构#原已提交清理来源（Destroy）|提交来源]]、[[AbilitySystem/结构#失败Init原写入清理（未提交证明）|失败Init来源]]及[[AbilitySystem/结构#清理调用方与本轮验证边界|调用方门禁]]。GA/派生共同生命周期与受控生产请求点现已接齐，普通/故障必要冒烟有限验收；Avatar完整换绑/Destroy与原严格失败、正式资产/联机仍独立留账。
 
 ## 当前原请求输入增量（07E2：已接Hero并编译，动态边界保留）
 
@@ -65,7 +65,7 @@ ASC已替换旧Tag生产入口为Receive(Tag,PreviousIdentity,OriginalDeadline)�
 
 首按Action来源与原deadline由Input／Hero提供；多来源任一held则Spec保持，最后真实释放才Released，失效用Invalidated。deadline到期不伪松键；Query/raw不借来源。Hero A已接EnhancedInput ActionInstance的Triggered/Completed/Canceled，保存原ID并核原Tag/deadline/Binding后Queue完整Retry；局部失效只End自己的ID。Hero B1已注册并回放typed本地H通知，Released只退原会话；B2已装配Source→CMC原移动输入会话。旧-1断言/运行夹具、真实混合来源及资产/联机未由编译证明，不把Hero迁移写成这些专项已通过。
 
-后续依赖：Hero原输入合同已接入；T3-I Process已在原InputScope内接一次受控Try并按bNativeAccepted消费，随Gate67编译；Origin/Can失败关联及原Retryable规则保持，不raw重试，remote接受不证明本地Activation。OnSpawn/Boss BT/客户端RPC受控入口仍未迁，Combo/Boss/Admission派生清理及Task相关终止边界开放。原Gate41为旧B0历史，原严格失败与断言保留，不扩严格矩阵。ASC精确Montage、Task原Handle消费与T2终止核心已编译；新Completed及完整生产/派生动态未闭合。详见[[AbilitySystem/结构#单次 Can 评估与输入失败来源（B0）|输入接口]]及[[AbilitySystem/计划_原请求终止|终止阶段与停止点]]。
+当前消费：Process在原InputScope内一次受控Try→bNativeAccepted消费，Origin/Can/Retryable规则保持；OnSpawn和Boss BT也已接一次受控入口并编译，不raw重试，remote接受不是本地Activation证明。Combo/Boss/Admission已迁薄扩展点及原资源Context Cleanup；Gate79普通链有限通过。原B0/输入合同与新的原激活来源分责，RPC/网络、混合来源及原strict/raw失败仍开放。见[[AbilitySystem/结构#单次 Can 评估与输入失败来源（B0）|输入接口]]及[[AbilitySystem/计划_原请求终止|终止契约]]。
 
 ## 当前精确Montage增量（K3）
 
@@ -74,27 +74,39 @@ ASC已替换旧Tag生产入口为Receive(Tag,PreviousIdentity,OriginalDeadline)�
 | 阶段 | 当前事实／剩余交付 |
 | --- | --- |
 | ASC原播放接口 | 已实施、冻结并编译；同GA同资产A／B按原非复用Guard调用及ASC私有Proof区别。正式资产/联机与原严格失败动态边界保留。 |
-| GA原资源捕获／统一终止 | T2核心已实施并编译Gate65/66：CaptureCurrentActivation、RequestAbilityEnd/Cancel、薄Cleanup扩展点及ASC受控Try/完成通知。GA唯一原终止记录，GAS仍唯一执行；原Busy待全部关联退出后释放。T3-I Process原InputScope内受控Try→bNativeAccepted消费已随Gate67编译；不raw重试，remote接受不证明本地Activation。raw独立Cancel/锁内移除、Combo/Boss/Admission派生、Task相关终止边界及OnSpawn/BT/RPC仍开放，新Completed动态未验。 |
-| Task原资源消费者 | 原Handle/Guard消费者及N0已实施并编译；N0随Gate68 Editor成功。新增FNativeCallbacks五可选单播、preReady注册/精确token卸载；native及捕获析构返回→弱原Task/路径资格重检→原BP，取消预标记、启动失败资格及自然Completed边界保持，OnDestroy先脱包。原Activation只在调用方闭包，Task独占原播放/停止/scale/监听。历史静态验收52EC85F0…／35F04002…及八依赖记录保留；无全局播放尝试表/播放token/新实例扫描，Task Completed不授GA结束权。Combo/Boss生产未迁，native/析构重入动态、旧夹具/原严格失败及派生原源认证仍开放。 |
-| 验证与生产 | Gate66编译及Camera Component两叶＋Admission普通叶既有冒烟通过，均0 Error/0 Warning；Gate68 Editor编译成功（8 actions、93.90秒、exit0），原Trace必要叶Success、0 Error/0 Warning。这些既有冒烟不证明N0新native/析构重入，也未提供新Completed、派生清理或完整生产消费者动态证明；Combo/Boss尚未接N0，原失败复现/断言、正式AnimClass/资产、网络与完整K3仍开放，不扩严格矩阵。 |
+| GA原资源捕获／统一终止 | 已共同启用并编译：实际NotifyActivated签Original，受控Try记录外层返回来源；final Activate/End/Cancel管理实际调用跨度，Initialize→原准入/相机→Body，一次Context Cleanup→native End。GA唯一原记录，ASC仅见证并发布；Combo/Boss/Admission已迁。raw外层缺证据与PendingRemove/锁内teardown仍明确失败，不补Completed。 |
+| Task原资源消费者 | 精确ASC Result/Handle/Guard与N0五native单播已编译；Combo/Boss在Ready前注册原包，闭包持Original/原Task，Context收尾精确脱token。Task唯一持播放/停止/scale/监听，无全局尝试表或新实例扫描。Task自然Completed不是GA原Notice；native/捕获析构极端重入、旧夹具与资产网络仍未专项验收。 |
+| 验证与生产 | Gate79有限正常/故障链已验：四RuntimeHit Case行为PASS，原Combo纠正/Boss Mesh/输入/移动普通叶0E0W。原报告5 Success/2 Fail/0 Warning，两故障仅有三条真实生产Error，不过滤；正式Boss战斗、BP/Montage接线、Execution数值、Cue表现、网络与原strict/raw红仍开放。历史构建/错误见既有模块验证记录。 |
 
 Init／Clear的真实Local重置退休原证明；同端点Refresh仅来源实际改变才退休，不用Publication修订猜播放变化。裸限定基类写入与未观察Owner ABA不作完整保障声明；销毁提交来源／Init失败写入Proof与Host H1/H2、Hero A/B1/B2已实施并编译，完整生产清理动态验收另列。它们与K3/GA终止分责。接口与跨模块边界见[[AbilitySystem/结构#精确Montage播放归属（K3：已编译，派生与生产未闭合）|播放契约]]、[[Animation/结构|Guard]]。
 
-T2现有接口：ASC `TryActivateAbilityWithTerminationBoundary`提供真实Try完整退出见证，`OnAbilityTerminationCompleted`发布带原来源的完成历史；GA `CaptureCurrentActivation`签原激活，`RequestAbilityEnd/Cancel`受理原请求，`CleanupAbilityResourcesForTermination`只清自身原资源。GA持唯一首个不可变Context与原终止记录；ASC关联原Try/Ended见证，不持第二终止状态机。原生Cancel广播前捕资源；原生End、完整虚End/Cancel及关联Try全部退出后先封存结果、释放原Busy，再通知，回调后继不能覆写原结果。原生WaitingToExecute仅一次Continuation；解锁发生在原虚调用内时留Ready，完整返回后消费。
+T2现有接口：ASC `TryActivateAbilityWithTerminationBoundary`提供真实Try完整退出见证，`OnAbilityTerminationCompleted`发布带原来源的完成历史；GA `CaptureCurrentActivation`读取既有原身份，`RequestAbilityEnd/Cancel`受理原请求，`CleanupAbilityResourcesForTermination`只清自身原资源。GA持唯一首个不可变Context与原终止记录；ASC关联原Try/Ended见证，不持第二终止状态机。原生Cancel广播前捕资源；原生End、完整虚End/Cancel及关联Try全部退出后先封存结果、释放原Busy，再通知，回调后继不能覆写原结果。原生WaitingToExecute仅一次Continuation；解锁发生在原虚调用内时留Ready，完整返回后消费。
 
-受控项目入口／拒绝同调用自动Retrigger、显式End→原Completed→新请求政策已确认并实施；End/Cancel保持non-final，派生尚未迁薄扩展点，不能从legacy直接调用推导协议Completed。独立raw同步Cancel缺完整外层见证返回UnsupportedEntry；锁内移除/Task完整退出边界未闭合。不改UE/GAS、不自动排队。Task原实例完成与GA原请求完成分属不同事实。详细身份、结果和分阶段范围见[[AbilitySystem/计划_原请求终止|T2子计划]]、[[GGYGO_流程_原请求终止.canvas|终止子图]]。
+受控项目入口与显式End→原Completed→新请求政策已共同启用；Activate/End/Cancel为final，派生通过Initialize/Body/Context Cleanup保持业务。原生NotifyActivated签身份和受控Try提供外层来源是两项不同证明；raw非虚Try/CallActivate缺后者，原清理不冒充协议Completed。活动同实例或原Busy拒绝重开，PerExecution不同实例不按同Spec一概封禁；无自动重启/第二队列。详细结果与边界见[[AbilitySystem/计划_原请求终止|子计划]]、[[GGYGO_流程_原请求终止.canvas|子图]]。
 
 ## 当前连段输入Task增量（W0）
 
-W0两源已落盘、冻结并由统筹静态接受；已随Gate69R1统一Editor编译成功（4 actions、18.40秒、UBA16.57秒、exit0），新运行时DLL已链接。Gate69原CMC私有访问失败及修正记录保留。新DLL三项既有必要冒烟均Fail（连段15E、移动停止3E、失败恢复2E），根因与夹具前置正在核对，原报告保持；不能作为W0动态成功证明。native/捕获析构重入、同步回放结束边界及Combo/Boss原生命周期生产迁移尚未验证，不由编译或既有冒烟推导通过。
+W0与Combo native输入消费者已落盘并编译。固定Original/原Task/原订阅贯穿创建、Ready、OnPress及Context Cleanup；Gate79正常纠正与必要资源收尾有限通过。Gate69/70旧失败保留在模块验证记录，native捕获析构重入/remote同步回放/正式输入资产与网络仍未由本次普通链关闭。
 
 | 范围 | 当前实现与剩余边界 |
 | --- | --- |
 | 原输入资源 | WaitComboInput首次Activate捕原弱ASC/Ability、Spec/key、remote/predict模式及自身handle；GAS事件桶与监听唯一归属保持。零key合法且只作桶定位，原Activation仅在调用方闭包；工厂、SetSourceStep、OnPress BP与65535整数载荷/预测发送规则保持。 |
 | native与清理契约 | 可选pre-Ready单播RegisterNativeCallback返回精确FDelegateHandle，UnregisterNativeCallback只按原token先脱后释放；空/重复/迟到明确拒绝。原Consume→native/捕获析构返回→弱原Task/原订阅核验→BP；同步回放结束不能写Waiting。OnDestroy先关/脱资源，再原桶remove自身handle，不消费后继事件，捕获释放后无旧Task写尾。 |
-| 验收／迁移 | 两源有限diff/hash/readback及统筹静态接受已经完成；W0已随Gate69R1编译，三项既有必要冒烟结果待统筹交回。未运行新native/析构重入或同步回放专项，未创建新严格矩阵；Combo/Boss调用方原生命周期接线、旧夹具、资产和网络分别保留待验收状态。 |
+| 验收／迁移 | Combo已在原Task Ready前注册native回调，精确token与原桶资源已随Context清理；Gate79有限纠正及原Task资源断言通过。未单独运行native/析构重入或同步remote回放专项，正式资产和网络继续开放；不新增严格矩阵。 |
 
 实际接口输入/作用/输出、清理与失败诊断见[[AbilitySystem/结构#原事件桶与输入Task订阅（W0）|W0契约]]，节点位于[[GGYGO_结构_AbilitySystem.canvas|结构图]]及[[GGYGO_流程_AbilitySystem.canvas|流程图]]。
+
+## 当前GA激活接缝与OnSpawn入口
+
+原准备接缝现已与原身份发行、final生命周期及派生迁移共同启用并编译。以下记录当前职责；旧准备阶段及Gate70不能作为新动态证据，实际有限验证见原请求终止计划。
+
+| 范围 | 当前事实与后继门禁 |
+| --- | --- |
+| 激活薄hook | Initialize在组终检/相机/Body前一次调用，初始化原批次；外调后原来源结束、Busy或改变则不进入旧Body。Body默认一次native Super→既有BP，派生只管招式资源，核心Activate为final。Original由实际NotifyActivated签发，Capture只读、不从Spec/key补造。 |
+| OnSpawn请求点 | 保留原策略、Spec/Avatar及网络侧选择，live项目ASC在原请求位置一次既有受控Try；非法或非项目ASC诊断拒绝，无raw回退/新队列。NativeAccepted可仅为remote请求接受，不等于本地原激活、Commit或Completed。 |
+| 共同启用／验收 | GA/ASC实际签发/见证与Combo/Boss/Admission扩展点共同启用；final End/Cancel统一一次Context Cleanup/native End、实际返回义务与ASC完成通知。Gate79必要正常/故障行为有限验收；raw/native严格、移除/极端重入、正式资产和网络仍开放。 |
+
+真实接口与失败诊断见[[AbilitySystem/结构#激活薄hook与OnSpawn受控入口|结构契约]]；本节不复写终止子图或将计划写成已实现。
 
 ## 5. GA 配置层：优先级 + 激活组 + 组规则
 
@@ -174,7 +186,7 @@ TMap<FGameplayTag, TArray<TWeakObjectPtr<UGGYGOGameplayAbility>>> ActiveAbilitie
 `NotifyAbilityActivated` 阶段（改状态）：
 
 5. `NotifyAbilityActivated` 开始本实例的准入尝试，只把新实例登记为 `ActiveAbilitiesByGroup` 预留，再让 GAS 广播激活通知；此时不能取消或 End，因为本次 Spec ActiveCount 尚未递增。
-6. GAS 完成 ActiveCount 递增后进入项目基类 `ActivateAbility`。若当前尝试已被同步递归中的更新尝试标记拒绝，立即跳过最终裁决，不能回头取消胜出的更新实例。
+6. GAS完成ActiveCount递增后进入final项目Activate，先核实际Original并Initialize原批次；若其结束、Busy或来源改变，不执行旧Body。对原仍有效的attempt再做最终裁决，已被较新尝试拒绝者不能回头取消胜出实例。
 7. 未被预先拒绝的尝试调用 `ASC::FinalizeAbilityGroupAdmission(Ability, AdmissionSequence)`。ASC 先按原同组优先级/Exclusive 冲突谓词比较 pending 的全局 sequence：较新尝试拒绝较旧尝试，较旧 resolver 恢复后识别自身已拒绝并退出；settled 冲突再走原取消，并只从 `ActiveAbilitiesByGroup` 权威登记复核同步回调后的占用，不能把已注销登记但仍在 GAS 结束广播栈中的 Spec 实例当成竞争者。返回后基类按捕获 sequence 消费拒绝并完成该 attempt，失败则在相机/BP 业务前安全结束。sequence 由 ASC 跨实例分配，独立于 PredictionKey 和 Spec 总 ActiveCount。
 
 `OnAbilityEnded` 阶段：
@@ -186,7 +198,7 @@ TMap<FGameplayTag, TArray<TWeakObjectPtr<UGGYGOGameplayAbility>>> ActiveAbilitie
 
 历史组仲裁验收：当轮完整C++构建成功，`GGYGO.AbilitySystem.Admission.GroupLifecycle` 单项1/1，随后统一自动化38/38，0 warning、0 error。单项诊断确认C sequence 18正确拒绝B sequence 17；旧post-cancel扫描全部Spec误命中已注销但仍处GAS结束广播栈的A sequence 0。终检改为权威组登记后，C活跃、B安全退出，唯一实例/ActiveCount/组登记严格断言通过。保留原结果，不将其当作新T2协议动态证据；相机资源修复属于第05批。
 
-历史回归入口：`GGYGO.AbilitySystem.Admission.GroupLifecycle`覆盖组规则与取消/结束/组空重入及同Spec PerExecution计数；旧pending退出后只留一个活动实例的严格断言当轮通过。`InvalidPredictionKeyReentry`和`CorrectionRpc`同在该38/38中通过；本地测试不代替双端RPC验收，亦不证明新Completed/派生退出。Montage Task与Combo专项见[[计划_玩家普攻连段]]。
+历史回归入口：`GGYGO.AbilitySystem.Admission.GroupLifecycle`与旧38/38保留原当轮结果。共同生命周期启用后的Gate71原strict/raw复现仍红，旧立即重开期待与缺外层见证明确留账，不能据历史绿或Gate79普通链关红。当前Combo/Task有限生产与必要冒烟见[[计划_玩家普攻连段]]，双端RPC与联机另验。
 
 玩家普攻采用一个 GA 内管理多段：同 Priority 100，NotifyState 控制窗口，GA 消费单请求缓冲并切换逐段 Main→End Montage。`SingleInstanceQueued` 只约束其他攻击实例；它不负责内部段序或动画窗口。具体分阶段实施和网络/清理契约见 [[计划_玩家普攻连段]]。
 
@@ -206,9 +218,9 @@ AbilitySystem/
 
 ## 6. GE 层
 
-### 当前Builder契约（E14-B：Gate66已编译）
+### 当前Builder契约（E14-B/C：已编译，必要行为有限验收）
 
-`BuildHitEffectPayload`保留bool接口：显式空DamageEffectClass是正常无GE/仅Context与Cue模式；配置非空必需GE时，Spec.Data、Def、Context及原Ability/Source/Target必须有效。只在全部成功后赋OutPayload，失败返回false并清输出，诊断包含能力、来源、目标、GE及原因。MakeOutgoingSpec、ApplyAbilityTags、BP_EditSpecValues与Cue初始化的真实外调后重核原来源，失效不降级无GE/Cue；原Spec与SetByCaller值先快照，不借后继激活。实际施加时的免疫/拒绝属于调用方结果与碰撞Cue政策，不能冒充Builder失败。源码已编译；Combo原动作失败响应须待派生/生产取消合同冻结后适配，尚未闭合。
+`BuildHitEffectPayload`保留bool接口：显式空DamageEffectClass是正常Context/Cue模式；非空必需GE须有有效Spec/Def/Context与原Ability/Source/Target。MakeOutgoingSpec、ApplyAbilityTags、BP_EditSpecValues及Cue初始化外调后重核原来源，只全部成功才赋输出；失败false/空输出并定位诊断，不降级无GE。Combo命中期间必需依赖或Builder失败直接RequestAbilityEnd(Original,true,true)，CanBeCanceled=false也不改为Cancel→End；Boss要求有效GE，失败保留拒绝该hit的响应。正常Spec应用免疫/拒绝仍可碰撞Cue。Gate79正常无GE/有效GE与两故障中止行为有限通过，真实Error/Fail及Shared资产失效/底层MakeOutgoingSpec失败/正式资产网络未验边界保留。
 
 原本认为没有可抄的，实际上有三个值得抄：
 

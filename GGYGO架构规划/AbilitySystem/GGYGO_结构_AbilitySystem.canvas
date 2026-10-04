@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# AbilitySystem｜结构图\n当前：Host/Hero A/B1/B2、K3/Task已编译；T2 Gate65/66、E14-B Gate66已编译。Gate66既有三冒烟通过（0 Error/0 Warning），新Completed/派生/生产/Combo失败传播无动态证明。\n[[AbilitySystem/结构|结构文档]] · [[GGYGO_流程_AbilitySystem.canvas|关键调用]] · [[AbilitySystem/计划_原请求终止|T2子计划]] · [[GGYGO_流程_原请求终止.canvas|终止子图]] · [[GGYGO_流程_伤害结算.canvas|伤害]] · [[GGYGO_结构_HitImpact.canvas|命中反馈]]",
+      "text": "# AbilitySystem｜结构图\n共同final生命周期、派生原资源及受控请求点已启用并编译；正常/故障必要行为有限验证。严格raw/native、正式资产与网络仍开放，真实报告见父文档。\n[[AbilitySystem/结构|结构文档]] · [[GGYGO_流程_AbilitySystem.canvas|关键调用]] · [[AbilitySystem/计划_原请求终止|终止契约]] · [[GGYGO_流程_原请求终止.canvas|终止子图]] · [[GGYGO_流程_伤害结算.canvas|伤害]] · [[GGYGO_结构_HitImpact.canvas|命中反馈]]",
       "x": 0,
       "y": 0,
       "width": 1520,
@@ -53,11 +53,11 @@
     {
       "id": "ga",
       "type": "text",
-      "text": "## UGGYGOGameplayAbility\nCanActivateAbility（final）封闭原GAS/组评估；Additional追加业务条件；Native→Script失败反馈保留。\nCaptureCurrentActivation签原激活；RequestAbilityEnd/Cancel受理原请求。\n唯一原终止记录保存首个Context/资源/Busy；GAS执行。CleanupAbilityResourcesForTermination只清自身原资源，End/Cancel non-final。\n全部关联退出后封存结果、退Busy再Notice；派生/生产未迁移。\nBuildHitEffectPayload：显式空GE正常；必需GE无效false＋清Out，不降级Cue。\n组sequence与输入证明分开；Correction由派生解释。\n[[GGYGO_流程_原请求终止.canvas|T2契约与边界]]",
+      "text": "## UGGYGOGameplayAbility\nCan/Activate/End/Cancel为final；Additional只追加准入业务。\nNotifyActivated时签Original；Capture只复制已有历史，Busy返回空。\nInitialize(Original)初始化原批次；原准入/相机后Body(Original,原参数)执行业务，默认native Super→BP。\nRequestEnd/Cancel核Original，唯一原记录固定首次Context/资源与实际返回义务。\nCleanup(Context)仅归还原批次；GAS仍执行原End/Task清理。\nBuilder显式空GE正常；必需Spec失败false/空输出，响应归调用方。\n[[GGYGO_流程_原请求终止.canvas|原记录与完成门禁]]",
       "x": 1120,
       "y": 520,
-      "width": 400,
-      "height": 490,
+      "width": 440,
+      "height": 520,
       "color": "5"
     },
     {
@@ -87,13 +87,13 @@
       "x": 520,
       "y": 1210,
       "width": 490,
-      "height": 300,
+      "height": 330,
       "color": "1"
     },
     {
       "id": "contract",
       "type": "text",
-      "text": "## 关键交互契约\nSlot/BossState→AbilitySet→持久ASC；自身Handles精确撤装。\nHero A→Receive原Tag/ID/绝对deadline；真实Released/Invalidated→End原ID，局部清理不全Clear。真实Queued→完整Retry，Hero核原ID/Tag/期限/Binding再Queue，不延长窗口。\nInput唯一物理事实，Hero仅自身观察/有限意图，ASC唯一held/queued；Hero A/B1/B2已实施并编译。\nProcess原InputScope内受控Try→bNativeAccepted消费，T3-I Gate67已编译；不raw重试，remote接受非本地Activation证明。Boss raw/Query不带玩家输入证明；OnSpawn/BT/RPC仍待迁。\nGA唯一原终止记录；ASC只提供原Try/Ended退出见证；GAS唯一执行。Task管理精确Montage实例/委托/缩放，Task Completed不是GA原请求Notice。\nBuilder非空必需GE失败false＋空输出；Combo失败响应及Combo/Boss/Admission派生终止未迁移。\n[[AbilitySystem/计划_原请求终止|阶段/未闭合边界]]；既有冒烟不证明新协议、资产或网络。",
+      "text": "## 关键交互契约\nSlot/BossState→AbilitySet→持久ASC，自身Handles精确撤装。Input管物理事实，Hero管自身观测/有限意图，ASC唯一held/queued及原ID/期限；局部End/Retry不全Clear或续期。\nProcess/OnSpawn/Boss BT→一次受控Try；Can来源与实际NotifyActivated原身份分离，remote接受非本地Activation证明。BT持原等待，消费固定Original的同步历史或异步Completed。\nGA唯一原终止记录；ASC只持实际Try/Ended见证并封存后发布；GAS唯一执行。Combo/Boss/Admission已接Initialize/Body/Context Cleanup，Task持自己的精确实例/桶/native订阅资源。\nCombo/Boss调用Combat Owned Window/精确hit订阅，闭包捕Original/原窗口/token；Combat只查询去重。Builder失败时Combo正式End原动作，Boss仅拒该hit；有效Spec应用免疫/拒绝的碰撞Cue保持。\nTask自然Completed、GA早数据通知、ASC原Ended与项目Notice时点不同；完整契约见[[AbilitySystem/计划_原请求终止|原请求计划]]。",
       "x": 0,
       "y": 1570,
       "width": 1450,
@@ -153,7 +153,7 @@
     {
       "id": "k3-playback-asc",
       "type": "text",
-      "text": "## 同一ASC｜精确原Local播放来源\nTryPlayMontageWithOwnership(GA,Activation,Montage,Rate,Section,Time,pureQuery)：完整Super／Guard后认证源与Local一致，返回单一Result，成功才签Playback。\nCheckMontagePlaybackOwnership(Original)：纯原资源校验，停止／无活动实例不丢清理资格。\nCaptureMontagePlaybackOwnership(原GA,Spec,Activation)：只取已有认证记录；缺失NoOwnedPlayback，不造新Handle。\nTryClearMontageAnimatingAbility(Original)：精确Check后仅基类GA setter／Local清空，退休原记录；不Stop／延迟混出。\n唯一provenance持原ActorInfo快照，不是播放状态／第二执行器。\n实际Init／Clear退休；同端点Refresh无真实变化则保留。原生可截获入口核对，拒绝外层不清后继。\nASC/Task已编译；T2已接原终止资源Capture，派生/生产/旧夹具动态仍开放。\n[[AbilitySystem/结构#精确Montage播放归属（K3：已编译，派生与生产未闭合）|完整契约]]",
+      "text": "## 同一ASC｜精确原Local播放来源\nTryPlayMontageWithOwnership(GA,Activation,Montage,Rate,Section,Time,pureQuery)：完整Super／Guard后认证源与Local一致，返回单一Result，成功才签Playback。\nCheckMontagePlaybackOwnership(Original)：纯原资源校验，停止／无活动实例不丢清理资格。\nCaptureMontagePlaybackOwnership(原GA,Spec,Activation)：只取已有认证记录；缺失NoOwnedPlayback，不造新Handle。\nTryClearMontageAnimatingAbility(Original)：精确Check后仅基类GA setter／Local清空，退休原记录；不Stop／延迟混出。\n唯一provenance持原ActorInfo快照，不是播放状态／第二执行器。\n实际Init／Clear退休；同端点Refresh无真实变化则保留。原生可截获入口核对，拒绝外层不清后继。\nASC/Task及GA原Capture已编译，Combo/Boss已迁原消费者；旧严格重入、正式资产/网络仍开放。\n[[AbilitySystem/结构#精确Montage播放归属（K3：已编译，派生与生产未闭合）|完整契约]]",
       "x": 2500,
       "y": 320,
       "width": 820,
@@ -173,7 +173,7 @@
     {
       "id": "k3-task-resource-consumer",
       "type": "text",
-      "text": "## UGGYGOAbilityTask_PlayMontageAndWaitForEvent\nPlayMontageAndWaitForEvent／ResolvePlayRate → 配置与同次速率，五BP签名保持。\nN0：FNativeCallbacks五可选单播；RegisterNativeCallbacks仅原Awaiting/preReady非空、无重复；Unregister按原token先脱包，构造/析构重入不覆盖后继。\n原Activation/弱GA/弱原Task由调用方闭包捕获；Task不另签GA身份。\nActivate → ASC.TryPlayMontageWithOwnership，纯原Task／ActorInfo查询；成功才存原Handle／Guard并按CreatedInstanceId绑定精确实例委托。\nIsNotifyValid → 原源／精确实例播放＋ASC.Check原Handle才接GameplayEvent；先复制负载再广播。\nOnMontageBlendingOutForInstance → 释放自身缩放，TryClear原Handle；A不借同GA/资产清B。\nOnMontageEndedForInstance → 原Guard＋原上下文＋AbilityTask资格，非打断发布Completed事实；不Check已退休当前归属，不授后继GA End权限。\n七分支：原包/载荷快照→native及捕获析构返回→弱原Task/路径资格重检→BP；Event核IsNotifyValid，Blend/Ended核原Guard/ActorInfo/Task资格。\n三取消入口预标记，各渠道至多一次；启动失败无须尚未建立的ActorInfo/Guard。OnDestroy先脱包/token，再自身监听/实例/scale清理；旧cleanup/Super后释放捕获，无Task访问。栈共持原停止义务。\n停止只按原Guard实例；精确ASC认证＋活动ID才CurrentMontageStop，否则仅原本地资源释放，不改新ASC/GA。\n无全局播放尝试表/播放token/新实例扫描；native注册token仅为订阅资源，无第二能力/播放状态。\nN0 Gate68已编译；旧Trace叶Success 0/0不证明native/析构重入。Combo/Boss生产未迁，派生/旧夹具/资产网络仍开放。Task Completed不是GA原Notice。\n[[AbilitySystem/结构#Task原实例与资源消费（已编译，专项与迁移边界保留）|接口/实现/清理]] · [[Animation/结构|Guard职责]]",
+      "text": "## UGGYGOAbilityTask_PlayMontageAndWaitForEvent\nPlayMontageAndWaitForEvent／ResolvePlayRate → 配置与同次速率，五BP签名保持。\nN0：FNativeCallbacks五可选单播；RegisterNativeCallbacks仅原Awaiting/preReady非空、无重复；Unregister按原token先脱包，构造/析构重入不覆盖后继。\n原Activation/弱GA/弱原Task由调用方闭包捕获；Task不另签GA身份。\nActivate → ASC.TryPlayMontageWithOwnership，纯原Task／ActorInfo查询；成功才存原Handle／Guard并按CreatedInstanceId绑定精确实例委托。\nIsNotifyValid → 原源／精确实例播放＋ASC.Check原Handle才接GameplayEvent；先复制负载再广播。\nOnMontageBlendingOutForInstance → 释放自身缩放，TryClear原Handle；A不借同GA/资产清B。\nOnMontageEndedForInstance → 原Guard＋原上下文＋AbilityTask资格，非打断发布Completed事实；不Check已退休当前归属，不授后继GA End权限。\n七分支：原包/载荷快照→native及捕获析构返回→弱原Task/路径资格重检→BP；Event核IsNotifyValid，Blend/Ended核原Guard/ActorInfo/Task资格。\n三取消入口预标记，各渠道至多一次；启动失败无须尚未建立的ActorInfo/Guard。OnDestroy先脱包/token，再自身监听/实例/scale清理；旧cleanup/Super后释放捕获，无Task访问。栈共持原停止义务。\n停止只按原Guard实例；精确ASC认证＋活动ID才CurrentMontageStop，否则仅原本地资源释放，不改新ASC/GA。\n无全局播放尝试表/播放token/新实例扫描；native注册token仅为订阅资源，无第二能力/播放状态。\nCombo/Boss已在Ready前注册原native包并精确脱token；Task Completed不是GA原Notice。普通资源链有限验证，native/捕获析构极端重入、旧夹具和资产网络仍开放。\n[[AbilitySystem/结构#Task原实例与资源消费（已编译，专项与迁移边界保留）|接口/实现/清理]] · [[Animation/结构|Guard职责]]",
       "x": 3500,
       "y": 320,
       "width": 900,
@@ -203,7 +203,7 @@
     {
       "id": "k4-cleanup-host-consumer",
       "type": "text",
-      "text": "## 清理调用方｜Host消费接缝\n[[Combatants/结构|CombatantState]]持自己的选择/H/请求scope，ASC独占写入与证明，[[Character/结构|Extension]]独占本地通知资源。\nH1已实施并编译：原提交用CheckAvatarBindingCleanupContext，不借Ready阻挡Closing；Release和已提交失败显式选ClearMode。\nH2已实施并编译：Init/owner-only失败消费原Operation＋pure原scope，原Init仍失败。\n清理/初始化scope分开；不查后继Context借权，不回滚或自动重试。\n历史Build55失败、当时Hero未迁移保留在父文档；当前Hero A/B1/B2已实施并编译。R0 Gate42原2 Fail/12错误、K3/派生/生产/资产/网络边界仍开放。\n[[AbilitySystem/结构#清理调用方与本轮验证边界|消费/验证门禁]]",
+      "text": "## 清理调用方｜Host消费接缝\n[[Combatants/结构|CombatantState]]持自己的选择/H/请求scope，ASC独占写入与证明，[[Character/结构|Extension]]独占本地通知资源。\nH1已实施并编译：原提交用CheckAvatarBindingCleanupContext，不借Ready阻挡Closing；Release和已提交失败显式选ClearMode。\nH2已实施并编译：Init/owner-only失败消费原Operation＋pure原scope，原Init仍失败。\n清理/初始化scope分开；不查后继Context借权，不回滚或自动重试。\n历史Build55失败、当时Hero未迁移保留在父文档；当前Hero A/B1/B2已实施并编译。R0原失败与完整Avatar/Destroy/资产/网络仍开放；GA派生共同生命周期当前事实见父文档。\n[[AbilitySystem/结构#清理调用方与本轮验证边界|消费/验证门禁]]",
       "x": 840,
       "y": 4080,
       "width": 680,
@@ -213,7 +213,7 @@
     {
       "id": "w0-original-input-subscription",
       "type": "text",
-      "text": "## UGGYGOAbilityTask_WaitComboInput｜W0\n输入：OwningAbility、可更新SourceStep、可选FGGYGOComboInputNativeDelegate(int32,int32)。\nWaitComboInput返回未Ready Task；RegisterNativeCallback仅原pre-Ready非空/单注册，输出精确FDelegateHandle；UnregisterNativeCallback返回是否匹配，先脱包再释放，不擦掉捕获析构重入后的后继。\nTask只持不可变原弱ASC/Ability、Spec/key、remote/predict模式与自身handle；原Activation仅调用方按值闭包。零key合法，桶不是GA身份。\n作用/输出：原GAS InputPressed读/发/Consume→native及捕获析构返回→弱原Task/原订阅核验→原OnPress BP；工厂/SetSourceStep/BP、65535校验与预测规则保持。\n清理：OnDestroy先关/脱资源，再原桶remove自身handle；不Consume后继，Super/清理后释放捕获，无Task写尾。同步回放结束不写Waiting；无效依赖明确诊断并结束自身。\nW0两源已落盘、冻结并由统筹静态接受；已随Gate69R1统一Editor编译成功（4 actions、18.40秒、UBA16.57秒、exit0），新运行时DLL已链接。Gate69原CMC私有访问失败及修正记录保留。新DLL三项既有必要冒烟均Fail（连段15E、移动停止3E、失败恢复2E），根因与夹具前置正在核对，原报告保持；不能作为W0动态成功证明。native/捕获析构重入、同步回放结束边界及Combo/Boss原生命周期生产迁移尚未验证，不由编译或既有冒烟推导通过。\n[[AbilitySystem/结构#原事件桶与输入Task订阅（W0）|输入／作用／输出与清理]]\n[[AbilitySystem/计划_AbilitySystem#当前连段输入Task增量（W0）|W0实施边界]]",
+      "text": "## UGGYGOAbilityTask_WaitComboInput｜W0\n输入：OwningAbility、可更新SourceStep、可选FGGYGOComboInputNativeDelegate(int32,int32)。\nWaitComboInput返回未Ready Task；RegisterNativeCallback仅原pre-Ready非空/单注册，输出精确FDelegateHandle；UnregisterNativeCallback返回是否匹配，先脱包再释放，不擦掉捕获析构重入后的后继。\nTask只持不可变原弱ASC/Ability、Spec/key、remote/predict模式与自身handle；原Activation仅调用方按值闭包。零key合法，桶不是GA身份。\n作用/输出：原GAS InputPressed读/发/Consume→native及捕获析构返回→弱原Task/原订阅核验→原OnPress BP；工厂/SetSourceStep/BP、65535校验与预测规则保持。\n清理：OnDestroy先关/脱资源，再原桶remove自身handle；不Consume后继，Super/清理后释放捕获，无Task写尾。同步回放结束不写Waiting；无效依赖明确诊断并结束自身。\nW0及Combo native消费者已启用并编译；固定Original/原Task闭包和精确token归Combo原批次。正常纠正/必要资源收尾有限验证，native/捕获析构重入、remote同步回放与正式输入/网络仍开放。\n[[AbilitySystem/结构#原事件桶与输入Task订阅（W0）|输入／作用／输出与清理]]\n[[AbilitySystem/计划_AbilitySystem#当前连段输入Task增量（W0）|W0实施边界]]",
       "x": 3500,
       "y": 1320,
       "width": 900,
@@ -252,7 +252,7 @@
       "fromSide": "right",
       "toNode": "ga",
       "toSide": "left",
-      "label": "组预留/裁决；原Try与Ended见证关联GA记录"
+      "label": "实际NotifyActivated请求GA签Original；ASC预留/裁决，Try/Ended见证关联同一GA记录"
     },
     {
       "id": "e5",
@@ -389,6 +389,22 @@
       "toNode": "asc",
       "toSide": "right",
       "label": "Task→GAS原InputPressed桶：注册/读/发/Consume/精确remove"
+    },
+    {
+      "id": "ga-owns-montage-native-subscription",
+      "fromNode": "ga",
+      "fromSide": "top",
+      "toNode": "k3-task-resource-consumer",
+      "toSide": "top",
+      "label": "派生GA持原Task/包token；Ready前Register，Context精确脱包/归还原Task"
+    },
+    {
+      "id": "ga-owns-input-native-subscription",
+      "fromNode": "ga",
+      "fromSide": "bottom",
+      "toNode": "w0-original-input-subscription",
+      "toSide": "left",
+      "label": "Combo持原InputTask/token；闭包捕Original，Context精确注销/TaskOwnerEnded"
     }
   ]
 }

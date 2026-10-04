@@ -1,18 +1,134 @@
 {
-	"nodes":[
-		{"id":"nav","type":"text","text":"# 伤害结算｜流程子图\n只画一次命中如何变为属性和表现。类关系见 [[GGYGO_结构_AbilitySystem.canvas|结构图]]；跨模块全链见 [[GGYGO_流程_战斗链路.canvas]]。","x":0,"y":0,"width":1660,"height":130,"color":"6"},
-		{"id":"window","type":"text","text":"1. GA 的 Montage Event 打开判定窗口。\n\n调用：PlayMontageAndWaitForEvent::OnGameplayEvent → BossMeleeAbility::HandleMontageEvent → MeleeTrace::BeginTraceWindow。","x":0,"y":351,"width":390,"height":230,"color":"5"},
-		{"id":"trace","type":"text","text":"2. MeleeTrace 沿上一帧到本帧武器轨迹扫掠，并在窗口内去重。\n\n调用：MeleeTrace::TickComponent → PerformTrace → OnMeleeHit.Broadcast(Target, Hit)；EndTraceWindow 收尾。","x":470,"y":351,"width":410,"height":230,"color":"5"},
-		{"id":"effect","type":"text","text":"3. Player/Boss GA 调共享 BuildHitEffectPayload。\n\n命中回调时捕获 Avatar 位置为 Origin；Context 先 AddHitResult 再 AddOrigin。共享路径生成可选 Spec、表面/目标 Tag 与 Cue。调用方只填 SetByCaller 并尝试应用 GE。","x":960,"y":351,"width":410,"height":270,"color":"5"},
-		{"id":"execute","type":"text","text":"4. DamageExecution 捕获源输出和目标承受属性，写 Damage / PoiseDamage 元属性。\n\n物理材质来自 Context；距离取显式 Origin→HitResult.ImpactPoint。没有 HitResult 时距离为 0，不读取 EffectCauser 的当前坐标。","x":1450,"y":351,"width":420,"height":260,"color":"5"},
-		{"id":"health","type":"text","text":"5. HealthSet 更新生命/韧性；HealthComponent 发变化、破韧或死亡事件。\n\n调用：HealthSet::PreGameplayEffectExecute 免疫/无敌校验 → PostGameplayEffectExecute 清元属性并广播 → HealthComponent::HandleOutOfHealth。","x":960,"y":864,"width":410,"height":230,"color":"1"},
-		{"id":"cue","type":"text","text":"6. GA交付独立命中反馈载荷，不因免疫或有效GE被拒绝吞掉碰撞表现；必需GE/Spec失败传播仍是E14未完接缝。\n\nHitImpact::HandleGameplayCue → Resolve（K2前）；OnExecute → 再Resolve（Super前）。消费AggregatedTargetTags；默认要求原Context.HitResult，缺失拒绝，不自动回落Target。正常无Hit须BP显式位置模式；已知表面漏配默认拒绝。世界原点/Overlap合法。\n[[GGYGO_流程_HitImpact.canvas|接口、失败与反馈子流程]]","x":1450,"y":864,"width":420,"height":360,"color":"1"}
-	],
-	"edges":[
-		{"id":"e1","fromNode":"window","fromSide":"right","toNode":"trace","toSide":"left","label":"判定启用"},
-		{"id":"e2","fromNode":"trace","fromSide":"right","toNode":"effect","toSide":"left","label":"命中且未重复"},
-		{"id":"e3","fromNode":"effect","fromSide":"right","toNode":"execute","toSide":"left","label":"应用 GE"},
-		{"id":"e4","fromNode":"execute","fromSide":"right","toNode":"health","toSide":"left","label":"修改元属性"},
-		{"id":"e5","fromNode":"effect","fromSide":"bottom","toNode":"cue","toSide":"top","label":"交付独立反馈载荷；必需GE失败传播待E14"}
-	]
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# 伤害结算｜流程子图\n当前Player/Boss原Owned hit→共享Builder→GAS结算/Cue；调用方失败响应各归原消费者。\n[[GGYGO_结构_AbilitySystem.canvas|结构图]] · [[GGYGO_流程_战斗链路.canvas|跨模块链]] · [[AbilitySystem/计划_原请求终止|验收边界]]",
+      "x": 0,
+      "y": 0,
+      "width": 1660,
+      "height": 150,
+      "color": "6"
+    },
+    {
+      "id": "window",
+      "type": "text",
+      "text": "1. 原Montage Event→GA核Original/原Task/事件来源。\nTryOpenOwnedTraceWindow(Socket/Radius,Expected→Out)→SubscribeWindowHit(原Window,Callback→token)。\nGA闭包捕Original/原窗口/段资源，保存自身token；收尾精确退订/关闭，Legacy兼容入口由Combat说明。",
+      "x": 0,
+      "y": 351,
+      "width": 390,
+      "height": 400,
+      "color": "5"
+    },
+    {
+      "id": "trace",
+      "type": "text",
+      "text": "2. Combat TickComponent→PerformTrace。\n原窗口内跨帧球扫、取PhysicalMaterial、去重→typed hit(原Window,Actor,HitResult)。\n每次原订阅外调后重核窗口，关B开C即退出B旧尾/基线写回；Owned不广播Legacy全局OnMeleeHit。",
+      "x": 470,
+      "y": 351,
+      "width": 410,
+      "height": 390,
+      "color": "5"
+    },
+    {
+      "id": "effect",
+      "type": "text",
+      "text": "3. 原GA命中门禁→选本次GE→BuildHitEffectPayload。\n同次HitResult先AddHitResult再AddOrigin；原Source/Target、Spec扩展及Cue初始化外调后重核。\nCombo显式无GE成功：Context/Cue；Boss要求有效GE。有效必需GE成功：Spec及反馈载荷。\n失败false/空输出，不降级Cue或换GE。",
+      "x": 960,
+      "y": 351,
+      "width": 410,
+      "height": 410,
+      "color": "5"
+    },
+    {
+      "id": "execute",
+      "type": "text",
+      "text": "4. DamageExecution 捕获源输出和目标承受属性，写 Damage / PoiseDamage 元属性。\n\n物理材质来自 Context；距离取显式 Origin→HitResult.ImpactPoint。没有 HitResult 时距离为 0，不读取 EffectCauser 的当前坐标。",
+      "x": 1450,
+      "y": 351,
+      "width": 420,
+      "height": 260,
+      "color": "5"
+    },
+    {
+      "id": "health",
+      "type": "text",
+      "text": "5. HealthSet 更新生命/韧性；HealthComponent 发变化、破韧或死亡事件。\n\n调用：HealthSet::PreGameplayEffectExecute 免疫/无敌校验 → PostGameplayEffectExecute 清元属性并广播 → HealthComponent::HandleOutOfHealth。",
+      "x": 960,
+      "y": 864,
+      "width": 410,
+      "height": 230,
+      "color": "1"
+    },
+    {
+      "id": "cue",
+      "type": "text",
+      "text": "6. 成功载荷请求独立碰撞Cue。\n显式无GE直接Cue；有效GE免疫/拒绝仍按原碰撞Cue政策执行。\nHitImpact在K2/Super前Resolve原Context，默认HitResult必需，缺失明确拒绝；正常无Hit须BP显式位置模式。\n已知表面漏配默认拒绝，原点/Overlap合法。\n[[GGYGO_流程_HitImpact.canvas|反馈契约]]",
+      "x": 1450,
+      "y": 864,
+      "width": 420,
+      "height": 430,
+      "color": "1"
+    },
+    {
+      "id": "required-hit-build-failure",
+      "type": "text",
+      "text": "## 构造/必需依赖失败出口\n该hit不Apply GE、不Cue，输出与原因明确；Builder不执行能力终止或替代资源。\nCombo→RequestAbilityEnd(固定Original,true,true)，不可取消场景也正式End原动作；Boss只拒绝该hit，保留当前动作。\n原Cleanup/GA早通知/ASC/Completed全退出见[[GGYGO_流程_原请求终止.canvas|原终止链]]。\n必要Combo运行时故障行为有限验证，真实Error/Fail保留；完整Boss/正式资产/伤害数值/Cue表现/网络仍未验。",
+      "x": 0,
+      "y": 864,
+      "width": 850,
+      "height": 430,
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "window",
+      "fromSide": "right",
+      "toNode": "trace",
+      "toSide": "left",
+      "label": "原GA取得Owned Window/token→Combat原窗口Tick"
+    },
+    {
+      "id": "e2",
+      "fromNode": "trace",
+      "fromSide": "right",
+      "toNode": "effect",
+      "toSide": "left",
+      "label": "原窗口去重hit→精确订阅闭包核Original"
+    },
+    {
+      "id": "e3",
+      "fromNode": "effect",
+      "fromSide": "right",
+      "toNode": "execute",
+      "toSide": "left",
+      "label": "成功非空有效Spec→Apply→GE Execution"
+    },
+    {
+      "id": "e4",
+      "fromNode": "execute",
+      "fromSide": "right",
+      "toNode": "health",
+      "toSide": "left",
+      "label": "GE执行元属性→目标Health/Poise结算"
+    },
+    {
+      "id": "e5",
+      "fromNode": "effect",
+      "fromSide": "bottom",
+      "toNode": "cue",
+      "toSide": "top",
+      "label": "Builder成功载荷→碰撞Cue；无GE/有效GE免疫拒绝按显式政策"
+    },
+    {
+      "id": "e6-required-hit-build-failure",
+      "fromNode": "effect",
+      "fromSide": "bottom",
+      "toNode": "required-hit-build-failure",
+      "toSide": "top",
+      "label": "必需依赖/Builder无效→false/空输出，不进入GE/Cue"
+    }
+  ]
 }

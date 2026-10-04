@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# System｜结构图\n公共语义键、一次启动预载与显式GE类选择。边标签区分调用、加载持有及数据输出。\n[[System/结构|结构文档]] · [[计划蓝图|模块导航]]",
+      "text": "# System｜结构图\n公共语义键、GI 阶段顺序注册、一次共享预载与显式GE类选择。边标签区分调用、注册、加载持有及数据输出。\n[[System/结构|结构文档]] · [[计划蓝图|模块导航]]",
       "x": 0,
       "y": 0,
       "width": 1630,
@@ -79,6 +79,26 @@
       "width": 520,
       "height": 400,
       "color": "5"
+    },
+    {
+      "id": "init-registration",
+      "type": "text",
+      "text": "## UGGYGOInitStateRegistrationSubsystem\n继承 UGameInstanceSubsystem；无成员状态。\nInitialize(Collection) ← 原生 GI Init。\nInitializeDependency<UGameFrameworkComponentManager>\n→ 同 GI 原生 Manager；既有四标签为局部输入。\nRegisterInitState(State,false,Previous) → 锚点注册。\n无效依赖/标签或已有逆序 → 诊断退出，不重排/重试。\n相邻正向true/逆向false后输出 RegisteredOrder。\n无缓存、Ready、订阅、Tick 或独立清理资源。",
+      "x": -820,
+      "y": 260,
+      "width": 660,
+      "height": 450,
+      "color": "4"
+    },
+    {
+      "id": "init-manager",
+      "type": "text",
+      "text": "## UGameFrameworkComponentManager\n同 GI 的原生子系统；唯一保存 InitStateOrder\n及 Actor feature 状态，提供注册与相对顺序判定。\n原四阶段：Spawned → DataAvailable\n→ DataInitialized → GameplayReady。\nIsInitStateAfterOrEqual(Current,Required)\n→ 当前是否已达 Required 或更晚。\nHasFeatureReachedInitState / HaveAllFeaturesReachedInitState\n→ Character 读取原 feature 资格并推进自身。\n[[Character/结构|原组件初始化与配置分发]] · [[Movement/结构|CMC配置消费]]\nGate80：校验后 RegisteredOrder；\nExtension/Hero=GameplayReady，CMC绑定 DA_Movement_Default。\n原Gate78 null/0样本保留；首W/Run/网络未验，轴名未保存。",
+      "x": -820,
+      "y": 760,
+      "width": 660,
+      "height": 580,
+      "color": "5"
     }
   ],
   "edges": [
@@ -129,6 +149,22 @@
       "toNode": "load-states",
       "toSide": "right",
       "label": "发布整次完成标记与各项状态"
+    },
+    {
+      "id": "init-tags",
+      "fromNode": "tags",
+      "fromSide": "left",
+      "toNode": "init-registration",
+      "toSide": "right",
+      "label": "提供四个既有 InitState Tag 值"
+    },
+    {
+      "id": "init-registers",
+      "fromNode": "init-registration",
+      "fromSide": "bottom",
+      "toNode": "init-manager",
+      "toSide": "top",
+      "label": "同GI InitializeDependency\nRegisterInitState锚点注册"
     }
   ]
 }

@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Combat｜近战判定流程\n结构见 [[GGYGO_结构_Combat.canvas|结构图]]；伤害后续见 [[GGYGO_流程_伤害结算.canvas]]。\n02a 完整构建及冷启动近战自动化通过，无错误/警告；验证边界见 [[Combat/结构]]。真实动画接入待验收。",
+      "text": "# Combat｜近战判定流程\n结构见 [[GGYGO_结构_Combat.canvas|结构图]]；伤害后续见 [[GGYGO_流程_伤害结算.canvas]]。\nCombo/Boss 已接 Owned。Gate79 编译成功，7烟5 Success/2 Fail；四RuntimeHit行为PASS，三条生产Error保留。完整Boss命中、正式资产/Legacy BP迁移与联机未验，见 [[Combat/结构]]。",
       "x": 0,
       "y": 0,
       "width": 1710,
@@ -13,11 +13,11 @@
     {
       "id": "open",
       "type": "text",
-      "text": "1. GA 校验当前 Montage/播放实例/主 Mesh，混出后拒绝 Begin。\nBeginTraceWindow 校验 Socket/半径/预算，无效保持关闭；有效时重置去重和基线。\nBossMelee 忽略重复 Begin，不清当前命中集合。",
+      "text": "1. 原 Combo/Boss Montage Event → Owned 开窗。\nCombo 先 ReleaseTraceWindow(Original) 退原段资源。\nBoss QueryOwnedTraceWindow：Active 重复 Begin 保去重，Inactive 才释放重开。\nTryOpenOwnedTraceWindow(Socket/Radius, 空Expected → Window) → SubscribeWindowHit(Window, Callback → token)。\n回调捕/核 Original、原 Task/Trace、窗口；失败只退自身原资源。\nLegacy 保留兼容，不接管 Owned。",
       "x": 0,
       "y": 392,
       "width": 430,
-      "height": 230,
+      "height": 390,
       "color": "5"
     },
     {
@@ -43,31 +43,31 @@
     {
       "id": "dedupe",
       "type": "text",
-      "text": "4. 查 HitActorsThisWindow；新 Actor 入集合后 OnMeleeHit.Broadcast。\n广播返回检查 bIsTracing/WindowSerial；关闭或重开立即退出旧查询，禁止写回旧基线。",
+      "text": "4. 原窗内 HitActorsThisWindow 去重。\nOwned 快照订阅 → callback(OriginalWindow, Actor, Hit)。\n每次外调前核原窗/token，外调后复核；消费者另核自己的原 Activation/来源。\nB 回调关 B 开 C → 停旧分发/扫掠/回写；C 首 Tick 自建基线。\nLegacy 仅广播 OnMeleeHit；Combo/Boss 走 Owned。",
       "x": 1500,
       "y": 392,
       "width": 430,
-      "height": 230,
+      "height": 330,
       "color": "5"
     },
     {
       "id": "ge",
       "type": "text",
-      "text": "5. GA 把 HitResult、目标与命中时源位置交给共享 BuildHitEffectPayload。\n\n共享路径生成 Context/Spec/Cue；GA 填 SetByCaller、尝试应用 GE，并在碰撞成立后独立执行 Cue。",
+      "text": "5. Combo/Boss 核原身份、Trace/窗口及权威；同一 HitResult → BuildHitEffectPayload。\nCombo 显式无GE可Cue；Boss须GE/有效必需Spec。伤害由GAS结算。\nCombo 必需 GE/Builder 故障 → RequestAbilityEnd(Original, true, true)。\nBoss 构造失败只拒绝该 hit；有效载荷的 GE 免疫/应用拒绝不吞碰撞 Cue。\n有限验证见 [[Combat/结构]]。",
       "x": 1500,
       "y": 918,
       "width": 430,
-      "height": 230,
+      "height": 330,
       "color": "1"
     },
     {
       "id": "close",
       "type": "text",
-      "text": "6. NotifyEnd、BlendOut、EndAbility、Deactivate、OnUnregister 或 EndPlay → EndTraceWindow。\n幂等关闭 Tick并清端点、基线和去重；活动窗口递增 WindowSerial。\nGA 最终结束还须解绑委托、恢复 Mesh 与释放自有任务/位移句柄。",
+      "text": "6. HitWindowEnd/换段/原终止 → GA 清自己的原窗。\nCombo ReleaseTraceWindow；Boss CloseOriginalTraceWindow。\n先脱成员 → UnsubscribeWindowHit(原token) → CloseOwnedTraceWindow(原H)。\nCleanupAbilityResourcesForTermination(Context) 匹配原批次；旧H不关后继。\n组件 Deactivate/OnUnregister/EndPlay/内部失败 → 私有 CloseCurrentTraceWindow。\nCombat 停 Tick/清基线/去重；GA 仍清任务/位移/表现资源。\nLegacy End 仅兼容；独立 EndPlay 动态未验。",
       "x": 1000,
       "y": 972,
       "width": 430,
-      "height": 230,
+      "height": 390,
       "color": "1"
     }
   ],
@@ -78,7 +78,7 @@
       "fromSide": "right",
       "toNode": "baseline",
       "toSide": "left",
-      "label": "开启窗口"
+      "label": "Owned 成功取得原窗口"
     },
     {
       "id": "e2",
@@ -102,7 +102,7 @@
       "fromSide": "bottom",
       "toNode": "ge",
       "toSide": "top",
-      "label": "首次命中"
+      "label": "原窗口/token → Combo/Boss 命中核验"
     },
     {
       "id": "e5",
@@ -110,7 +110,7 @@
       "fromSide": "right",
       "toNode": "close",
       "toSide": "left",
-      "label": "动画窗口结束"
+      "label": "窗口结束／原GA终止 → 清原资源"
     },
     {
       "id": "e6",
@@ -118,7 +118,7 @@
       "fromSide": "left",
       "toNode": "sweep",
       "toSide": "right",
-      "label": "下一帧继续"
+      "label": "原窗口仍活动才继续；失效退出"
     }
   ]
 }

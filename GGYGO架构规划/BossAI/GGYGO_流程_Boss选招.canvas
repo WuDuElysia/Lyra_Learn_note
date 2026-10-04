@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Boss 选招｜流程子图\n14a E10/E11 已编码冻结，未构建/运行验收；图示为本批接口契约。\n[[GGYGO_流程_BossAI.canvas|返回主流程]] · [[GGYGO_结构_BossAI.canvas|结构图]] · [[BossAI/结构|完整契约]] · [[计划_BOSSAI|设计与验收]]",
+      "text": "# Boss 选招｜流程子图\n配置/选招专项已通过；受控Try/原Completed消费者已编译。普通Mesh A→完整返回→B有限通过，严格raw重入失败保留；正式BT战斗/资产/网络待验。\n[[GGYGO_流程_BossAI.canvas|返回主流程]] · [[GGYGO_结构_BossAI.canvas|结构图]] · [[BossAI/结构|完整契约]] · [[计划_BOSSAI|设计与验收]]",
       "x": 0,
       "y": 0,
       "width": 1940,
@@ -43,7 +43,7 @@
     {
       "id": "request",
       "type": "text",
-      "text": "4. ActivateAbility::ExecuteTask 消费请求。\nConsumeActionSelection 检查 Set/Phase/ASC/Tag/Class/Spec/Avatar。\n成功或失败都清一次性记录/黑板。\n成功先订阅结束，再 TryActivateAbility(原 Handle)，不按 Class 重找 Spec。",
+      "text": "4. ActivateAbility::ExecuteTask 消费请求。\nConsumeActionSelection核对原Set/Phase/\nASC/Tag/Class/Spec/Avatar，再清黑板。\n先订阅OnAbilityTerminationCompleted，\nTryActivateAbilityWithTerminationBoundary\n只提交原Handle，不按Class换Spec。\n保存Result的固定Original；同步历史已封存。\n未取得可等待原身份→清自身等待并失败。",
       "x": 1480,
       "y": 351,
       "width": 460,
@@ -53,7 +53,7 @@
     {
       "id": "execute",
       "type": "text",
-      "text": "5A. 成功：GA 驱动 Montage / Trace / GE；任务等能力结束。\n\nGA::ActivateAbility → Montage Task/Trace/GE；BTTask::HandleAbilityEnded 对同一 Handle 收尾并返回结果。",
+      "text": "5A. Accepted → 固定Original。\n同步读原完成历史；异步\nHandleTerminationCompleted匹配原Completed。\nCleanupBinding→原正常Succeeded/取消Failed，\n再FinishLatentTask；不以End广播冒充完成。\n[[BossAI/结构|GA原资源链]]；正式BT动态未验。",
       "x": 1480,
       "y": 824,
       "width": 420,
@@ -63,7 +63,7 @@
     {
       "id": "fail",
       "type": "text",
-      "text": "5B. 失败 → BT 返回 Failed。\n整集无效、无合法候选、来源/Spec 改变或 GAS 拒绝均不执行动作。\nCleanupBinding 清结束监听；重选/重置种子/附身变化/EndPlay 清短期请求。\nBaseWeight=0 不被恢复逻辑启用。",
+      "text": "5B. 来源/配置失效、GAS拒绝或Busy→Failed；\n未取得可等待原身份不换Spec、不自动排队。\nCleanupBinding只撤本等待订阅；Abort/销毁\n不强制Cancel，不用OnTaskFinished清后继。\n重选/种子/附身/EndPlay清Controller短期请求；\nBaseWeight=0不被恢复逻辑启用。",
       "x": 980,
       "y": 824,
       "width": 420,
@@ -112,7 +112,7 @@
       "fromSide": "right",
       "toNode": "execute",
       "toSide": "left",
-      "label": "TryActivateAbility=true → 等 OnAbilityEnded"
+      "label": "Accepted + 固定Original → 消费原同步/异步Completed"
     },
     {
       "id": "e5",
@@ -120,7 +120,7 @@
       "fromSide": "right",
       "toNode": "fail",
       "toSide": "left",
-      "label": "来源失效/激活拒绝 → Failed"
+      "label": "来源失效/拒绝/Busy/无原身份 → 清本等待"
     },
     {
       "id": "e6",

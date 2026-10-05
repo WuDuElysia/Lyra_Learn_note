@@ -3,17 +3,17 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Animation｜结构图\n当前实现与兼容层。运行时图见 [[GGYGO_流程_动画表现.canvas|表现流程]]、[[GGYGO_流程_动画曲线处理.canvas|曲线子图]]；[[Animation/结构|结构文档]]。\n普攻资产：[[Animation/普攻动画实施|契约、调查与验收]]（资产已保存/待接线验收）。",
+      "text": "# Animation｜当前结构与职责\n源动画唯一编辑，Animation发布元数据，CMC独立求值与执行；ABP消费语义组织表现。\n[[Animation/结构|结构文档]] · [[GGYGO_流程_动画表现.canvas|表现流程]] · [[GGYGO_结构_动画曲线.canvas|源曲线结构]] · [[Animation/普攻动画实施|普攻资产]]",
       "x": 0,
       "y": 0,
-      "width": 1450,
+      "width": 3580,
       "height": 210,
       "color": "6"
     },
     {
       "id": "source",
       "type": "text",
-      "text": "## CMC / ASC / Pawn（权威）\nCMC：`GetResolvedGait` / `GetWalkRunBlendAlpha` / `GetStopMotionType` / `HasMoveInput` / `GetTurnBackPhase`。\nASC：GameplayTag 状态。Pawn：位置与朝向。\n[[Movement/结构]] · [[AbilitySystem/结构]]",
+      "text": "## CMC / ASC / Pawn（权威）\nCMC拥有运动段、time/cycle/alpha、请求与胶囊执行。\n公开PublishLocomotionSourceBinding接收原配置；Retire仅撤原producer/代次。\nCapture只读步态/输入/Stop/TurnBack；ASC提供Tag，Pawn提供朝向。\n[[Movement/结构|Movement]] · [[AbilitySystem/结构|GAS]]",
       "x": 0,
       "y": 280,
       "width": 390,
@@ -43,17 +43,17 @@
     {
       "id": "base",
       "type": "text",
-      "text": "## UGGYGOAnimInstanceBase\nInitialize / Uninitialize / Owner 变化共用幂等 Reset：清 Owner、StateFrame、DebugFrame，再调用派生 Hook。\nOwner 变化帧先清旧状态、绑定新 Owner，再抓取 StateFrame。\n语义查询供 AnimBP 过渡图只读使用。",
+      "text": "## UGGYGOAnimInstanceBase\n原Initialize/Update检查Owner与source配置，调用CMC公开sink；配置不变复用binding。\nUninitialize/Owner替换先撤原source代次，再Reset帧/Debug并调用派生Hook。\n持publication handle，不持motion clock或Graph输出。\n语义查询只供ABP读取。",
       "x": 1000,
       "y": 620,
       "width": 420,
-      "height": 320,
+      "height": 400,
       "color": "5"
     },
     {
       "id": "abp",
       "type": "text",
-      "text": "## ABP_Pyrios\n过渡图读取 StateFrame；GetSeqByKey / GetBlendSpaceByKey 取资产。\nEnterMove / Stop / TurnBack 单次播放。\nWalkRun：X 输入读取旧字段 GaitBlendY（显示 Walk Run Blend Alpha）；轴规范名 WalkRunBlendAlpha 待 UE 回读/保存。",
+      "text": "## ABP_Pyrios\n消费StateFrame/兼容字段；查表选Sequence/BS。\n单段不循环；WalkRun1D X仍读GaitBlendY（alpha）。\nFullBody已Gate82保存，AlwaysUpdateSourcePose=true。\n本次未改Player/Evaluator/相位；不承诺视觉与物理同clock。",
       "x": 1000,
       "y": 1060,
       "width": 420,
@@ -63,27 +63,27 @@
     {
       "id": "compat",
       "type": "text",
-      "text": "## UZZZAnimInstance / Snapshot（兼容）\nStateFrame → 旧 Snapshot 的纯适配。派生 Reset Hook 清 Memory、Snapshot、Events 上下文和公开表现字段，保留 AnimSet/Tuning。\n`MapMovementState()` 只复制 WalkRunBlendAlpha 并映射 StopMotionType → StopValue 0/1/2；不再插值或计时。[[计划_动画与表现层]]",
+      "text": "## UZZZAnimInstance / Snapshot（兼容）\nResolveLocomotionSourceBinding解析本人AnimSet；检查真实引用/rate/length/BS样本配置。\nStateFrame→旧Snapshot；MapMovementState只复制alpha→GaitBlendY，Stop→StopValue。\nReset清Memory/Snap/Events借用与表现字段，保留AnimSet/Tuning。\n无走跑插值、早停或曲线计时器。",
       "x": 500,
       "y": 750,
       "width": 420,
-      "height": 380,
+      "height": 420,
       "color": "3"
     },
     {
       "id": "data",
       "type": "text",
-      "text": "## FZZZAnimSet / FZZZAnimTuning\n动画键到序列/BlendSpace 的表与混合参数；曲线链见 [[GGYGO_结构_动画曲线.canvas|曲线结构子图]]。",
+      "text": "## FZZZAnimSet / Tuning\n五个single route→既有序列表；walkRun→实际BS，Loop来自BS样本。\n六个SourceKey是明确配置，缺key/asset携Error，不选替代。\n[[GGYGO_结构_动画曲线.canvas|源引用与算法]]",
       "x": 0,
       "y": 1050,
       "width": 390,
-      "height": 230,
+      "height": 280,
       "color": "4"
     },
     {
       "id": "contract",
       "type": "text",
-      "text": "## 事实到表现的接口边界\n生命周期边界 → ResetAnimationLifecycleState → 基类清理 → OnAnimationLifecycleReset；A → nullptr → B 不复用旧 Pawn 数据。\nUE → AnimInstanceBase::NativeUpdateAnimation(dt) → StateCapture::Capture(OutState, OutDebug, Pawn)。\nCapture 从 CMC/ASC/Pawn 读权威事实，写 AnimationStateFrame；AnimBP 通过查询函数/StateFrame 决定状态、资产与过渡。\nZZZAnimInstance::NativeUpdateAnimation → LegacySnapshotAdapter::Capture → MapMovementState，仅维护现有 ABP 的序列化兼容字段。\nAnimBP 不回调 CMC 决定位移；CMC 的 Locomotion 曲线来自独立 Profile，生产资产接线待 UE 窗口。",
+      "text": "## 配置与表现两种接口\nAnimation→CMC：immutable source binding，仅引用/metadata/身份，无曲线副本。\nCMC/ASC→Capture→ABP：只读语义；Graph速度不反馈CMC。\nMissing/Invalid可接收但不授曲线执行；CMC在必需请求拒绝，Fixed/GA不误报。\nOwner/config退休仅清本人旧代次；强资产引用有界，残留快照不授权后继。\n七旧Locomotion DA已解绑/删除/fresh冷读；历史类/工具仍保留。",
       "x": 0,
       "y": 1490,
       "width": 1450,
@@ -113,7 +113,7 @@
     {
       "id": "combo_ga",
       "type": "text",
-      "text": "## 战斗侧 GA（跨模块契约）\nUGGYGOPlayerComboAbility / FGGYGOComboStep 持有各段 Montage 引用。\nGA 决定换段、输入缓存、伤害和异常清理；动画不保存角色级战斗状态。\n[[计划_玩家普攻连段|GA 实施计划]]",
+      "text": "## 战斗侧 GA（跨模块）\nPlayerCombo/ComboStep引用本段Montage，GA管换段、缓存与资源。\nSlot已接；当前无动作位移接管，完整命中/网络未验。\nAnimation不持角色级战斗状态。\n[[计划_玩家普攻连段|GA与验收]]",
       "x": 1040,
       "y": 2100,
       "width": 440,
@@ -123,7 +123,7 @@
     {
       "id": "combo_notify",
       "type": "text",
-      "text": "## GameplayEventWindow（已配置/回读）\n60 fps：Hit=4–14 / 4–15 / 20–54。\nCombo=16–115 / 17–99 / 56–102，分别跨入 End 14/18/18 帧。\n独立轨发 Event.Montage 的 ComboWindow 与 HitWindow Begin/End；游戏内待验收。",
+      "text": "## GameplayEventWindow\nHit/Combo独立时间窗口已配置并回读，Begin/End发GameplayEvent。\nGA检验原播放来源，Combat负责命中去重；伤害走GAS。\n窗口保存不等于攻击位移或整链运行通过。\n[[Animation/普攻动画实施|帧区间与边界]]",
       "x": 520,
       "y": 2380,
       "width": 440,
@@ -133,7 +133,7 @@
     {
       "id": "combo_slot_gate",
       "type": "text",
-      "text": "## FullBody Slot（骨架已注册）\n当前 ABP 主图无 Slot，最终接线暂停。\nModifyBone 固定 Bip001 组件位置；CMC 已改用独立 Locomotion Profile，不再反读 AnimInstance 曲线。\n待资产接线后验证网格/胶囊一致性。\n[[Animation/普攻动画实施|证据与当前缺口]]",
+      "text": "## FullBody Slot（已接线保存）\nGate82：原空间修正前，AlwaysUpdateSourcePose=true；其余约定图/AnimSet/Tuning保持。\nBlendOut回持续更新的locomotion源姿态。\nPlayerCombo尚无动作位移接管；网格/胶囊、Run/网络未验。\n[[Animation/普攻动画实施|普攻接缝]]",
       "x": 0,
       "y": 2380,
       "width": 440,
@@ -168,7 +168,7 @@
       "width": 800,
       "height": 420,
       "color": "5",
-      "text": "## UGGYGOMontageGuardAnimInstance\nAnimation Runtime薄原生播放屏障；继承UAnimInstance，项目Base已继承它。\n唯一持有ScopeChain借用登记与LifecycleGeneration/CallId；不拥有Caller栈Scope、引擎实例或GAS播放状态。\nInitialize/Uninitialize/观测Owner变化令身份失效；旧Scope各自按身份注销，不清链释放调用者存储、不停止新Owner播放。\n公开IdentityCurrent与StageQuery；Montage_PlayInternal由既有引擎执行。\n生产AnimClass迁移未完成；严格P1/网络仍开放。\n[[Animation/结构#Montage播放Guard的静态契约|职责与接口]]"
+      "text": "## UGGYGOMontageGuardAnimInstance\nBase已继承的原生播放屏障；引擎执行Montage。\n仅持ScopeChain借用登记与生命周期身份，不拥有Caller栈Scope/GAS播放状态。\n生命周期失效后旧Scope只注销原登记，不停新Owner播放。\n[[Animation/结构#Montage播放Guard的静态契约|Guard接口]]"
     },
     {
       "id": "montage_scope",
@@ -188,7 +188,7 @@
       "width": 860,
       "height": 550,
       "color": "6",
-      "text": "## 只读阶段查询｜Guard公开方法\nTryGetCurrentMontagePlayGuardStage(CallerIdentity,OutNativeStage,bOutCompleted) const\nGameThread：只看ScopeChain.Last()，登记/原Guard/Caller/生命周期身份匹配。\ntrue复制NativeStage及bSealed；false先Reset为NotEntered/false。\n查询无祖先回查、外部谓词、生命周期刷新或新状态，不要求实例活跃。\n即时副本；外调后重查。Returned不等于ASC Super完成，Completed不等于来源发布；不授Task资源权限。\n生产该查询消费者未接；成功/不可用均非Accepted或ASC/GA权限证明。\n本节点是接口说明面板，不是另一个持状态对象。\n[[Animation/结构#Montage播放Guard的静态契约|查询边界]]"
+      "text": "## Guard只读阶段查询\nTryGetCurrentMontagePlayGuardStage(CallerIdentity,OutNativeStage,bOutCompleted)\nGT只看最内层原登记/身份；false先Reset。\n无祖先替代、外部谓词或生命周期刷新；外调后重查。\nReturned/Completed只代表原生返回/Scope封存，不授Task/GA资源权限。\n[[Animation/结构#Montage播放Guard的静态契约|查询边界]]"
     },
     {
       "id": "montage_callers",
@@ -198,7 +198,17 @@
       "width": 800,
       "height": 490,
       "color": "4",
-      "text": "## ASC / Task｜跨模块责任边界\nASC：PlayMontageWithGuard持有Caller栈Scope；CallerIdentity=原ASC，包住完整Super调用并复制结果。Local/Rep/GA/预测状态仍归GAS。\nTask：当前Activate→ASC::PlayMontage；自身维护事件/委托、播放来源核验和RootMotionScale lease，清理自身资源。\n该阶段查询尚无生产消费者；不画Query→ASC/Task已接边。\nReturned/Completed均不授Task播放/停止/lease/委托权限；调用方须验证自身来源与生命周期。\n生产AnimClass迁移、严格P1及网络未闭合。\n[[AbilitySystem/结构|ASC与Task职责]]"
+      "text": "## ASC / Task（原资源归属）\nASC调用栈覆盖Super播放并复制Guard结果；GAS保有Local/Rep/GA/预测状态。\nTask.Activate→TryPlayMontageWithOwnership：消费原Result/Handle/Guard，管理自己事件/委托/Scale lease。\n精确Clear和Completed不借后继权限；资源终止详见[[AbilitySystem/结构|ASC/Task]]。\nsource迁移不扩大播放授权。"
+    },
+    {
+      "id": "source_binding",
+      "type": "text",
+      "text": "# Source binding（native DTO）\nIdentity：原Producer/Character/Mesh、lifecycle/config代次。\n强Sequence/BS引用＋loop/rate/length/样本位置；无曲线副本、Graph状态或clock。\nStatus/Error明确；当前binding与原SavedMove有界保留，失效不能授权后继。\n[[Animation/曲线处理#1. 当前职责与依赖方向|发布与退休]]",
+      "x": 1760,
+      "y": 2500,
+      "width": 800,
+      "height": 360,
+      "color": "4"
     }
   ],
   "edges": [
@@ -272,7 +282,7 @@
       "fromSide": "right",
       "toNode": "combo_montages",
       "toSide": "left",
-      "label": "FGGYGOComboStep 引用 Montage（目标）"
+      "label": "ComboStep引用Montage，GA管播放生命周期"
     },
     {
       "id": "combo_events_ga",
@@ -280,7 +290,7 @@
       "fromSide": "right",
       "toNode": "combo_ga",
       "toSide": "left",
-      "label": "窗口发 GameplayEvent；GA 消费（待集成验收）"
+      "label": "GameplayEvent窗口由GA校验原来源后消费"
     },
     {
       "id": "combo_slot_pose",
@@ -288,7 +298,7 @@
       "fromSide": "right",
       "toNode": "combo_slot_gate",
       "toSide": "left",
-      "label": "按 FullBody Slot 输出姿势（待接线）"
+      "label": "FullBody已接；输出姿态，非动作位移接管"
     },
     {
       "id": "kevin_combat_source",
@@ -338,6 +348,38 @@
       "toSide": "left",
       "label": "公开只读方法契约（接口说明关联）",
       "color": "6"
+    },
+    {
+      "id": "source_config_binding",
+      "fromNode": "data",
+      "fromSide": "right",
+      "toNode": "source_binding",
+      "toSide": "left",
+      "label": "ZZZ按明确routes解析原资产与BS样本"
+    },
+    {
+      "id": "base_source_binding",
+      "fromNode": "base",
+      "fromSide": "right",
+      "toNode": "source_binding",
+      "toSide": "left",
+      "label": "Base持有immutable publication handle"
+    },
+    {
+      "id": "base_source_sink",
+      "fromNode": "base",
+      "fromSide": "right",
+      "toNode": "source",
+      "toSide": "left",
+      "label": "调用公开Publish/Retire，仅配置与生命周期"
+    },
+    {
+      "id": "source_binding_moves",
+      "fromNode": "source_binding",
+      "fromSide": "right",
+      "toNode": "source",
+      "toSide": "left",
+      "label": "CMC/SavedMove有界保留原const binding"
     }
   ]
 }

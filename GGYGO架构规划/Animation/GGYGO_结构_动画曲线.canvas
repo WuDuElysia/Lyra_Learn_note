@@ -3,17 +3,17 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# 动画曲线｜运行时结构与独立Editor工具\n类、数据、接口及唯一状态归属见本图；箭头标签表示持有、调用、返回与只读数据，预测双向边表示语义／时钟基线往返。\n[[Animation/曲线处理|完整实现说明]] · [[Animation/结构|Animation接口]] · [[Movement/结构|Movement接口]] · [[GGYGO_流程_动画曲线处理.canvas|调用流程]]\n右侧Editor不参与move、无播放时钟。作者已编译，七Profile完整同进程回读与默认Set七引用保存通过；新进程仅引用／19参数／八资产校验通过，完整冷曲线、正式Hero／ABP／Run、网络及视觉未验。",
+      "text": "# 源动画曲线｜结构与唯一状态归属\n箭头标明调用/持有/数据；Animation仅发布元数据，CMC owns motion clock/请求/胶囊。\n[[Animation/曲线处理|算法与边界]] · [[Animation/结构|Animation]] · [[Movement/结构|Movement]] · [[GGYGO_流程_动画曲线处理.canvas|流程图]]",
       "x": 0,
       "y": 0,
-      "width": 2540,
+      "width": 3660,
       "height": 280,
       "color": "6"
     },
     {
       "id": "asset",
       "type": "text",
-      "text": "## MovementSet：配置与引用\n`UGGYGOMovementSet`（数据资产）\n持有 WalkStart / WalkLoop / RunLoop / StartStop / WalkStop / RunStop / TurnBack 七Profile引用。\n\n`ValidateMovementSet(Error)`\n输入：明确模式、速度/Scale参数、引用。\n曲线模式要求七Profile及Loop约束、Profile校验；显式fixed模式允许空Profile，通用参数仍须合法。\n输出：bool + 可定位Error，不持有播放状态。\n\nCMC的 `SetMovementSet(NewSet)` 仅接受校验成功配置；拒绝后保持未接纳状态。\n[[Movement/结构|Movement配置责任]]",
+      "text": "## MovementSet：模式/数值配置\nSetMovementSet/ValidateMovementSet验证明确Fixed/曲线模式与参数。\n曲线模式不再要求七Profile；默认Set七废弃引用null、原十九参数bit保持。\nActionMotionProfile归独立动作链。\n七Locomotion DA已删除；不得作运行兜底。\n[[Movement/结构|配置归属]]",
       "x": 0,
       "y": 320,
       "width": 520,
@@ -23,7 +23,7 @@
     {
       "id": "anim",
       "type": "text",
-      "text": "## Animation：只读表现事实\n`FGGYGOAnimationStateCapture`\n`Capture(OutState,OutDebug,Pawn)`\n由 `AnimInstanceBase::NativeUpdateAnimation` 在游戏线程调用：先Reset输出，只读Pawn/CMC/ASC。\nStateFrame：步态、输入、WalkRun混合、Stop/转身语义；CurveMotion读取用于DebugFrame。\n\n抓帧器无跨帧缓存；ABP选姿态/过渡。\n不反写CMC、不选择Profile或推进移动时钟；Owner/表现帧清理由Animation生命周期负责。\n[[Animation/结构|Animation接口]] · [[AbilitySystem/结构|ASC事实]]",
+      "text": "## Animation：发布配置＋只读抓帧\nZZZ.ResolveLocomotionSourceBinding解析本人AnimSet；Base在原Native生命周期发布原身份/metadata。\nPublish(binding,error)接收Missing/Invalid状态，必需曲线执行时由CMC拒绝；Fixed/GA不误报。\nUninitialize/Owner/config退出→Retire(originalProducer,originalConfigGeneration)，仅撤原代次。\nStateCapture读当时CMC/ASC/Pawn，Frame给ABP语义，CurveMotion入Debug。\n无Graph曲线反读、求值器或motion clock。\n[[Animation/结构|生命周期与接口]]",
       "x": 0,
       "y": 1900,
       "width": 520,
@@ -33,17 +33,17 @@
     {
       "id": "sampler",
       "type": "text",
-      "text": "## 历史Sampler（当前CMC无调用）\n`FGGYGOAnimCurveSampler`\n`Sample(AnimInstance,dt,out)` / `ResetBaseline()`\n旧GetCurveValue读取Cfg/Speed/Pos/Dist/Yaw/Dir；Cfg或旧信号判来源，持有累计量跨帧基线并差分。\n旧非有限归零、钳零、缺方向差分替代不属于当前Profile契约。\n\n`FGGYGOAnimCurveMotion` 是当前Sample的兼容别名。\n本节点无当前运行时边；不把旧基线清理写成CMC现行机制。\n[[Animation/曲线处理#7. 历史Sampler与Editor读回边界|历史/Editor边界]]",
+      "text": "## 历史Sampler（无生产边）\nFGGYGOAnimCurveSampler仍在源码，CMC无调用。\n旧GetCurveValue/Cfg来源猜测、跨帧累计Pos/Yaw差分、非有限归零/缺方向替代不是当前契约。\nFGGYGOAnimCurveMotion只是sample兼容别名。\n不恢复旧业务兜底。\n[[Animation/曲线处理#7. 历史Sampler与Editor读回边界|历史]]",
       "x": 0,
       "y": 2880,
       "width": 520,
       "height": 610,
-      "color": "5"
+      "color": "3"
     },
     {
       "id": "motion",
       "type": "text",
-      "text": "## 当前区间样本（CMC owns）\n`FGGYGOLocomotionCurveSample`\nSpeed、Direction、Velocity、DirectionAngle、YawDelta/Total、ClipLength、loop/authored-direction/source标志。\nProfile当前不生成PositionDelta，`bHasPositionDelta=false`。\n\n`bHasCurveSource`：纯求值成功来源，包括合法零速；由CMC持有当前结果并Reset/提交。\n`HasUsableSpeed()`：来源存在且Speed>KINDA_SMALL_NUMBER，仅刹停/RMS幅值判据。\n\n零/极小正速/零Scale的成功来源资格不由该幅值阈值替换。\nAnimation只读当前CMC样本；RMS只消费原CMC返回的Prepared。样本／Prepared均不立第二时钟或配置权威。\n[[Animation/曲线处理#4. 速度、Yaw与原生RMS消费|资格与消费]]",
+      "text": "## 区间样本（CMC owns）\nFGGYGOLocomotionCurveSample：Speed/Velocity/Direction、YawDelta/Total、source/loop标志。\n单段端点Speed乘真实time rate；WalkRun V=sum(w*源V)，混合速度=|V|。\n有限非零Dir不被epsilon截零；正Speed单源须方向，混合抵消为零合法。\n合法0/极小值/0Scale保留来源；PositionDelta不生成。\n样本是区间派生结果，只有CMC Commit/Consume提交；无第二clock。\nRMS仅消费原Prepared。\n[[Animation/曲线处理#4. 速度、Yaw与原生RMS消费|速度与退出]]",
       "x": 760,
       "y": 1900,
       "width": 620,
@@ -53,7 +53,7 @@
     {
       "id": "cmc",
       "type": "text",
-      "text": "## CMC｜唯一语义／时间／请求\nSetMovementSet校验后接纳；失败非fixed。\n普通Before：16字段Candidate→语义／混合→纯数学→成功Commit；失败Reject原执行号，0号不补号。\n曲线Stop／TurnBack：Stage暂存原Input／Origin并挂源，等待真实Prepare，不预支区间。\n同Completed Origin：普通求剩余clip并Commit，不重挂原物理执行。\nPrepareLocomotionCurveRootMotion校验原关系，native时间＋固定锚点映射Motion区间，返回Prepared／Finished等。\n正常Prepare由CMC一次Consume；回放Prepare只产出结果，Before消费。FAILED不恢复，旧源不失败后继。\nOrigin／Input／Prepared只属原执行身份、输入与派生资源；CMC唯一提交段时间／相位／转身／CurveMotion。\nCMC挂载／退自有源；CMC／原生物理唯一执行胶囊，RMS只提供速度贡献。\nGetMaxSpeed合法值含0；fixed仅显式配置。无动画反读，生产Hero／Run未验。\n[[Movement/结构|接口／生命周期]]",
+      "text": "## CMC｜唯一时钟/请求/胶囊\n公开Publish/Retire接收原source配置；GetBinding/Validate重验原身份与状态。\nBefore候选按motion/cycle/alpha调用纯源重载；成功才Commit，失败Reject原请求。\nStop/TurnBack Stage暂存原binding/Input/Origin并挂源，等待实际Prepare；Completed仅续剩余clip。\nPrepare按原关系和实际区间求值；正常一次Consume，回放Before消费。\nauthority保留原合法binding/native interval，清旧派生Prepared并重算，不借旧结果覆盖校正。\nCMC唯一提交time/cycle/phase/CurveMotion；RMS只供速度，CMC/原生物理移动胶囊。\nFixed正常，Missing/Invalid/Stale不兜底。\n[[Movement/结构|实际接口]]",
       "x": 1620,
       "y": 320,
       "width": 800,
@@ -63,7 +63,7 @@
     {
       "id": "rms",
       "type": "text",
-      "text": "## 原生Curve RMS｜原执行贡献\n`FRootMotionSource_GGYGOCurve` 持原Origin；Clone保留同一引用，仍须校验原关系。同名／LocalID不是来源证明。\n\nPrepareRootMotion(实际sim,tick,Character,CMC)\n→ 原CMC.PrepareLocomotionCurveRootMotion\n输入原Source／Origin及真实区间；返回Prepared／Finished／Stale／Failed／UnsupportedOrigin。\n只消费Prepared.OverrideVelocity并SetTime(NativeEnd)，不读取当前CurveMotion或自行选择／求值Profile。\n固定入口BaseYaw旋转缩放端点速度×sim/tick；非精确位移积分。转身入口Yaw，刹停首次安装朝向。\nBrake低／零速及离地按真实生命周期Finished并保动量；TurnBack可留场零水平速度，Z不Override。\n失败只报告仍匹配原请求；旧源仅退自身，不影响后继。\nNetSerialize保留原wire字段／BaseYaw／Scale／策略，加载清本地Origin／Prepared；导入Origin不支持，不以默认来源成功。",
+      "text": "## 原Curve RMS｜执行贡献\n持原Origin/binding；Clone保留引用，不认证同名/LocalID。\nPrepareRootMotion(actual sim,tick)→原CMC.PrepareLocomotionCurveRootMotion。\n返回Prepared/Finished/Stale/Failed/UnsupportedOrigin；只写返回世界速度与native EndTime。\n端点速度×sim/tick经BaseYaw转换，非精确位移积分。\nStop实际源Speed=0可自然结束；TurnBack按既定phase/段语义退出。mixed zero不结束其它资源。\n失败仅报告仍匹配原请求，旧源只退自身。\nNetSerialize加载清本地Origin/Prepared；外来Origin认证未支持。",
       "x": 1620,
       "y": 1900,
       "width": 800,
@@ -73,7 +73,7 @@
     {
       "id": "saved",
       "type": "text",
-      "text": "## SavedMove｜原move记录／重演\n`FSavedMove_GGYGO`\nSetMoveFor保存普通起始语义／段时间／共相位／混合／Sequence／转身基线。\nPostUpdate记录本move原Input／Prepared（含样本和有界候选）或PendingInput；首次挂源也记录，有原Input不合并。\n\nPrepMoveFor先BeginReplay原Input／Prepared／Source组，再native Super；Super可能Prepare SavedRootMotion。Finish清临时组指针。\nBefore一次Consume匹配的已有或实际生成原结果；缺结果Reset，不伪造整帧区间。普通非RMS仍恢复起始基线再求值。\n权威Response清样本／设置基线；权威重演阻止旧普通基线覆盖，出口检查原失败／后继关系。\nClear清本move引用，EndReplay清上下文；残留引用不授准入，FAILED不恢复。\nMoveData仅语义hint；NetSerialize不传本地Origin，完整authority／proxy协调未验。\n[[Animation/曲线处理#5. 预测恢复与Animation只读Capture|重演契约]]",
+      "text": "## SavedMove｜原source与实际区间\nSetMoveFor保存原binding与普通time/cycle/alpha/段/转身基线；不同publication不合并。\nPostUpdate另存原Input/Prepared/Pending，均为有界派生引用。\nPrepMoveFor先安装原binding/Input/Source group，再native Super；Finish清借用组。\n普通replay按原上下文消费；缺原准备区间不造整帧dt。\nauthority清旧派生Prepared，用原合法binding及native interval沿新基线重算。\nFAILED不重开、旧binding不授权后继；Clear/EndReplay/EndPlay清本人引用。\nMoveData仍hint，导入Origin/完整网络未验。\n[[Animation/曲线处理#5. 预测恢复与Animation只读Capture|重演契约]]",
       "x": 760,
       "y": 2880,
       "width": 620,
@@ -83,7 +83,7 @@
     {
       "id": "profile",
       "type": "text",
-      "text": "## 独立Locomotion Profile\n`UGGYGOLocomotionMotionProfile`\n数据：Speed(cm/s)、DirX/DirY(X前/Y右)、累计Yaw(deg)、Duration、bLoop、源标识/指纹。\n\n`ValidateProfile(Error)`：曲线/keys/时长校验。\n`EvaluateInterval(t0,t1,out,error)`：\n输入有限非负t0/t1且t1≥t0；入口Reset样本并清可选Error，每次校验。\n非循环：两端Clamp；Speed/Dir取t1。\n循环：相位采Speed/Dir，Yaw按周期增量解绕；YawDelta=Yaw(t1)-Yaw(t0)。\n成功：完整OutSample、true/可选Error空；合法零速有来源，正速须有效方向。\n失败：false、完整Reset、可选字段原因。\n\n纯求值：资产不变，无播放时钟/日志/缓存；调用方负责消费失败。\n[[Animation/曲线处理#2. Profile数据与EvaluateInterval契约|完整区间契约]]",
+      "text": "## Source binding（不可变元数据）\nFGGYGOLocomotionSourceBinding\nIdentity：weak原Producer/Character/Mesh＋生命周期/config代次。\nStatus/Error；五单段Source；实际WalkRun BS与sample descriptor。\nStrong资产refs，loop、SequenceRateScale、SampleRateScale、PlayLength/样本位置。\n当前binding和既有有界move记录保留；引用不是执行准入。\nGetSingleSource(MotionType)/GetWalkRunSample(index)只读查询。\n无曲线副本、Graph输出、move时钟；旧DA不在本节点。\n[[Animation/曲线处理#1. 当前职责与依赖方向|发布/退休]]",
       "x": 760,
       "y": 320,
       "width": 620,
@@ -93,7 +93,7 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## 当前验证与剩余边界\nC37单／双数学失败消费已编译，公开AuthorityAndMapping夹具已复测通过；合成来源不证明正式Input或Run。\n本地原Origin／实际区间／Prepared一次消费／原move重放已实现。六源与Gate59／60冻结版一致，Runtime已编译；Camera叶仅证其专项，Gate61 Character／Combatants Host两叶Success仅证本专项，不证明移动动态。\n首帧、partial／zero／catchup、重放后继隔离、完整authority／proxy匹配和校正仍未验。\n七Profile同进程完整字段／bit通过，默认Set七引用已保存；新进程七引用／19参数／八资产VALID通过，无保存。\n完整冷FRichCurve逐位回读、ABP生产接线、正式Hero／PIE／网络／Run未验；原失败保留。\n[[Animation/曲线处理#6. 当前失败消费缺口与实施状态|运行边界]] · [[Animation/曲线处理#8. Editor单Profile作者与保存边界|作者与资产边界]]",
+      "text": "## 当前证据/剩余边界\nSource6b7361d已push，Gate91编译exit0。\n必要四烟3Success/1Fail；FailedRequestRecovery原两配置Error与请求3恢复标记仍Fail，未改绿。\n三DirX键精确修正并fresh冷读；其它约定字段保持，raw骨键/Channel未验。\n七旧DA已解绑/删除/fresh Registry及cold Set验证；强source引用不复制曲线。\nABP FullBody Gate82已保存；Player/Evaluator相位未迁，不承诺视觉同clock。\n真实Run/生产Stop、DS/网络/首帧/partial/catchup/后继隔离与PlayerCombo位移仍未验。\n[[Animation/曲线处理#6. 当前失败消费缺口与实施状态|证据范围]]",
       "x": 1620,
       "y": 2880,
       "width": 800,
@@ -103,7 +103,7 @@
     {
       "id": "evaluation",
       "type": "text",
-      "text": "## 无状态数学｜GGYGOLocomotionEvaluation\nEvaluateSingleInterval(Profile,t0,t1,Scale,out,error) → 样本／缩放结果。\nEvaluateWalkRunInterval(Walk,Run,phase,dt,alpha,Scale,out,error) → 双成功混合／未回绕末相位。\n调用Profile.EvaluateInterval，端点也要求双Loop；失败Reset／原原因，不提交调用方时钟。\n无播放状态、缓存、日志；CMC成功后唯一Commit。\n[[Movement/结构|候选与失败接口]]",
+      "text": "## Movement纯源求值\nValidateSource/ValidateBinding→明确源/曲线/原metadata验证。\nEvaluateSingleInterval(Source,t0,t1,Scale)。\nEvaluateWalkRunInterval(Binding,cycle,dt,alpha,Scale)：实际BS权重/native period→各源速度向量后混合。\nEvaluateCurveData读取源，合法mixed zero成功。\n返回Sample/Scaled结果与数学末相位，不写clock/请求/Graph缓存。\n[[Animation/曲线处理#2. 源动画数据与区间求值契约|算法]]",
       "x": 760,
       "y": 1240,
       "width": 620,
@@ -113,7 +113,7 @@
     {
       "id": "editor-readers",
       "type": "text",
-      "text": "## Editor读取器与值副本\n`UGGYGOAnimationCurveReadLibrary`\nReadFloatCurves(Source,Names,out,Duration,Error) → 完整FFloatCurve与源double时长；唯一读取／校验公开DataModel。\n\n`UGGYGOAnimationCurveSnapshotLibrary`\nReadFloatCurveSnapshot(Source,Names) → Result{succeeded,curves,duration_seconds,error}；只调用R1一次，复制Name／Flags／Default／外推及九键字段。\n\n副本归调用者，无源句柄、缓存、求值或资产修改。七源完整Snapshot及正式默认根已只读回读。当前七Profile已保存，默认Set七引用已接；完整冷曲线／Run未验，资产证据与读取器职责分开。\n[[Animation/曲线处理#7. 历史Sampler与Editor读回边界|读取边界]]",
+      "text": "## Editor读取器（工具值副本）\nReadFloatCurves→完整公开DataModel曲线/源double时长。\nReadFloatCurveSnapshot→调用一次R1，输出Name/Flags/Default/外推/九键字段等同步副本。\n副本归调用者，无运行source handle/clock/缓存。\n用于明确源诊断与冷读；不成为CMC输入或新曲线DA。\n[[Animation/曲线处理#7. 历史Sampler与Editor读回边界|读取边界]]",
       "x": 2700,
       "y": 320,
       "width": 960,
@@ -123,22 +123,42 @@
     {
       "id": "editor-profile-author",
       "type": "text",
-      "text": "## Editor单Profile作者｜已编译、七产物通过\n`UGGYGOLocomotionMotionProfileAuthorLibrary`\nCreateOrInspectProfile(Source,SourcePath,ExpectedSnapshot,TargetObjectPath,DurationSeconds,bLoop)\n\n输入：显式源、完整四曲线Snapshot与/Game/Package.Object。重新R1比对源；候选ValidateProfile＋位级回读；整FRichCurve赋值，ExternalCurve空，不重算切线。\n\n输出Result：Failed无Profile＋定位Error；CreatedUnsaved交付待保存Profile；ExistingMatched只读一致目标。既有差异／脏包不覆盖。\n\nProfileReadback：实际float时长／Loop／源标识／指纹／四曲线；源Name／Flags仅入版本化BLAKE3指纹。\n创建／dirty回调返回后复核身份与内容；失败只清本调用Profile，外部包／rooted／外来内容保留诊断。\n\n接口不注册、保存或配置MovementSet，无运行时状态。调用者已逐包精确保存并完整同进程回读；Start固定R1只读、不再保存，原失败保持。\n默认Set七引用已保存，冷进程引用／参数／原生校验通过；完整冷RichCurve／Run未验，CMC仍唯一执行。\n[[Animation/曲线处理#8. Editor单Profile作者与保存边界|完整契约]] · [[Movement/结构|Profile消费者]]",
+      "text": "## 历史独立Profile作者（退出生产）\nCreateOrInspectProfile(Source,Path,Snapshot,Target,Duration,Loop)。\n重新R1比较源，整FRichCurve复制，不重算切线；ExistingMatched只读，CreatedUnsaved由调用者精确保存。\n类/作者/旧求值重载与失败证据保留；无边进入CMC生产链。\n2026-10-04七DA生成/接线为历史，七生产盘包现已删除。\n不自动恢复副本或用它补缺源。\n[[Animation/曲线处理#8. Editor单Profile作者与保存边界|历史/退役]]",
       "x": 2700,
       "y": 1240,
       "width": 960,
-      "height": 1160,
-      "color": "5"
+      "height": 800,
+      "color": "3"
+    },
+    {
+      "id": "source-editing",
+      "type": "text",
+      "text": "## 当前源动画唯一编辑\nSpeed/DirX/DirY/Yaw保存在Sequence。\n生成器保留有限非零方向与速度；只压真正恒定序列。\nRun_End83/99、Walk_End151仅DirX现键0→1，精确保存/fresh冷读。\n其它约定字段保持；raw骨键/Channel未验。",
+      "x": 2700,
+      "y": 2600,
+      "width": 960,
+      "height": 470,
+      "color": "4"
+    },
+    {
+      "id": "profile-retirement",
+      "type": "text",
+      "text": "## 七旧Locomotion DA已退役\n八包备份→Set七引用null/十九参数bit保持→Registry incoming空。\nCLI退出后离线删除七包，fresh Registry目标/依赖节点不存在。\ncold Set/源包/备份保持，dirty=[]。\n独立ActionMotionProfile归动作链；不证明Run/网络。\n[[Animation/曲线处理#8. Editor单Profile作者与保存边界|证据]]",
+      "x": 2700,
+      "y": 3300,
+      "width": 960,
+      "height": 460,
+      "color": "6"
     }
   ],
   "edges": [
     {
       "id": "e1",
-      "fromNode": "asset",
+      "fromNode": "anim",
       "fromSide": "right",
       "toNode": "profile",
       "toSide": "left",
-      "label": "持有：七Profile引用\n曲线模式校验"
+      "label": "解析现有routes并冻结原source元数据"
     },
     {
       "id": "e2",
@@ -146,15 +166,15 @@
       "fromSide": "top",
       "toNode": "cmc",
       "toSide": "bottom",
-      "label": "只读依赖：Capture查询CMC事实\nASC事实由Animation跨模块查询"
+      "label": "公开Publish/Retire配置；Capture只读语义，非Graph反馈"
     },
     {
       "id": "e3",
-      "fromNode": "profile",
+      "fromNode": "evaluation",
       "fromSide": "bottom",
       "toNode": "motion",
       "toSide": "top",
-      "label": "返回：OutSample由CMC接收\n成功完整值 / 失败Reset+可选原因"
+      "label": "成功完整Sample/Scaled结果，失败Reset+Error"
     },
     {
       "id": "e4",
@@ -196,7 +216,7 @@
       "fromSide": "left",
       "toNode": "profile",
       "toSide": "right",
-      "label": "经纯数学层调用Profile区间；消费成功／原错误"
+      "label": "持有/重验原const binding与move来源"
     },
     {
       "id": "e9",
@@ -220,7 +240,31 @@
       "fromSide": "bottom",
       "toNode": "editor-profile-author",
       "toSide": "top",
-      "label": "显式Snapshot值作为作者输入；作者重新调用R1核对源"
+      "label": "仅历史显式工具输入，非生产路径"
+    },
+    {
+      "id": "binding-math",
+      "fromNode": "profile",
+      "fromSide": "right",
+      "toNode": "evaluation",
+      "toSide": "left",
+      "label": "显式Source/BS metadata＋资产引用，无clock"
+    },
+    {
+      "id": "source-reference",
+      "fromNode": "source-editing",
+      "fromSide": "right",
+      "toNode": "profile",
+      "toSide": "left",
+      "label": "运行binding仅引用同一源资产，不复制曲线"
+    },
+    {
+      "id": "retired-set",
+      "fromNode": "profile-retirement",
+      "fromSide": "right",
+      "toNode": "asset",
+      "toSide": "left",
+      "label": "当前七废弃引用null，模式/参数保持"
     }
   ]
 }

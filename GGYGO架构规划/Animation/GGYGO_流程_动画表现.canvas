@@ -3,10 +3,10 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Animation｜流程图\n一帧只读语义如何进入 AnimBP；类关系见 [[GGYGO_结构_动画与表现.canvas|结构图]]、[[Animation/结构|结构文档]]。动画曲线另见 [[GGYGO_流程_动画曲线处理.canvas|子图]]。\n普攻目标：[[GGYGO_流程_玩家普攻连段.canvas|连段流程]] · [[计划_玩家普攻连段]]。\n普攻资产：[[Animation/普攻动画实施|契约、调查与验收]]（资产已保存/待接线验收）。",
+      "text": "# Animation｜表现流程与来源发布\n[[Animation/结构|接口]] · [[GGYGO_结构_动画与表现.canvas|结构图]] · [[GGYGO_流程_动画曲线处理.canvas|源曲线/CMC子图]]。\n主路径是语义到姿态；旁支是原生命周期的配置发布，不新增帧调度。",
       "x": 0,
       "y": 0,
-      "width": 1740,
+      "width": 1960,
       "height": 210,
       "color": "6"
     },
@@ -23,11 +23,11 @@
     {
       "id": "capture",
       "type": "text",
-      "text": "2. AnimInstanceBase 先处理生命周期边界，再捕获一帧 AnimationStateFrame。\n\nInitialize / Uninitialize / Owner 变化共用 Reset；变化帧先清旧状态、绑定当前 Owner，再由 NativeUpdateAnimation → StateCapture::Capture 集中抓取。",
+      "text": "2. Base原生命周期\n先处理Owner/来源退休与配置发布，再StateCapture.Capture抓当时事实。\nReset清原publication、Frame/Debug和派生表现；新Owner不继承旧数据。\n配置旁支不是Graph采样。",
       "x": 470,
       "y": 405,
       "width": 420,
-      "height": 230,
+      "height": 280,
       "color": "5"
     },
     {
@@ -53,11 +53,11 @@
     {
       "id": "play",
       "type": "text",
-      "text": "5. 状态图选动画序列 / BlendSpace。\n\nGetSeqByKey：EnterMove / Stop / TurnBack 单次播放，Idle 循环。\nGetBlendSpaceByKey(WalkRun)：GaitBlendY → X 轴 WalkRunBlendAlpha（0 Walk / 1 Run）。\n单次段不循环，末尾条件才能稳定退出。",
+      "text": "5. ABP选序列 / WalkRun1D\nGetSeqByKey/GetBlendSpaceByKey；EnterMove/Stop/TurnBack单次，Idle/Loop循环。\nWalkRun X仍用GaitBlendY alpha；本批Player/Evaluator/网络相位保持原状。\n最终物理与表现不承诺同clock。",
       "x": 1470,
       "y": 932,
       "width": 420,
-      "height": 230,
+      "height": 300,
       "color": "1"
     },
     {
@@ -73,17 +73,17 @@
     {
       "id": "future",
       "type": "text",
-      "text": "待 UE 资产窗口：创建 Locomotion Profile、写入 MovementSet，并回读 ABP/BlendSpace 接线；源码不再反读 AnimInstance。\n[[计划_动画与表现层]]",
+      "text": "## 原配置publication\nBase→CMC.PublishLocomotionSourceBinding(binding,error)。\n保存原identity/代次及Status/Error，只冻结引用/metadata。\nMissing/Invalid不授曲线执行；必需时CMC拒绝，Fixed/GA正常。\n配置不变不重发/不每帧刷Error。",
       "x": 470,
       "y": 770,
       "width": 420,
-      "height": 190,
-      "color": "3"
+      "height": 400,
+      "color": "4"
     },
     {
       "id": "combo_entry",
       "type": "text",
-      "text": "## 普攻播放入口（待集成）\nGA 通过 Montage Task 播放本段 Main。\n三份 Montage 已保存并静态回读；ABP Slot 尚未接入。\n[[Animation/普攻动画实施|实际资产与验收范围]] · [[计划_玩家普攻连段|GA 规则]]",
+      "text": "## 普攻播放（已有接线）\nGA/Montage Task播放本段Main，FullBody已Gate82保存。\nSlot位于原空间修正前，持续更新locomotion源姿态。\n完整命中/位移/网络未验。\n[[Animation/普攻动画实施|资产]] · [[计划_玩家普攻连段|GA]]",
       "x": 0,
       "y": 1430,
       "width": 430,
@@ -113,7 +113,7 @@
     {
       "id": "combo_return",
       "type": "text",
-      "text": "## FullBody BlendOut → 移动（待实测）\nSlot 混回持续更新的 locomotion 源姿势。\n检查 End→Idle/Walk/Run 与中断回移动。\n当前无 Slot；需联合验证 Bip001 修正、独立 Locomotion Profile 与 ABP 接线。",
+      "text": "## FullBody BlendOut → locomotion\nSlot已接，AlwaysUpdateSourcePose=true；混回持续更新的原源姿态。\nPlayerCombo未申请动作位移接管。\nEnd→Idle/Walk/Run及中断、网格/胶囊与网络仍需实测。",
       "x": 1530,
       "y": 1430,
       "width": 430,
@@ -139,6 +139,26 @@
       "height": 310,
       "color": "5",
       "text": "## Kevin战斗动画（资产待生成）\n55独立Montage；Ice01/02候选窗口；Prop1端点与独立ABP。\n已有资产只读核验，缺失才创建；Movement提供InPlace并执行位移。\n完整链接与3项Animation安全自动化通过；生产资产及玩法待验收。\n[[Animation/资产生产安全|保护契约]] · [[Animation/Kevin战斗动画实施|实施]] · [[GGYGO_流程_Kevin战斗动画.canvas|生成流程]]"
+    },
+    {
+      "id": "source_resolve",
+      "type": "text",
+      "text": "## 原source配置解析\nNativeInitialize/Update发现实际变化→ZZZ.ResolveLocomotionSourceBinding。\n五单段routes＋实际walkRun BS样本；验证refs/rates/length。\n新配置代次单调跨reinit，旧source不授权新Owner。\n源曲线求值归CMC。",
+      "x": 0,
+      "y": 770,
+      "width": 385,
+      "height": 400,
+      "color": "4"
+    },
+    {
+      "id": "source_retire",
+      "type": "text",
+      "text": "## Uninitialize / Owner或配置退出\nBase→RetireLocomotionSourceBinding(originalProducer,originalConfigurationGeneration)，仅撤原publication。\n随后清本实例表现；不清后继source/GA资源。",
+      "x": 0,
+      "y": 1220,
+      "width": 890,
+      "height": 160,
+      "color": "3"
     }
   ],
   "edges": [
@@ -192,11 +212,11 @@
     },
     {
       "id": "e7",
-      "fromNode": "compat",
+      "fromNode": "future",
       "fromSide": "left",
-      "toNode": "future",
+      "toNode": "source",
       "toSide": "right",
-      "label": "资产迁移后再清理兼容字段"
+      "label": "公开source sink：配置数据关联，非每帧Graph反馈"
     },
     {
       "id": "combo_play_events",
@@ -229,6 +249,38 @@
       "toNode": "kevin_combat",
       "toSide": "top",
       "label": "保留源序列，生成独立战斗资产"
+    },
+    {
+      "id": "native_source_resolve",
+      "fromNode": "capture",
+      "fromSide": "right",
+      "toNode": "source_resolve",
+      "toSide": "left",
+      "label": "原Native生命周期：配置变化才解析"
+    },
+    {
+      "id": "resolve_source_publish",
+      "fromNode": "source_resolve",
+      "fromSide": "right",
+      "toNode": "future",
+      "toSide": "left",
+      "label": "冻结Status/Error与原资产/身份"
+    },
+    {
+      "id": "native_source_retire",
+      "fromNode": "capture",
+      "fromSide": "right",
+      "toNode": "source_retire",
+      "toSide": "left",
+      "label": "Uninitialize/Owner或配置替换"
+    },
+    {
+      "id": "retire_source_sink",
+      "fromNode": "source_retire",
+      "fromSide": "right",
+      "toNode": "source",
+      "toSide": "left",
+      "label": "公开Retire只撤原producer/代次"
     }
   ]
 }

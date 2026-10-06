@@ -3,7 +3,7 @@
     {
       "id": "audio-flow-nav",
       "type": "text",
-      "text": "# Audio：动作声与命中声流程\n[[Audio/结构|结构与接口]] · [[GGYGO_结构_音效.canvas|结构图]] · [[Audio/计划_音效接入|计划]] · [[计划蓝图|返回]]\n两资产已保存，原Notify预览IsPlaying=true；原严格failed保留，R1已加载对象语义通过，契约已同步R1。手动组件另验结束／Stop／自身归还；听感／原Notify结束／新GA／完整Section／GC未验。右侧命中配置未验。",
+      "text": "# Audio：动作声与命中声流程\n[[Audio/结构|结构与接口]] · [[GGYGO_结构_音效.canvas|结构图]] · [[Audio/计划_音效接入|计划]] · [[计划蓝图|返回]]\n两资产已保存；正式GA R2实际Playing→候选退出／Owner列表移除、回调注销。原严格冷读与正式观察R1失败保留，R2五叶3 Success／2 Fail。源关联／自然完成原因／听感／AutoDestroy动态值／完整Section／GC未证；右侧命中及持续Cue未验，全Audio未完成。",
       "x": 0,
       "y": 0,
       "width": 1760,
@@ -13,7 +13,7 @@
     {
       "id": "af-trigger",
       "type": "text",
-      "text": "## 动作到达原生Notify【已接线保存】\nAM_Pyrios_Attack_Normal_01的Audio_Normal01轨增加唯一PlaySound。\n项目第2帧／60fps（约0.033333秒），原游戏帧仍未知。\n原Montage预览→UAnimNotify_PlaySound::Notify(MeshComp, Animation, EventReference)。\n原两窗口／源动作／Blend保持，不新增动作时钟。",
+      "text": "## 动作到达原生Notify【已接线保存】\nAM_Pyrios_Attack_Normal_01：Audio_Normal01轨唯一PlaySound。\n项目第2帧／60fps（约0.033333秒），原游戏帧仍未知。\n调用契约：Montage到点→UAnimNotify_PlaySound::Notify(MeshComp, Animation, EventReference)。\nR2已观察正式GA播放目标Main／Rate1；原两窗口／源动作／Blend保持，不新增动作时钟。",
       "x": 0,
       "y": 340,
       "width": 650,
@@ -33,7 +33,7 @@
     {
       "id": "af-play",
       "type": "text",
-      "text": "## 原Notify发起声音【预览已观察】\n保存的Notify→SpawnSoundAttached→AudioComponent_124。\nIsPlaying=true、Sound正确、Volume／Pitch=1，附着DebugSkelMeshComponent_0。\n证据时间17:53:56.298 UTC；没有手工SoundWave spawn。\n非听感／新GA／结束或取消即停证明。",
+      "text": "## 正式GA播放观察／预览证据\nR2正式GA期间唯一新候选AudioComponent_0。\n原Owner／primary Mesh／固定Sound，PLAYING＋IsPlaying=true、Pitch／Volume=1。\n候选Notify源关联与创建时刻未证明。\n原预览Notify→SpawnSoundAttached→组件124另有证据；正式观察无手工spawn／重播。",
       "x": 0,
       "y": 1200,
       "width": 650,
@@ -43,7 +43,7 @@
     {
       "id": "af-end",
       "type": "text",
-      "text": "## 一次性结束契约／独立组件证据\n原Notify只观察播放中，自然结束未验；结束由UE执行。\n手动组件458另验自然结束→Play(0)→Stop，已归还自身。\n原清理TypeError保留，只修原组件清理签名。\n不证明Notify／GA取消即停、听感、新GA或GC完成。\n需要取消即停时另走明确持续Cue契约。",
+      "text": "## R2候选退出【有限观察】\n原Montage不再active后，候选退出／Owner列表移除，原Owner仍有效。\n198样本／maxgap0.032秒，自己的观察回调已注销。\n脚本按0.10秒余量分类，不证明精确时长或自然完成／AutoDestroy／GC原因。\none-shot不承诺GA取消即停；手动组件458另有结束／Stop证据，原TypeError保留。",
       "x": 0,
       "y": 1630,
       "width": 650,
@@ -83,7 +83,7 @@
     {
       "id": "af-evidence",
       "type": "text",
-      "text": "## 验证边界\n原严格Readback仍failed；EndOffset 0→0.0001原始差异保留，非全文一致。\nR1已加载对象只读语义通过，其余字段精确；刷新回调未追踪，无mutation／脏包。\nR1不主动reload；新UE40416／Gate57DLL磁盘加载由统筹另证。\nGate57编译Succeeded：9actions／37.13秒，不证明新GA实战。\n手动组件不证明原Notify结束；听感／新GA／完整Section／GC／持续／网络未验。\n[[Audio/计划_音效接入#证据与剩余验收|证据和失败边界]]",
+      "text": "## 验证边界\n原严格冷读failed／EndOffset差异保留；资产R1仅语义通过。\n正式观察R1 protected失败保留；R2 ProductionNativeHeld Success／0 Error／4 Warning，五叶3 Success／2 Fail。\nR2实际Playing→有限退出；非听感／源关联／自然完成／AutoDestroy／GC证明。\n完整Section／持续Cue／网络未验，全Audio未完成。\n[[Audio/计划_音效接入#证据与剩余验收|证据和失败边界]]",
       "x": 1050,
       "y": 1630,
       "width": 650,
@@ -122,7 +122,7 @@
       "fromSide": "bottom",
       "toNode": "af-end",
       "toSide": "top",
-      "label": "原Notify结束待验；手动组件另有证据"
+      "label": "原候选Playing后退出／Owner列表移除"
     },
     {
       "id": "af-end-evidence",
@@ -130,7 +130,7 @@
       "fromSide": "right",
       "toNode": "af-evidence",
       "toSide": "left",
-      "label": "原Notify／手动组件／R1证据分别留账"
+      "label": "R2有限结果与历史失败分别留账"
     },
     {
       "id": "af-persistent-evidence",

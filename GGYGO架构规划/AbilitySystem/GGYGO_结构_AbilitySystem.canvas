@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# AbilitySystem｜结构图\n原final生命周期/Busy归属保持；Task RequiredPose历史失败与Combo Main/End实际移动链已编译、必要复测。原报告3 Success/3 Fail；完整混合/Cook/联机/HID、strict/raw及C12未决仍开放。\n[[AbilitySystem/结构|结构文档]] · [[GGYGO_流程_AbilitySystem.canvas|关键调用]] · [[计划_玩家普攻连段|本轮集中证据]] · [[AbilitySystem/计划_原请求终止|终止契约]] · [[GGYGO_流程_原请求终止.canvas|终止子图]] · [[GGYGO_流程_伤害结算.canvas|伤害]] · [[GGYGO_结构_HitImpact.canvas|命中反馈]]",
+      "text": "# AbilitySystem｜结构图\n原final生命周期/Busy归属保持；同Binding Refresh后精确End及旧来源隔离已有限验证，带资源刷新清理未动态证明。Task RequiredPose历史失败与Combo Main/End实际移动链已编译、必要复测。原报告3 Success/3 Fail；完整混合/Cook/联机/HID、strict/raw及C12未决仍开放。\n[[AbilitySystem/结构|结构文档]] · [[GGYGO_流程_AbilitySystem.canvas|关键调用]] · [[计划_玩家普攻连段|本轮集中证据]] · [[AbilitySystem/计划_原请求终止|终止契约]] · [[GGYGO_流程_原请求终止.canvas|终止子图]] · [[GGYGO_流程_伤害结算.canvas|伤害]] · [[GGYGO_结构_HitImpact.canvas|命中反馈]]",
       "x": 0,
       "y": 0,
       "width": 1520,
@@ -33,7 +33,7 @@
     {
       "id": "asc",
       "type": "text",
-      "text": "## UGGYGOAbilitySystemComponent\nReceive／End／Queue签原输入ID；唯一Spec held/queued，有序边沿/逐边沿来源冻结，无第二Tick。\nNotifyAbilityFailed（final）只消费独立Can来源，真实Queued发送完整Retry。\nIsActivationBlockedByGroup只读；NotifyActivated分配sequence/预留，ActiveCount++后Finalize；终检只查权威组登记。\nTryActivateAbilityWithTerminationBoundary提供真实原Try退出见证；OnAbilityTerminationCompleted发布原完成历史。\nASC关联GA原记录的Try/Ended见证，无第二终止状态机。\nClientCorrectAbilityState按Spec/实例/key路由。\nActorInfo唯一事务/发布见下方；已编译，专项/生产边界保留。",
+      "text": "## UGGYGOAbilitySystemComponent\nReceive／End／Queue签原输入ID；唯一Spec held/queued，有序边沿/逐边沿来源冻结，无第二Tick。\nNotifyAbilityFailed（final）只消费独立Can来源，真实Queued发送完整Retry。\nIsActivationBlockedByGroup只读；NotifyActivated分配sequence/预留，ActiveCount++后Finalize；终检只查权威组登记。\nTryActivateAbilityWithTerminationBoundary提供真实原Try退出见证；OnAbilityTerminationCompleted发布原完成历史。\nASC关联GA原记录的Try/Ended见证，无第二终止状态机。\nprivate CheckOriginalAbilityBindingForTermination核当前已提交同Binding完整快照＋原allocation/ASC/Owner/Avatar；不续旧资源。\nClientCorrectAbilityState按Spec/实例/key路由。\nActorInfo唯一事务/发布见下方；已编译，专项/生产边界保留。",
       "x": 520,
       "y": 320,
       "width": 490,
@@ -53,7 +53,7 @@
     {
       "id": "ga",
       "type": "text",
-      "text": "## UGGYGOGameplayAbility\nCan/Activate/End/Cancel为final；Additional只追加准入业务。\nNotifyActivated时签Original；Capture只复制已有历史，Busy返回空。\nInitialize(Original)初始化原批次；原准入/相机后Body(Original,原参数)执行业务，默认native Super→BP。\nRequestEnd/Cancel核Original，唯一原记录固定首次Context/资源与实际返回义务。\nCleanup(Context)仅归还原批次；GAS仍执行原End/Task清理。\nBuilder显式空GE正常；必需Spec失败false/空输出，响应归调用方。\n[[GGYGO_流程_原请求终止.canvas|原记录与完成门禁]]",
+      "text": "## UGGYGOGameplayAbility\nCan/Activate/End/Cancel为final；Additional只追加准入业务。\nNotifyActivated签Original；Capture按ResourceWork核原完整Context/LastWrite/来源，Busy或失配返回空。\nInitialize(Original)初始化原批次；原准入/相机后Body(Original,原参数)执行业务，默认native Super→BP。\nRequestEnd/Cancel私有Termination核同Binding commit＋原实例/serial/Spec/key/allocation/端点；不重签Original。唯一原记录固定首次Context/资源与实际返回义务。\nCleanup(Context)仅归还原批次；GAS仍执行原End/Task清理。\nBuilder显式空GE正常；必需Spec失败false/空输出，响应归调用方。\n[[GGYGO_流程_原请求终止.canvas|原记录与完成门禁]]",
       "x": 1120,
       "y": 520,
       "width": 440,
@@ -93,7 +93,7 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## 关键交互契约\nSlot/BossState→AbilitySet→持久ASC；原Handles精确撤装。Input管物理事实，Hero管原有限意图，ASC唯一held/queued/原ID期限。\nProcess/OnSpawn/Boss BT一次受控Try；实际NotifyActivated签Original。GA唯一原终止记录，ASC只见证原Try/Ended并封存发布，GAS唯一执行。\nTask持原Playback/Guard/订阅/scale；Animation声明并执行RequiredPose，Task只持Ticket并原nativeTick Poll，失败先Stop/EndTask再历史OnFailed，GA决定正式原End。\nCombo持段/原资源；Animation固定Source，CMC唯一XYZ胶囊执行与原移动事实认证。真实End核原Scope/Intent后原End(true,true)，不靠dt游标。\nCombat Owned Window只查询去重；Combo/Boss经Builder→GAS结算，失败政策各归业务。自然Task Completed、GA数据、ASC原Ended和原Notice时点仍分别成立。\n[[计划_玩家普攻连段|接口/证据]] · [[AbilitySystem/计划_原请求终止|原生命周期]]",
+      "text": "## 关键交互契约\nSlot/BossState→AbilitySet→持久ASC；原Handles精确撤装。Input管物理事实，Hero管原有限意图，ASC唯一held/queued/原ID期限。\nProcess/OnSpawn/Boss BT一次受控Try；实际NotifyActivated签Original。GA唯一原终止记录，ASC只见证原Try/Ended并封存发布，GAS唯一执行。\n合法同Binding Refresh只保留精确原终止资格，不续输入/镜头/移动/播放工作权限；换Binding/后继拒旧身份，无自动激活。\nTask持原Playback/Guard/订阅/scale；Animation声明并执行RequiredPose，Task只持Ticket并原nativeTick Poll，失败先Stop/EndTask再历史OnFailed，GA决定正式原End。\nCombo持段/原资源；Animation固定Source，CMC唯一XYZ胶囊执行与原移动事实认证。真实End核原Scope/Intent后原End(true,true)，不靠dt游标。\nCombat Owned Window只查询去重；Combo/Boss经Builder→GAS结算，失败政策各归业务。自然Task Completed、GA数据、ASC原Ended和原Notice时点仍分别成立。\n[[计划_玩家普攻连段|接口/证据]] · [[AbilitySystem/计划_原请求终止|原生命周期]]",
       "x": 0,
       "y": 1570,
       "width": 1450,

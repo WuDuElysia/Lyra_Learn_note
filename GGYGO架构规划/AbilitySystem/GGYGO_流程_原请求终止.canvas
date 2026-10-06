@@ -13,7 +13,7 @@
     {
       "id": "ga-term-activation",
       "type": "text",
-      "text": "## 1｜受控Try与原生身份分离\nProcess/OnSpawn/Boss BT→TryActivateAbilityWithTerminationBoundary(Handle,AllowRemote)，只一次native Try及完整尾部。\n实际NotifyActivated由GA签Original；只有本次受控Can/原来源匹配才认证外层Try来源，raw/Query不借权。\nActiveCount++后final Activate：Initialize→原准入/相机→Body，外调后核Original；结束/Busy/来源改变则无旧Body。\nResult是原接受/历史，remote-only可无本地Activation；Capture只读，不补造身份。",
+      "text": "## 1｜受控Try与原生身份分离\nProcess/OnSpawn/Boss BT→TryActivateAbilityWithTerminationBoundary(Handle,AllowRemote)，只一次native Try及完整尾部。\n实际NotifyActivated由GA签Original；只有本次受控Can/原来源匹配才认证外层Try来源，raw/Query不借权。\nActiveCount++后final Activate：Initialize→原准入/相机→Body，外调后核Original；结束/Busy/来源改变则无旧Body。\nResult是原接受/历史，remote-only可无本地Activation；Capture按ResourceWork核原完整Context/LastWrite/来源，不补造或续签身份。",
       "x": 0,
       "y": 350,
       "width": 700,
@@ -23,7 +23,7 @@
     {
       "id": "ga-term-request",
       "type": "text",
-      "text": "## 2｜请求这次原激活结束\n原持有者→RequestAbilityEnd(Original,ReplicateEnd,WasCancelled)，或RequestAbilityCancel(Original,ReplicateCancel)。\n核原ASC/实例/Spec/ActorInfo与可结束性；Cancel另核CanBeCanceled，End不走Cancel替代。\nPreActivate身份早于ActiveCount++，不证明此时可End。重复请求保留首次Context，异源/失效明确拒绝，无新激活排队。",
+      "text": "## 2｜请求这次原激活结束\n原持有者→RequestAbilityEnd(Original,ReplicateEnd,WasCancelled)，或RequestAbilityCancel(Original,ReplicateCancel)。\n私有Termination核原实例/serial/Spec/key/allocation；ASC认证当前已提交同Binding完整快照及原ASC/Owner/Avatar。\n合法Refresh可留原End资格，不续旧资源工作；换Binding/后继拒旧身份。\n核可结束性；Cancel另核CanBeCanceled，End不走Cancel替代。\nPreActivate身份早于ActiveCount++，不证明此时可End。重复请求保留首次Context，异源/失效明确拒绝，无新激活排队。",
       "x": 0,
       "y": 880,
       "width": 700,
@@ -123,7 +123,7 @@
     {
       "id": "ga-term-migration",
       "type": "text",
-      "text": "## 已接消费者与剩余边界\nCombo/Boss/Admission已用Initialize/Body/Context Cleanup，End/Cancel不再派生覆写；Process/OnSpawn/Boss BT已接受控Try。\n必要Combo正常/GE故障中止与Boss Mesh A→全返回→B有限验证。\n原strict/raw、移除/极端重入、完整正式Boss/Combo资产/战斗与RPC/网络仍未整体验收。\n[[计划_玩家普攻连段|Combo]] · [[BossAI/结构|Boss]]",
+      "text": "## 已接消费者与剩余边界\nCombo/Boss/Admission已用Initialize/Body/Context Cleanup，End/Cancel不再派生覆写；Process/OnSpawn/Boss BT已接受控Try。\n必要Combo正常/GE故障中止与Boss Mesh A→全返回→B有限验证。\n无Montage/相机业务资源probe：A同Binding Controller Refresh后End、B拒旧A、同端点新Binding拒旧C、自有grant清C且无业务Completed已验。带播放/表现/CMC资源刷新清理、刷新后Cancel未验；C12未决/未实施。\n原strict/raw、移除/极端重入、完整正式Boss/Combo资产/战斗与RPC/网络仍未整体验收。\n[[计划_玩家普攻连段|Combo]] · [[BossAI/结构|Boss]]",
       "x": 900,
       "y": 5120,
       "width": 860,
@@ -163,7 +163,7 @@
     {
       "id": "ga-term-ga-early-ended",
       "type": "text",
-      "text": "## 7A｜GA原生早数据通知\nSuper::EndAbility→OnGameplayAbilityEndedWithData，携实际ReplicateEnd/WasCancelled。\n本次Combo：项目资源已恢复，两原Task已Finished/OwnerFinished；UE ActiveTasks仍保留两原引用，随后才Reset。\n这是合法native待退休阶段，不能直接改账本、跳过实际任务断言或据此启动同实例后继。\nGA回调全退出→继续native End。精确数量仅属该夹具。",
+      "text": "## 7A｜GA原生早数据通知\nSuper::EndAbility→OnGameplayAbilityEndedWithData，携实际ReplicateEnd/WasCancelled；广播后Clear实例委托，复用实例须逐激活订阅。\n本次Combo：项目资源已恢复，两原Task已Finished/OwnerFinished；UE ActiveTasks仍保留两原引用，随后才Reset。\n这是合法native待退休阶段，不能直接改账本、跳过实际任务断言或据此启动同实例后继。\nGA回调全退出→继续native End。精确数量仅属该夹具。",
       "x": 900,
       "y": 2470,
       "width": 860,

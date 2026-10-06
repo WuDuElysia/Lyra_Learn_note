@@ -3,7 +3,7 @@
     {
       "id": "audio-nav",
       "type": "text",
-      "text": "# Audio：结构与接口\n箭头表示调用／配置／持有关系，不代表新增 Audio 框架。\n[[Audio/结构|结构文档]] · [[GGYGO_流程_音效.canvas|流程图]] · [[Audio/计划_音效接入|计划]] · [[计划蓝图|返回]]\nSoundWave／唯一Notify已保存，预览IsPlaying=true；原严格failed保留，R1已加载对象语义通过，契约已同步R1。手动组件另验结束／Stop／自身归还；原Notify结束、听感／新GA／完整Section／GC未验。",
+      "text": "# Audio：结构与接口\n箭头表示调用／配置／持有关系，不代表新增 Audio 框架。\n[[Audio/结构|结构文档]] · [[GGYGO_流程_音效.canvas|流程图]] · [[Audio/计划_音效接入|计划]] · [[计划蓝图|返回]]\n首批资产／Notify已保存；正式GA R2实际Playing→候选退出／Owner列表移除，回调已注销。原严格冷读与正式观察R1失败保留，R2五叶3 Success／2 Fail。听感／源关联／自然完成原因／AutoDestroy动态值／完整Section／GC／持续Cue／网络未证或未验，全Audio未完成。",
       "x": 0,
       "y": 0,
       "width": 1840,
@@ -23,7 +23,7 @@
     {
       "id": "audio-assets",
       "type": "text",
-      "text": "## 音频资产【首批SoundWave已保存】\nUSoundBase／SoundWave；以后按需组合SoundCue或MetaSound。\nSoundFactory＋AssetImportTask→单包保存，来源／格式已同进程回读。\nSW_Pyrios_Normal01_Skill：44.1kHz／2ch／1.855351秒，非循环，Volume／Pitch=1。\n原Notify预览已播放；R1只读语义通过，原严格failed保留。\nEndOffset 0→0.0001原始差异保留，其余字段精确；刷新回调未追踪。",
+      "text": "## 音频资产【首批SoundWave已保存】\nUSoundBase／SoundWave；以后按需组合SoundCue或MetaSound。\nSoundFactory＋AssetImportTask→单包保存，来源／格式已同进程回读。\nSW_Pyrios_Normal01_Skill：44.1kHz／2ch／1.855351秒，非循环，Volume／Pitch=1。\n预览与正式GA R2 Playing各有证据；资产R1仅只读语义通过。\n原严格failed／EndOffset 0→0.0001保留，其余字段精确；刷新回调未追踪。",
       "x": 670,
       "y": 360,
       "width": 540,
@@ -63,7 +63,7 @@
     {
       "id": "audio-play",
       "type": "text",
-      "text": "## UE 播放资源与执行\n原Notify预览→AudioComponent_124，IsPlaying=true、附着原Mesh、音量音高1；没有手工spawn。\n手动组件458（AutoDestroy=false）另验自然结束／Play／Stop／自身归还。\n原清理TypeError保留，只修原组件签名；GC完成未验。\nR1不主动reload，新UE40416磁盘加载由统筹另证。\n原Notify自然结束、听感／新GA未验；跟随不保证取消即停。\n持续Cue持原组件为未来目标。",
+      "text": "## UE 播放资源与执行\n正式GA R2：原Owner／primary Mesh／固定Sound唯一新候选0，PLAYING且IsPlaying=true、Pitch／Volume=1。\n候选退出／Owner列表移除，198样本／maxgap0.032秒，观察回调已注销。\n源关联、创建时刻、自然完成原因、AutoDestroy动态值／GC／听感未证；one-shot不承诺取消即停。\n预览组件124与手动组件458另记账；持续Cue仍为目标。",
       "x": 670,
       "y": 1430,
       "width": 570,

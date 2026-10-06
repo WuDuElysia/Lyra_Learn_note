@@ -3,7 +3,7 @@
     {
       "id": "combo-s-nav",
       "type": "text",
-      "text": "# 玩家普攻｜原请求、Main/End与必需姿态\n受控Original/Owned命中原契约保持；新GA/ABP接线、真实End移动中断/Required失败已编译与必要复测。六叶3 Success/3 Fail，真实E/W保留；BodyZ仅Normal01 Main。完整混合/End姿态/Cook/联机/HID、strict/raw/C12仍开放。\n[[计划_玩家普攻连段|接口与集中证据]] · [[AbilitySystem/结构|GAS]] · [[GGYGO_流程_玩家普攻连段.canvas|流程]]",
+      "text": "# 玩家普攻｜结构图\nPlayerCombo持有原激活内的段序、输入请求和Task／窗口／移动资源。\nASC持有原请求与终止认证；Animation提供Montage／姿态契约；CMC唯一执行胶囊位移；Combat查询并去重命中。\n[[计划_玩家普攻连段|连段说明]] · [[AbilitySystem/结构|GAS结构]] · [[GGYGO_流程_玩家普攻连段.canvas|连段流程]]",
       "x": 0,
       "y": 0,
       "width": 1510,
@@ -53,7 +53,7 @@
     {
       "id": "combo-s-anim",
       "type": "text",
-      "text": "## Animation Source / Required Pose / CMC\nAnimation BuildSourceBinding冻结原Main PosXYZ；CMC BeginMontageActionMotion经native RMS/碰撞唯一执行胶囊位移。\nABP_Pyrios Required FullBody ActionPoseSlot已保存，IgnoreRootMotion；不固定Replace身体Z。\nGuard声明/节点求值与epoch归Animation，Task只持原Ticket/只读Poll。\nMain/End实况与有限BodyZ见父文档；End姿态/全混合未验。\n[[Animation/动作姿态修正|姿态执行]] · [[Movement/结构|胶囊/移动事实]]",
+      "text": "## Animation Source / Required Pose / CMC\nAnimation BuildSourceBinding冻结原Main PosXYZ；CMC BeginMontageActionMotion经native RMS/碰撞唯一执行胶囊位移。\nABP_Pyrios Required FullBody ActionPoseSlot已保存，IgnoreRootMotion；不固定Replace身体Z。\nGuard声明/节点求值与epoch归Animation，Task只持原Ticket/只读Poll。\n[[Animation/动作姿态修正|姿态执行]] · [[Movement/结构|胶囊/移动事实]]",
       "x": 1060,
       "y": 750,
       "width": 450,
@@ -73,7 +73,7 @@
     {
       "id": "combo-s-network",
       "type": "text",
-      "text": "## 强类型纠正与完成边界\nWaitComboInput：SourceStep + RequestId。\nClientCorrectAbilityState(Spec,key,TargetData)只筛来源并转发。\nFGGYGOComboCorrectionData归Combo：段/位置/窗口/Revision；ReceiveAbilityCorrection核对单项确切类型与范围。\nRequestAbilityEnd/Cancel消费固定Original；结果历史不是新调用权限。\nGA数据、ASC本地通知、Completed三种事件各有自己的字段/时点契约。\n下一激活由原请求/回调返回后的受控调用方继续。\nraw来源无外层受控Try见证可清资源，但不发布协议Completed；联机未验。",
+      "text": "## 强类型纠正与完成边界\nWaitComboInput：SourceStep + RequestId。\nClientCorrectAbilityState(Spec,key,TargetData)只筛来源并转发。\nFGGYGOComboCorrectionData归Combo：段/位置/窗口/Revision；ReceiveAbilityCorrection核对单项确切类型与范围。\nRequestAbilityEnd/Cancel消费固定Original；结果历史不是新调用权限。\nGA数据、ASC本地通知、Completed三种事件各有自己的字段/时点契约。\n下一激活由原请求/回调返回后的受控调用方继续。\nraw来源无外层受控Try见证可清资源，但不发布协议Completed。",
       "x": 530,
       "y": 1230,
       "width": 650,

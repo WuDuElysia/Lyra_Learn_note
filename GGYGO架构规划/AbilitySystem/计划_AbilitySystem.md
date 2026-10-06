@@ -6,7 +6,7 @@
 >
 > 上一检查点（2026-10-05）：原生原身份发行、final生命周期、Initialize/Body/Context Cleanup、Combo/Boss/Admission及Process/OnSpawn/Boss BT受控消费已落盘并编译。Gate79四RuntimeHit Case行为PASS，原四普通叶0E0W；七叶报告5 Success/2 Fail/0 Warning，故障叶只保留真实生产Error。当前有限验收及剩余入口见[[AbilitySystem/计划_原请求终止|原请求终止计划]]、[[GGYGO_流程_原请求终止.canvas|子图]]；严格红测、正式资产与网络不关闭。
 
-> 当前（2026-10-06）：必需姿态 Ticket/typed OnFailed、Combo Main 动作请求与 End 原移动事实中断已接齐，统一 Editor 构建 Succeeded。Gate101-R2 六叶原报告为3 Success/3 Fail，原Error/Warning不滤掉；分项及有限 BodyZ 见 [[计划_玩家普攻连段#本轮编译与必要冒烟证据|集中证据]]。原生命周期/Busy契约不改变，严格红测、完整姿态混合、Cook/联机/HID继续开放，C12普通换人政策仍待用户决定。
+> 前序动作／姿态检查点（2026-10-06）：必需姿态 Ticket/typed OnFailed、Combo Main 动作请求与 End 原移动事实中断已接齐，统一 Editor 构建 Succeeded。Gate101-R2 六叶原报告为3 Success/3 Fail，原Error/Warning不滤掉；分项及有限 BodyZ 见 [[计划_玩家普攻连段#本轮编译与必要冒烟证据|集中证据]]。原生命周期/Busy契约不改变，严格红测、完整姿态混合、Cook/联机/HID继续开放。该检查点时C12尚未决；目前用户已选择默认取消／不可取消前检拒绝／显式后台继续，并完成约定必要烟，现状见 [[Teams/结构]]、[[计划_实施状态]]，不由本历史描述恢复待决门禁。
 
 ## 3. AbilitySystem 层：照抄 Lyra 的部分
 
@@ -59,7 +59,7 @@ ActorInfo三Try／一次发布、历史C1a Gate47～48与C1b Gate49R1有编译�
 | Host H2消费 | 已实施并编译：Initialize及owner-only失败分支消费原Operation/pure原scope，原Init失败保留 | 编译不证明失败Init完整生产清理；两种来源分别保留动态边界。 |
 | 生产／验证 | Health/Base已消费原H；Hero A已接原输入ID/完整Retry，B1已接typed本地H，B2已接Source→CMC装配；Gate59及后续编译已覆盖 | 历史Build55失败及R0 Gate42的2 Fail／12错误保留；未重跑的原失败不能标关闭。Gate66既有三冒烟通过不替代Host／Extension整链、资产或联机验收。 |
 
-两个ASC清理来源、Host H1/H2与Hero消费已实施并编译，来源职责仍见[[AbilitySystem/结构#原已提交清理来源（Destroy）|提交来源]]、[[AbilitySystem/结构#失败Init原写入清理（未提交证明）|失败Init来源]]及[[AbilitySystem/结构#清理调用方与本轮验证边界|调用方门禁]]。GA/派生共同生命周期与受控生产请求点现已接齐，普通/故障必要冒烟有限验收；Avatar完整换绑/Destroy与原严格失败、正式资产/联机仍独立留账。
+两个ASC清理来源、Host H1/H2与Hero消费已实施并编译，来源职责仍见[[AbilitySystem/结构#原已提交清理来源（Destroy）|提交来源]]、[[AbilitySystem/结构#失败Init原写入清理（未提交证明）|失败Init来源]]及[[AbilitySystem/结构#清理调用方|调用方门禁]]。GA/派生共同生命周期与受控生产请求点现已接齐，普通/故障必要冒烟有限验收；Avatar完整换绑/Destroy与原严格失败、正式资产/联机仍独立留账。
 
 ## 当前原请求输入增量（07E2：已接Hero并编译，动态边界保留）
 
@@ -80,7 +80,7 @@ ASC已替换旧Tag生产入口为Receive(Tag,PreviousIdentity,OriginalDeadline)�
 | Task原资源消费者 | 精确ASC Result/Handle/Guard、原五native单播及SectionReceived/OnFailed已编译；Combo/Boss在Ready前注册原包，闭包持Original/原Task，Context收尾精确脱token。Task唯一持播放/停止/scale/监听，无全局尝试表或新实例扫描。Task自然Completed不是GA原Notice；native/捕获析构极端重入、旧夹具与资产网络仍未专项验收。 |
 | 验证与生产 | Gate79有限正常/故障链已验：四RuntimeHit Case行为PASS，原Combo纠正/Boss Mesh/输入/移动普通叶0E0W。原报告5 Success/2 Fail/0 Warning，两故障仅有三条真实生产Error，不过滤；正式Boss战斗、BP/Montage接线、Execution数值、Cue表现、网络与原strict/raw红仍开放。历史构建/错误见既有模块验证记录。 |
 
-Init／Clear的真实Local重置退休原证明；同端点Refresh仅来源实际改变才退休，不用Publication修订猜播放变化。裸限定基类写入与未观察Owner ABA不作完整保障声明；销毁提交来源／Init失败写入Proof与Host H1/H2、Hero A/B1/B2已实施并编译，完整生产清理动态验收另列。它们与K3/GA终止分责。接口与跨模块边界见[[AbilitySystem/结构#精确Montage播放归属（K3：已编译，派生与生产未闭合）|播放契约]]、[[Animation/结构|Guard]]。
+Init／Clear的真实Local重置退休原证明；同端点Refresh仅来源实际改变才退休，不用Publication修订猜播放变化。裸限定基类写入与未观察Owner ABA不作完整保障声明；销毁提交来源／Init失败写入Proof与Host H1/H2、Hero A/B1/B2已实施并编译，完整生产清理动态验收另列。它们与K3/GA终止分责。接口与跨模块边界见[[AbilitySystem/结构#精确Montage播放归属|播放契约]]、[[Animation/结构|Guard]]。
 
 T2现有接口：ASC `TryActivateAbilityWithTerminationBoundary`提供真实Try完整退出见证，`OnAbilityTerminationCompleted`发布带原来源的完成历史；GA `CaptureCurrentActivation`读取既有原身份，`RequestAbilityEnd/Cancel`受理原请求，`CleanupAbilityResourcesForTermination`只清自身原资源。GA持唯一首个不可变Context与原终止记录；ASC关联原Try/Ended见证，不持第二终止状态机。原生Cancel广播前捕资源；原生End、完整虚End/Cancel及关联Try全部退出后先封存结果、释放原Busy，再通知，回调后继不能覆写原结果。原生WaitingToExecute仅一次Continuation；解锁发生在原虚调用内时留Ready，完整返回后消费。
 
@@ -97,7 +97,7 @@ T2现有接口：ASC `TryActivateAbilityWithTerminationBoundary`提供真实Try�
 | Combo → CMC | 原Snapshot固定ID/Section/Position/Rate；Main调用BeginMontageActionMotion并观察原失败；SectionReceived进入End释放Main，再Query/Subscribe原QualifiedMovementIntent | 只消费原Scope及复核一致的Intent；CancelMontageActionMotionForMovement后RequestAbilityEnd(Original,true,true)。不可用/执行失败明确结束原动作；普通Interrupted/Cancel不换语义 |
 | 生产接线/必要门禁 | GA三段字段冷读回；ABP_Pyrios Required FullBody ActionPoseSlot保存回读；Gate101-R2 End两叶、XYZ叶Success，姿态两故障behavior PASS但各2Error/Fail，恢复负例3Error/Fail | BodyZ只Normal01 Main；End姿态/完整混合、真实HID、完整三段命中表现、Cook/网络及strict/raw仍未验 |
 
-实际接口输入/输出见 [[AbilitySystem/结构#Task原实例与资源消费（已编译，专项与迁移边界保留）|Task契约]]；Main/End/失败资源流与唯一集中证据见 [[计划_玩家普攻连段]]。姿态执行见 [[Animation/动作姿态修正|Animation契约]]，胶囊执行见 [[Movement/结构|Movement职责]]。Gate101/R1实现失败经本轮修正和R2复测关闭，原失败报告保留；不把负例报告Fail改成全通过。
+实际接口输入/输出见 [[AbilitySystem/结构#Task原实例与资源消费|Task契约]]；Main/End/失败资源流与唯一集中证据见 [[计划_玩家普攻连段]]。姿态执行见 [[Animation/动作姿态修正|Animation契约]]，胶囊执行见 [[Movement/结构|Movement职责]]。Gate101/R1实现失败经本轮修正和R2复测关闭，原失败报告保留；不把负例报告Fail改成全通过。
 
 C12普通换人退出：真实业务政策尚未决定，候选共享接口只读配对冻结、生产未实施；本轮没有扩大到队伍切换或修改已确认的原生命周期/Busy归属。
 
@@ -232,6 +232,28 @@ AbilitySystem/
 ```
 
 ---
+
+## Current 结算与原生 Base 计算
+
+### 职责和接口决定
+
+持续修饰项存在时，HealthSet以实际Current为伤害／治疗／削韧的结算对象；生成的属性setter写入原生Base，不能把Current目标直接作为Base，否则会再次叠加修饰。ASC提供TryCalculateNumericAttributeBaseForCurrentValue，只复用原生capture、资格、通道布尔逆算和正向确认；HealthSet唯一决定目标、写入Base并确认本次Post事实。具体结构见[[AbilitySystem/结构#Current 与 Base 数值接口|数值接口]]。
+
+有限Health/Poise Base可作为内部量越过0或Max，Current仍按原边界与MinimumHealth限制；Max属性自身边界保留。移除Buff后Current归零沿原死亡流程，不自动复活或补偿。有效Override、零或原生不支持的倍率、非法Divisor、非有限结果明确拒绝，不使用不可逆时返回原Final的原生float回落。
+
+PreGameplayEffectExecute只做本次支持性预检，不保存Base候选。Post消费自身meta后，待原生回调返回再读取实际Current与聚合器，计算并立即提交；原ExpectedAttributeChange记录Post值，后续嵌套写入不能替换本次事实。失败只撤本帧尚未确认的Damage候选，不宣称整GE原子回滚。
+
+客户端Max变化不逆推新的Base。HealthSet将依赖请求绑定本次Pre/PostNetReceive的弱Owner/ASC，在Super::PostNetReceive排空原生dirty后退休请求、重读实际Base并按需同Base重求值；无开放batch的同步入口沿同一机制。来源失效或batch仍开放明确失败，不增加Tick／Timer／RPC／第二复制调度器。原Current变化委托保留；只有自身依赖投影不伪发业务消息，真实嵌套写入仍按原规则发布。
+
+### 已验证检查点与剩余边界
+
+2026-10-06 Gate103-R5统一Editor编译Succeeded／exit0，10 actions、145.63秒。必要冒烟23项全Success／0Error／1Warning；唯一Warning来自Teams不可取消切人正常拒绝，与本数值两叶无关。HealthMessage十五叶均Success／0Error／0Warning，其中十三个兼容叶与CurrentValueSettlement、ClientMaxNetReceive共同通过。
+
+- CurrentValueSettlement实际覆盖：Base100×2 Current200受伤10后Current190／Base95、移除后95；治疗与削韧；权威Max下降时保留GE并逆算Base；加200后受伤110得到Base-10、移除后Current0及原死亡边沿；×0.5治疗得到高于Max的有限Base；meta清理回调改变聚合器、OwnPost后的嵌套治疗仍保原事实；Pre及Post不可逆拒绝均不伪发Damage成功消息。
+- ClientMaxNetReceive实际覆盖：有／无Max聚合器的原PreNetReceive→OnRep→PostNetReceive批次，Current300随Max下降到150而Base100／原GE保持；延后期间不早发委托；同步OnRep后的真实嵌套direct写入仍发PoiseBreak；后续空receive不重放请求。
+- 本次未验证双端真实网络传输／延迟／预测组合、多通道与自定义资格组合、所有不可逆或数值极值、正式资产／完整战斗表现。客户端叶使用原生复制生命周期夹具，不冒称双端联机验收；原R4失败及早期严格红测保留，不由本两叶推导关闭。
+
+实际证据：[R5原生冒烟报告](F:/ue_project/GGYGO/Saved/AutomationReports/GGYGO_Gate103_R5_Closure_Smoke_20261006_MCP.json)、[构建日志](F:/ue_project/GGYGO/Saved/Logs/GGYGO_Gate103_R5_Closure_Build_20261006.log)。HealthSet结果与消息来源的详细记录由Messages的既有Module_Repair_13_Validation.md维护，不复制新摘要。结构与流程图仅描述当前接口和真实链路，不记录本检查点统计。
 
 ## 6. GE 层
 

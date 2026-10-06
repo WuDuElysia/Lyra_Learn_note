@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Messages｜结构图\n主路径已构建；旧12回归与LateCreate两例通过，E8其余边界仍开放。[[Messages/结构|结构文档]] · [[GGYGO_流程_Messages.canvas|发布流程]]",
+      "text": "# Messages｜结构图\n箭头表示接口调用、事件载荷或逻辑委托；HealthSet 持有数值/边沿，GAS 持有聚合器，Router 按通道同步通知。\n[[Messages/结构|结构文档]] · [[GGYGO_流程_Messages.canvas|发布流程]]",
       "x": 0,
       "y": 0,
       "width": 1530,
@@ -13,7 +13,7 @@
     {
       "id": "source",
       "type": "text",
-      "text": "## UGGYGOHealthSet\nPre/PostGameplayEffectExecute：结算。\nPostAttributeChange：数值/边沿。\nBegin/EndRepNotifyFrame：建帧/清帧。\nCanClassifyRepNotifyFrame：校验来源/注册。\nOnAttributeAggregatorCreated：迟到创建。\n帧仅存活于宏；GAS拥有聚合器。\n[[Messages/结构#HealthSet 的复制调用作用域|复制契约]] · [[AbilitySystem/结构|GAS结构]]",
+      "text": "## UGGYGOHealthSet\nPre/PostGameplayEffectExecute → meta消费。\nTrySetCurrentValue → Current提交/确认。\nPostAttributeChange → 边界/Changed/归零。\nPre/PostNetReceive → 弱源同Base投影。\nPublishMessageResult → 投递结果。\n[[Messages/结构#HealthSet 的复制调用作用域|复制作用域]]",
       "x": 0,
       "y": 300,
       "width": 410,
@@ -23,7 +23,7 @@
     {
       "id": "payload",
       "type": "text",
-      "text": "## FGGYGOVerbMessage\nVerb → 通道；Instigator → 真实 EffectCauser（可空）；Target → ASC 宿主。Tags → 捕获快照；Magnitude → Damage/meta 原幅度，直接 Poise GE 为实际损失。",
+      "text": "## FGGYGOVerbMessage\nVerb → 通道；Instigator → 真实EffectCauser（可空）；Target → ASC宿主。\nTags → 原Modifier捕获快照。\nMagnitude → Damage/meta原幅度；直接Poise破韧为该次实际损失。\n载荷为原事件事实，实时ASC可已有后续变化。",
       "x": 510,
       "y": 270,
       "width": 470,
@@ -33,7 +33,7 @@
     {
       "id": "router",
       "type": "text",
-      "text": "## UGameplayMessageSubsystem\nBroadcastMessage(Verb, Message)：当前 GameInstance 内同步派发；不保存 GAS 状态，不提供网络传输。",
+      "text": "## UGameplayMessageSubsystem\nBroadcastMessage(Verb,Message) → 同步派发。\nHealthSet校验依赖/真实销毁。\n结果Delivered/Retired/DependencyFailure。\n路由不存GAS状态、不提供网络传输。",
       "x": 1090,
       "y": 300,
       "width": 430,
@@ -43,7 +43,7 @@
     {
       "id": "readers",
       "type": "text",
-      "text": "## UI / 音频 / 统计（目标）\nRegisterListener(Verb)：只读消费；生命周期结束时 Unregister。C++ 未发现消费者，蓝图资产与动态接线待验证。",
+      "text": "## 消息消费者（订阅接口）\nRegisterListener(Verb, Callback) → 自有订阅句柄。\n消费者只读消息；跨回调复制所需数据并处理对象失效。\n生命周期结束时Handle.Unregister。",
       "x": 1090,
       "y": 700,
       "width": 430,
@@ -53,7 +53,7 @@
     {
       "id": "event",
       "type": "text",
-      "text": "## GameplayEvent 与逻辑委托\nHealthSet 的死亡/破韧委托 → HealthComponent/能力链；HandleGameplayEvent 发往指定 ASC，保留 GA 生命周期。GameplayMessage 不请求能力。",
+      "text": "## HealthComponent / 指定ASC能力事件\nHealthSet的OnOutOfHealth/OnPoiseBroken → HealthComponent归零逻辑委托。\nHandleGameplayEvent(EventTag, Payload) → 指定ASC能力链。\n只读GameplayMessage不请求GA。",
       "x": 510,
       "y": 750,
       "width": 470,
@@ -63,12 +63,22 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## 发布/订阅与复制边界\nPoiseBreak仅真实正值到零；meta消费、Clamp、锁存提交后发布对应Modifier快照。消息观察者只读。\nRepNotify帧仅有调用局部阶段：未判定 / 等待最终引擎写入 / 后续真实变化；不持有聚合器。弱Outer/ASC或注册失配只停用本次分类，不取消复制历史。\n宏Scope先清帧再发incoming/有效复制快照；复制不重建GameplayMessage，也不覆盖重入后的实时锁存。\n已验证：旧12回归；LateCreate Health/Poise无初始聚合器、native内Infinite +5、宏后移除，两次归零及Poise真实Break幅度5。\n仍未全面验：已有聚合器新持续GE、嵌套OnRep、重登记/迁移、meta与网络/批处理/预测；E8开放，消费者接线待验。详见[[Messages/结构|契约与证明范围]]。",
+      "text": "## 状态与调用局部事实\nHealth/Poise有限Base允许越界，Current保持0..Max及所属MinimumHealth；Buff移除沿既有归零逻辑，无额外复活/补偿。\nModifier/Expected-write标记保存来源与真实Post事实，meta清理回调后重新换算；提交失败撤原帧Damage候选。\nRepNotify帧仅存本宏阶段/弱来源/一次有效值；NetReceive帧仅存原接收请求，不拥有聚合器/dirty执行。\nRouter真实销毁退休；依赖缺失明确诊断，恢复只发新事件。[[Messages/结构#Router 生命周期与发布|发布契约]]",
       "x": 0,
       "y": 1050,
       "width": 1450,
       "height": 300,
       "color": "6"
+    },
+    {
+      "id": "asc-current-calculation",
+      "type": "text",
+      "text": "## UGGYGOAbilitySystemComponent\nTryCalculateNumericAttributeBaseForCurrentValue\n输入原Set、Attribute、ExpectedCurrent、DesiredCurrent。\n输出Ready/Rejected/Stale＋Reason；仅Ready/None提供有限CalculatedBase。\n原生资格、唯一逆解与正向回验；计算本身不写属性。\nSetNumericAttributeBase → 原生聚合/属性回调。\n[[AbilitySystem/结构|ASC接口归属]]",
+      "x": -620,
+      "y": 300,
+      "width": 490,
+      "height": 350,
+      "color": "4"
     }
   ],
   "edges": [
@@ -78,7 +88,7 @@
       "fromSide": "right",
       "toNode": "payload",
       "toSide": "left",
-      "label": "生成来源/数值快照"
+      "label": "QueueMessageResult保存原事件载荷"
     },
     {
       "id": "e2",
@@ -86,7 +96,7 @@
       "fromSide": "right",
       "toNode": "router",
       "toSide": "left",
-      "label": "BroadcastMessage 发布"
+      "label": "依赖有效→BroadcastMessage"
     },
     {
       "id": "e3",
@@ -94,7 +104,7 @@
       "fromSide": "bottom",
       "toNode": "readers",
       "toSide": "top",
-      "label": "目标：按 Verb 订阅"
+      "label": "同步调用已注册的只读回调"
     },
     {
       "id": "e4",
@@ -102,7 +112,15 @@
       "fromSide": "bottom",
       "toNode": "event",
       "toSide": "top",
-      "label": "属性/边沿逻辑委托"
+      "label": "属性/归零逻辑委托"
+    },
+    {
+      "id": "s-current-calculate",
+      "fromNode": "source",
+      "fromSide": "left",
+      "toNode": "asc-current-calculation",
+      "toSide": "right",
+      "label": "调用薄换算/原GAS setter；HealthSet确认OwnPost"
     }
   ]
 }

@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Camera｜流程图\n单次原生更新的项目 GG 路径。[[GGYGO_结构_相机.canvas|结构图]] · [[Camera/结构|结构文档]] · [[Camera/模式栈实现#已验证与待审查边界|验证边界]]。\nGate30（历史）四 Camera 叶 Success，errors/warnings=0；当前 Gate66/67 编译、原有三项 smoke Success（0/0），不等于新 Manager/Ready/投影联合动态通过。\nM2 首次同步、暂停非虚摄影时间戳缺口、资产/PIE/网络等仍开放。两张子图已同步接口并静态核对（不是动态证明）：[[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复子图]] · [[GGYGO_流程_相机模式求值.canvas|模式求值子图]]。",
+      "text": "# Camera｜流程图\n原生更新入口与单次 GG 求值／发布链。[[GGYGO_结构_相机.canvas|结构图]] · [[Camera/结构|结构文档]]。\n[[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复子图]] · [[GGYGO_流程_相机模式求值.canvas|模式求值子图]]。",
       "x": 0,
       "y": 0,
       "width": 1890,
@@ -13,7 +13,7 @@
     {
       "id": "engine",
       "type": "text",
-      "text": "1. AGGYGOPlayerCameraManager 原生更新入口。\nNotActivated 不求值；初始种子不是确认视角。\nStopped 保持 Cache，不自动重试。\nRunning 才进入原生 DoUpdateCamera。\nUpdateViewTarget 对选中的 GG 组件调用 Prepare；\n非 GG 目标仍按明确的原生路径处理。\n当前目标→待切目标顺序处理。\n原始 dt 必须有限且非负；dt0 合法。\n没有第二套帧调度器或跨帧 Prepared。",
+      "text": "1. LevelTick 选择原生 Manager 入口。\n非暂停／要求 full tick → UpdateCamera(dt)。\n暂停且 provider 支持 → 下方摄影入口。\n两个入口在 NotActivated／Stopped 直接返回。\nRunning 的 UpdateCamera → 原生 DoUpdateCamera。\nGG 目标 UpdateViewTarget → Prepare；\n当前目标→待切目标，原始 dt 有限非负。\n摄影分支不进入该 GG 求值链。",
       "x": 0,
       "y": 460,
       "width": 385,
@@ -23,7 +23,7 @@
     {
       "id": "look-input",
       "type": "text",
-      "text": "0. 视角输入更新 Controller.ControlRotation。\n\n既有资产记录：BP_PC_Pyrios 注册 IMC_Default + IMC_MouseLook；IA_Look / IA_MouseLook → Look.Stick / Look.Mouse（资产/动态另验）。\nHeroComponent::Input_Look* → AddControllerYawInput / AddControllerPitchInput。",
+      "text": "0. HeroComponent::Input_LookMouse / Input_LookStick\n→ AddControllerYawInput / AddControllerPitchInput\n→ Controller.ControlRotation。\nIMC_Default / IMC_MouseLook 配置 IA_Look / IA_MouseLook。",
       "x": 0,
       "y": 230,
       "width": 890,
@@ -33,7 +33,7 @@
     {
       "id": "choose",
       "type": "text",
-      "text": "2. Prepare 内由 Hero 提供模式类。\nDetermineCameraModeDelegate → Ability 覆盖/默认类。\n委托缺失或类非法明确失败，\n不沿用旧活动栈掩盖缺失配置。\n既有默认资产记录：DA_Pawn_Pyrios →\nBP_CameraMode_ThirdPerson_Pyrios_C。\n原目标/组件/PC/World 与配置在调用内校验。\n[[Camera/结构#与其他模块如何交互|职责与接口]]",
+      "text": "2. Prepare 内 UpdateCameraModes 取模式类。\nDetermineCameraModeDelegate → Hero 的覆盖／默认类。\n委托缺失或类非法返回 Failure，\n不沿用旧活动栈掩盖缺失配置。\nPawnData.DefaultCameraMode 提供默认类。\n原目标／组件／Controller／World 与配置在调用内校验。\n[[Camera/结构#与其他模块如何交互|职责与接口]]",
       "x": 470,
       "y": 460,
       "width": 420,
@@ -83,7 +83,7 @@
     {
       "id": "empty",
       "type": "text",
-      "text": "失败 / Stopped：一次诊断，保存原失败身份。\nPrepare/修饰/Commit/混合/发布失败统一停止，\n恢复原生 Cache POV/时间及原生额外后处理快照。\n任意 Setter/修饰器副作用不是全局事务。\n已有确认 → 保持该 Cache；首次失败无确认，\nLocalPlayer 返回 false，输入初始化仍独立继续。\n重复 Ready 不重启，不自动重试。\nRestart 只接受精确原失败 Target/Component，\n并复核原 PC/World；原 GG 组件重建栈后尝试一次。\n失败仍 Stopped；禁止换源作为恢复。\n暂停非虚摄影路径时间戳缺口仍开放。\n[[Camera/结构#发布准入与显式重启|状态与 Restart]]",
+      "text": "失败 / Stopped：RejectCameraPublication 保存原失败身份。\nPrepare／修饰／Commit／混合／发布失败统一停止；\n受控 DoUpdate 恢复原生两帧 POV／时间与附加 PP。\n任意 Setter／modifier 副作用不是全局事务。\n已有 confirmed → 保留该 Cache；首次失败无确认，\nLP 返回 false，输入初始化仍独立继续。\nUpdateCamera／UpdateCameraPhotographyOnly 不再写 Cache。\n重复 Ready 不重启，不自动重试。\nRestartCameraEvaluation 只接受原失败 Target／Component，\n复核原 PC／World；GG 重建栈后尝试一次。\n失败仍 Stopped，不换源。\n[[Camera/结构#发布准入与显式重启|原身份 Restart]]",
       "x": 470,
       "y": 1330,
       "width": 420,
@@ -119,6 +119,16 @@
       "width": 420,
       "height": 340,
       "color": "1"
+    },
+    {
+      "id": "photography-only",
+      "type": "text",
+      "text": "暂停摄影分支：UpdateCameraPhotographyOnly()\nLevelTick 虚派发 → GG override 检查准入。\nNotActivated／Stopped → return，\n不调用 Super，不写两帧 POV／时间戳。\nRunning → Super::UpdateCameraPhotographyOnly()\n→ UpdatePhotographyCamera → FillCameraCache。\n保持原生行为：作用域外 POV setter 拒绝发布，\n时间戳仍按原生 Fill 规则写入。\n不追加 GG 求值、不授予新的 confirmed，\n不改变 Controller 的暂停 full tick 政策。\n[[Camera/结构#发布准入与显式重启|发布契约]]",
+      "x": 0,
+      "y": 820,
+      "width": 420,
+      "height": 420,
+      "color": "3"
     }
   ],
   "edges": [
@@ -136,7 +146,7 @@
       "fromSide": "right",
       "toNode": "choose",
       "toSide": "left",
-      "label": "GG Prepare → UpdateCameraModes"
+      "label": "Running 的普通更新：GG UpdateViewTarget → Prepare"
     },
     {
       "id": "e2",
@@ -225,6 +235,14 @@
       "toNode": "empty",
       "toSide": "right",
       "label": "修饰/Commit/混合/发布校验失败"
+    },
+    {
+      "id": "e13",
+      "fromNode": "engine",
+      "fromSide": "bottom",
+      "toNode": "photography-only",
+      "toSide": "top",
+      "label": "暂停、不要求 full tick 且 provider 支持 → 摄影入口"
     }
   ]
 }

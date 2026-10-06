@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# 相机模式栈求值与最终保护｜实现子图\n[[Camera/模式栈实现|算法说明]] · [[GGYGO_结构_相机.canvas|类结构]] · [[GGYGO_流程_相机.canvas|返回主流程]]。索引0为顶；Hero先仲裁。View/Request边传递数据，完整Evaluate成功后才施加Offset。\nGate29（历史）四Camera叶Success、44次Offset拒绝；当前Gate66/67已编译、原有三项smoke Success（errors/warnings=0/0），不证明新Manager/Ready/投影联合动态。\n完整B5/B6/B7、资产/网络、M2首次同步及暂停非虚摄影时间戳缺口仍开放。[[Camera/模式栈实现#已验证与待审查边界|验证边界]]。",
+      "text": "# 相机模式栈求值与最终保护｜实现子图\n[[Camera/模式栈实现|算法说明]] · [[GGYGO_结构_相机.canvas|类结构]] · [[GGYGO_流程_相机.canvas|返回主流程]]。\n索引0为顶；Hero先仲裁。View／Request 边传递数据，完整 Evaluate 成功后才施加 Offset。\n本图展开普通 GG 求值；摄影入口走主流程的原生摄影分支。",
       "x": 0,
       "y": 0,
       "width": 1900,

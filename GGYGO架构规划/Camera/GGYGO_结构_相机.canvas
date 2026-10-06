@@ -13,7 +13,7 @@
 		{
 			"id": "pawn",
 			"type": "text",
-			"text": "## UGGYGOPawnData\n`DefaultCameraMode: TSubclassOf<UGGYGOCameraMode>` → 角色/形态选择默认类。\n既有 DA_Pawn_Pyrios 记录选择 Pyrios 参数蓝图；资产回读另验。",
+			"text": "## UGGYGOPawnData\n`DefaultCameraMode: TSubclassOf<UGGYGOCameraMode>` → 角色／形态的默认模式类。\nDA_Pawn_Pyrios 配置 Pyrios 参数蓝图。",
 			"x": 0,
 			"y": 200,
 			"width": 390,
@@ -23,7 +23,7 @@
 		{
 			"id": "ga",
 			"type": "text",
-			"text": "## UGGYGOGameplayAbility\n`SetCameraMode(Class)` → 原 Hero/Spec/generation。\n`ApplyCameraOffset(Offset)` → 先 Clear 再 Set。\n仅有效 handle 保存原 Camera/token；\nSetter 拒绝不恢复调用前已 Clear 的资源。\n默认原 `CleanupAbilityResourcesForTermination(Context)`\n先脱开匹配成员，再释放原记录的精确凭证。\n派生清理及端到端迁移尚未全部完成。\n[[AbilitySystem/结构|AbilitySystem]]",
+			"text": "## UGGYGOGameplayAbility\n`SetCameraMode(Class)` → 原 Hero 的 Spec／generation。\n`ApplyCameraOffset(Offset)` → 先 Clear 再 Set。\n保存原接收者和有效 token，不重找新 Avatar。\n`CleanupAbilityResourcesForTermination`\nContext → 摘原匹配成员、归还原精确凭证。\n派生能力归还自己的资源。\n[[AbilitySystem/结构|AbilitySystem]]",
 			"x": 0,
 			"y": 440,
 			"width": 390,
@@ -33,7 +33,7 @@
 		{
 			"id": "hero",
 			"type": "text",
-			"text": "## UGGYGOHeroComponent\n`DetermineCameraMode()` → 覆盖类/默认类。\n`SetAbilityCameraMode(Class,Spec)` → 代次。\n`ClearAbilityCameraMode(Spec,generation)` → 撤销。\n两个真实 Ready 入口：DataInitialized 转换、\n`InitializePlayerInput` 的输入 guard/资源操作前。\n`ConsumeLocalCameraProviderReady` → 原身份 Activate；\n重复 Ready 不 Restart；镜头失败不吞掉输入初始化。\nTyped H Notice：只退休原 H 所属输入/重试资源；\n复核后继后清原覆盖并 Reset 原 Camera。\nEndPlay 按原生命周期清理。\n[[Input/结构#Hero本地ASC身份订阅与原H清理|Input 原 H 合同]]\n[[Camera/结构#解绑协调与后继保护|解绑边界]]",
+			"text": "## UGGYGOHeroComponent\n`DetermineCameraMode()` → 覆盖类／默认类。\n`SetAbilityCameraMode(Class,Spec)` → 代次。\n`ClearAbilityCameraMode(Spec,generation)` → 撤销。\n`ConsumeLocalCameraProviderReady(Pawn,Entry)`\n原身份 Ready → Activate；重复不 Restart。\n镜头结果与输入结果分开。\n`ConsumeLocalAbilitySystemNotice`\n原订阅／typed H → 清原归属资源，保护后继。\nEndPlay 归还自身资源、解绑模式委托。\n[[Input/结构#Hero本地ASC身份订阅与原H清理|Input 原 H 合同]]\n[[Camera/结构#解绑协调与后继保护|解绑边界]]",
 			"x": 500,
 			"y": 300,
 			"width": 420,
@@ -63,7 +63,7 @@
 		{
 			"id": "pyrios-mode",
 			"type": "text",
-			"text": "## BP_CameraMode_ThirdPerson_Pyrios\n`/Game/Camera/Modes/`\nClass Defaults：构图/混合/穿墙参数。\nDA_Pawn_Pyrios 选类；继承 ThirdPerson。\n[[Camera/结构#设计参数与碰撞策略的归属|参数记录]]；资产回读/PIE 待验。",
+			"text": "## BP_CameraMode_ThirdPerson_Pyrios\n`/Game/Camera/Modes/`\nClass Defaults：构图／混合／穿墙参数。\nDA_Pawn_Pyrios 选类；继承 ThirdPerson。\n[[Camera/结构#设计参数与碰撞策略的归属|配置归属]]。",
 			"x": 0,
 			"y": 1000,
 			"width": 390,
@@ -103,7 +103,7 @@
 		{
 			"id": "controller",
 			"type": "text",
-			"text": "## AGGYGOPlayerCameraManager / NativeCache\n唯一持久 POV：引擎当前/上一帧原生 Cache。\nManager 只持有准入状态、原身份和确认资格。\n`ActivateCameraEvaluation(Target,Component)`\n`RestartCameraEvaluation(OriginalTarget,OriginalComponent)`\nNotActivated → Running；失败 → Stopped。\nStopped 不自动重试；Restart 只接受精确原失败源，\n重建其 GG Stack 后只尝试一次。\n当前→待切目标顺序 Prepare→预览→修饰检查→Commit；\n原生混合/摄影/Fill 全部有效后才能发布 Cache。\n初始种子不授予确认资格。\n暂停的非虚摄影时间戳入口仍有已知缺口。\n[[Camera/结构#发布准入与显式重启|准入与重启]]",
+			"text": "## AGGYGOPlayerCameraManager / NativeCache\n持久 POV：引擎当前／上一帧 Cache。\nManager 持有准入、原身份和确认资格。\n`ActivateCameraEvaluation(Target,Component)` → Result。\n`RestartCameraEvaluation(OriginalTarget,Component)`\n只重试原失败源；GG 源先重建 Stack。\n`UpdateCamera(dt)`／`UpdateCameraPhotographyOnly()`\n非 Running 先返回，保持原生 POV 与时间戳。\nRunning：普通受控 DoUpdate；摄影委托 Super。\n普通发布完整成功才 confirmed；种子无资格。\n[[Camera/结构#发布准入与显式重启|准入与重启]]",
 			"x": 1020,
 			"y": 980,
 			"width": 420,
@@ -113,7 +113,7 @@
 		{
 			"id": "contract",
 			"type": "text",
-			"text": "## 状态归属与验证边界\nGA 持有原记录/资源凭证；Hero 持有 Spec+generation 并消费 typed H；默认原 Cleanup 已接，派生清理及端到端迁移未全闭合。\nCameraComponent 持有 Offset 单槽 token、唯一碰撞恢复比例和 Stack；Stack 持有模式池/活动栈；ThirdPerson 只声明期望视角与保护请求。\nPrepared 和 Commit 输出只活在单次调用；Manager 的 NotActivated/Running/Stopped 与确认资格不复制 POV；唯一持久 POV 是原生 Cache。\nLocalPlayer 只读取原关联与确认资格，在本地 scratch 运行原生投影并复核；不 Activate/Restart，不新建缓存或帧调度器。\nGate26（历史）：完整构建、项目60/60、四 Camera 叶 Success；Offset 两状态44次精确拒绝，合法零值通过。此证据不扩展为新 Manager 联合动态验收。\n当前 Gate66/67 已编译；原有三项 smoke Success，errors/warnings=0/0。CDO 冷读不是 Ready/首帧/投影的世界动态证明；M2 首次同步待后继任务。\n失败保持原生已确认 Cache；Prepare 内部推进与任意修饰器/Setter 副作用不承诺全局事务回滚。暂停非虚摄影入口的时间戳缺口仍开放。\n非法 dt/类/配置/穿透参数明确失败；合法 dt0、半径0、恢复0和混合时间0仍按正常配置解释。\n父四份与下列两张既有子图均已同步接口并静态核对；不新增运行证明，完整输入重入/派生清理/资产/ViewTarget/PIE/网络验收仍开放。\n[[Camera/结构#当前实现与验证边界|证明范围]] · [[Camera/模式栈实现#已验证与待审查边界|详细边界]]\n[[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复子图]] · [[GGYGO_流程_相机模式求值.canvas|模式求值子图]]",
+			"text": "## 状态归属与发布契约\nGA 持有原资源凭证；Hero 持有 Spec＋generation 并消费原 typed H。\nCameraComponent 持有 Offset 单槽 token、碰撞恢复比例及 Stack；Stack 持有模式池／活动栈；ThirdPerson 只声明期望视角与保护请求。\nPrepared 和 Commit 输出只活在单次调用；Manager 的准入／原身份／确认资格不复制持久 POV。\nLocalPlayer 只读取原关联与确认资格，用局部 scratch 运行原生投影并复核；不 Activate／Restart，不持有第二 Cache 或帧调度器。\nNotActivated／Stopped 的两个原生更新入口不写 Cache；Stopped＋confirmed 可继续只读最后有效视图。\n受控 DoUpdate 失败保持两帧原生 POV、时间戳和附加 PP；内部模式进度及任意 Setter／modifier 副作用不承诺整体回滚。\nRunning 摄影入口保持原生 Fill 行为，作用域外 POV setter 仍拒绝发布，时间戳按原生规则处理。\n非法 dt／类／配置／穿透参数明确失败；合法 dt0、半径0、恢复0和混合时间0按正常配置解释。\n[[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复子图]] · [[GGYGO_流程_相机模式求值.canvas|模式求值子图]]",
 			"x": 0,
 			"y": 1660,
 			"width": 1450,
@@ -222,7 +222,7 @@
 			"fromSide": "right",
 			"toNode": "component",
 			"toSide": "right",
-			"label": "Prepare → Preview → Commit（单次调用）"
+			"label": "普通受控 DoUpdate：Prepare → Preview → Commit"
 		},
 		{
 			"id": "e10",

@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Messages｜发布与重入流程\n主路径已构建；旧12及LateCreate两例通过，E8其余边界开放。[[Messages/结构|契约文档]] · [[GGYGO_结构_Messages.canvas|结构图]] · [[GGYGO_流程_伤害结算.canvas|上游伤害流程]]",
+      "text": "# Messages｜发布、Current结算与复制流程\n上方：逐Modifier结算/重入/发布；下方：复制历史与客户端Max投影。\n[[Messages/结构|契约文档]] · [[GGYGO_结构_Messages.canvas|结构图]] · [[GGYGO_流程_伤害结算.canvas|上游伤害流程]]",
       "x": 0,
       "y": 0,
       "width": 1680,
@@ -13,7 +13,7 @@
     {
       "id": "pre",
       "type": "text",
-      "text": "## GAS → PreGameplayEffectExecute\n输入：一个 Modifier 的属性、幅度、EffectSpec。\n免疫校验通过后建立配对的同步上下文；拒绝路径不留下待处理记录。",
+      "text": "## GAS → PreGameplayEffectExecute\n输入本Modifier属性、原幅度与EffectSpec。\n免疫/数值校验；meta以当前Current调用ASC换算做支持性预检，不保存候选Base。\n通过建原帧；拒绝诊断并不留下帧。",
       "x": 0,
       "y": 230,
       "width": 490,
@@ -23,7 +23,7 @@
     {
       "id": "write",
       "type": "text",
-      "text": "## GAS写Current → PostAttributeChange\n输入：属性与实际Old/New。初始meta记录Modifier贡献；直接属性/结算setter提交数值与锁存。\nQueueAttributeResult/QueueMessageResult暂存事实；native随后可重入GE。Changed先于对应边沿。",
+      "text": "## GAS写值 → PostAttributeChange\n输入Attribute及实际Old/New。\nmeta首次写 → 记录本Modifier实际贡献。\n资源写 → 保存本次OwnPost、Changed与归零锁存，先于native委托。\nMax下调 → 权威TrySetCurrentValue(资源, NewMax)；客户端RequestClientMaxReevaluation。\n新嵌套GE优先配对，native随后可重入。",
       "x": 590,
       "y": 230,
       "width": 490,
@@ -33,7 +33,7 @@
     {
       "id": "post",
       "type": "text",
-      "text": "## PostGameplayEffectExecute\n配对Modifier；Damage先调用QueueMessageResult保存原幅度。\nmeta先扣自身贡献，setter返回后读最新Health/Poise并Clamp结算；直接属性不重写。\n移除准确帧→FlushPendingResults；不覆盖重入状态。",
+      "text": "## PostGameplayEffectExecute\n配对原Modifier；Damage先排原幅度候选。\nmeta先GAS setter扣自身贡献；其native回调返回后重读Current/Max，计算目标并调用TrySetCurrentValue。\n直接属性不重复写；原帧准确移除。",
       "x": 1180,
       "y": 230,
       "width": 490,
@@ -43,7 +43,7 @@
     {
       "id": "nested",
       "type": "text",
-      "text": "## native委托 → 嵌套GAS调用\n重入可发生在Pre/Post之间或setter内，再走PreGameplayEffectExecute配对独立Modifier。\n仍有Modifier帧或属性联动未退出→FlushPendingResults暂不发布；结果只在同步栈内缓冲。",
+      "text": "## native委托 → 合法GAS重入\n新GE再走PreGameplayEffectExecute，独立配对Modifier；普通setter走原属性入口。\n原标记只消费一次，后续写入不归旧帧。\n仍有Modifier/属性联动时，FlushPendingResults暂不发布。",
       "x": 590,
       "y": 600,
       "width": 490,
@@ -53,7 +53,7 @@
     {
       "id": "publish",
       "type": "text",
-      "text": "## FlushPendingResults → 同步发布\nModifier帧和属性联动均退出后，先swap结果到局部数组，再发属性/死亡/破韧委托。\nBroadcastMessage(Verb, FGGYGOVerbMessage)发布Damage/真实PoiseBreak；来源/幅度为本次快照，新GE不复用旧结果。",
+      "text": "## FlushPendingResults → 发布事实\n同步Modifier与属性联动均退出后，先swap结果到局部数组。\n按顺序发Changed/死亡/破韧委托；消息逐项调用PublishMessageResult。\n旧结果不覆盖回调的新GAS状态。",
       "x": 1180,
       "y": 960,
       "width": 490,
@@ -63,7 +63,7 @@
     {
       "id": "rep",
       "type": "text",
-      "text": "## 属性复制 → OnRep_Health/OnRep_Poise\nBeginRepNotifyFrame(Attribute) → 弱Outer/ASC及实际注册校验。\nGAMEPLAYATTRIBUTE_REPNOTIFY宏内：\nOnAttributeAggregatorCreated → 匹配未判定帧记迟到创建，含外层。\nPostAttributeChange → GE/Expected/Base配对优先；其余未判定→抑制回退→等待最终→捕获一次有效值/锁存先于native提交；迟到创建后的Post走真实变化。\nEndRepNotifyFrame(Frame) → 宏Scope按准确身份出栈。\nincoming/有效历史 → Changed；正值→0且旧锁存未触发→归零边沿。原历史不取消，不回写旧锁存，不发GameplayMessage。\n[[Messages/结构#HealthSet 的复制调用作用域|阶段、来源失配与宏契约]]",
+      "text": "## 复制 → OnRep_Health/OnRep_Poise\nBeginRepNotifyFrame：原weak Outer/ASC及注册校验。\nGAS宏内：GE/Expected/Base配对优先；其余写入按阶段处理。\n未判定 → 抑制已有聚合器回退；最终写 → 捕获一次有效值/提交锁存。\nOnAttributeAggregatorCreated：迟到创建后的写入为真实变化。\nEndRepNotifyFrame：宏Scope先清帧。\nincoming/有效历史 → Changed及真实归零委托；不回写旧锁存，不重建GameplayMessage。\n[[Messages/结构#HealthSet 的复制调用作用域|复制阶段与来源契约]]",
       "x": 0,
       "y": 1350,
       "width": 490,
@@ -73,7 +73,7 @@
     {
       "id": "consumer",
       "type": "text",
-      "text": "## 目标消费者：UI / 音频 / 统计\n按 Verb 只读订阅；实际蓝图接线待验证。\n载荷是事件快照，实时 ASC 可能已经有后续变化。\n复制需要的数据；按生命周期注销订阅。",
+      "text": "## RegisterListener → 只读消费\nBroadcastMessage按Verb同步调用已注册回调。\n载荷是原事件事实，实时ASC可已有后续变化。\n复制所需数据；结束使用时Unregister。",
       "x": 590,
       "y": 960,
       "width": 490,
@@ -83,12 +83,72 @@
     {
       "id": "next",
       "type": "text",
-      "text": "## 后续Modifier / GE与证明范围\n每个Modifier独立执行，Health/Poise不原子提交。\n已验：旧12、LateCreate无聚合器复制/native内Infinite +5/宏后移除，两例归零及Poise Break幅度5。\n未全面验：已有聚合器新持续GE、嵌套OnRep、重登记/迁移、meta、网络/批处理/预测；E8开放。",
+      "text": "## 返回GAS / 后续Modifier\nInternalExecuteMod逐个执行Modifier。\nHealth/Poise不作为同GE原子事务；消息不能代替整个命中的最终快照。\n回调的新GE取得独立帧，沿原GAS入口执行。",
       "x": 0,
       "y": 960,
       "width": 490,
       "height": 270,
       "color": "6"
+    },
+    {
+      "id": "calculate-current",
+      "type": "text",
+      "text": "## TrySetCurrentValue → ASC换算/提交\n输入meta清理后目标，或权威Max下调目标。\nTryCalculateNumericAttributeBaseForCurrentValue(this, Attribute, ExpectedCurrent, DesiredCurrent)。\nReady/None → SetNumericAttributeBase(CalculatedBase) → 原Post保存本标记的实际值。\nOwnPost确认本次目标；随后native重入改变Current不改写此事实。\n[[Messages/结构#HealthSet 的 Current 结算|Current契约]]",
+      "x": 1180,
+      "y": 540,
+      "width": 490,
+      "height": 350,
+      "color": "5"
+    },
+    {
+      "id": "current-rejected",
+      "type": "text",
+      "text": "## 拒绝 / 来源变更 / 未确认\nRejected/Stale或仍开放native batch → 明确诊断。\n元属性已消费时不伪造整体GE回滚；只撤原帧未确认Damage候选。\n原帧移除后Flush；保留其它已发生属性事实，不用另一资源/默认值代替结算。",
+      "x": 1890,
+      "y": 540,
+      "width": 500,
+      "height": 300,
+      "color": "3"
+    },
+    {
+      "id": "delivery-lifecycle",
+      "type": "text",
+      "text": "## PublishMessageResult(Result)\n真实Set/Actor销毁、World teardown/cleanup或GI销毁 → Retired。\n无效Owner或缺World/GI/Router → DependencyFailure＋定位诊断；恢复前按原因抑制重复。\n依赖有效 → BroadcastMessage(Verb, Message)，返回Delivered；无BeginPlay/监听者门槛。\n失败不撤结算/跳属性委托，不创建Router、不重播旧事件。\n[[Messages/结构#Router 生命周期与发布|投递结果]]",
+      "x": 1890,
+      "y": 960,
+      "width": 500,
+      "height": 330,
+      "color": "1"
+    },
+    {
+      "id": "client-max-request",
+      "type": "text",
+      "text": "## PreNetReceive / Max复制 → 请求\nPreNetReceive保存原weak Owner/ASC，再Super进入native batch。\nMax的Post或OnRep_MaxHealth/MaxPoise宏返回后Current超限 → RequestClientMaxReevaluation；覆盖无Max聚合器分支。\n本次接收只记属性请求；PostNetReceive先Super排空dirty，再移除本帧/消费原请求。\n无接收且batch关闭的OnRep可同步执行。",
+      "x": 590,
+      "y": 1500,
+      "width": 490,
+      "height": 350,
+      "color": "4"
+    },
+    {
+      "id": "client-max-project",
+      "type": "text",
+      "text": "## ReevaluateClientMax → 原生同Base\n重验原来源/注册/客户端模式/batch关闭，重读真实Base/Current/Max。\nCurrent已在界内 → 无额外写入；仍超限 → SetNumericAttributeBase(Attribute, 同一Base)。\n原生重新聚合/PreAttributeChange限制Current，单次标记确认实际Post。\n只产生该次真实属性/边沿委托；其后native真实GE/setter仍独立处理。\n[[Messages/结构#客户端上限的 NetReceive 投影|客户端投影]]",
+      "x": 1180,
+      "y": 1500,
+      "width": 490,
+      "height": 350,
+      "color": "5"
+    },
+    {
+      "id": "client-max-rejected",
+      "type": "text",
+      "text": "## 投影请求失效 / 拒绝\n来源/注册失配 → 退休请求并诊断。\n仍开放batch、错误权威模式、非法数值或未确认实际Post → 明确失败。\n请求已先清理，不跨帧等待/重试，不假报提交，不发该投影的GameplayMessage。",
+      "x": 1890,
+      "y": 1500,
+      "width": 500,
+      "height": 260,
+      "color": "3"
     }
   ],
   "edges": [
@@ -98,7 +158,7 @@
       "fromSide": "right",
       "toNode": "write",
       "toSide": "left",
-      "label": "校验通过→GAS应用本Modifier"
+      "label": "校验/支持性预检通过→GAS应用本Modifier"
     },
     {
       "id": "p2",
@@ -127,18 +187,18 @@
     {
       "id": "p5",
       "fromNode": "post",
-      "fromSide": "bottom",
+      "fromSide": "right",
       "toNode": "publish",
-      "toSide": "top",
-      "label": "移除配对帧→Flush门禁允许发布"
+      "toSide": "right",
+      "label": "直接属性已写入→移除原帧/Flush"
     },
     {
       "id": "p6",
-      "fromNode": "publish",
-      "fromSide": "left",
+      "fromNode": "delivery-lifecycle",
+      "fromSide": "bottom",
       "toNode": "consumer",
-      "toSide": "right",
-      "label": "本地消息（目标接入）"
+      "toSide": "bottom",
+      "label": "Delivered→BroadcastMessage同步回调"
     },
     {
       "id": "p8",
@@ -147,6 +207,70 @@
       "toNode": "next",
       "toSide": "bottom",
       "label": "引擎继续后续执行"
+    },
+    {
+      "id": "p-current-calculation",
+      "fromNode": "post",
+      "fromSide": "bottom",
+      "toNode": "calculate-current",
+      "toSide": "top",
+      "label": "meta清理回调返回→重算当前目标"
+    },
+    {
+      "id": "p-current-confirmed",
+      "fromNode": "calculate-current",
+      "fromSide": "bottom",
+      "toNode": "publish",
+      "toSide": "top",
+      "label": "OwnPost确认→移原帧/Flush"
+    },
+    {
+      "id": "p-current-rejected",
+      "fromNode": "calculate-current",
+      "fromSide": "right",
+      "toNode": "current-rejected",
+      "toSide": "left",
+      "label": "Rejected / Stale / 未确认"
+    },
+    {
+      "id": "p-current-rejected-flush",
+      "fromNode": "current-rejected",
+      "fromSide": "left",
+      "toNode": "publish",
+      "toSide": "right",
+      "label": "撤原Damage候选→移帧/Flush其余事实"
+    },
+    {
+      "id": "p-message-lifecycle",
+      "fromNode": "publish",
+      "fromSide": "right",
+      "toNode": "delivery-lifecycle",
+      "toSide": "left",
+      "label": "逐项PublishMessageResult"
+    },
+    {
+      "id": "p-client-native-drained",
+      "fromNode": "client-max-request",
+      "fromSide": "right",
+      "toNode": "client-max-project",
+      "toSide": "left",
+      "label": "Super收尾后消费原弱源请求"
+    },
+    {
+      "id": "p-client-source-invalid",
+      "fromNode": "client-max-request",
+      "fromSide": "bottom",
+      "toNode": "client-max-rejected",
+      "toSide": "bottom",
+      "label": "原来源失效/请求拒绝"
+    },
+    {
+      "id": "p-client-projection-failed",
+      "fromNode": "client-max-project",
+      "fromSide": "right",
+      "toNode": "client-max-rejected",
+      "toSide": "left",
+      "label": "非法模式/数值/开放batch/未确认"
     }
   ]
 }

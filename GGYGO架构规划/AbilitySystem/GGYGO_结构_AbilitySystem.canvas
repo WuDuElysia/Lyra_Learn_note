@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# AbilitySystem｜结构图\n原final生命周期/Busy归属保持；同Binding Refresh后精确End及旧来源隔离已有限验证，带资源刷新清理未动态证明。Task RequiredPose历史失败与Combo Main/End实际移动链已编译、必要复测。原报告3 Success/3 Fail；完整混合/Cook/联机/HID、strict/raw及C12未决仍开放。\n[[AbilitySystem/结构|结构文档]] · [[GGYGO_流程_AbilitySystem.canvas|关键调用]] · [[计划_玩家普攻连段|本轮集中证据]] · [[AbilitySystem/计划_原请求终止|终止契约]] · [[GGYGO_流程_原请求终止.canvas|终止子图]] · [[GGYGO_流程_伤害结算.canvas|伤害]] · [[GGYGO_结构_HitImpact.canvas|命中反馈]]",
+      "text": "# AbilitySystem｜结构图\nASC持有输入请求、组准入、ActorInfo事务及原资源认证；GA持有原激活、终止记录和招式资源；Task持有自身播放与订阅。\n[[AbilitySystem/结构|结构文档]] · [[GGYGO_流程_AbilitySystem.canvas|执行流程]] · [[计划_玩家普攻连段|连段说明]] · [[AbilitySystem/计划_原请求终止|终止契约]] · [[GGYGO_流程_原请求终止.canvas|终止流程]] · [[GGYGO_流程_伤害结算.canvas|伤害流程]] · [[GGYGO_结构_HitImpact.canvas|命中反馈]]",
       "x": 0,
       "y": 0,
       "width": 1520,
@@ -13,7 +13,7 @@
     {
       "id": "input",
       "type": "text",
-      "text": "## Input／Hero消费者\nInput管原生Key/Device事实；Hero管Action观测/有限缓冲；ASC唯一held聚合。\nHero A已接ActionInstance→Receive原ID/期限→End／Queue完整Retry。\nB1消费typed本地H；B2装配Source→CMC原会话，均已编译。\nPostProcess唯一驱动Process；旧夹具/混合来源动态未验。\n[[Input/结构|Input合同]]",
+      "text": "## Input／Hero\nInput持有原生Key/Device来源，Hero持有Action观察、有限缓冲和自身订阅，ASC唯一持有Spec的held/queued聚合。\nHero调用ReceiveAbilityInputRequest／EndAbilityInputRequest／QueueAbilityInputRetry，传原ID、Tag和截止时间。\nHero订阅Extension的typed本地H；移动来源会话由Source提供，CMC负责执行。\nPlayerController::PostProcessInput是ProcessAbilityInput的唯一帧入口。\n[[Input/结构|Input接口]]",
       "x": 0,
       "y": 230,
       "width": 390,
@@ -23,7 +23,7 @@
     {
       "id": "host",
       "type": "text",
-      "text": "## 持久状态宿主\nSlot/BossState持ASC，Host选择/公布Avatar。\nRequest→ASC事务→Extension Install原H→Host公布→Publish；ActorInfo只归ASC。\nH1原提交cleanup＋显式ClearMode；H2原Operation＋pureScope清理，原Init失败保留。\nHealth/Base/Hero已消费；Host/Extension/Hero已编译，整链动态仍开放。\n[[Combatants/结构|Host接口]]",
+      "text": "## 持久状态宿主\nSlot／BossState持有ASC，Host持有Avatar选择、原H和请求scope；ActorInfo写入归ASC。\nRequestAvatarBinding消费ASC事务及发布接口；Extension持有本地H。\nHost使用原提交Context或未提交Init的原Operation分别认证自身清理，并显式传ClearMode。\nHealth／Base／Hero持有各自的H订阅与资源。\n[[Combatants/结构|Host接口]]",
       "x": 0,
       "y": 540,
       "width": 390,
@@ -33,7 +33,7 @@
     {
       "id": "asc",
       "type": "text",
-      "text": "## UGGYGOAbilitySystemComponent\nReceive／End／Queue签原输入ID；唯一Spec held/queued，有序边沿/逐边沿来源冻结，无第二Tick。\nNotifyAbilityFailed（final）只消费独立Can来源，真实Queued发送完整Retry。\nIsActivationBlockedByGroup只读；NotifyActivated分配sequence/预留，ActiveCount++后Finalize；终检只查权威组登记。\nTryActivateAbilityWithTerminationBoundary提供真实原Try退出见证；OnAbilityTerminationCompleted发布原完成历史。\nASC关联GA原记录的Try/Ended见证，无第二终止状态机。\nprivate CheckOriginalAbilityBindingForTermination核当前已提交同Binding完整快照＋原allocation/ASC/Owner/Avatar；不续旧资源。\nClientCorrectAbilityState按Spec/实例/key路由。\nActorInfo唯一事务/发布见下方；已编译，专项/生产边界保留。",
+      "text": "## UGGYGOAbilitySystemComponent\nReceive／End／Queue管理原输入ID、Spec held/queued和有序边沿。\nNotifyAbilityFailed（final）消费独立Can来源；OnAbilityInputRetryable发布完整原Retry。\nIsActivationBlockedByGroup提供只读准入查询；FinalizeAbilityGroupAdmission执行组终检，ActiveAbilitiesByGroup是项目组登记。\nTryActivateAbilityWithTerminationBoundary返回原Try结果与退出见证；OnAbilityTerminationCompleted发布GA原记录的完成事实。\nCheckOriginalAbilityBindingForTermination认证同Binding的原allocation／ASC／Owner／Avatar，不续签旧资源工作权限。\nClientCorrectAbilityState按Spec／实例／key路由；ActorInfo事务及发布接口见下方。",
       "x": 520,
       "y": 320,
       "width": 490,
@@ -53,7 +53,7 @@
     {
       "id": "ga",
       "type": "text",
-      "text": "## UGGYGOGameplayAbility\nCan/Activate/End/Cancel为final；Additional只追加准入业务。\nNotifyActivated签Original；Capture按ResourceWork核原完整Context/LastWrite/来源，Busy或失配返回空。\nInitialize(Original)初始化原批次；原准入/相机后Body(Original,原参数)执行业务，默认native Super→BP。\nRequestEnd/Cancel私有Termination核同Binding commit＋原实例/serial/Spec/key/allocation/端点；不重签Original。唯一原记录固定首次Context/资源与实际返回义务。\nCleanup(Context)仅归还原批次；GAS仍执行原End/Task清理。\nBuilder显式空GE正常；必需Spec失败false/空输出，响应归调用方。\n[[GGYGO_流程_原请求终止.canvas|原记录与完成门禁]]",
+      "text": "## UGGYGOGameplayAbility\nCan／Activate／End／Cancel为final；CanActivateAbilityAdditional只追加业务准入条件。\nCaptureCurrentActivation按ResourceWork校验原完整Context／LastWrite／来源，返回不可变Original。\nInitializeAbilityActivation负责原批次初始化；ActivateAbilityBody承接派生招式业务。\nRequestAbilityEnd／Cancel消费精确Original；GA唯一持有首次TerminationContext、原资源及返回义务。\nCleanupAbilityResourcesForTermination归还原批次资源；GAS持有实际Active／Spec／Task及原生终止执行。\nBuildHitEffectPayload返回Context／Spec／Cue输入；必需Spec无效明确失败，响应由具体GA负责。\n[[GGYGO_流程_原请求终止.canvas|原激活与终止流程]]",
       "x": 1120,
       "y": 520,
       "width": 440,
@@ -73,7 +73,7 @@
     {
       "id": "attr",
       "type": "text",
-      "text": "## HealthSet / CombatSet\nHealthSet：Damage/Healing/PoiseDamage 元属性与生命、韧性变更委托。\nCombatSet：BaseDamage/BaseHeal/BasePoiseDamage 供 Execution 捕获。",
+      "text": "## HealthSet / CombatSet\nHealthSet持有生命／韧性及Damage／Healing／PoiseDamage元属性、边界与结果委托。\n有限Health／Poise Base是内部量；Current限制在0～Max。\nCombatSet提供BaseDamage／BaseHeal／BasePoiseDamage捕获输入。\n[[Messages/结构#HealthSet 的 Current 结算|Current结算接口]]",
       "x": 1120,
       "y": 1070,
       "width": 400,
@@ -93,7 +93,7 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## 关键交互契约\nSlot/BossState→AbilitySet→持久ASC；原Handles精确撤装。Input管物理事实，Hero管原有限意图，ASC唯一held/queued/原ID期限。\nProcess/OnSpawn/Boss BT一次受控Try；实际NotifyActivated签Original。GA唯一原终止记录，ASC只见证原Try/Ended并封存发布，GAS唯一执行。\n合法同Binding Refresh只保留精确原终止资格，不续输入/镜头/移动/播放工作权限；换Binding/后继拒旧身份，无自动激活。\nTask持原Playback/Guard/订阅/scale；Animation声明并执行RequiredPose，Task只持Ticket并原nativeTick Poll，失败先Stop/EndTask再历史OnFailed，GA决定正式原End。\nCombo持段/原资源；Animation固定Source，CMC唯一XYZ胶囊执行与原移动事实认证。真实End核原Scope/Intent后原End(true,true)，不靠dt游标。\nCombat Owned Window只查询去重；Combo/Boss经Builder→GAS结算，失败政策各归业务。自然Task Completed、GA数据、ASC原Ended和原Notice时点仍分别成立。\n[[计划_玩家普攻连段|接口/证据]] · [[AbilitySystem/计划_原请求终止|原生命周期]]",
+      "text": "## 状态与资源归属\nSlot／BossState持久保存ASC；AbilitySet持有本次授予句柄。\nInput持有物理来源，Hero持有有限意图，ASC持有原请求、held/queued及准入。\nGA持有原激活、终止记录和招式资源；ASC认证Try／Ended见证及发布原Notice，GAS负责执行。\nTask持有原Playback／Guard、订阅、scale和Ticket；Animation声明并执行姿态，CMC唯一执行胶囊XYZ。\nCombat的Owned Window负责查询和命中去重；GA／GE／Execution／AttributeSet承担伤害结算。\n同Binding Refresh保留精确原End资格；旧输入／镜头／移动／播放权限仍依其原来源校验。\n[[计划_玩家普攻连段|连段接口]] · [[AbilitySystem/计划_原请求终止|终止接口]]",
       "x": 0,
       "y": 1570,
       "width": 1450,
@@ -103,7 +103,7 @@
     {
       "id": "k4exec",
       "type": "text",
-      "text": "## 同一UGGYGOASC｜ActorInfo事务与一次发布\nGetAvatarBindingContext / CheckAvatarBindingContext → 唯一身份读取／核对。\nTryExecuteAvatarActorInfoTransaction → 精确Current正常准入。\nTryBootstrapAvatarActorInfoTransaction → Unissued且完整空Context。\nTryReplaceRevokedAvatarActorInfoTransaction → 精确Revoked显式替换；三者不互为错误兜底。\nIsAvatarBindingNativeWriteBusy → 包住完整Super、返回重检及Commit；窗口内Busy，不排队。\nInvalidateAvatarBinding → 撤工作/匹配发布许可，保留原提交快照仅作cleanup；真实ActorInfo写前退休。\nPublishAvatarBindingNotice(Receipt, Query) → 校验原Proof／Context／实际字段及必需同步纯谓词，一次事件与逐项GA通知。\nIsAvatarBindingNoticeDispatching(Receipt) → 仅精确真实Dispatching；Pending／历史不通过。\nIsAvatarBindingPublicationContextCurrent(Context) → 仅当前Dispatching／成功Consumed，不是全局Ready。\nASC独占一个发布记录与阶段；失败Closed、成功Consumed分开，无第二Avatar／Issuer／历史队列。\n发布不占原生Busy；合法B接续后，A历史bCommitted保留、返回Stale，只清A。\n旧Init／Clear／项目Refresh仍独占原生窗口；基类非虚Refresh绕行不在保障内。\n历史Gate43执行四叶与P1/R1发布专项通过。下方两cleanup来源、Host H1/H2及Hero A/B1/B2已实施并编译；R0 Gate42原2 Fail/12错误保留，完整生产/Destroy动态未闭合。",
+      "text": "## 同一UGGYGOASC｜ActorInfo事务与一次发布\nGetAvatarBindingContext / CheckAvatarBindingContext → 唯一身份读取／核对。\nTryExecuteAvatarActorInfoTransaction → 精确Current正常准入。\nTryBootstrapAvatarActorInfoTransaction → Unissued且完整空Context。\nTryReplaceRevokedAvatarActorInfoTransaction → 精确Revoked显式替换；三者不互为错误兜底。\nIsAvatarBindingNativeWriteBusy → 包住完整Super、返回重检及Commit；窗口内Busy，不排队。\nInvalidateAvatarBinding → 撤工作/匹配发布许可，保留原提交快照仅作cleanup；真实ActorInfo写前退休。\nPublishAvatarBindingNotice(Receipt, Query) → 校验原Proof／Context／实际字段及必需同步纯谓词，一次事件与逐项GA通知。\nIsAvatarBindingNoticeDispatching(Receipt) → 仅精确真实Dispatching；Pending／历史不通过。\nIsAvatarBindingPublicationContextCurrent(Context) → 仅当前Dispatching／成功Consumed，不是全局Ready。\nASC独占一个发布记录与阶段；失败Closed、成功Consumed分开，无第二Avatar／Issuer／历史队列。\n发布不占原生Busy；合法B接续后，A历史bCommitted保留、返回Stale，只清A。\n旧Init／Clear／项目Refresh仍独占原生窗口；基类非虚Refresh绕行不在保障内。",
       "x": 0,
       "y": 2080,
       "width": 730,
@@ -113,7 +113,7 @@
     {
       "id": "k4receipt",
       "type": "text",
-      "text": "## FGGYGOAvatarBindingPublicationReceipt\nTryGetCommittedEvidence(Result, Notice) → 先清输出，只复制历史；true不等于当前绑定／发布／Ready。\nASC唯一创建私有const Proof；保存原Kind、Before弱端点、Result／Notice，复制共享历史资源。\nInit／Refresh描述After；Clear为Released并保留Before，owner-only Init不等同Clear。\nPublish须另核对当前原Proof；历史副本仍可读取，却不能清后继或执行新动作。\n历史Gate43已验证历史与失败复位；Host/Extension/Hero已消费并编译，新增生产/清理动态边界仍开放。",
+      "text": "## FGGYGOAvatarBindingPublicationReceipt\nTryGetCommittedEvidence(Result, Notice) → 先清输出，只复制历史；true不等于当前绑定／发布／Ready。\nASC唯一创建私有const Proof；保存原Kind、Before弱端点、Result／Notice，复制共享历史资源。\nInit／Refresh描述After；Clear为Released并保留Before，owner-only Init不等同Clear。\nPublish须另核对当前原Proof；历史副本仍可读取，却不能清后继或执行新动作。",
       "x": 840,
       "y": 2080,
       "width": 680,
@@ -123,7 +123,7 @@
     {
       "id": "k4notice",
       "type": "text",
-      "text": "## FGGYGOAvatarBindingNoticeEvent\nASC持有原生多播的私有封装；仅ASC可Broadcast，外部不能复制或转成可广播基类。\nASC::OnAvatarBindingNotice() → 借用订阅入口。\nAddUObject／AddWeakLambda等 → 原调用方的监听句柄。\nRemove(Handle)／RemoveAll(Object) → 撤自己的监听。\n参数：const Receipt& 与 const Notice&，原历史载荷不当当前权限。\n接收者须查IsAvatarBindingNoticeDispatching并核对自身原资源。\n实际消费者：[[Combatants/结构|Host]]原Dispatching桥接[[Character/结构|Extension]]真实Ready；Health/Base/Hero消费自己的原H，已编译。\n历史P1/R1发布与PendingRemove两叶通过，不代替完整生产动态验收。",
+      "text": "## FGGYGOAvatarBindingNoticeEvent\nASC持有原生多播的私有封装；仅ASC可Broadcast，外部不能复制或转成可广播基类。\nASC::OnAvatarBindingNotice() → 借用订阅入口。\nAddUObject／AddWeakLambda等 → 原调用方的监听句柄。\nRemove(Handle)／RemoveAll(Object) → 撤自己的监听。\n参数：const Receipt& 与 const Notice&，原历史载荷不当当前权限。\n接收者通过IsAvatarBindingNoticeDispatching并核对自身原资源。\n实际消费者：[[Combatants/结构|Host]]原Dispatching桥接[[Character/结构|Extension]]真实Ready；Health/Base/Hero消费自己的原H。",
       "x": 840,
       "y": 2700,
       "width": 680,
@@ -133,7 +133,7 @@
     {
       "id": "k4cancel",
       "type": "text",
-      "text": "## 同一ASC｜原归属限定清理\nTryCancelAvatarBindingAbilities(Expected, With, Without, pureQuery)：原Context／业务筛选／原清理资源；null With不筛选，非null空With匹配零，标签栈复制。\nTryRemoveAvatarBindingGameplayCues(Expected, pureQuery)：原清理作用域，不依赖Ready或已撤本地缓存；一次原生Active Tag清理，不承诺全Cue结束。\n二者复用I1/native Busy与MatchCommittedCleanupContext：Query前后/完整返回核原Current或Revoked提交来源，关匹配发布许可后一次Super/Complete；不改Binding/ActorInfo，无Commit/Receipt/Notice。\n失效只退原Operation，不清后继／回滚已发生动作，无第二执行器。\n历史C1a Gate48筛选/Busy/B接续、C1b Gate49R1真实Removed/Busy专项通过。[[Combatants/结构|Host]] H1/H2、ASC两来源与Hero已实施并编译；完整生产换绑/Destroy动态仍开放。",
+      "text": "## 同一ASC｜原归属限定清理\nTryCancelAvatarBindingAbilities(Expected, With, Without, pureQuery)：原Context／业务筛选／原清理资源；null With不筛选，非null空With匹配零，标签栈复制。\nTryRemoveAvatarBindingGameplayCues(Expected, pureQuery)：原清理作用域，不依赖Ready或已撤本地缓存；一次原生Active Tag清理，不承诺全Cue结束。\n二者复用I1/native Busy与MatchCommittedCleanupContext：Query前后/完整返回核原Current或Revoked提交来源，关匹配发布许可后一次Super/Complete；不改Binding/ActorInfo，无Commit/Receipt/Notice。\n失效只退原Operation，不清后继／回滚已发生动作，无第二执行器。",
       "x": 0,
       "y": 3260,
       "width": 730,
@@ -148,12 +148,12 @@
       "width": 660,
       "height": 700,
       "color": "5",
-      "text": "## 原输入接口／普通值｜已接Hero并编译\nFGGYGOAbilityInputRequestIdentity：原weak ASC＋InputRevision＋非零RequestSerial；rev0合法，弱身份保持index/serial。\nFGGYGOAbilityInputRetryRequest：InputTag＋Identity＋原World有限绝对OriginalDeadline；默认-1无效。\nReceiveAbilityInputRequest(Tag,PreviousID,Deadline)：空ID签原请求；非空仅复核原资源，冻结首次Spec集合／Owner/Avatar/World。\nEndAbilityInputRequest(ID,Kind)：Released最后来源发释放且保留有限tap；Invalidated退休不伪Released，原义务不借当前Ready。\nQueueAbilityInputRetry(const OriginalRetry&)：完整ID/Tag/deadline＋真实Queued许可，不延长窗口或替held。\nOnAbilityInputRetryable(const OriginalRetry&)：本次Can精确来源，不按Tag找最近请求。\nResult只为Accepted/AlreadyApplied/Rejected/Stale历史，不代表技能激活；这些值不持第二held权威。\n[[AbilitySystem/结构#单次 Can 评估与输入失败来源（B0）|完整契约/实现/边界]]"
+      "text": "## 原输入接口／普通值\nFGGYGOAbilityInputRequestIdentity：原weak ASC＋InputRevision＋非零RequestSerial；rev0合法，弱身份保持index/serial。\nFGGYGOAbilityInputRetryRequest：InputTag＋Identity＋原World有限绝对OriginalDeadline；默认-1无效。\nReceiveAbilityInputRequest(Tag,PreviousID,Deadline)：空ID签原请求；非空仅复核原资源，冻结首次Spec集合／Owner/Avatar/World。\nEndAbilityInputRequest(ID,Kind)：Released最后来源发释放且保留有限tap；Invalidated退休不伪Released，原义务不借当前Ready。\nQueueAbilityInputRetry(const OriginalRetry&)：完整ID/Tag/deadline＋真实Queued许可，不延长窗口或替held。\nOnAbilityInputRetryable(const OriginalRetry&)：本次Can精确来源，不按Tag找最近请求。\nResult只为Accepted/AlreadyApplied/Rejected/Stale历史，不代表技能激活；这些值不持第二held权威。\n[[AbilitySystem/结构#单次 Can 评估与输入失败来源（B0）|接口契约]]"
     },
     {
       "id": "k3-playback-asc",
       "type": "text",
-      "text": "## 同一ASC｜精确原Local播放来源\nTryPlayMontageWithOwnership(GA,Activation,Montage,Rate,Section,Time,pureQuery)：完整Super／Guard后认证源与Local一致，返回单一Result，成功才签Playback。\nCheckMontagePlaybackOwnership(Original)：纯原资源校验，停止／无活动实例不丢清理资格。\nCaptureMontagePlaybackOwnership(原GA,Spec,Activation)：只取已有认证记录；缺失NoOwnedPlayback，不造新Handle。\nTryClearMontageAnimatingAbility(Original)：精确Check后仅基类GA setter／Local清空，退休原记录；不Stop／延迟混出。\n唯一provenance持原ActorInfo快照，不是播放状态／第二执行器。\n实际Init／Clear退休；同端点Refresh无真实变化则保留。原生可截获入口核对，拒绝外层不清后继。\nASC/Task及GA原Capture已编译，Combo/Boss已迁原消费者；旧严格重入、正式资产/网络仍开放。\n[[AbilitySystem/结构#精确Montage播放归属（K3：已编译，派生与生产未闭合）|完整契约]]",
+      "text": "## 同一ASC｜精确原Local播放来源\nTryPlayMontageWithOwnership(GA,Activation,Montage,Rate,Section,Time,pureQuery)：完整Super／Guard后认证源与Local一致，返回单一Result，成功才签Playback。\nCheckMontagePlaybackOwnership(Original)：纯原资源校验，停止／无活动实例不丢清理资格。\nCaptureMontagePlaybackOwnership(原GA,Spec,Activation)：只取已有认证记录；缺失NoOwnedPlayback，不造新Handle。\nTryClearMontageAnimatingAbility(Original)：精确Check后仅基类GA setter／Local清空，退休原记录；不Stop／延迟混出。\n唯一provenance持原ActorInfo快照，不是播放状态／第二执行器。\n实际Init／Clear退休；同端点Refresh无真实变化则保留。原生可截获入口核对，拒绝外层不清后继。\n[[AbilitySystem/结构#精确Montage播放归属|完整契约]]",
       "x": 2500,
       "y": 320,
       "width": 820,
@@ -163,7 +163,7 @@
     {
       "id": "k3-playback-values",
       "type": "text",
-      "text": "## 原Handle／结果与Animation接缝\nFGGYGOAbilityMontagePlaybackHandle：私有const Proof，仅ASC签发；HasPlayback／HasSamePlayback只读身份。\nProof含原ASC、GA／Spec／ActivationKey、Montage、Guard完整证据与Local计数一致性；8位计数不是唯一身份。\nResult／Check／Clear：Outcome＋Reason＋Guard历史＋原Handle；Failed不补成功资源。\nAnimation Guard唯一提供生命周期／非复用CallId／CreatedInstanceId，ASC认证真实Local写入；Task只持原资源。\n未观察Owner ABA／限定基类绕行不冒称已截获，无网络协议或帧调度。\n[[Animation/结构|Guard接口]] · [[AbilitySystem/计划_AbilitySystem#当前精确Montage增量（K3）|阶段与缺口]]",
+      "text": "## 原Handle／结果与Animation接缝\nFGGYGOAbilityMontagePlaybackHandle：私有const Proof，仅ASC签发；HasPlayback／HasSamePlayback只读身份。\nProof含原ASC、GA／Spec／ActivationKey、Montage、Guard完整证据与Local计数一致性；8位计数不是唯一身份。\nResult／Check／Clear：Outcome＋Reason＋Guard历史＋原Handle；Failed不补成功资源。\nAnimation Guard唯一提供生命周期／非复用CallId／CreatedInstanceId，ASC认证真实Local写入；Task只持原资源。\n限定基类写入绕行不属于项目接口认证范围；资源值不持有网络协议或帧调度。\n[[Animation/结构|Guard接口]] · [[AbilitySystem/计划_AbilitySystem#当前精确Montage增量（K3）|设计说明]]",
       "x": 2500,
       "y": 1320,
       "width": 820,
@@ -173,7 +173,7 @@
     {
       "id": "k3-task-resource-consumer",
       "type": "text",
-      "text": "## UGGYGOAbilityTask_PlayMontageAndWaitForEvent\nPlayMontageAndWaitForEvent/ResolvePlayRate保持速率与原五BP签名；Ready前RegisterNativeCallbacks一次非空包→精确token，五普通回调＋SectionReceived＋OnFailed。\n原Activation由调用方闭包捕获；Task不签GA身份。Activate固定原Ability/ActorInfo/ASC/Mesh/Anim与真实Montage唯一Slot。\n→Guard.AcquireActionPoseContract：ExplicitNotRequired普通模式；RequiredReady原Ticket/失败消费者；Rejected/Unavailable先Startup失败，不播放。\n资格有效→自身Cancel/Event订阅→ASC.TryPlayMontageWithOwnership→精确原Handle/Guard/ID委托与scale lease→Waiting。\nTryGetOriginalSectionSnapshot只读原ID/Section/Position/Rate；SectionReceived来自真实原实例，GA另核Original/段/资源，不模拟时钟。\nRequired-only引擎TickTask只读Poll：Valid继续，Failed/Invalidated明确Playback失败；不弱Ticket无效即静默跳过、不重Acquire。\n失败关普通入口→精确Stop/释放scale→EndTask清Ticket/句柄→历史native OnFailed。Startup NONE，Playback原ID，均携Montage/Slot/Diagnostic。\n历史弱Task.Get(true)拒销毁标志；GA核自己的原激活/段/强Task/资源，不要求已结束Task仍Active/有Ability。native结束原GA则不发旧BP。\n普通BlendOut释放scale/TryClear原Playback；自然Completed不Check已退休当前ASC归属，不授后继End。普通Cancel/FailAndEndTask保持Cancelled。\nOnDestroy先关闭/脱包，再自身监听/实例/scale/Ticket清理；Tick标志留至native登记退休。停止只按原Guard/ID，不借当前Avatar清后继。\n[[AbilitySystem/结构#Task原实例与资源消费（已编译，专项与迁移边界保留）|接口/清理]] · [[Animation/动作姿态修正|姿态执行]] · [[计划_玩家普攻连段|GA消费与证据]]",
+      "text": "## UGGYGOAbilityTask_PlayMontageAndWaitForEvent\n持有原Ability／ActorInfo／ASC／Mesh／Anim来源与Montage唯一Slot，消费ASC单一Playback／Guard。\nRegisterNativeCallbacks在Ready前接受一次非空回调包，返回精确token；包含五普通回调、SectionReceived和OnFailed。\nTryGetOriginalSectionSnapshot输出原ID／Section／Position／Rate；GA拥有原Activation与段资源。\nAcquireActionPoseContract返回ExplicitNotRequired或RequiredReady及原Ticket；Required模式使用引擎TickTask只读Poll。\nOnFailed携Montage／Slot／Stage／Diagnostic和原InstanceID，是自身清理后的失败事实。\nTask管理自身监听、实例委托、缩放和Ticket；按原Guard／ID释放资源，不从当前Avatar认领后继。\n[[AbilitySystem/结构#Task原实例与资源消费|接口与资源]] · [[Animation/动作姿态修正|姿态接口]] · [[计划_玩家普攻连段|GA资源]]",
       "x": 3500,
       "y": 320,
       "width": 900,
@@ -183,7 +183,7 @@
     {
       "id": "k4-committed-cleanup-source",
       "type": "text",
-      "text": "## 同一ASC｜已提交cleanup来源\nCheckAvatarBindingCleanupContext(Expected, OutReason) const → 纯GT认证原Issuer/Context/LastWrite、ActorInfo allocation与完整快照；Current或Revoked，不执行/签发/Ready。\n单个AvatarBindingActorInfoSnapshot：逻辑撤销保留cleanup；真实typed/legacy写前退休，同端点也不续权。\nWorkingBinding仍Current/live；CommittedCleanup允许仍合法分配且Destroy中的原Owner/Avatar，无效ASC/字段变化明确失败。\nCancel/Cue/Clear消费同一来源/原native窗口；关闭Owner或宿主PreserveOwner→LifecycleClosed，调用方显式ClearActorInfo，不失败后换模式。\nTyped Clear沿既有提交/Released契约；query本身不发布。\nASC及Host H1已实施并编译；原Destroy/完整换绑动态仍开放。\n[[AbilitySystem/结构#原已提交清理来源（Destroy）|来源/失效/模式]]",
+      "text": "## 同一ASC｜已提交cleanup来源\nCheckAvatarBindingCleanupContext(Expected, OutReason) const → 纯GT认证原Issuer/Context/LastWrite、ActorInfo allocation与完整快照；Current或Revoked，不执行/签发/Ready。\n单个AvatarBindingActorInfoSnapshot：逻辑撤销保留cleanup；真实typed/legacy写前退休，同端点也不续权。\nWorkingBinding仍Current/live；CommittedCleanup允许仍合法分配且Destroy中的原Owner/Avatar，无效ASC/字段变化明确失败。\nCancel/Cue/Clear消费同一来源/原native窗口；关闭Owner或宿主PreserveOwner→LifecycleClosed，调用方显式ClearActorInfo，不失败后换模式。\nTyped Clear沿既有提交/Released契约；query本身不发布。\n[[AbilitySystem/结构#原已提交清理来源（Destroy）|来源/失效/模式]]",
       "x": 840,
       "y": 3260,
       "width": 680,
@@ -193,7 +193,7 @@
     {
       "id": "k4-failed-init-cleanup-proof",
       "type": "text",
-      "text": "## 同一ASC｜未commit Init原写入证明\n私有const FFailedAvatarActorInfoInitCleanupProof持OriginalOperation、Before、完整WrittenActual；原allocation防复用，Actor弱引用，不存caller闭包。\n普通/Bootstrap/Replace的native Init完整返回后捕获；未commit失败且原场景仍匹配才保留，成功commit不保留。\nTryCleanupFailedAvatarActorInfoInit(原Operation, pureOriginalCallerQuery) → 核成员原Proof/Before/allocation/全字段，query在既有Busy内前后重检。\n先消费Proof再唯一qualified Super::ClearActorInfo；核真实清空后置条件，raw AnimInstance/Tag按GAS保留。\nSucceeded只为物理cleanup，bCommitted=false、Context空，无Receipt/Notice/Ready；原Init仍失败，native后失败不重发Proof。\n后继真实typed/legacy写、消费或ASC销毁释放；无第二绑定/序号/队列/执行器。\nASC及Host H2已实施并编译；失败Init完整生产清理动态仍开放。\n[[AbilitySystem/结构#失败Init原写入清理（未提交证明）|来源/消费/后置条件]]",
+      "text": "## 同一ASC｜未commit Init原写入证明\n私有const FFailedAvatarActorInfoInitCleanupProof持OriginalOperation、Before、完整WrittenActual；原allocation防复用，Actor弱引用，不存caller闭包。\n普通/Bootstrap/Replace的native Init完整返回后捕获；未commit失败且原场景仍匹配才保留，成功commit不保留。\nTryCleanupFailedAvatarActorInfoInit(原Operation, pureOriginalCallerQuery) → 核成员原Proof/Before/allocation/全字段，query在既有Busy内前后重检。\n先消费Proof再唯一qualified Super::ClearActorInfo；核真实清空后置条件，raw AnimInstance/Tag按GAS保留。\nSucceeded只为物理cleanup，bCommitted=false、Context空，无Receipt/Notice/Ready；原Init仍失败，native后失败不重发Proof。\n后继真实typed/legacy写、消费或ASC销毁释放；无第二绑定/序号/队列/执行器。\n[[AbilitySystem/结构#失败Init原写入清理（未提交证明）|来源/消费/后置条件]]",
       "x": 0,
       "y": 4080,
       "width": 730,
@@ -203,7 +203,7 @@
     {
       "id": "k4-cleanup-host-consumer",
       "type": "text",
-      "text": "## 清理调用方｜Host消费接缝\n[[Combatants/结构|CombatantState]]持自己的选择/H/请求scope，ASC独占写入与证明，[[Character/结构|Extension]]独占本地通知资源。\nH1已实施并编译：原提交用CheckAvatarBindingCleanupContext，不借Ready阻挡Closing；Release和已提交失败显式选ClearMode。\nH2已实施并编译：Init/owner-only失败消费原Operation＋pure原scope，原Init仍失败。\n清理/初始化scope分开；不查后继Context借权，不回滚或自动重试。\n历史Build55失败、当时Hero未迁移保留在父文档；当前Hero A/B1/B2已实施并编译。R0原失败与完整Avatar/Destroy/资产/网络仍开放；GA派生共同生命周期当前事实见父文档。\n[[AbilitySystem/结构#清理调用方与本轮验证边界|消费/验证门禁]]",
+      "text": "## Host清理接口\n[[Combatants/结构|CombatantState]]持有选择、原H和请求scope；ASC持有ActorInfo写入与来源证明，[[Character/结构|Extension]]持有本地通知资源。\n已提交来源：CheckAvatarBindingCleanupContext认证原Context；调用方显式选择ClearMode。\n未提交Init来源：TryCleanupFailedAvatarActorInfoInit消费原Operation与pure scope；清理不把原Init改为成功。\n清理scope与初始化scope分别负责自身资源，不从后继Context续权。\n[[AbilitySystem/结构#清理调用方|调用方接口]]",
       "x": 840,
       "y": 4080,
       "width": 680,
@@ -213,12 +213,32 @@
     {
       "id": "w0-original-input-subscription",
       "type": "text",
-      "text": "## UGGYGOAbilityTask_WaitComboInput｜W0\n输入：OwningAbility、可更新SourceStep、可选FGGYGOComboInputNativeDelegate(int32,int32)。\nWaitComboInput返回未Ready Task；RegisterNativeCallback仅原pre-Ready非空/单注册，输出精确FDelegateHandle；UnregisterNativeCallback返回是否匹配，先脱包再释放，不擦掉捕获析构重入后的后继。\nTask只持不可变原弱ASC/Ability、Spec/key、remote/predict模式与自身handle；原Activation仅调用方按值闭包。零key合法，桶不是GA身份。\n作用/输出：原GAS InputPressed读/发/Consume→native及捕获析构返回→弱原Task/原订阅核验→原OnPress BP；工厂/SetSourceStep/BP、65535校验与预测规则保持。\n清理：OnDestroy先关/脱资源，再原桶remove自身handle；不Consume后继，Super/清理后释放捕获，无Task写尾。同步回放结束不写Waiting；无效依赖明确诊断并结束自身。\nW0及Combo native消费者已启用并编译；固定Original/原Task闭包和精确token归Combo原批次。正常纠正/必要资源收尾有限验证，native/捕获析构重入、remote同步回放与正式输入/网络仍开放。\n[[AbilitySystem/结构#原事件桶与输入Task订阅（W0）|输入／作用／输出与清理]]\n[[AbilitySystem/计划_AbilitySystem#当前连段输入Task增量（W0）|W0实施边界]]",
+      "text": "## UGGYGOAbilityTask_WaitComboInput\nWaitComboInput(OwningAbility)返回未Ready Task；SetSourceStep提供来源段，OnPress输出SourceStep／RequestId。\nRegisterNativeCallback在Ready前接受一次非空FGGYGOComboInputNativeDelegate，返回FDelegateHandle；UnregisterNativeCallback只匹配原token。\nTask持有原弱ASC／Ability、Spec／PredictionKey、remote/predict模式及自身订阅；零key合法，桶身份不是GA激活身份。\nInputPressed来源于GAS原事件桶；本地预测使用原ASC预测窗口，远端整数载荷须通过范围校验。\nOnDestroy归还原桶中的自身handle与native注册包；GA负责Original、段序和原批次资源。\n[[AbilitySystem/结构#原事件桶与输入Task订阅（W0）|接口与清理]]",
       "x": 3500,
       "y": 1320,
       "width": 900,
       "height": 760,
       "color": "5"
+    },
+    {
+      "id": "attribute-current-base-calculation",
+      "type": "text",
+      "text": "## 同一ASC｜Current → Base计算\nTryCalculateNumericAttributeBaseForCurrentValue(ExpectedAttributeSet, Attribute, ExpectedCurrent, DesiredCurrent)\n输入：原Set、注册的FGameplayAttributeData属性、实际Current和目标Current；游戏线程／权威端。\n输出：FGGYGOAttributeBaseCalculationResult；不写属性，不决定业务边界。\nGAS原生capture／默认及自定义资格／通道求值提供本次计算输入；快照和原生临时通道仅栈内存活。\n原Set／ASC／Owner／Base／Current与聚合来源须保持匹配；不要求持久属性的Avatar Ready。\nASC不维护第二聚合公式、业务缓存或结算状态。\n[[AbilitySystem/结构#Current 与 Base 数值接口|输入、输出与职责]]",
+      "x": 1670,
+      "y": 1180,
+      "width": 660,
+      "height": 600,
+      "color": "5"
+    },
+    {
+      "id": "attribute-base-calculation-result",
+      "type": "text",
+      "text": "## FGGYGOAttributeBaseCalculationResult\nOutcome／Reason／CalculatedBase是本次计算返回值，不持有属性或聚合器。\nReady＋None：只有有限Base候选；实际写入与OwnPost确认归HealthSet。\nRejected：无效依赖、不可逆通道、非法Divisor、非有限值或正向不匹配。\nStale：SourceChanged／AggregationChanged；原来源或聚合已经变化。\n失败值不作候选，不授权补偿、旁写Current或保存后重试。\n[[Messages/结构#HealthSet 的 Current 结算|HealthSet消费者]]",
+      "x": 1670,
+      "y": 1910,
+      "width": 660,
+      "height": 410,
+      "color": "1"
     }
   ],
   "edges": [
@@ -405,6 +425,22 @@
       "toNode": "w0-original-input-subscription",
       "toSide": "left",
       "label": "Combo持原InputTask/token；闭包捕Original，Context精确注销/TaskOwnerEnded"
+    },
+    {
+      "id": "attr-asks-native-base-calculation",
+      "fromNode": "attr",
+      "fromSide": "right",
+      "toNode": "attribute-current-base-calculation",
+      "toSide": "left",
+      "label": "HealthSet调用计算接口：原Set／属性／Current目标"
+    },
+    {
+      "id": "native-base-calculation-returns-value",
+      "fromNode": "attribute-current-base-calculation",
+      "fromSide": "bottom",
+      "toNode": "attribute-base-calculation-result",
+      "toSide": "top",
+      "label": "返回一次Outcome／Reason与有限候选；没有属性写入"
     }
   ]
 }

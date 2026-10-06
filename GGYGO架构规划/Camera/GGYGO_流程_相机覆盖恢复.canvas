@@ -3,7 +3,7 @@
 		{
 			"id": "nav",
 			"type": "text",
-			"text": "# 能力镜头覆盖、凭证与解绑恢复｜流程子图\nHero拥有模式仲裁；CameraComponent拥有Offset单槽；GA保存原接收者/精确凭证。[[GGYGO_结构_相机.canvas|结构图]] · [[GGYGO_流程_相机.canvas|求值与发布主流程]]。\n默认原Cleanup已接原终止记录；派生清理及端到端迁移未全部闭合。typed H原资源清理以[[Input/结构#Hero本地ASC身份订阅与原H清理|Input精确合同]]为准。",
+			"text": "# 能力镜头覆盖、凭证与解绑恢复｜流程子图\nHero 拥有模式仲裁；CameraComponent 拥有 Offset 单槽；GA 保存原接收者／精确凭证。\n[[GGYGO_结构_相机.canvas|结构图]] · [[GGYGO_流程_相机.canvas|求值与发布主流程]]。\n原资源清理按 [[Input/结构#Hero本地ASC身份订阅与原H清理|Input 精确合同]] 消费 typed H。",
 			"x": 0,
 			"y": 0,
 			"width": 1710,
@@ -43,7 +43,7 @@
 		{
 			"id": "bend",
 			"type": "text",
-			"text": "4A. 原B记录进入默认终止清理。\n向原Hero清Spec_B + Generation_B；\n匹配条目撤回，A仍有效时重新选A。\n迟到/无效/不匹配凭证返回false，不清后继。\n此图描述原资源归还条件，\n不宣称所有派生End已完成迁移。",
+			"text": "4A. 原 B 记录调用默认终止清理。\nClearAbilityCameraMode(Spec_B,Generation_B)\n只向原 Hero 撤回匹配条目；A 仍有效时重新选 A。\n迟到／无效／不匹配凭证返回 false，不清后继。",
 			"x": 1470,
 			"y": 243,
 			"width": 420,
@@ -53,7 +53,7 @@
 		{
 			"id": "aend",
 			"type": "text",
-			"text": "4B. 原A记录先进入默认终止清理。\n只清Spec_A + Generation_A，B不受影响。\nCleanupAbilityResourcesForTermination(Context)\n核对原终止来源；先脱开仍匹配的成员，\n再调用原接收者归还精确资源。\n派生清理及端到端终止链仍未全部闭合，\n不能泛称所有End都在Super前安全清理。",
+			"text": "4B. 原 A 记录先进入默认终止清理。\n只清 Spec_A＋Generation_A，B 不受影响。\nCleanupAbilityResourcesForTermination(Context)\n核对原终止来源；先脱开仍匹配成员，\n再向原接收者归还精确资源。\n派生能力负责归还自己持有的资源。",
 			"x": 1470,
 			"y": 743,
 			"width": 420,
@@ -103,7 +103,7 @@
 		{
 			"id": "release-reset",
 			"type": "text",
-			"text": "原资源清理与镜头撤回。\n只释放确属原H的输入/retry，不全局Release替代会话。\n汇合后复核原记录、镜头代次与后继保护；\n再清原overrides，只Reset捕获的原Camera。\ngeneration/token序号保持，不重放旧请求。\nEndPlay按自身原生命周期归还资源后结束；\nIMC重入与完整终止链仍需独立动态验收。",
+			"text": "原资源清理与镜头撤回。\n只释放确属原 H 的输入／retry，不全局 Release 替代会话。\n汇合后复核原记录、镜头代次与后继保护；\n再清原 overrides，只 Reset 捕获的原 Camera。\ngeneration／token 序号保持，不重放旧请求。\nEndPlay 按自身原生命周期归还资源后结束。",
 			"x": 470,
 			"y": 1430,
 			"width": 420,
@@ -123,7 +123,7 @@
 		{
 			"id": "evidence",
 			"type": "text",
-			"text": "验证边界\nGate22新增、Gate26/27/29复跑（历史）：真实GI/BeginPlay/正常无输入解绑；存活GA的真实旧End保留新镜头。\n当前Gate66/67已编译、原有三项smoke Success（errors/warnings=0/0），不证明新Manager/Ready/投影联合动态。\n默认原Cleanup接线不等于派生清理全部迁移；后继输入/IMC重入、Avatar失配C4分支、死亡GE、完整B6仍未全面验证。\nM2首次同步、暂停非虚摄影时间戳、资产/PIE/网络等边界仍开放。\n[[Camera/结构#当前实现与验证边界|有限证据]]；本图的接口同步不新增运行证明。",
+			"text": "恢复请求与后续求值\nClearAbilityCameraMode／ResetCameraRuntimeState 只归还原资源。\nManager 为 Running：后续 UpdateCamera 经 Prepare 重新选类。\nManager 为 Stopped：资源撤回、配置修好或重复 Ready 都不自动重启；\nUpdateCamera 和 UpdateCameraPhotographyOnly 均保持原生 Cache。\n只有 RestartCameraEvaluation 接受精确原失败源并尝试一次；失败仍停止。\n[[Camera/结构#发布准入与显式重启|原身份 Restart]]。",
 			"x": 0,
 			"y": 1735,
 			"width": 890,

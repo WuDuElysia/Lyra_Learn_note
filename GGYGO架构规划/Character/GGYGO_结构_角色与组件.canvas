@@ -3,17 +3,17 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Character｜结构图\nHost／Extension／Health／Base及H1/H2已编码冻结；Hero旧三调用未迁移。\nBuild55已UHT写33文件；Build56整链失败，runtime未链接／未新UE，R0未复测。\n[[Character/结构|结构文档]] · [[GGYGO_流程_角色初始化.canvas|流程图]]",
+      "text": "# Character｜结构图\nHost选择Avatar；ASC执行事务并认证发布；Extension唯一持本地H。\nBase只转交typed Notice；Health唯一持DeathState与原资源；Hero/CMC各管自身资源。\n[[Character/结构|结构文档]] · [[GGYGO_流程_角色初始化.canvas|流程图]]",
       "x": 0,
       "y": 0,
       "width": 1500,
-      "height": 130,
+      "height": 160,
       "color": "6"
     },
     {
       "id": "host",
       "type": "text",
-      "text": "## 外部宿主：AGGYGOCombatantState\nRequestAvatarBinding(原端点,H,Context)\n→Init／Release／Refresh实际步骤历史。\nAttach/Detach/OnRep/EndPlay共用原链。\nH1已提交cleanup／H2未提交Operation已消费冻结。\n已进入UHT／编译；整链失败，未新UE。\n[[Combatants/结构|宿主契约]] · [[Teams/结构]] · [[BossAI/结构]]",
+      "text": "## 外部宿主：AGGYGOCombatantState\nRequestAvatarBinding(原端点,H,Context)\n→Initialize／Release／Refresh实际步骤历史。\nHost选择/公布Avatar，持ASC与基础属性集。\nDestroyed/EndPlay先关闭准入，清原资源。\n已提交Context与失败Init Operation由ASC分别认证。\n[[Combatants/结构|宿主契约]] · [[Teams/结构]] · [[BossAI/结构]]",
       "x": 0,
       "y": 240,
       "width": 390,
@@ -33,7 +33,7 @@
     {
       "id": "character",
       "type": "text",
-      "text": "## AGGYGOCharacterBase / HeroCharacter\nPawn承载Extension／Health／CMC；玩家派生另有Hero。\nPostInitializeComponents Super后先装原订阅→RegisterLocalAbilitySystemNoticeAndCall。\n原记录只持三weak身份/token/退休；晚token只还原Extension，不缓存H/ASC/Set/Context/Ready。\nConsumeLocalAbilitySystemNotice：Ready/Refreshed带H/Context、Released只原H→Health三native入口。\nEndPlay/BeginDestroy退原token；真实新BeginPlay可重开。源码冻结，整链构建未通过。\n[[Character/结构#Base原订阅与typed消费（已编码，未编译）|接口与资源机制]]",
+      "text": "## AGGYGOCharacterBase / HeroCharacter\nPawn承载Extension／Health／CMC；玩家派生另有Hero。\nPostInitializeComponents Super后先装原订阅→RegisterLocalAbilitySystemNoticeAndCall。\n原记录只持三weak身份/token/退休；晚token只还原Extension，不缓存H/ASC/Set/Context/Ready。\nConsumeLocalAbilitySystemNotice：Ready/Refreshed带H/Context、Released只原H→Health三native入口。\nEndPlay/BeginDestroy退原token；真实新BeginPlay可重开。Base只持原通知token，不争夺Health状态。\n[[Character/结构#Base原订阅与typed消费（已编码，未编译）|接口与资源机制]]",
       "x": 510,
       "y": 330,
       "width": 430,
@@ -43,7 +43,7 @@
     {
       "id": "extension",
       "type": "text",
-      "text": "## UGGYGOPawnExtensionComponent\nSetPawnData(Data)→InitState配置协调。\nInitialize／Uninitialize／HandleControllerChanged→原Host请求，不写ActorInfo。\n唯一持本地H；GetGGYGOAbilitySystemComponent仅返回实际Ready的原ASC。\nEndPlay先关新准入，再释放原H；旧缓存已删除。\n源码冻结；已统一UHT／编译，整链未通过。本地API见右侧。",
+      "text": "## UGGYGOPawnExtensionComponent\nSetPawnData(Data)→InitState配置协调。\nInitialize／Uninitialize／HandleControllerChanged→原Host请求，不写ActorInfo。\n唯一持本地H；GetGGYGOAbilitySystemComponent仅返回实际Ready的原ASC。\nEndPlay先关新准入，再释放原H；关闭的Released不广播。\n消费者各清原资源；通知结果不授当前执行权限。",
       "x": 1050,
       "y": 260,
       "width": 430,
@@ -53,17 +53,17 @@
     {
       "id": "health",
       "type": "text",
-      "text": "## UGGYGOHealthComponent\n`Initialize/Refresh…LocalAbilitySystemResource(Extension,H,Context,Error)`→原资源安装／同H认证刷新。\n`UninitializeFromLocalAbilitySystemResource(H,Error)`→只释放匹配原H，不RequireReady。\n旧BP共用同机制；Getter／死亡仍归本组件。\nBase typed已正式消费；源码冻结，整链编译链接及运行未完成。",
+      "text": "## UGGYGOHealthComponent\nInitializeWithLocalAbilitySystemResource\n(Extension,H,PublishedContext,OutError)\n→验本Pawn/真实Ready/HealthSet，安装原记录。\nRefreshLocalAbilitySystemResource→同H认证新Context。\nUninitializeFromLocalAbilitySystemResource(H,OutError)\n→精确退休原记录；不RequireReady。\nDeathState唯一归Health；数值归HealthSet。\n旧BP共用机制；无H/未Ready/身份不符明确拒绝。",
       "x": 1050,
       "y": 580,
       "width": 430,
-      "height": 280,
+      "height": 320,
       "color": "4"
     },
     {
       "id": "hero",
       "type": "text",
-      "text": "## UGGYGOHeroComponent（玩家）\n`InitializePlayerInput()` → 绑定 Native/Ability Action。\n`DetermineCameraMode()` → 默认/能力覆盖仲裁。\n`SetAbilityCameraMode(Class, SpecHandle)` / `Clear...` → 所有权管理。\n旧AbilityInputTagPressed／AbilityInputTagReleased／QueueAbilityInputRetry(Tag,deadline)未迁移；Build56三处编译错误，能力输入链未闭合。",
+      "text": "## UGGYGOHeroComponent（玩家）\nInitializePlayerInput()→绑定Native/Ability Action。\nDetermineCameraMode()→默认/能力覆盖仲裁。\nSetAbilityCameraMode / Clear…→原Spec所有权。\n动作输入使用身份请求/原retry；typed H关联自己的输入来源。\n输入/移动/镜头接口见[[Input/结构]]、[[Movement/结构]]、[[Camera/结构]]。",
       "x": 510,
       "y": 800,
       "width": 430,
@@ -103,7 +103,7 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## 当前链与剩余边界\nHost→ASC事务→Extension Install→Host公布→真实Publish/Dispatching→Ready；原Release不走旧Extension执行器。\nExtension入口／Getter、Health原资源及Base typed消费已接；H1提交cleanup与H2失败Init Operation清理已消费。ASC独占证明/Binding/发布资格。\nHero旧Pressed／Released／Retry未迁移；SetPawnData配置协调保留，能力授予不归Extension。\nBuild55已UHT写33生成文件；Build56三机械错误消除，仍因Hero旧三调用失败，runtime未链接／未新UE。\nR0历史2 Fail／12 errors未复测；源码有限接受不证明整链或资产／网络通过。\n[[Character/结构#ASC 本地资源四阶段接口（L1）|本地API]] · [[Combatants/结构|Host实现与验证边界]]",
+      "text": "## 资源所有权与跨模块合同\nHost选择/公布Avatar；ASC唯一签Binding、执行ActorInfo事务并认证Publication。\nExtension唯一持H及Installed/Ready语义；Install只装配，NotifyReady须真实Dispatching，不靠缓存或历史Receipt。\nBase只持通知token、转交整Notice；Health唯一持DeathState与原H/认证Context/HealthSet/五token，Tag是阶段投影。\nHero管输入与镜头关联；移动执行归CMC，能力授予归宿主。InitState配置分发独立，不授ASC Ready。\n跨Host先原Release成功→新Initialize，失败保持未绑定；关闭的Extension不广播Released，各消费者独立退原资源。\n[[Character/结构#ASC 本地资源四阶段接口（L1）|本地合同]] · [[Combatants/结构|Host边界]]",
       "x": 0,
       "y": 1600,
       "width": 1450,
@@ -133,7 +133,7 @@
     {
       "id": "local-asc-resource",
       "type": "text",
-      "text": "## Extension 本地 ASC 资源（L1）\n原weak ASC／Pawn＋ASC Binding→opaque H；不签新Binding。\nInstallLocalAbilitySystemResources(ASC,Pawn,Context)→Installed未Ready。\nWithdrawLocalAbilitySystemResources(H)→撤原槽，无原生写入／广播。\nNotifyLocalResourcesReleased(H)→原H义务，Context空，不清后继。\nNotifyLocalResourcesReady(H,Receipt)→ASC真实Dispatching认证Ready／Refresh。\nGetCurrentLocalAbilitySystemResource→原槽快照，不授权。\nIsLocalAbilitySystemResourceInstalled/Ready(H)→分别验装配／可用。\nRegisterLocalAbilitySystemNoticeAndCall / Unregister...(Handle)→精确订阅／回放／移除。\nHost／Extension已调用，Health／Base已消费；Hero待迁移。已进入统一构建，整链未通过；历史L1单叶不覆盖Host/R0。\n[[Character/结构#ASC 本地资源四阶段接口（L1）|完整合同]] · [[AbilitySystem/结构|ASC权威]]",
+      "text": "## Extension 本地 ASC 资源（L1）\n原weak ASC／Pawn＋ASC Binding→opaque H；不签新Binding。\nInstallLocalAbilitySystemResources(ASC,Pawn,Context)→Installed未Ready。\nWithdrawLocalAbilitySystemResources(H)→撤原槽，无原生写入／广播。\nNotifyLocalResourcesReleased(H)→一次原H义务，Context空；关闭时Failed/LifecycleClosed，不广播。\nNotifyLocalResourcesReady(H,Receipt)→真实Dispatching认证Ready／Refresh。\nGetCurrentLocalAbilitySystemResource→原槽快照，不授权。\nIsLocalAbilitySystemResourceInstalled/Ready(H)→分别验装配／可用。\nRegisterLocalAbilitySystemNoticeAndCall / Unregister…(Handle)→精确订阅／回放／移除。\n原H由Base/Health/Hero/CMC分别消费；调用方只清自己持有的原句柄/token。\n[[Character/结构#ASC 本地资源四阶段接口（L1）|完整合同]] · [[AbilitySystem/结构|ASC权威]]",
       "x": 1580,
       "y": 230,
       "width": 470,
@@ -143,7 +143,7 @@
     {
       "id": "host-request-port",
       "type": "text",
-      "text": "## IGGYGOAvatarBindingHostInterface\nRequestAvatarBinding(Request)→栈上真实Result/Steps。\n原weak Host／ASC／Pawn／Extension＋Context／opaque H；Init空H，Release/Refresh原H与记录Context。\nASC组件GetOwner固定端口，不猜可变ActorInfo Owner。\nH1：CheckAvatarBindingCleanupContext(原提交Context)认证原清理来源；关闭原Host/Owner显式ClearActorInfo，正常PreserveOwner。\nH2：TryCleanupFailedAvatarActorInfoInit(原Operation,纯原scope)清未提交Init残留；Init仍失败，不产生Receipt/Notice/Ready。\n两权限各由ASC认证；Host只记录实际Steps，不持证明或第二Ready。跨Host旧释放→新绑定，失败未绑定不回滚。\nOptional头已修正，Build55实际UHT；Build56完整runtime未链接／未新UE。\n[[Character/结构#Host原生请求接口（已定义，生产迁移中）|接口定义]] · [[AbilitySystem/结构|清理契约]]",
+      "text": "## IGGYGOAvatarBindingHostInterface\nRequestAvatarBinding(Request)→栈上真实Result/Steps。\n原weak Host／ASC／Pawn／Extension＋Context／opaque H；Initialize空H，Release/Refresh原H与记录Context。\nASC组件GetOwner固定端口，不猜可变ActorInfo Owner。\nH1：CheckAvatarBindingCleanupContext(原提交Context)认证原清理来源；关闭原Host/Owner显式ClearActorInfo，正常PreserveOwner。\nH2：TryCleanupFailedAvatarActorInfoInit(原Operation,纯原scope)清未提交Init残留；Init仍失败，无Receipt/Notice/Ready。\n权限由ASC认证；Host只记实际Steps，无第二Ready。跨Host旧释放→新绑定，失败未绑定不回滚。\n原清理资格不等于新工作准入；步骤历史不授后继清理权。\n[[Character/结构#Host原生请求接口（已定义，生产迁移中）|接口定义]] · [[AbilitySystem/结构|清理契约]]",
       "x": 1580,
       "y": 1260,
       "width": 470,
@@ -153,7 +153,7 @@
     {
       "id": "health-original-resource-record",
       "type": "text",
-      "text": "## Health唯一原资源记录｜已编码\ncpp `FAbilitySystemResource`：原Health/Pawn/Extension弱身份、H、ASC/HealthSet弱引用、认证Context、五token、退休标记。\n五lambda只捕原记录；每事件入口复制当时Context。同H Refresh仅更新认证Context，不重绑或重放UI初值。\n`RetireOriginalResource`→先退休/摘自身原槽，再五token精确Remove；失效Set不替换。\nUI／Tag／GameplayEvent／GE外调复核原记录/H/Set/Context；旧安装失败不清同H重建或刷新后的合法后继。\nEndPlay/OnUnregister独立清理，不等待Released；DeathState归Health，数值归HealthSet，不签Binding/Ready。\nBase已正式消费；已进入统一UHT/编译，完整runtime及新UE未通过，旧无H夹具与R0未复测。\n[[Character/结构#Health原资源与五委托（已编码，未编译）|接口与关键实现]]",
+      "text": "## Health唯一原资源记录\nFAbilitySystemResource：原Health/Pawn/Extension弱身份、H、ASC/HealthSet弱引用、认证Context、五token、退休标记。\n五lambda只捕原记录；每事件入口复制当时Context。同H Refresh更新认证Context，不重绑或重放UI初值。\nRetireOriginalResource→先退休/摘自身原槽，再向原Set五token精确Remove；失效Set不替换。\nUI／Tag／GameplayEvent／GE外调复核原记录/H/Set/Context；旧安装失败不清同H合法后继。\nEndPlay/OnUnregister独立清理，不等Released。DeathState归Health，数值归HealthSet，不签Binding/Ready。\n晚装配只投影既有DeathState的Tag，不重播死亡事件；解绑不清死亡Tag，不隐式复活。\n[[Character/结构#Health原资源与五委托（已编码，未编译）|接口与关键实现]]",
       "x": 2170,
       "y": 230,
       "width": 720,
@@ -272,7 +272,7 @@
       "fromSide": "right",
       "toNode": "host-request-port",
       "toSide": "left",
-      "label": "实现Request端口及H1/H2消费；整链未通过"
+      "label": "实现Request端口；消费H1/H2原清理权限"
     },
     {
       "id": "e-health-original-record",

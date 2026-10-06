@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Teams｜流程图\n服务器创建准备 / 责任交付 / 组件切人 / 原资源终止；橙色含来源分支、拒绝及未验边界。\nHandleStartingNewPlayer或原GF Session就绪后SpawnSquadForPendingPlayers → SpawnSquadForPlayer；复用原会话资格与原Context，外调重检。\n[[GameFeature/结构|启动门禁]] · [[GGYGO_结构_队伍与装配.canvas|结构图]] · [[Teams/结构#GameMode 创建准备、交付与未交付责任（创建者 A）|创建契约]] · [[计划_队伍与装配|设计与边界]]\nCreator已Gate67编译，实队动态仍未验；旧三项冒烟不构成实队证据。历史Gate58失败保留，整队政策 / 完整幂等 / 切人 / 资产 / 网络开放。",
+      "text": "# Teams｜流程图\n服务器准备 / 责任交付 / 切人 / 原资源终止；橙色含来源分支、拒绝及接口边界。\nHandleStartingNewPlayer或原GF Session就绪 → SpawnSquadForPlayer；原Context外调后重检。\n[[GameFeature/结构|启动门禁]] · [[GGYGO_结构_队伍与装配.canvas|结构图]] · [[Teams/结构|实际契约]] · [[计划_队伍与装配|设计与证据]]\n切人：能力退出 → 旧输入退役 → 原生控制读回 → 最后索引/广播；Created接收历史与终止请求不等于物理清理。",
       "x": 0,
       "y": 0,
       "width": 2360,
@@ -53,7 +53,7 @@
     {
       "id": "switch",
       "type": "text",
-      "text": "## 6. 实际SwitchToSlot(Index)\n首位自动尝试或后续请求；组件终止则拒绝。\n校验Authority、非当前合法索引、目标Avatar可用 / 非死亡及Controller。\n正常顺序：`UnPossess` → `DeactivateSlot` → ActiveSlotIndex → `ActivateSlot` → `Possess` → 活动广播。\n外调后重检原组件 / Controller / Slot / Pawn及终止；关闭或失配停止旧栈，不再写索引或附身。\n显隐 / 碰撞 / 移动同样检查原Slot→Character；不每次重设ActorInfo。\n完整GA退出 / 不可取消准入 / 输入政策 / 原生控制回调事务未接。[[Input/结构|输入边界]]",
+      "text": "## 6. C12 SwitchToSlot(Index)\n唯一PS/Squad/PC、双方绑定/真实Ready、目标无控制/非死亡；固定原Context，拒绝重入。\n旧ASC::`TryExitAbilitiesForAvatarSwitch`全量预检/原Cancel真Completed → `CheckAvatarSwitchAbilitiesExited`当前Ready。\n旧Hero释放 → 重检 → 旧ASC退输入 → 重检。\n原PC UnPossess → 合法Host Refresh/读回 → `DeactivateSlot(旧)` → `ActivateSlot(新)`。\n原PC Possess新 → 实际双向控制/绑定/能力读回 → 最后索引/广播 → 重检。\n失配即false，不恢复旧GA/held或自动附身；Next/Previous不重试另一目标。\n[[Teams/结构#C12 切人退出与原生控制契约|接口、政策与失败分支]]",
       "x": 1860,
       "y": 1680,
       "width": 500,
@@ -63,7 +63,7 @@
     {
       "id": "persist",
       "type": "text",
-      "text": "## 待命的持久状态\nDeactivate隐藏 / 关碰撞 / 停移动；Slot与ASC不重建，GE / CD / 属性仍由各Slot保有。\n当前仅换Controller附身和出战索引，Avatar装配时已绑定。\n复制三层分别负责：Actor相关性、GE信息模式、属性自身条件。\nMixed只管GE信息；健康四量COND_None，Combat基础三量COND_OwnerOnly。\n[[计划_队伍与装配#9.3 D1 采纳的布局：Slot 持有 ASC 的三层结构|复制与宿主约束]]",
+      "text": "## 待命的原Slot状态\nDeactivate隐藏/关碰撞/停移动；Slot/ASC/Avatar不重建，GE/CD/属性仍保有。\n默认Cancel退出；显式Continue（含不可取消）不挡切人。\nsameBinding Refresh只保原End，不续授ResourceWork/输入/控制/镜头/位移。\n复制各司其职：Actor相关性、Mixed的GE信息、属性条件。\n健康四量COND_None，Combat基础三量COND_OwnerOnly。\n[[计划_队伍与装配#9.3 D1 采纳的布局：Slot 持有 ASC 的三层结构|宿主与复制]]",
       "x": 1240,
       "y": 1680,
       "width": 440,
@@ -73,7 +73,7 @@
     {
       "id": "remote",
       "type": "text",
-      "text": "## 已接源码与未验范围\n显式加载 / 三态解析、主LP保存准入 / 唯一缓存、原始运行容量及实际Root出生点已接。\n原Squad Logout随Gate66编译；最新Creator原PC弱身份批次、嵌套消费与首次整体关闭已Gate67编译，实队动态仍未验。\nCreator管未交付，Squad管已交付；Host关闭原绑定，不增加执行链。\n旧三项冒烟不证明实队；Gate58失败保留，编译不能证明物理清理。\n整队成功 / 完整幂等、切人GA / 输入 / 控制事务、编成UI / 远端上报未闭合；正式资产 / 网络未验，C13开放。\n[[Teams/结构|实际契约]] · [[计划_队伍与装配#9.0 当前实施状态与后续门禁（2026-09-30）|门禁与边界]]",
+      "text": "## 远端名单与接口边界\n服务器远端PC没有LP → 正常Unconfigured → Experience默认名单。\n客户端磁盘名单上报RPC尚未接入，不由服务器代读或把非法来源降级默认。\n编成UI及切人GA/CD/消耗尚未接入；组件切人使用现有公开入口。\nCreated true只交付原创建责任，Destroy接受只退休请求义务，不证明物理完成。\nContinue只保原End；携带资源、正式资产和联机需独立验证。\n[[计划_队伍与装配#9.0 当前实施状态与后续门禁（2026-09-30）|后续范围与证据]]",
       "x": 0,
       "y": 1680,
       "width": 440,
@@ -93,7 +93,7 @@
     {
       "id": "receive-checks",
       "type": "text",
-      "text": "## 4. private实际创建接收\n`RegisterCreatedSlot(Slot, OriginalCreatedPawn)` → bool；非反射，仅friend GameMode交付真实原对。\nSquad先拒绝终止 / 无效组件，核权威PlayerState唯一Squad / Controller / World。\n合法原身份重复不重放；借用不能升级。新成员核容量 / 完成查询 / Slot-ASC-Avatar-Extension-PawnData / Owner一致。\nfalse提交前不改名单 / 责任 / 控制；原产物仍归Creator。\nCreator先消费返回bool再重检Context，不按当前Avatar / Owner反推历史交付。",
+      "text": "## 4. private实际创建接收\n`RegisterCreatedSlot(Slot, OriginalCreatedPawn)` → bool；非反射，仅friend GameMode交付原对。\n先拒绝终止/无效组件，核权威PS唯一Squad/PC/World。\n合法原身份重复不重放；借用不能升级。新成员核容量/完成、原Slot-ASC-Avatar-PawnData及Extension真实Ready。\nSlot.Owner保持原PC；Pawn.Owner是原生控制状态，不能作持久归属。\nfalse提交前不改名单/责任/控制；Creator消费bool再重检Context，不反推历史交付。",
       "x": 1860,
       "y": 405,
       "width": 500,
@@ -103,7 +103,7 @@
     {
       "id": "assembly-refusal",
       "type": "text",
-      "text": "## 拒绝：未交付原物\n准备false / 资格失效 / Created false → Creator栈只管捕获原Slot→原Pawn；不猜当前Avatar / Owner。\n原生接受 / 失效 / 销毁中退休字段请求义务，不等于物理完成。\n拒绝且仍活 → 原字段append同一GM台账，定位诊断；后续同PC拒绝新生成。\n最终无法留义务明确Error；无Tick / 自动扫尾或调用后Reset。\nLogout按原PC抽取；整体退出只首次取剩余，详见7 / 8。true已交付不反交；C13开放。",
+      "text": "## 拒绝：未交付原物\n准备false / 资格失效 / Created false → Creator栈只管捕获原Slot→原Pawn；不猜当前Avatar / Owner。\n原生接受 / 失效 / 销毁中退休字段请求义务，不等于物理完成。\n拒绝且仍活 → 原字段append同一GM台账，定位诊断；后续同PC拒绝新生成。\n最终无法留义务明确Error；无Tick / 自动扫尾或调用后Reset。\nLogout按原PC抽取；整体退出只首次取剩余，详见7 / 8。true已交付不反交。",
       "x": 1240,
       "y": 1040,
       "width": 440,
@@ -133,7 +133,7 @@
     {
       "id": "termination-host",
       "type": "text",
-      "text": "## 9. 原Slot原生生命周期 → Host关闭\n原Slot继承CombatantState；Destroyed / EndPlay在Super前共用CloseAvatarBindingLifecycle（H3），覆盖BeginPlay前及owner-only。\nHost只消费原H / 已提交Context：原Release或ASC认证原Context的真实Clear / Publish，不重捕后继。\nGM / Squad不持H / Context，不调用DetachAvatar、Extension Uninitialize、ClearActorInfo或GA取消；Host协调，ASC执行事务。\nDestroy接受不保证物理Clear / 发布；Busy / 失败保持诊断。\n最新Creator已Gate67编译，旧三项冒烟不构成实队 / 物理 / 网络证据；历史Gate58失败保留，C13与完整切人仍开放。\n[[Combatants/结构#Host生命周期关闭（H3）|Host H3]] · [[Teams/结构#原始创建资源的唯一终止链（08-05b）|原资源终止契约]]",
+      "text": "## 9. 原Slot原生生命周期 → Host关闭\n原Slot继承CombatantState，Destroyed/EndPlay在Super前共用Close（H3），覆盖BeginPlay前及owner-only。\nHost消费原H/已提交Context：原Release或ASC认证后真实Clear/Publish，不重捕后继。\nGM/Squad终止消费者不持H/Context、不直接解绑/取消GA；Host协调、ASC执行。普通C12另请求公开能力退出/输入退役。\nDestroy接受不保证物理Clear/发布；Busy/失败诊断保留。\n普通切人不触发本绑定关闭链；原生销毁请求与真实Clear/发布分别读回。\n[[Combatants/结构#Host生命周期关闭（H3）|Host H3]] · [[Teams/结构#原始创建资源的唯一终止链（08-05b）|终止契约]]",
       "x": 1660,
       "y": 2450,
       "width": 700,
@@ -172,7 +172,7 @@
       "fromSide": "bottom",
       "toNode": "switch",
       "toSide": "top",
-      "label": "尝试0 / 后续切人"
+      "label": "首位/后续请求同一C12入口"
     },
     {
       "id": "e5",
@@ -180,7 +180,7 @@
       "fromSide": "left",
       "toNode": "persist",
       "toSide": "right",
-      "label": "不重建Slot / ASC"
+      "label": "保留原Slot状态；执行政策不续授权限"
     },
     {
       "id": "e6",

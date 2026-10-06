@@ -3,7 +3,7 @@
     {
       "id": "combo-f-nav",
       "type": "text",
-      "text": "# 玩家普攻｜真实Main/End、Required失败与原结束\n[[计划_玩家普攻连段|接口/集中证据]] · [[GGYGO_结构_玩家普攻连段.canvas|结构]] · [[GGYGO_流程_AbilitySystem.canvas|GAS流程]]\n原终止/命中契约保持；新链已编译、必要复测。六叶3 Success/3 Fail原E/W保留，故障behavior PASS单列；BodyZ仅Normal01 Main。End姿态/完整混合/Cook/联机/HID、strict/raw/C12仍开放。",
+      "text": "# 玩家普攻｜执行流程\n受控激活→读取段配置→原Task播放Main／End→处理输入、命中和移动中断→清理原资源→原能力结束。\nRequired姿态失败由Task清理后发送OnFailed，GA核原激活与段资源后请求End。\n[[计划_玩家普攻连段|连段说明]] · [[GGYGO_结构_玩家普攻连段.canvas|结构]] · [[GGYGO_流程_AbilitySystem.canvas|GAS流程]]",
       "x": 0,
       "y": 0,
       "width": 2720,
@@ -83,7 +83,7 @@
     {
       "id": "combo-f-correct",
       "type": "text",
-      "text": "权威确认 / 拒绝与来源\nSendAuthoritativeStep → ASC ClientCorrectAbilityState(Spec,key,TargetData)。\nASC筛原Spec/实例/key；Combo ReceiveAbilityCorrection校验单项确切类型、范围/Revision。\nCorrectPredictedStepForActivation只处理保存Original，StartStep返回再查原段。\n联机传送/延迟仍未验；原请求证明只在核心GAS维护。",
+      "text": "权威确认 / 拒绝与来源\nSendAuthoritativeStep → ASC ClientCorrectAbilityState(Spec,key,TargetData)。\nASC筛原Spec/实例/key；Combo ReceiveAbilityCorrection校验单项确切类型、范围/Revision。\nCorrectPredictedStepForActivation只处理保存Original，StartStep返回再查原段。\n原请求证明只在核心GAS维护。",
       "x": 1590,
       "y": 250,
       "width": 520,

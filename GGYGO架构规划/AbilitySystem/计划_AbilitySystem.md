@@ -4,7 +4,9 @@
 
 > 历史 Build55：Failed (OtherCompilationError)，UHT通过并写33个生成文件，新运行时未链接、未UE冒烟，构建中353源/45保护保持；当时三项机械修正已冻结，Hero旧三调用尚未迁移。保留该失败记录，不作为当前源码状态。
 >
-> 当前（2026-10-05）：原生原身份发行、final生命周期、Initialize/Body/Context Cleanup、Combo/Boss/Admission及Process/OnSpawn/Boss BT受控消费已落盘并编译。Gate79四RuntimeHit Case行为PASS，原四普通叶0E0W；七叶报告5 Success/2 Fail/0 Warning，故障叶只保留真实生产Error。当前有限验收及剩余入口见[[AbilitySystem/计划_原请求终止|原请求终止计划]]、[[GGYGO_流程_原请求终止.canvas|子图]]；严格红测、正式资产与网络不关闭。
+> 上一检查点（2026-10-05）：原生原身份发行、final生命周期、Initialize/Body/Context Cleanup、Combo/Boss/Admission及Process/OnSpawn/Boss BT受控消费已落盘并编译。Gate79四RuntimeHit Case行为PASS，原四普通叶0E0W；七叶报告5 Success/2 Fail/0 Warning，故障叶只保留真实生产Error。当前有限验收及剩余入口见[[AbilitySystem/计划_原请求终止|原请求终止计划]]、[[GGYGO_流程_原请求终止.canvas|子图]]；严格红测、正式资产与网络不关闭。
+
+> 当前（2026-10-06）：必需姿态 Ticket/typed OnFailed、Combo Main 动作请求与 End 原移动事实中断已接齐，统一 Editor 构建 Succeeded。Gate101-R2 六叶原报告为3 Success/3 Fail，原Error/Warning不滤掉；分项及有限 BodyZ 见 [[计划_玩家普攻连段#本轮编译与必要冒烟证据|集中证据]]。原生命周期/Busy契约不改变，严格红测、完整姿态混合、Cook/联机/HID继续开放，C12普通换人政策仍待用户决定。
 
 ## 3. AbilitySystem 层：照抄 Lyra 的部分
 
@@ -75,7 +77,7 @@ ASC已替换旧Tag生产入口为Receive(Tag,PreviousIdentity,OriginalDeadline)�
 | --- | --- |
 | ASC原播放接口 | 已实施、冻结并编译；同GA同资产A／B按原非复用Guard调用及ASC私有Proof区别。正式资产/联机与原严格失败动态边界保留。 |
 | GA原资源捕获／统一终止 | 已共同启用并编译：实际NotifyActivated签Original，受控Try记录外层返回来源；final Activate/End/Cancel管理实际调用跨度，Initialize→原准入/相机→Body，一次Context Cleanup→native End。GA唯一原记录，ASC仅见证并发布；Combo/Boss/Admission已迁。raw外层缺证据与PendingRemove/锁内teardown仍明确失败，不补Completed。 |
-| Task原资源消费者 | 精确ASC Result/Handle/Guard与N0五native单播已编译；Combo/Boss在Ready前注册原包，闭包持Original/原Task，Context收尾精确脱token。Task唯一持播放/停止/scale/监听，无全局尝试表或新实例扫描。Task自然Completed不是GA原Notice；native/捕获析构极端重入、旧夹具与资产网络仍未专项验收。 |
+| Task原资源消费者 | 精确ASC Result/Handle/Guard、原五native单播及SectionReceived/OnFailed已编译；Combo/Boss在Ready前注册原包，闭包持Original/原Task，Context收尾精确脱token。Task唯一持播放/停止/scale/监听，无全局尝试表或新实例扫描。Task自然Completed不是GA原Notice；native/捕获析构极端重入、旧夹具与资产网络仍未专项验收。 |
 | 验证与生产 | Gate79有限正常/故障链已验：四RuntimeHit Case行为PASS，原Combo纠正/Boss Mesh/输入/移动普通叶0E0W。原报告5 Success/2 Fail/0 Warning，两故障仅有三条真实生产Error，不过滤；正式Boss战斗、BP/Montage接线、Execution数值、Cue表现、网络与原strict/raw红仍开放。历史构建/错误见既有模块验证记录。 |
 
 Init／Clear的真实Local重置退休原证明；同端点Refresh仅来源实际改变才退休，不用Publication修订猜播放变化。裸限定基类写入与未观察Owner ABA不作完整保障声明；销毁提交来源／Init失败写入Proof与Host H1/H2、Hero A/B1/B2已实施并编译，完整生产清理动态验收另列。它们与K3/GA终止分责。接口与跨模块边界见[[AbilitySystem/结构#精确Montage播放归属（K3：已编译，派生与生产未闭合）|播放契约]]、[[Animation/结构|Guard]]。
@@ -83,6 +85,21 @@ Init／Clear的真实Local重置退休原证明；同端点Refresh仅来源实�
 T2现有接口：ASC `TryActivateAbilityWithTerminationBoundary`提供真实Try完整退出见证，`OnAbilityTerminationCompleted`发布带原来源的完成历史；GA `CaptureCurrentActivation`读取既有原身份，`RequestAbilityEnd/Cancel`受理原请求，`CleanupAbilityResourcesForTermination`只清自身原资源。GA持唯一首个不可变Context与原终止记录；ASC关联原Try/Ended见证，不持第二终止状态机。原生Cancel广播前捕资源；原生End、完整虚End/Cancel及关联Try全部退出后先封存结果、释放原Busy，再通知，回调后继不能覆写原结果。原生WaitingToExecute仅一次Continuation；解锁发生在原虚调用内时留Ready，完整返回后消费。
 
 受控项目入口与显式End→原Completed→新请求政策已共同启用；Activate/End/Cancel为final，派生通过Initialize/Body/Context Cleanup保持业务。原生NotifyActivated签身份和受控Try提供外层来源是两项不同证明；raw非虚Try/CallActivate缺后者，原清理不冒充协议Completed。活动同实例或原Busy拒绝重开，PerExecution不同实例不按同Spec一概封禁；无自动重启/第二队列。详细结果与边界见[[AbilitySystem/计划_原请求终止|子计划]]、[[GGYGO_流程_原请求终止.canvas|子图]]。
+
+## 必需姿态契约与Main/End集成
+
+本轮完整链由 Animation 提供姿态能力与固定动作曲线来源，Task 管原播放/订阅/Ticket，Combo 管段与原资源生命周期，CMC 唯一执行胶囊 XYZ 位移并认证原移动请求。ASC仍只提供原播放与原终止证明，不解析角色动作或复制姿态执行。
+
+| 边界 | 已实现契约 | 清理/验收边界 |
+| --- | --- | --- |
+| Guard → Task | Activate实际播放前Acquire；ExplicitNotRequired普通模式，RequiredReady原Ticket；仅Required在引擎Task Tick只读Poll，Failed/Invalidated明确失败 | 不每帧Acquire，不消费最终混合曲线，不另建Tick/播放时钟；Ticket由OnDestroy退休 |
+| Task → Combo | pre-Ready一包注册SectionReceived与typed OnFailed；原Section快照/事实取自确切实例，失败先精确Stop/EndTask再历史分发 | Startup NONE / Playback原ID；native垃圾标记后的Get(true)只用于历史发送者核验，GA另核自身原身份；native结束原激活则不发旧BP |
+| Combo → CMC | 原Snapshot固定ID/Section/Position/Rate；Main调用BeginMontageActionMotion并观察原失败；SectionReceived进入End释放Main，再Query/Subscribe原QualifiedMovementIntent | 只消费原Scope及复核一致的Intent；CancelMontageActionMotionForMovement后RequestAbilityEnd(Original,true,true)。不可用/执行失败明确结束原动作；普通Interrupted/Cancel不换语义 |
+| 生产接线/必要门禁 | GA三段字段冷读回；ABP_Pyrios Required FullBody ActionPoseSlot保存回读；Gate101-R2 End两叶、XYZ叶Success，姿态两故障behavior PASS但各2Error/Fail，恢复负例3Error/Fail | BodyZ只Normal01 Main；End姿态/完整混合、真实HID、完整三段命中表现、Cook/网络及strict/raw仍未验 |
+
+实际接口输入/输出见 [[AbilitySystem/结构#Task原实例与资源消费（已编译，专项与迁移边界保留）|Task契约]]；Main/End/失败资源流与唯一集中证据见 [[计划_玩家普攻连段]]。姿态执行见 [[Animation/动作姿态修正|Animation契约]]，胶囊执行见 [[Movement/结构|Movement职责]]。Gate101/R1实现失败经本轮修正和R2复测关闭，原失败报告保留；不把负例报告Fail改成全通过。
+
+C12普通换人退出：真实业务政策尚未决定，候选共享接口只读配对冻结、生产未实施；本轮没有扩大到队伍切换或修改已确认的原生命周期/Busy归属。
 
 ## 当前连段输入Task增量（W0）
 

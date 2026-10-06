@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# AbilitySystem｜流程图\n受控请求→原生身份→final激活/原清理→全退出Completed共同启用；必要正常/故障链有限验证。旧失败报告见父文档，严格raw/native、正式资产和网络仍开放。\n[[GGYGO_结构_AbilitySystem.canvas|结构图]] · [[AbilitySystem/结构|接口]] · [[GGYGO_流程_原请求终止.canvas|终止子图]] · [[AbilitySystem/计划_原请求终止|契约/边界]] · [[GGYGO_流程_能力仲裁.canvas|仲裁]] · [[GGYGO_流程_伤害结算.canvas|结算]]",
+      "text": "# AbilitySystem｜流程图\n受控Try→原身份→final原清理→全退出Completed保持。新增RequiredPose先Acquire/原nativeTick Poll，失败先EndTask再历史OnFailed；Combo接真实Main/End原移动事实。已编译必要复测，3 Success/3 Fail原E/W保留。\n[[GGYGO_结构_AbilitySystem.canvas|结构]] · [[AbilitySystem/结构|接口]] · [[计划_玩家普攻连段|集中证据/剩余门禁]] · [[GGYGO_流程_原请求终止.canvas|终止]] · [[GGYGO_流程_能力仲裁.canvas|仲裁]] · [[GGYGO_流程_伤害结算.canvas|结算]]",
       "x": 0,
       "y": 0,
       "width": 1650,
@@ -123,7 +123,7 @@
     {
       "id": "k3-play-result",
       "type": "text",
-      "text": "## K3 1｜Task请求与完整原生返回\nN0接口可用：创建Task后、Ready前可RegisterNativeCallbacks(五可选单播包)→精确token；仅原Awaiting、非空、无既有包，空/重复/迟到明确拒绝。调用方闭包按值捕原Activation/弱GA/弱原Task；Task不授GA权力。\nN0及Combo/Boss原包消费者已编译；普通资源链有限验证，native/捕获析构极端重入未专项验。\nTask::Activate捕原Ability／ActorInfo allocation／ASC／端点，先注册自己的Cancel／GameplayEvent订阅。\n→TryPlayMontageWithOwnership(原GA／Activation／Montage／参数／必需pureQuery)。查询只读原Task关联和存活。\nASC：捕原来源→GuardScope→一次完整Super::PlayMontage→Complete→复制Result并退出Scope。\nAccepted且源／GA／真实Local一致才签Playback；失败／Superseded无Handle，不退已接受后继。\nTask消费单一栈Result；无全局播放尝试表/播放token/新实例扫描，不走非Guard裸播放或正Duration兜底。\n[[AbilitySystem/结构|接口输入输出]]",
+      "text": "## K3 1｜Task先决契约与完整播放返回\n创建Task后、Ready前RegisterNativeCallbacks→精确token：原五普通回调＋SectionReceived＋typed OnFailed。原Activation/弱GA/原Task由调用方固定捕获。\nActivate捕原Ability/ActorInfo allocation/ASC/Mesh/Anim与Montage真实唯一Slot。\n→原Guard.AcquireActionPoseContract：ExplicitNotRequired明确普通模式；RequiredReady须有效原Ticket/失败消费者；Rejected/Unavailable或Ticket不一致→Startup失败(ID=NONE)，不播放。\n原资格有效→自身Cancel/Event订阅→TryPlayMontageWithOwnership(原参数/pureQuery)。\nASC捕源→GuardScope→完整Super.PlayMontage→Complete→复制Result并退出Scope；Accepted且真实Local/原源一致才签Playback。\nTask消费同一栈Result；失败/Superseded不清后继、不裸播放/扫描新实例或假Duration成功。\n[[AbilitySystem/结构|接口输入输出]] · [[Animation/动作姿态修正|声明与Acquire]]",
       "x": 3000,
       "y": 392,
       "width": 950,
@@ -133,7 +133,7 @@
     {
       "id": "k3-original-resource",
       "type": "text",
-      "text": "## K3 2｜Task安装或原资源清理\n外调返回→重检原Task／Ability／ActorInfo。同步Cancel／Destroy的停止义务由栈共持；失效仅凭Result.Guard清原实例，Task仍活但原上下文失效明确诊断。\n已结束Task不安装委托／缩放lease、不再写成员。成功且原源有效→存Handle／Guard→GetTaskMontageInstance按原ID重取。\n直接绑定带原Guard的BlendOut／Ended实例委托→获取自身RootMotionScale lease→SetWaitingOnAvatar；最后外调后无成员写。\nASC唯一provenance认证Local写入；B替换A，停止不复活A。Check不依赖活动实例。\n停止：原Guard＋精确ID，ASC认证且活动ID匹配才CurrentMontageStop；否则只释放精确原本地实例，不清新ASC／GA。\nGA首次终止Capture原播放/相机；final End/Cancel/Busy及派生Context Cleanup已启用，资源执行仍归Task/GAS。\n[[GGYGO_流程_原请求终止.canvas|GA原资源与退出契约]]\n[[Animation/结构|Guard唯一身份来源]]",
+      "text": "## K3 2｜原资源安装与Required-only只读Poll\n原返回重检Task/Ability/ActorInfo；在途停止义务按Result.Guard清原实例。已结束Task不安装资源。\n成功→保存原Handle/Guard/ID→精确BlendOut/Ended/Section委托→原scale lease→SetWaitingOnAvatar；最后外调后无成员写。\nReady返回：GA用TryGetOriginalSectionSnapshot固定实际ID/Section/Position/Rate，Main→CMC BeginMontageActionMotion；SectionReceived→真实End。\n仅RequiredReady启用原GameplayTasks Tick；TickTask不消费dt或求姿态，只向原Guard.PollActionPoseContract。\nPoll前后核原Task/Ability/ActorInfo/ASC/Guard；Valid继续，Failed/Invalidated→Playback失败(原ID)，不重新Acquire或静默跳过弱来源丢失。\n普通Event/Section仍核精确原实例和自身资格；票据不是播放/GA权力，CMC仍唯一胶囊执行。\n[[GGYGO_流程_玩家普攻连段.canvas|Main/End消费]] · [[Animation/动作姿态修正|姿态执行/epoch]]",
       "x": 3000,
       "y": 1260,
       "width": 950,
@@ -153,7 +153,7 @@
     {
       "id": "k3-task-original-ended",
       "type": "text",
-      "text": "## K3 4｜原Ended事实与自身收尾\n引擎排队的原实例Ended委托载荷→匹配原Guard；不按资产查后继。\n非Interrupted且原Guard生命周期/ActorInfo/Task资格有效→原包/载荷快照→native；释放快照且捕获析构返回→弱原Task/原资格重检→BP OnCompleted。\n不Check当前ASC归属，不要求原实例仍活动或存在；正常BlendOut已Clear也保留自然结束事实。\nTask Completed仅原实例事实；Combo/Boss须另证原能力生命周期，不能替代GA原请求Notice。派生已按固定Original消费并迁Context Cleanup，Task不成为第二生命周期权威。\nBP后只重取弱原Task执行自身EndTask收尾。\nOnDestroy先关闭Task并脱native包/token→自身Cancel/Event/实例委托及scale cleanup→Super返回→释放脱出的捕获；此后无Task访问，普通Task结束不擅自Stop。\nExternalCancel/AbilityCancel/FailAndEndTask在派发前标记取消，native/BP各至多一次；启动失败不硬核尚未建立的ActorInfo/Guard，仍核原Task和ShouldBroadcast。\n取消或AbilityEnded+Stop策略保留原停止义务，精确原实例执行；Unregister仅原token脱包，析构重入不清后继注册。\n原Activation只在调用方闭包，Combo/Boss已在Ready前注册native包，清自己的原token/Task。必要普通链有限验证；Guard失效、native捕获析构极端重入、旧严格/正式资产网络仍开放。\n[[AbilitySystem/结构#Task原实例与资源消费（已编译，专项与迁移边界保留）|事实/权限/资源边界]]",
+      "text": "## K3 4｜自然结束、普通取消与Required失败\n自然原Ended：原Guard生命周期/ActorInfo/Task资格成立且非Interrupted→原包/载荷快照→native/捕获析构返回→原资格重检→BP Completed→自身EndTask。\n不Check已退休当前ASC归属，不要求原实例仍活动。Completed只原实例事实；GA另核Original，不授后继结束权。\n普通ExternalCancel/AbilityCancel/FailAndEndTask保持Cancelled与原Stop策略，各渠道至多一次。\nRequired失败独立路径：关闭普通Event/Section/完成入口→精确Stop原实例/释放scale→EndTask清自身订阅/Ticket→历史typed OnFailed。\nFact=原Montage/真实Slot/Stage/Diagnostic；Startup NONE，Playback确切原ID。\nUE EndTask已清Task.Ability并垃圾标记；历史发送者WeakTask.Get(true)拒RF销毁，GA核原激活/段/强Task/原资源，随后正式原End(true,true)。不能用live-Task/Guard门禁吞失败。\nnative消费者若真实结束原激活/同UObject接续，临时原End观察使旧BP不交付；无原End且历史资格成立才BP OnFailed。\nOnDestroy先关/脱包，再原Cancel/Event/实例/scale/Ticket清理；Tick标志保持到引擎退休登记，捕获释放后无旧Task写。\n普通停止仍按原Guard/ID，ASC认证且活动ID同原才CurrentMontageStop，否则仅精确本地原资源；不找当前Avatar/后继。\n[[AbilitySystem/结构#Task原实例与资源消费（已编译，专项与迁移边界保留）|Task契约]] · [[计划_玩家普攻连段|失败接收与有限证据]]",
       "x": 3000,
       "y": 2950,
       "width": 950,

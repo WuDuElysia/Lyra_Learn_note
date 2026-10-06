@@ -1,0 +1,308 @@
+{
+  "nodes": [
+    {
+      "id": "pose_nav",
+      "type": "text",
+      "text": "# 动作姿态修正｜原生Slot与Required失败链\n[[Animation/动作姿态修正|算法、契约与证据]] · [[Animation/结构|模块接口]] · [[GGYGO_结构_动画与表现.canvas|结构图]] · [[GGYGO_流程_动画表现.canvas|返回主流程]]。\n上方是启动资格，中部是原生GT/worker评估，下方是原Task/GA/CMC清理。箭头标注触发或数据传递，GT发布和Task轮询沿原引擎入口，不新增调度。",
+      "x": 0,
+      "y": 0,
+      "width": 2540,
+      "height": 230,
+      "color": "6"
+    },
+    {
+      "id": "pose_role_cache",
+      "type": "text",
+      "text": "## 角色配置 / 原CacheBones\nABP持FullBody、Bip001/Root及原组件对齐；角色声明RequiredPoseCorrectionSlot。\n原CacheBones→BuildReferenceCache：当前Mesh参考/实际CompactPose/独立骨分支。\nepoch标逻辑配置/参考变化；缺必需骨明确不可用。\n原OnInitialize清GT publication；临时Source值不跨Evaluate。",
+      "x": 0,
+      "y": 330,
+      "width": 480,
+      "height": 390,
+      "color": "4"
+    },
+    {
+      "id": "pose_acquire",
+      "type": "text",
+      "text": "## Task Ready前Acquire\nTask.Activate→Guard.AcquireActionPoseContract(原Montage)。\n原GT并行完成屏障前后核原provider/Owner/Mesh/模型/角色；唯一compiled producer+current capability。\nRequiredReady→原ticket；它只证明配置能力。\nNone与correction producer不匹配必须Rejected；失败清ticket。",
+      "x": 560,
+      "y": 330,
+      "width": 560,
+      "height": 390,
+      "color": "5"
+    },
+    {
+      "id": "pose_native_play",
+      "type": "text",
+      "text": "## RequiredReady→原生播放\nTask先持原ticket并有Ready前OnFailed消费者，再TryPlayMontageWithOwnership。\nASC/Guard沿完整原生调用签原Playback Handle；姿态ticket不替代播放身份。\nGA捕原snapshot申请CMC Main句柄。\nExplicitNotRequired为显式普通Slot模式，不轮询。",
+      "x": 1240,
+      "y": 330,
+      "width": 600,
+      "height": 390,
+      "color": "5"
+    },
+    {
+      "id": "pose_startup_rejected",
+      "type": "text",
+      "text": "## Rejected / Unavailable\nTask.FailActionPoseContract(Startup,原Slot,诊断)。\n没有原播放，instance=INDEX_NONE；不启动默认动作或无限等待。\n记录明确Error并清本人Task资源，再历史OnFailed结束原GA。\n不存在播放资源时不猜后继清理。",
+      "x": 1980,
+      "y": 330,
+      "width": 560,
+      "height": 390,
+      "color": "3"
+    },
+    {
+      "id": "pose_native_gt",
+      "type": "text",
+      "text": "## 原GT NativeUpdateAnimation\nGuard读取本实例MontageInstances：同Slot且权重超过原生阈值的真实输入。\nValidateMontageCapability核非Additive/源轨道/无native RootMotion；拒绝资产或active BlendProfile。\n只PublishNativeMontageCapability(bool,诊断,原provider,native UpdateCounter)。\nworker不读GT实例表/受保护evaluation array。",
+      "x": 0,
+      "y": 840,
+      "width": 480,
+      "height": 480,
+      "color": "5"
+    },
+    {
+      "id": "pose_source_borrow",
+      "type": "text",
+      "text": "## 原生Slot Evaluate / Source借用\nFAnimNode_Slot唯一Update/权重/混合/Notify执行。\n派生Evaluate先清scratch→Super.Evaluate。\nPostEvaluateSourcePose只在Source确实参与时读Q(source)；阈值省略的Source不读。\nAlwaysUpdateSourcePose不等于强制Evaluate。\n原provider/native counter/原WeightData核对；无第二Source求值。",
+      "x": 560,
+      "y": 840,
+      "width": 560,
+      "height": 480,
+      "color": "5"
+    },
+    {
+      "id": "pose_correct_z",
+      "type": "text",
+      "text": "## 同次Z分离→Body translation\nQ(P)=参考父基底Body局部Z−Trajectory局部Z。\nTarget.XY=原ComponentAlignment.XY。\nTarget.Z=anchorZ+Q(native slot)−u·Q(actual Source)−v·Q(mesh ref)。\nu/v用原生有效Source/Total系数；祖先按固定参考契约校验。\n实际Body父链InverseTransformPosition→只SetTranslation。\n[[Animation/动作姿态修正#4. 同次原生 Slot 的 Z 分离|系数/公式/有效期]]",
+      "x": 1240,
+      "y": 840,
+      "width": 600,
+      "height": 480,
+      "color": "5"
+    },
+    {
+      "id": "pose_final_mesh",
+      "type": "text",
+      "text": "## 原输出pose→最终Mesh\nBody旋转/缩放与Root分支保持原生结果。\n原LocalToCS→原CSToLocal→原Inertialization→Root。\nEvaluate退出清借用Source标量；不保存pose/位置/时钟。\n最终buffer与native Montage position可能有一帧差，不能当Slot中间值。",
+      "x": 1980,
+      "y": 840,
+      "width": 560,
+      "height": 480,
+      "color": "1"
+    },
+    {
+      "id": "pose_diagnostic",
+      "type": "text",
+      "text": "## 评估能力失败\n配置/必需骨/祖先/权重/publication非法→RecordFailure。\n锁存原因、推进单调failureSerial，按原因变化Error节流。\n引擎合法reference诊断pose伴随失败；不作为成功或替代业务。\n新故障由原Task下次native Tick Poll识别。",
+      "x": 1240,
+      "y": 1430,
+      "width": 600,
+      "height": 390,
+      "color": "3"
+    },
+    {
+      "id": "pose_poll",
+      "type": "text",
+      "text": "## 原Task TickTask只读Poll\n仅RequiredReady开启原生GameplayTasks Tick；不累积dt、不驱动画。\nPollActionPoseContract(原ticket)：原上下文/角色/epoch换代→Invalidated；新故障/当前能力失败→Failed；否则Valid。\ninvalid ticket也轮询失败；不刷新旧票据。\n播放Guard身份另验，不能借后继。",
+      "x": 1980,
+      "y": 1430,
+      "width": 560,
+      "height": 390,
+      "color": "5"
+    },
+    {
+      "id": "pose_evidence",
+      "type": "text",
+      "text": "## 当前必要证据 / 开放边界\nNormal01 Main最终Body组件Z已变化、XY近零；含原Inertialization。147为回调采样/146种BodyXYZ，未采End/完整BlendIn-Out/其他普攻。\n两正常End后真实Walk/Run；两Required故障原清理/不可用户取消时强制End/自然后继/PIE收尾行为PASS。\nGate101-R2原报告3 Success/3 Fail，生产Error不滤，Movement完整负向断言保留。\n[[Animation/动作姿态修正#7. 实际证据与未验证边界|真实日志/报告/未验]]",
+      "x": 0,
+      "y": 1430,
+      "width": 1120,
+      "height": 390,
+      "color": "6"
+    },
+    {
+      "id": "pose_task_cleanup",
+      "type": "text",
+      "text": "## Task先清原资源，再OnFailed\nFailActionPoseContract捕Startup/Playback原事实，封闭本人失败入口。\nPlayback精确原Guard/Handle Stop；归还scale，EndTask/OnDestroy撤监听/委托/ticket。\n同步历史OnFailed：原WeakTask.Get(true)+销毁标志、原Ability/ASC与当前栈Ended检查。\nTask已退休也可发原事实，不要求Montage活动，不清后继。\n[[AbilitySystem/结构|Task资源边界]]",
+      "x": 1980,
+      "y": 1930,
+      "width": 560,
+      "height": 480,
+      "color": "3"
+    },
+    {
+      "id": "pose_ga_end",
+      "type": "text",
+      "text": "## 原GA必需依赖失败End\nPlayerCombo OnFailed核原Activation/step token/Task/所持资源及失败Montage/Slot/instance。\nRequestAbilityEnd(Original,true,true)强制原生命周期结束，CanBeCanceled=false也不阻止。\nGA Cleanup清自己原CMC句柄/能力资源；自然后继不接收旧失败。\n[[计划_玩家普攻连段|原GA]] · [[AbilitySystem/结构|强制End与清理]]",
+      "x": 1240,
+      "y": 1930,
+      "width": 600,
+      "height": 480,
+      "color": "3"
+    },
+    {
+      "id": "pose_cmc_boundary",
+      "type": "text",
+      "text": "## 独立CMC动作与原生物理\nGA显式BuildSourceBinding(原Montage,Slot,Main)→按原snapshot BeginMontageActionMotion，持精确句柄。\nMovement按原PosXYZ区间/RMS给CMC胶囊贡献；Section/完成/失败只Release原Handle，End受理移动Cancel原End。\nBodyZ不回写此链，pose node/provider不写Velocity/Acceleration/RequestedVelocity或输入资格。\n原生物理动量与未准入驱动由Movement区分；退休RMS不等于应清零Velocity。\n[[Movement/动作曲线执行|动作接口]] · [[Movement/结构|源准入/动量与清理]]",
+      "x": 0,
+      "y": 1930,
+      "width": 1120,
+      "height": 480,
+      "color": "4"
+    }
+  ],
+  "edges": [
+    {
+      "id": "pose_cache_acquire",
+      "fromNode": "pose_role_cache",
+      "fromSide": "right",
+      "toNode": "pose_acquire",
+      "toSide": "left",
+      "label": "读取原配置、参考cache与能力"
+    },
+    {
+      "id": "pose_acquire_ready",
+      "fromNode": "pose_acquire",
+      "fromSide": "right",
+      "toNode": "pose_native_play",
+      "toSide": "left",
+      "label": "RequiredReady且失败消费者已登记"
+    },
+    {
+      "id": "pose_acquire_fail",
+      "fromNode": "pose_acquire",
+      "fromSide": "top",
+      "toNode": "pose_startup_rejected",
+      "toSide": "top",
+      "label": "Rejected/Unavailable，禁止启动"
+    },
+    {
+      "id": "pose_cache_gt",
+      "fromNode": "pose_role_cache",
+      "fromSide": "bottom",
+      "toNode": "pose_native_gt",
+      "toSide": "top",
+      "label": "原编译节点配置与native生命周期"
+    },
+    {
+      "id": "pose_play_native",
+      "fromNode": "pose_native_play",
+      "fromSide": "bottom",
+      "toNode": "pose_source_borrow",
+      "toSide": "top",
+      "label": "后续原生FullBody评估"
+    },
+    {
+      "id": "pose_gt_publication",
+      "fromNode": "pose_native_gt",
+      "fromSide": "right",
+      "toNode": "pose_source_borrow",
+      "toSide": "left",
+      "label": "bool/诊断/原provider/native counter数据"
+    },
+    {
+      "id": "pose_source_q",
+      "fromNode": "pose_source_borrow",
+      "fromSide": "right",
+      "toNode": "pose_correct_z",
+      "toSide": "left",
+      "label": "同次native混合结果与实际参与Source残差"
+    },
+    {
+      "id": "pose_body_output",
+      "fromNode": "pose_correct_z",
+      "fromSide": "right",
+      "toNode": "pose_final_mesh",
+      "toSide": "left",
+      "label": "只替换Body local translation"
+    },
+    {
+      "id": "pose_capability_fault",
+      "fromNode": "pose_source_borrow",
+      "fromSide": "bottom",
+      "toNode": "pose_diagnostic",
+      "toSide": "left",
+      "label": "能力/权重/Source读取契约失败"
+    },
+    {
+      "id": "pose_correct_fault",
+      "fromNode": "pose_correct_z",
+      "fromSide": "bottom",
+      "toNode": "pose_diagnostic",
+      "toSide": "top",
+      "label": "祖先/目标/父链非法"
+    },
+    {
+      "id": "pose_play_ticket",
+      "fromNode": "pose_native_play",
+      "fromSide": "right",
+      "toNode": "pose_poll",
+      "toSide": "top",
+      "label": "Task持原ticket供原生Tick读取"
+    },
+    {
+      "id": "pose_fault_serial_poll",
+      "fromNode": "pose_diagnostic",
+      "fromSide": "right",
+      "toNode": "pose_poll",
+      "toSide": "left",
+      "label": "原票据故障基线之外的新failureSerial"
+    },
+    {
+      "id": "pose_poll_valid",
+      "fromNode": "pose_poll",
+      "fromSide": "top",
+      "toNode": "pose_final_mesh",
+      "toSide": "bottom",
+      "label": "Valid只允许原Task继续，不驱动求值"
+    },
+    {
+      "id": "pose_poll_fail",
+      "fromNode": "pose_poll",
+      "fromSide": "bottom",
+      "toNode": "pose_task_cleanup",
+      "toSide": "top",
+      "label": "Failed/Invalidated→Playback failure"
+    },
+    {
+      "id": "pose_startup_cleanup",
+      "fromNode": "pose_startup_rejected",
+      "fromSide": "right",
+      "toNode": "pose_task_cleanup",
+      "toSide": "right",
+      "label": "Startup原事实与无播放资源清理"
+    },
+    {
+      "id": "pose_historical_ga",
+      "fromNode": "pose_task_cleanup",
+      "fromSide": "left",
+      "toNode": "pose_ga_end",
+      "toSide": "right",
+      "label": "清理后typed OnFailed原事实"
+    },
+    {
+      "id": "pose_ga_cmc_release",
+      "fromNode": "pose_ga_end",
+      "fromSide": "left",
+      "toNode": "pose_cmc_boundary",
+      "toSide": "right",
+      "label": "只退休原GA持有的CMC Handle"
+    },
+    {
+      "id": "pose_main_cmc",
+      "fromNode": "pose_native_play",
+      "fromSide": "left",
+      "toNode": "pose_cmc_boundary",
+      "toSide": "top",
+      "label": "GA另行申请Main动作句柄，与pose分开"
+    },
+    {
+      "id": "pose_evidence_final",
+      "fromNode": "pose_final_mesh",
+      "fromSide": "left",
+      "toNode": "pose_evidence",
+      "toSide": "top",
+      "label": "最终buffer观察，仅有限已验范围"
+    }
+  ]
+}

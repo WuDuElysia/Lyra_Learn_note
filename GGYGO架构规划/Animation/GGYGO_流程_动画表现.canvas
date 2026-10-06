@@ -3,10 +3,10 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Animation｜表现流程与来源发布\n[[Animation/结构|接口]] · [[GGYGO_结构_动画与表现.canvas|结构图]] · [[GGYGO_流程_动画曲线处理.canvas|源曲线/CMC子图]]。\n主路径是语义到姿态；旁支是原生命周期的配置发布，不新增帧调度。",
+      "text": "# Animation｜表现流程与来源发布\n[[Animation/结构|接口]] · [[GGYGO_结构_动画与表现.canvas|结构图]] · [[GGYGO_流程_动画曲线处理.canvas|源曲线/CMC子图]] · [[GGYGO_流程_动作姿态修正.canvas|动作姿态子图]]。\n主路径消费语义；旁支发布原配置。姿态沿原生Slot评估，Required票据由Task原生Tick只读检查。",
       "x": 0,
       "y": 0,
-      "width": 1960,
+      "width": 2590,
       "height": 210,
       "color": "6"
     },
@@ -83,7 +83,7 @@
     {
       "id": "combo_entry",
       "type": "text",
-      "text": "## 普攻播放（已有接线）\nGA/Montage Task播放本段Main，FullBody已Gate82保存。\nSlot位于原空间修正前，持续更新locomotion源姿态。\n完整命中/位移/网络未验。\n[[Animation/普攻动画实施|资产]] · [[计划_玩家普攻连段|GA]]",
+      "text": "## GA/Task启动原Main\nTask Ready前AcquireActionPoseContract，RequiredReady必须有OnFailed消费者。\nTryPlayMontageWithOwnership沿原生播放；GA捕原snapshot申请CMC Main句柄。\nABP用FullBody ActionPoseSlot。\n[[Animation/普攻动画实施|实际配置]] · [[计划_玩家普攻连段|原GA]]",
       "x": 0,
       "y": 1430,
       "width": 430,
@@ -93,7 +93,7 @@
     {
       "id": "combo_window",
       "type": "text",
-      "text": "## Montage 时间轴（已配置）\n独立 HitWindow / ComboWindow 发 Event.Montage Begin/End。\nGA 校验播放来源并消费请求；运行时待验收。\n01 Combo 结束于115帧，早于116帧 BlendOut；60 fps。",
+      "text": "## 原Montage时间轴\n原生播放触发Hit/Combo Begin/End GameplayEvent。\nGA核原播放来源后消费，Combat命中/伤害归原模块。\n01 Combo在115帧结束，早于116帧BlendOut；完整窗口/命中体验另验。",
       "x": 510,
       "y": 1430,
       "width": 430,
@@ -113,7 +113,7 @@
     {
       "id": "combo_return",
       "type": "text",
-      "text": "## FullBody BlendOut → locomotion\nSlot已接，AlwaysUpdateSourcePose=true；混回持续更新的原源姿态。\nPlayerCombo未申请动作位移接管。\nEnd→Idle/Walk/Run及中断、网格/胶囊与网络仍需实测。",
+      "text": "## End→原locomotion\nSection变化/结束由GA释放本人Main CMC句柄。\n原生Slot混回持续Update的Source；受理移动可提前Cancel原End。\n两正常叶已真实Walk/Run；End/返回移动的最终pose及完整BlendOut未采。\n[[Animation/动作姿态修正|证据边界]]",
       "x": 1530,
       "y": 1430,
       "width": 430,
@@ -159,6 +159,36 @@
       "width": 890,
       "height": 160,
       "color": "3"
+    },
+    {
+      "id": "action_pose_evaluate",
+      "type": "text",
+      "text": "## 同次原生AnimGraph评估\nGuard NativeUpdateAnimation在GT核实际Montage输入并发布原native counter/能力。\nActionPoseSlot继承原生Slot Update/Evaluate；PostEvaluateSourcePose只借实际参与Source残差。\nEvaluate只改Body local translation，随后原空间转换/Inertialization输出最终Mesh。\n无再次Source Evaluate、第二mixer或clock。\n[[GGYGO_流程_动作姿态修正.canvas|源借用、公式与失败分支]]",
+      "x": 2050,
+      "y": 405,
+      "width": 540,
+      "height": 470,
+      "color": "5"
+    },
+    {
+      "id": "action_pose_required",
+      "type": "text",
+      "text": "## Required依赖存续与失败\nTask原生TickTask→PollActionPoseContract(原ticket)，不积dt。\nValid→继续原Task；Failed/Invalidated→FailActionPoseContract。\n精确原Stop/scale归还/EndTask后历史OnFailed→GA核原Activation/step/Task/资源→RequestAbilityEnd。\n清自身CMC句柄；CanBeCanceled=false也不阻止依赖失败End。\n[[AbilitySystem/结构|Task/GA清理]] · [[Animation/动作姿态修正|能力契约]]",
+      "x": 2050,
+      "y": 1000,
+      "width": 540,
+      "height": 480,
+      "color": "3"
+    },
+    {
+      "id": "action_pose_capsule",
+      "type": "text",
+      "text": "## 胶囊与最终姿态分开验\nGA的BeginMontageActionMotion→CMC按原PosXYZ区间/RMS执行胶囊，来源与句柄精确清理。\nBodyZ只属Mesh姿态；不回写CMC速度/加速度/输入。\n最终Body证据仅Normal01 Main；两故障行为PASS但报告Fail，真实Error保留。\n[[Movement/动作曲线执行|动作CMC接口]] · [[Animation/动作姿态修正#7. 实际证据与未验证边界|已验/缺口]]",
+      "x": 2050,
+      "y": 1600,
+      "width": 540,
+      "height": 400,
+      "color": "6"
     }
   ],
   "edges": [
@@ -240,7 +270,7 @@
       "fromSide": "right",
       "toNode": "combo_return",
       "toSide": "left",
-      "label": "End 结束并按 Montage 参数混出"
+      "label": "自然混出／受理移动提前Cancel原End后回移动"
     },
     {
       "id": "kevin_combat_source",
@@ -281,6 +311,54 @@
       "toNode": "source",
       "toSide": "left",
       "label": "公开Retire只撤原producer/代次"
+    },
+    {
+      "id": "action_pose_source_entry",
+      "fromNode": "play",
+      "fromSide": "right",
+      "toNode": "action_pose_evaluate",
+      "toSide": "left",
+      "label": "原状态机pose作为同次Slot Source"
+    },
+    {
+      "id": "action_pose_main_native",
+      "fromNode": "combo_entry",
+      "fromSide": "top",
+      "toNode": "action_pose_evaluate",
+      "toSide": "left",
+      "label": "原生Montage参与FullBody，不自行混pose"
+    },
+    {
+      "id": "action_pose_ticket_poll",
+      "fromNode": "combo_entry",
+      "fromSide": "right",
+      "toNode": "action_pose_required",
+      "toSide": "left",
+      "label": "Task持原RequiredReady票据"
+    },
+    {
+      "id": "action_pose_fault_poll",
+      "fromNode": "action_pose_evaluate",
+      "fromSide": "bottom",
+      "toNode": "action_pose_required",
+      "toSide": "top",
+      "label": "新故障序号／旧契约失效经原native Tick读取"
+    },
+    {
+      "id": "action_pose_original_ga_cleanup",
+      "fromNode": "action_pose_required",
+      "fromSide": "left",
+      "toNode": "combo_return",
+      "toSide": "right",
+      "label": "GA原资源结束后回原表现，不清后继"
+    },
+    {
+      "id": "action_pose_capsule_contract",
+      "fromNode": "combo_entry",
+      "fromSide": "bottom",
+      "toNode": "action_pose_capsule",
+      "toSide": "left",
+      "label": "GA另申请CMC动作句柄，姿态不执行胶囊"
     }
   ]
 }

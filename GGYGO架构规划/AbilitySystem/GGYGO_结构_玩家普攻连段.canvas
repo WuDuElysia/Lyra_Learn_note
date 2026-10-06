@@ -3,7 +3,7 @@
     {
       "id": "combo-s-nav",
       "type": "text",
-      "text": "# 玩家普攻｜受控原请求与运行命中有限验证\n[[计划_玩家普攻连段|接口、算法与验收边界]] · [[AbilitySystem/结构|GAS结构]] · [[GGYGO_流程_玩家普攻连段.canvas|连段流程]]\n当前受控Original、Owned资源、正常无GE/有效GE与两故障中止链已通过相应原生行为门禁。故障叶仍Fail并保留生产Error；正式GA/ABP/Socket/GE/Cue表现、完整动作和联机待验。原生raw严格红测独立保留。",
+      "text": "# 玩家普攻｜原请求、Main/End与必需姿态\n受控Original/Owned命中原契约保持；新GA/ABP接线、真实End移动中断/Required失败已编译与必要复测。六叶3 Success/3 Fail，真实E/W保留；BodyZ仅Normal01 Main。完整混合/End姿态/Cook/联机/HID、strict/raw/C12仍开放。\n[[计划_玩家普攻连段|接口与集中证据]] · [[AbilitySystem/结构|GAS]] · [[GGYGO_流程_玩家普攻连段.canvas|流程]]",
       "x": 0,
       "y": 0,
       "width": 1510,
@@ -23,7 +23,7 @@
     {
       "id": "combo-s-ga",
       "type": "text",
-      "text": "## UGGYGOPlayerComboAbility\n继承 UGGYGOGameplayAbility 的原请求协议。\nInitializeAbilityActivation / ActivateAbilityBody接收已签发Original；ResourceActivation只保存资源来源。\n段序、段token、窗口与唯一Pending归Combo。\nStartStep外调返回核对Original/段/原Task。\nCleanupAbilityResourcesForTermination只释放匹配原资源；终止证明/Completed归基类。\n正常完成按Authority复制；运行命中依赖/Builder故障直接原End(true,true)。\n正式GA父类/默认值本批未迁移。\n[[AbilitySystem/计划_原请求终止|原终止契约]]",
+      "text": "## UGGYGOPlayerComboAbility\nInitialize/Body接收已签Original；段/token/窗口/唯一Pending与FStepMotionResources归Combo。\nReady原Snapshot→Main请求CMC；SectionReceived→End退Main、观察原QualifiedMovementIntent。\n合格原Scope/Intent复核→退原Action→End(true,true)；自然完成Authority/false，普通Cancel保持。\nRequired历史OnFailed核自身Original/段/强Task/资源→正式End，CanBeCanceled=false也适用。\nContext Cleanup先脱原成员再退资源；终止证明/Busy/Completed仍归基类。\n[[AbilitySystem/计划_原请求终止|原终止]]",
       "x": 530,
       "y": 280,
       "width": 450,
@@ -33,7 +33,7 @@
     {
       "id": "combo-s-config",
       "type": "text",
-      "text": "## FGGYGOComboStep[] / GA配置\nMontage、Main/End、NextStepIndex、PlayRate、Damage/PoiseDamage、Socket/Radius。\nValidateComboConfiguration校验动作前置。\nDamageEffect空且Shared关闭=明确无GE；有效Override或明确Shared=必需GE。\n非法已选GE不替换另一个模式；缺失必需Shared明确失败。\n资产值与窗口由GA/Montage配置；本批未验正式接线。",
+      "text": "## FGGYGOComboStep[] / 正式GA\nMontage、Main/End、MotionSlotName、MotionTranslationScale、Next、Rate、Damage/Poise、TraceShape/Socket配置。\nValidateComboConfiguration校验必需来源，Slot必须显式，倍率有限>0；缺曲线不换速度。\nGA_Pyrios_Attack_Combo父类/三段字段已冷读回，探索整体failed仍留账。\n已选GE无效不换Shared/无GE；详细有效模式与待验资产见父文档。",
       "x": 1060,
       "y": 280,
       "width": 450,
@@ -43,7 +43,7 @@
     {
       "id": "combo-s-task",
       "type": "text",
-      "text": "## Montage Task / WaitComboInput\nCombo持原Task和各自native注册token。\nMontage Task消费ASC TryPlayMontageWithOwnership的原播放证明及有效速率；watchdog用实际剩余时长。\n输入Task消费真实GAS新按下与复制事件。\nOnDestroy归各Task：退原回调/输入/动画事件，停止原Montage，释放原缩放。\nTaskOwnerEnded使原Task Finished/OwnerFinished；UGameplayAbility唯一持有并退休ActiveTasks登记。\n早GA数据广播前业务清理完成，不等于原生账本已空。\n[[AbilitySystem/结构|共享播放接口]]",
+      "text": "## Montage Task / WaitComboInput\nCombo保存各原Task/native token；输入Task只消费真实GAS新按下。\nMontage Task持原Playback/Guard/scale；Snapshot/SectionReceived取自真实原实例，无dt游标。\n播放前Acquire；Required-only原引擎Tick Poll。失败先Stop/EndTask清资源，再历史OnFailed。\nStartup NONE、Playback原ID；弱Get(true)只识历史发送者，GA另证原资源，不求已结束Task仍Active。\nnative结束原GA则不发旧BP；普通Cancelled/Completed保持。\n[[AbilitySystem/结构|Task契约]]",
       "x": 530,
       "y": 750,
       "width": 450,
@@ -53,7 +53,7 @@
     {
       "id": "combo-s-anim",
       "type": "text",
-      "text": "## Montage / Notify / AnimBP\n三份Main→End、FullBody、窗口为上次资产检查点。\nGameplayEventWindow载荷：Montage/主Mesh/InstanceID+1。\nTask校验原实例与播放证明，GA校验原段/主Mesh。\nComboWindow与HitWindow各自表达窗口语义。\nAnimBP只负责Slot/表现；位移归CMC。\n正式GA/ABP与移动完整接线待验。\n[[Animation/结构|动画职责]]",
+      "text": "## Animation Source / Required Pose / CMC\nAnimation BuildSourceBinding冻结原Main PosXYZ；CMC BeginMontageActionMotion经native RMS/碰撞唯一执行胶囊位移。\nABP_Pyrios Required FullBody ActionPoseSlot已保存，IgnoreRootMotion；不固定Replace身体Z。\nGuard声明/节点求值与epoch归Animation，Task只持原Ticket/只读Poll。\nMain/End实况与有限BodyZ见父文档；End姿态/全混合未验。\n[[Animation/动作姿态修正|姿态执行]] · [[Movement/结构|胶囊/移动事实]]",
       "x": 1060,
       "y": 750,
       "width": 450,

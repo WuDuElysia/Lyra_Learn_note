@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Animation｜当前结构与职责\n源动画唯一编辑，Animation发布元数据，CMC独立求值与执行；ABP消费语义组织表现。\n[[Animation/结构|结构文档]] · [[GGYGO_流程_动画表现.canvas|表现流程]] · [[GGYGO_结构_动画曲线.canvas|源曲线结构]] · [[Animation/普攻动画实施|普攻资产]]",
+      "text": "# Animation｜当前结构与职责\n箭头按调用、继承、持有或数据传递标签阅读。\n原生Slot唯一混合Mesh姿态；CMC唯一执行胶囊XYZ。Animation发布配置并消费语义。\n[[Animation/结构|结构文档]] · [[GGYGO_流程_动画表现.canvas|表现流程]] · [[Animation/动作姿态修正|姿态契约]] · [[GGYGO_流程_动作姿态修正.canvas|姿态子图]]",
       "x": 0,
       "y": 0,
       "width": 3580,
@@ -53,7 +53,7 @@
     {
       "id": "abp",
       "type": "text",
-      "text": "## ABP_Pyrios\n消费StateFrame/兼容字段；查表选Sequence/BS。\n单段不循环；WalkRun1D X仍读GaitBlendY（alpha）。\nFullBody已Gate82保存，AlwaysUpdateSourcePose=true。\n本次未改Player/Evaluator/相位；不承诺视觉与物理同clock。",
+      "text": "## ABP_Pyrios\n消费StateFrame/兼容字段，选Sequence/BS；Locomotion Player/相位保持。\nFullBody ActionPoseSlot替换旧Slot/ModifyBone；保留原空间转换/Inertialization。\nRequiredPoseCorrectionSlot=FullBody；Bip001/Root与原组件对齐由ABP配置。\n视觉与CMC不承诺同clock。",
       "x": 1000,
       "y": 1060,
       "width": 420,
@@ -113,7 +113,7 @@
     {
       "id": "combo_ga",
       "type": "text",
-      "text": "## 战斗侧 GA（跨模块）\nPlayerCombo/ComboStep引用本段Montage，GA管换段、缓存与资源。\nSlot已接；当前无动作位移接管，完整命中/网络未验。\nAnimation不持角色级战斗状态。\n[[计划_玩家普攻连段|GA与验收]]",
+      "text": "## PlayerCombo GA（跨模块）\nComboStep引用Montage；GA管换段/输入与原资源。\nMain调用BeginMontageActionMotion，持精确CMC句柄；Section/失败/结束清本人资源。\n历史OnFailed核原Activation后强制End。\n[[计划_玩家普攻连段|GA与验收]]",
       "x": 1040,
       "y": 2100,
       "width": 440,
@@ -123,7 +123,7 @@
     {
       "id": "combo_notify",
       "type": "text",
-      "text": "## GameplayEventWindow\nHit/Combo独立时间窗口已配置并回读，Begin/End发GameplayEvent。\nGA检验原播放来源，Combat负责命中去重；伤害走GAS。\n窗口保存不等于攻击位移或整链运行通过。\n[[Animation/普攻动画实施|帧区间与边界]]",
+      "text": "## GameplayEventWindow\nHit/Combo独立时间窗口发Begin/End GameplayEvent。\nGA核原播放来源，Combat负责命中去重，伤害走GAS。\n窗口资产配置与完整命中/网络验收分开。\n[[Animation/普攻动画实施|帧区间与边界]]",
       "x": 520,
       "y": 2380,
       "width": 440,
@@ -133,7 +133,7 @@
     {
       "id": "combo_slot_gate",
       "type": "text",
-      "text": "## FullBody Slot（已接线保存）\nGate82：原空间修正前，AlwaysUpdateSourcePose=true；其余约定图/AnimSet/Tuning保持。\nBlendOut回持续更新的locomotion源姿态。\nPlayerCombo尚无动作位移接管；网格/胶囊、Run/网络未验。\n[[Animation/普攻动画实施|普攻接缝]]",
+      "text": "## 已保存的FullBody接线\n状态机→ActionPoseSlot→原LocalToCS→原CSToLocal→原Inertialization→Root。\n旧Slot/ModifyBone已删除，AlwaysUpdateSourcePose=true。\n原对齐Z=50.8019981384，角色必需FullBody；其余24图保持。\n[[Animation/普攻动画实施|实际ABP配置]]",
       "x": 0,
       "y": 2380,
       "width": 440,
@@ -168,7 +168,7 @@
       "width": 800,
       "height": 420,
       "color": "5",
-      "text": "## UGGYGOMontageGuardAnimInstance\nBase已继承的原生播放屏障；引擎执行Montage。\n仅持ScopeChain借用登记与生命周期身份，不拥有Caller栈Scope/GAS播放状态。\n生命周期失效后旧Scope只注销原登记，不停新Owner播放。\n[[Animation/结构#Montage播放Guard的静态契约|Guard接口]]"
+      "text": "## UGGYGOMontageGuardAnimInstance\nBase继承的原生播放屏障；引擎执行Montage。\n仅借用ScopeChain，保原生命周期身份；旧Scope只注销本人登记。\nNativeUpdateAnimation在GT检查真实Montage输入，向原节点发布能力与native counter。\n提供只读Acquire/Poll；不持GAS状态或CMC执行权。\n[[Animation/结构|Guard与姿态接口]]"
     },
     {
       "id": "montage_scope",
@@ -198,7 +198,7 @@
       "width": 800,
       "height": 490,
       "color": "4",
-      "text": "## ASC / Task（原资源归属）\nASC调用栈覆盖Super播放并复制Guard结果；GAS保有Local/Rep/GA/预测状态。\nTask.Activate→TryPlayMontageWithOwnership：消费原Result/Handle/Guard，管理自己事件/委托/Scale lease。\n精确Clear和Completed不借后继权限；资源终止详见[[AbilitySystem/结构|ASC/Task]]。\nsource迁移不扩大播放授权。"
+      "text": "## ASC / Montage Task（跨模块）\nASC完整Super播放并复制Guard结果；GAS保有原Local/Rep/GA状态。\nTask消费原Result/Handle/Guard，管理事件/委托/scale lease。\nRequired-only native TickTask读Poll；失败精确Stop/归还资源/EndTask后发历史OnFailed。\n[[AbilitySystem/结构|原资源与派发边界]]"
     },
     {
       "id": "source_binding",
@@ -206,6 +206,46 @@
       "text": "# Source binding（native DTO）\nIdentity：原Producer/Character/Mesh、lifecycle/config代次。\n强Sequence/BS引用＋loop/rate/length/样本位置；无曲线副本、Graph状态或clock。\nStatus/Error明确；当前binding与原SavedMove有界保留，失效不能授权后继。\n[[Animation/曲线处理#1. 当前职责与依赖方向|发布与退休]]",
       "x": 1760,
       "y": 2500,
+      "width": 800,
+      "height": 360,
+      "color": "4"
+    },
+    {
+      "id": "action_pose_slot",
+      "type": "text",
+      "text": "## FGGYGOAnimNode_ActionPoseSlot\n继承FAnimNode_Slot；原生Update/Evaluate/权重/Notify唯一执行混合。\n输入：Source/Slot、Body/Trajectory骨、组件对齐。\nPostEvaluateSourcePose仅借同次实际参与Source标量；Evaluate只写Body local translation。\nCheckCapability/ValidateMontageCapability→能力与诊断；epoch/failureSerial为派生状态。\nEditor包装UGGYGOAnimGraphNode_ActionPoseSlot持Node，编译校验/注册Slot。\n[[Animation/动作姿态修正|算法与最低能力]]",
+      "x": 2720,
+      "y": 1250,
+      "width": 860,
+      "height": 540,
+      "color": "5"
+    },
+    {
+      "id": "action_pose_contract",
+      "type": "text",
+      "text": "## Guard能力接口 / 原票据\nAcquireActionPoseContract(原Montage)→ExplicitNotRequired/RequiredReady/Rejected/Unavailable。\nGT原并行完成屏障后读取原compiled node；不强制Evaluate。\nPollActionPoseContract(原ticket)→Valid/Failed/Invalidated；不刷新旧票据。\nFGGYGOActionPoseContractTicket持原provider/Mesh/模型/Montage弱身份、node key/Slot、生命周期/epoch/故障基线。\n无native instance/pose/clock，Task销毁Reset。\n[[GGYGO_流程_动作姿态修正.canvas|触发、故障与清理]]",
+      "x": 2720,
+      "y": 1880,
+      "width": 860,
+      "height": 550,
+      "color": "4"
+    },
+    {
+      "id": "action_pose_boundary",
+      "type": "text",
+      "text": "## Mesh姿态 / CMC胶囊 / 验证\nBody相对Trajectory的Z归姿态节点；原生Slot混合，最终buffer含Inertialization。\nPosXYZ曲线区间与原生物理归CMC；node/provider不写Velocity/Acceleration/RequestedVelocity。\nGA持原CMC句柄并清理，Task清原播放/scale。\n最终证据仅Normal01 Main；两Pose故障行为PASS但报告Fail/真实Error保留。\n[[Animation/动作姿态修正#7. 实际证据与未验证边界|已验与未验]] · [[Movement/结构|CMC]]",
+      "x": 2720,
+      "y": 2540,
+      "width": 860,
+      "height": 450,
+      "color": "6"
+    },
+    {
+      "id": "action_motion_binding",
+      "type": "text",
+      "text": "## FGGYGOActionMotionSourceBinding\nBuildSourceBinding(原Montage,显式Slot,Section)→原资产/段/速率只读配置。\nValidateSourceBinding→原配置一致；MapMontageInterval→原源片段区间。\n不读曲线、不推进clock、不签播放权限；GA/CMC/RMS/有界SavedMove按资源持引用。\n[[Movement/动作曲线执行|Movement求值与执行]]",
+      "x": 1760,
+      "y": 3060,
       "width": 800,
       "height": 360,
       "color": "4"
@@ -298,7 +338,7 @@
       "fromSide": "right",
       "toNode": "combo_slot_gate",
       "toSide": "left",
-      "label": "FullBody已接；输出姿态，非动作位移接管"
+      "label": "FullBody原生Slot输出由ActionPoseSlot修正Body"
     },
     {
       "id": "kevin_combat_source",
@@ -380,6 +420,78 @@
       "toNode": "source",
       "toSide": "left",
       "label": "CMC/SavedMove有界保留原const binding"
+    },
+    {
+      "id": "action_pose_abp_node",
+      "fromNode": "combo_slot_gate",
+      "fromSide": "right",
+      "toNode": "action_pose_slot",
+      "toSide": "left",
+      "label": "ABP持节点并序列化角色配置"
+    },
+    {
+      "id": "action_pose_native_capability",
+      "fromNode": "montage_guard",
+      "fromSide": "right",
+      "toNode": "action_pose_slot",
+      "toSide": "left",
+      "label": "GT调用ValidateMontageCapability并PublishNativeMontageCapability"
+    },
+    {
+      "id": "action_pose_guard_contract",
+      "fromNode": "montage_guard",
+      "fromSide": "right",
+      "toNode": "action_pose_contract",
+      "toSide": "top",
+      "label": "公开Acquire/Poll契约与票据说明"
+    },
+    {
+      "id": "action_pose_task_acquire_poll",
+      "fromNode": "montage_callers",
+      "fromSide": "right",
+      "toNode": "action_pose_contract",
+      "toSide": "left",
+      "label": "Task启动Acquire / 原生Tick Poll原ticket"
+    },
+    {
+      "id": "action_pose_contract_node_read",
+      "fromNode": "action_pose_contract",
+      "fromSide": "top",
+      "toNode": "action_pose_slot",
+      "toSide": "bottom",
+      "label": "读取CheckCapability、epoch与故障序号"
+    },
+    {
+      "id": "action_pose_native_output",
+      "fromNode": "action_pose_slot",
+      "fromSide": "left",
+      "toNode": "abp",
+      "toSide": "right",
+      "label": "Body local translation输出接原空间转换/惯性化"
+    },
+    {
+      "id": "action_pose_failure_ga",
+      "fromNode": "action_pose_contract",
+      "fromSide": "left",
+      "toNode": "combo_ga",
+      "toSide": "right",
+      "label": "Failed/Invalidated经原Task清理后OnFailed，GA核原资源强制End"
+    },
+    {
+      "id": "action_motion_ga_binding",
+      "fromNode": "combo_ga",
+      "fromSide": "right",
+      "toNode": "action_motion_binding",
+      "toSide": "left",
+      "label": "调用BuildSourceBinding；持原Main配置与CMC句柄"
+    },
+    {
+      "id": "action_pose_execution_boundary",
+      "fromNode": "action_pose_slot",
+      "fromSide": "right",
+      "toNode": "action_pose_boundary",
+      "toSide": "top",
+      "label": "只改Mesh Body；胶囊执行与验证边界见下方"
     }
   ]
 }

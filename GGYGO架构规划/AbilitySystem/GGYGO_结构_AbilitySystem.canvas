@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# AbilitySystem｜结构图\n共同final生命周期、派生原资源及受控请求点已启用并编译；正常/故障必要行为有限验证。严格raw/native、正式资产与网络仍开放，真实报告见父文档。\n[[AbilitySystem/结构|结构文档]] · [[GGYGO_流程_AbilitySystem.canvas|关键调用]] · [[AbilitySystem/计划_原请求终止|终止契约]] · [[GGYGO_流程_原请求终止.canvas|终止子图]] · [[GGYGO_流程_伤害结算.canvas|伤害]] · [[GGYGO_结构_HitImpact.canvas|命中反馈]]",
+      "text": "# AbilitySystem｜结构图\n原final生命周期/Busy归属保持；Task RequiredPose历史失败与Combo Main/End实际移动链已编译、必要复测。原报告3 Success/3 Fail；完整混合/Cook/联机/HID、strict/raw及C12未决仍开放。\n[[AbilitySystem/结构|结构文档]] · [[GGYGO_流程_AbilitySystem.canvas|关键调用]] · [[计划_玩家普攻连段|本轮集中证据]] · [[AbilitySystem/计划_原请求终止|终止契约]] · [[GGYGO_流程_原请求终止.canvas|终止子图]] · [[GGYGO_流程_伤害结算.canvas|伤害]] · [[GGYGO_结构_HitImpact.canvas|命中反馈]]",
       "x": 0,
       "y": 0,
       "width": 1520,
@@ -93,7 +93,7 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## 关键交互契约\nSlot/BossState→AbilitySet→持久ASC，自身Handles精确撤装。Input管物理事实，Hero管自身观测/有限意图，ASC唯一held/queued及原ID/期限；局部End/Retry不全Clear或续期。\nProcess/OnSpawn/Boss BT→一次受控Try；Can来源与实际NotifyActivated原身份分离，remote接受非本地Activation证明。BT持原等待，消费固定Original的同步历史或异步Completed。\nGA唯一原终止记录；ASC只持实际Try/Ended见证并封存后发布；GAS唯一执行。Combo/Boss/Admission已接Initialize/Body/Context Cleanup，Task持自己的精确实例/桶/native订阅资源。\nCombo/Boss调用Combat Owned Window/精确hit订阅，闭包捕Original/原窗口/token；Combat只查询去重。Builder失败时Combo正式End原动作，Boss仅拒该hit；有效Spec应用免疫/拒绝的碰撞Cue保持。\nTask自然Completed、GA早数据通知、ASC原Ended与项目Notice时点不同；完整契约见[[AbilitySystem/计划_原请求终止|原请求计划]]。",
+      "text": "## 关键交互契约\nSlot/BossState→AbilitySet→持久ASC；原Handles精确撤装。Input管物理事实，Hero管原有限意图，ASC唯一held/queued/原ID期限。\nProcess/OnSpawn/Boss BT一次受控Try；实际NotifyActivated签Original。GA唯一原终止记录，ASC只见证原Try/Ended并封存发布，GAS唯一执行。\nTask持原Playback/Guard/订阅/scale；Animation声明并执行RequiredPose，Task只持Ticket并原nativeTick Poll，失败先Stop/EndTask再历史OnFailed，GA决定正式原End。\nCombo持段/原资源；Animation固定Source，CMC唯一XYZ胶囊执行与原移动事实认证。真实End核原Scope/Intent后原End(true,true)，不靠dt游标。\nCombat Owned Window只查询去重；Combo/Boss经Builder→GAS结算，失败政策各归业务。自然Task Completed、GA数据、ASC原Ended和原Notice时点仍分别成立。\n[[计划_玩家普攻连段|接口/证据]] · [[AbilitySystem/计划_原请求终止|原生命周期]]",
       "x": 0,
       "y": 1570,
       "width": 1450,
@@ -173,7 +173,7 @@
     {
       "id": "k3-task-resource-consumer",
       "type": "text",
-      "text": "## UGGYGOAbilityTask_PlayMontageAndWaitForEvent\nPlayMontageAndWaitForEvent／ResolvePlayRate → 配置与同次速率，五BP签名保持。\nN0：FNativeCallbacks五可选单播；RegisterNativeCallbacks仅原Awaiting/preReady非空、无重复；Unregister按原token先脱包，构造/析构重入不覆盖后继。\n原Activation/弱GA/弱原Task由调用方闭包捕获；Task不另签GA身份。\nActivate → ASC.TryPlayMontageWithOwnership，纯原Task／ActorInfo查询；成功才存原Handle／Guard并按CreatedInstanceId绑定精确实例委托。\nIsNotifyValid → 原源／精确实例播放＋ASC.Check原Handle才接GameplayEvent；先复制负载再广播。\nOnMontageBlendingOutForInstance → 释放自身缩放，TryClear原Handle；A不借同GA/资产清B。\nOnMontageEndedForInstance → 原Guard＋原上下文＋AbilityTask资格，非打断发布Completed事实；不Check已退休当前归属，不授后继GA End权限。\n七分支：原包/载荷快照→native及捕获析构返回→弱原Task/路径资格重检→BP；Event核IsNotifyValid，Blend/Ended核原Guard/ActorInfo/Task资格。\n三取消入口预标记，各渠道至多一次；启动失败无须尚未建立的ActorInfo/Guard。OnDestroy先脱包/token，再自身监听/实例/scale清理；旧cleanup/Super后释放捕获，无Task访问。栈共持原停止义务。\n停止只按原Guard实例；精确ASC认证＋活动ID才CurrentMontageStop，否则仅原本地资源释放，不改新ASC/GA。\n无全局播放尝试表/播放token/新实例扫描；native注册token仅为订阅资源，无第二能力/播放状态。\nCombo/Boss已在Ready前注册原native包并精确脱token；Task Completed不是GA原Notice。普通资源链有限验证，native/捕获析构极端重入、旧夹具和资产网络仍开放。\n[[AbilitySystem/结构#Task原实例与资源消费（已编译，专项与迁移边界保留）|接口/实现/清理]] · [[Animation/结构|Guard职责]]",
+      "text": "## UGGYGOAbilityTask_PlayMontageAndWaitForEvent\nPlayMontageAndWaitForEvent/ResolvePlayRate保持速率与原五BP签名；Ready前RegisterNativeCallbacks一次非空包→精确token，五普通回调＋SectionReceived＋OnFailed。\n原Activation由调用方闭包捕获；Task不签GA身份。Activate固定原Ability/ActorInfo/ASC/Mesh/Anim与真实Montage唯一Slot。\n→Guard.AcquireActionPoseContract：ExplicitNotRequired普通模式；RequiredReady原Ticket/失败消费者；Rejected/Unavailable先Startup失败，不播放。\n资格有效→自身Cancel/Event订阅→ASC.TryPlayMontageWithOwnership→精确原Handle/Guard/ID委托与scale lease→Waiting。\nTryGetOriginalSectionSnapshot只读原ID/Section/Position/Rate；SectionReceived来自真实原实例，GA另核Original/段/资源，不模拟时钟。\nRequired-only引擎TickTask只读Poll：Valid继续，Failed/Invalidated明确Playback失败；不弱Ticket无效即静默跳过、不重Acquire。\n失败关普通入口→精确Stop/释放scale→EndTask清Ticket/句柄→历史native OnFailed。Startup NONE，Playback原ID，均携Montage/Slot/Diagnostic。\n历史弱Task.Get(true)拒销毁标志；GA核自己的原激活/段/强Task/资源，不要求已结束Task仍Active/有Ability。native结束原GA则不发旧BP。\n普通BlendOut释放scale/TryClear原Playback；自然Completed不Check已退休当前ASC归属，不授后继End。普通Cancel/FailAndEndTask保持Cancelled。\nOnDestroy先关闭/脱包，再自身监听/实例/scale/Ticket清理；Tick标志留至native登记退休。停止只按原Guard/ID，不借当前Avatar清后继。\n[[AbilitySystem/结构#Task原实例与资源消费（已编译，专项与迁移边界保留）|接口/清理]] · [[Animation/动作姿态修正|姿态执行]] · [[计划_玩家普攻连段|GA消费与证据]]",
       "x": 3500,
       "y": 320,
       "width": 900,

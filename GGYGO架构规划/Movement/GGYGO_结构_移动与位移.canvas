@@ -225,7 +225,7 @@
      "type": "text",
      "text": "## Character｜原同步初始化范围\nExtension持PawnData，ApplyPawnDataToConsumers→SetMovementSet唯一分发。\nIsPawnDataInitializationInProgress() const：核原Extension／Pawn／World的当前同步调用scope，CheckDefaultInitialization与Apply入口持有、返回即关闭；EndPlay封闭。\nCMC未提交Set／无native区间／原Extension未DataInitialized时，构造期或BeginPlay后真实scope可Initial。\nsetter提交／拒绝／解绑、native区间、同步返回或DataInitialized关闭未绑定窗口；停在Spawned／DataAvailable不准无限等待。\n无新Ready／计时／轮询；accepted Set仍唯一移动配置准入。\n[[Character/结构|初始化职责]] · [[Movement/结构#原配置初始化的窄边界|窄接口合同]]",
      "x": 200,
-     "y": 1540,
+     "y": 3360,
      "width": 610,
      "height": 490,
      "color": "4"

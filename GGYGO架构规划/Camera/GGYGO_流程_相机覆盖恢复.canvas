@@ -103,7 +103,7 @@
 		{
 			"id": "release-reset",
 			"type": "text",
-			"text": "原资源清理与镜头撤回。\n只释放确属原 H 的输入／retry，不全局 Release 替代会话。\n汇合后复核原记录、镜头代次与后继保护；\n再清原 overrides，只 Reset 捕获的原 Camera。\ngeneration／token 序号保持，不重放旧请求。\nEndPlay 按自身原生命周期归还资源后结束。",
+			"text": "原资源清理与镜头撤回。\n只释放确属原 H 的输入／retry；汇合后复核原记录、镜头代次与后继保护。\n清原 overrides，只 Reset 捕获的原 Camera。\nResetCameraRuntimeState → ClearStack → ThirdPerson.OnDeactivation，清侧移／弱来源键。\ngeneration／token 保持，不重放旧请求。\nEndPlay 按自身原生命周期归还资源。",
 			"x": 470,
 			"y": 1430,
 			"width": 420,

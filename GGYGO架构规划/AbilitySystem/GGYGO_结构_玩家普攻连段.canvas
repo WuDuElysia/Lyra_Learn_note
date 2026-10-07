@@ -13,7 +13,7 @@
     {
       "id": "combo-s-input",
       "type": "text",
-      "text": "## 输入请求边界\nIA_Attack：Pressed配置为上次资产检查点。\nASC 活跃Spec InputPressed → WaitComboInput。\n任务给 SourceStep/RequestId；Combo保存唯一有截止时间Pending。\n激活重试归ASC/Hero；它不替代GA内换段。\n[[Input/结构|输入职责]]",
+      "text": "## 输入请求边界\nIA_Attack采用Pressed；ASC活跃Spec InputPressed→WaitComboInput。\n任务给SourceStep/RequestId，Combo核原资源门。\n前点请求拒绝且不重播；过点新按下才按唯一Next换段。\n真实移动资格来自原Source/CMC；已held可在点开放时接管。\n激活重试归ASC/Hero，不替代段内换段。\n[[Input/结构|输入职责]]",
       "x": 0,
       "y": 280,
       "width": 450,
@@ -23,7 +23,7 @@
     {
       "id": "combo-s-ga",
       "type": "text",
-      "text": "## UGGYGOPlayerComboAbility\nInitialize/Body接收已签Original；段/token/窗口/唯一Pending与FStepMotionResources归Combo。\nReady原Snapshot→Main请求CMC；SectionReceived→End退Main、观察原QualifiedMovementIntent。\n合格原Scope/Intent复核→退原Action→End(true,true)；自然完成Authority/false，普通Cancel保持。\nRequired历史OnFailed核自身Original/段/强Task/资源→正式End，CanBeCanceled=false也适用。\nContext Cleanup先脱原成员再退资源；终止证明/Busy/Completed仍归基类。\n[[AbilitySystem/计划_原请求终止|原终止]]",
+      "text": "## UGGYGOPlayerComboAbility\nInitialize/Body接收已签Original；段/token/请求来源与原FStepMotionResources归Combo。\nHandleMontageNotify / EnableStepInterruption：认证原点事实，唯一bInterruptionOpen归本原资源；新步关门。\nHandleInputPressed：核SourceStep/RequestId/门/Next，立即换段，不存前点输入。\nStartStep：持完整Source、原Task/CMC Handle/Scope；Section仅投影，自然须两原完成事实。\nContext Cleanup先脱门/成员再退原资源；Required失败正式End，普通Cancel保持。\n[[AbilitySystem/计划_原请求终止|原终止]]",
       "x": 530,
       "y": 280,
       "width": 450,
@@ -33,7 +33,7 @@
     {
       "id": "combo-s-config",
       "type": "text",
-      "text": "## FGGYGOComboStep[] / 正式GA\nMontage、Main/End、MotionSlotName、MotionTranslationScale、Next、Rate、Damage/Poise、TraceShape/Socket配置。\nValidateComboConfiguration校验必需来源，Slot必须显式，倍率有限>0；缺曲线不换速度。\nGA_Pyrios_Attack_Combo父类/三段字段已冷读回，探索整体failed仍留账。\n已选GE无效不换Shared/无GE；详细有效模式与待验资产见父文档。",
+      "text": "## FGGYGOComboStep[] / 正式GA\nMontage、Main/End、MotionSlotName/Scale、InterruptionNotifyName、唯一Next、Rate、Damage/Poise与TraceShape。\n每Montage唯一精确stock原生Montage Notify点；名称Event.Montage.CancelPoint，Next=1/2/0。\nValidateComboConfiguration核必需来源、点链接/时间/唯一性；无效明确失败。\nNext=INDEX_NONE显式关闭攻击接续；InputBufferSeconds仅历史存值。\n完整End/独立Blend/旧窗口保持，无新请求不循环。",
       "x": 1060,
       "y": 280,
       "width": 450,
@@ -43,7 +43,7 @@
     {
       "id": "combo-s-task",
       "type": "text",
-      "text": "## Montage Task / WaitComboInput\nCombo保存各原Task/native token；输入Task只消费真实GAS新按下。\nMontage Task持原Playback/Guard/scale；Snapshot/SectionReceived取自真实原实例，无dt游标。\n播放前Acquire；Required-only原引擎Tick Poll。失败先Stop/EndTask清资源，再历史OnFailed。\nStartup NONE、Playback原ID；弱Get(true)只识历史发送者，GA另证原资源，不求已结束Task仍Active。\nnative结束原GA则不发旧BP；普通Cancelled/Completed保持。\n[[AbilitySystem/结构|Task契约]]",
+      "text": "## Montage Task / WaitComboInput\nCombo持原Task/native token；输入Task给真实SourceStep/RequestId，不存GA门。\nConfigureOriginalMontageNotify：preReady固定唯一原点；ResolveOriginalMontageNotify校验配置。\nNotifyReceived(FGGYGOMontageNotifyFact)：原Montage/Mesh/实例ID/名称/作者TriggerTime；可交付原自然blend。\nTryGetOriginalMontageNotifySnapshot：原点与实际位置；Section另有原快照/事实，无dt游标。\nTask持原Playback/Guard/scale/Ticket/订阅，精确退自身资源；Required历史OnFailed与普通回调保持。\n[[AbilitySystem/结构|Task契约]]",
       "x": 530,
       "y": 750,
       "width": 450,
@@ -53,7 +53,7 @@
     {
       "id": "combo-s-anim",
       "type": "text",
-      "text": "## Animation Source / Required Pose / CMC\nAnimation BuildSourceBinding冻结原Main PosXYZ；CMC BeginMontageActionMotion经native RMS/碰撞唯一执行胶囊位移。\nABP_Pyrios Required FullBody ActionPoseSlot已保存，IgnoreRootMotion；不固定Replace身体Z。\nGuard声明/节点求值与epoch归Animation，Task只持原Ticket/只读Poll。\n[[Animation/动作姿态修正|姿态执行]] · [[Movement/结构|胶囊/移动事实]]",
+      "text": "## Animation Source / Required Pose / CMC\nBuildSourceBindingRange冻结原Main→End连续来源；CMC BeginMontageActionMotion / native RMS唯一执行XYZ胶囊。\nQuery/SubscribeQualifiedMovementIntent发布原Scope真实资格；CancelMontageActionMotionForMovement只退原Handle。\nNotifyMontageActionNaturalBlendOut许可原有限尾区间；ObserveMontageActionMotionCompletion发布末贡献消费事实。\nActionPoseSlot保留Body−Trajectory−MeshRef全XYZ姿态余量；Guard/节点求值归Animation，Task只持Ticket。\n[[Animation/动作姿态修正|姿态执行]] · [[Movement/结构|移动契约]]",
       "x": 1060,
       "y": 750,
       "width": 450,
@@ -73,7 +73,7 @@
     {
       "id": "combo-s-network",
       "type": "text",
-      "text": "## 强类型纠正与完成边界\nWaitComboInput：SourceStep + RequestId。\nClientCorrectAbilityState(Spec,key,TargetData)只筛来源并转发。\nFGGYGOComboCorrectionData归Combo：段/位置/窗口/Revision；ReceiveAbilityCorrection核对单项确切类型与范围。\nRequestAbilityEnd/Cancel消费固定Original；结果历史不是新调用权限。\nGA数据、ASC本地通知、Completed三种事件各有自己的字段/时点契约。\n下一激活由原请求/回调返回后的受控调用方继续。\nraw来源无外层受控Try见证可清资源，但不发布协议Completed。",
+      "text": "## 强类型纠正与完成边界\nWaitComboInput给SourceStep/RequestId；ClientCorrectAbilityState(Spec,key,TargetData)只筛来源并转发。\nFGGYGOComboCorrectionData归Combo：段/位置/窗口/Revision；ReceiveAbilityCorrection核单项确切类型与范围。\nCurrentStepRequestId记录本步请求，旧接受按请求号拒回滚，支持03→01；合法不同步纠正沿StartStep(SafePosition)认证原点位置。\nRequestAbilityEnd/Cancel消费固定Original；结果历史不授后继权限。\nGA数据、ASC本地通知、Completed各有字段/时点；真实返回后受控调用方才续激活。\nraw无外层受控Try见证可清资源，但不发布协议Completed。",
       "x": 530,
       "y": 1230,
       "width": 650,
@@ -88,7 +88,7 @@
       "fromSide": "right",
       "toNode": "combo-s-ga",
       "toSide": "left",
-      "label": "InputPressed → 单请求"
+      "label": "真实SourceStep/RequestId"
     },
     {
       "id": "combo-se-config",
@@ -112,7 +112,7 @@
       "fromSide": "right",
       "toNode": "combo-s-anim",
       "toSide": "left",
-      "label": "播放 / 接收事件"
+      "label": "原播放 / Guard姿态契约"
     },
     {
       "id": "combo-se-hit",
@@ -129,6 +129,14 @@
       "toNode": "combo-s-network",
       "toSide": "left",
       "label": "持有输入任务；接收权威纠正"
+    },
+    {
+      "id": "combo-se-motion",
+      "fromNode": "combo-s-ga",
+      "fromSide": "right",
+      "toNode": "combo-s-anim",
+      "toSide": "left",
+      "label": "调用原Source / CMC动作及资格接口"
     }
   ]
 }

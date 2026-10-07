@@ -53,7 +53,7 @@
     {
       "id": "update",
       "type": "text",
-      "text": "4. UpdateStack → Mode::UpdateCameraMode → Result。\n清旧Request → UpdateView → 推进Alpha/Weight。\n原始合法dt、BlendTime>0按dt/Time推进；\n合法0时间立即满权重（dt0亦可）。\n非法配置/dt/权重/算术向Evaluate传播Failure，\n不换曲线、不归零或伪造成功。\nThirdPerson只输出View/Request，不查询World。\n内部已推进状态不承诺整体回滚。",
+      "text": "4. UpdateStack → Mode.UpdateCameraMode → Result。\n校验／清旧 Request → UpdateView(dt) → Result。\n派生成功、View 复核通过后才推进 Alpha／Weight。\n正 BlendTime 按 dt/Time；合法0时间立即满权重。\nFailure 向 Evaluate／Prepare 传播，内部推进不承诺回滚。\nThirdPerson 分支向右展开；不查询 World。",
       "x": 1530,
       "y": 729,
       "width": 440,
@@ -63,7 +63,7 @@
     {
       "id": "prune",
       "type": "text",
-      "text": "5. 遇到权重满 1 的上层模式：下层已不可见，调用 OnDeactivation 并移除活动项；实例池保留。\n\nUpdateStack 删去被完全遮盖的旧活跃项，实例池仍保留以供后续复用。",
+      "text": "5. 满权重上层已完全遮盖下层：调用 OnDeactivation 并移除活动项，实例池保留。\nThirdPerson.Deactivation 清自身侧移／弱来源键；以后真正重入栈再 Activation，活动模式日常 Push 不清滤波。",
       "x": 990,
       "y": 891,
       "width": 470,
@@ -129,6 +129,46 @@
       "width": 410,
       "height": 300,
       "color": "5"
+    },
+    {
+      "id": "camera-steering-capture",
+      "type": "text",
+      "text": "ThirdPerson.UpdateView(dt)\n原 Pivot／Pitch 限制 → UpdateSteeringFromMovement(dt, PivotRotation)。\n显式关闭：清本人展示，走原构图。\n启用：原 Character 的原 CMC → GetLocomotionSteeringSnapshot。\n校验原身份；CMC／SourceEpoch 变更时先 ResetSteeringPresentation。\n资格与原生区间时效仅由 CMC 判定。\n[[Camera/模式栈实现#原移动事实与状态资格|原事实契约]]",
+      "x": 2070,
+      "y": 350,
+      "width": 470,
+      "height": 350,
+      "color": "4"
+    },
+    {
+      "id": "camera-steering-status",
+      "type": "text",
+      "text": "消费 Snapshot.Status／bHasVelocityYawRate\nInitial：侧移0，继续原 View；不制造零角速度观测。\nNotApplicable／Valid但无两端速度观测：target0，正常滤波回收。\nValid且有观测：同次 GT 读原水平速度方向／WalkRun alpha，调用纯投影。\nInvalid／未知状态／来源失配：清本人展示，带原 Diagnostic 返回 Failure。\n必需配置失败不改成 Initial 或无限等待。",
+      "x": 2650,
+      "y": 350,
+      "width": 470,
+      "height": 360,
+      "color": "3"
+    },
+    {
+      "id": "camera-steering-project",
+      "type": "text",
+      "text": "ComputeSteeringLateralTarget → Result／target\n真实轨迹 ActualSignedVelocityYawRate\n→ abs(rate) 响应曲线 × Amplitude × Lerp(WalkGain,RunGain,alpha)。\n投影前限 MaxDistance。\nWorldOutside = Cross(Up,速度方向) × -sign(rate)。\ntarget = 幅度 × Dot(WorldOutside,完整 camera-right)。\ndouble 三轴右轴保持正交；侧视减弱、前视可反号；不改原旋转／FOV。\n非法曲线／输入／结果明确 Failure。\n[[Camera/模式栈实现#世界弯道外侧投影为纯横移|几何与校验]]",
+      "x": 2650,
+      "y": 800,
+      "width": 470,
+      "height": 410,
+      "color": "5"
+    },
+    {
+      "id": "camera-steering-compose",
+      "type": "text",
+      "text": "返回原 ThirdPerson.UpdateView\n适用／回收路径：UpdateSteeringPresentation(dt,target) → Result；目标绝对值减小用 ReturnSpeed，否则 EnterSpeed，FInterpTo。\nInitial／显式关闭跳过滤波，保持侧移0。\n成功：复制 TargetOffset，仅 Y += SteeringLateralOffset → 原 PivotRotation.RotateVector → View.Location。\n原 Rotation／ControlRotation／FOV／穿透请求继续原规则；返回 Success，再由基类推进权重。\n滤波／算术失败返回 Failure；不申请 GA Offset token。\n[[Camera/模式栈实现#展示滤波、合成与清理|展示归属与清理]]",
+      "x": 2070,
+      "y": 1260,
+      "width": 470,
+      "height": 420,
+      "color": "1"
     }
   ],
   "edges": [
@@ -227,6 +267,86 @@
       "toNode": "write",
       "toSide": "top",
       "label": "Resolve Success → Prepared候选（尚未发布）"
+    },
+    {
+      "id": "camera-steering-call-view",
+      "fromNode": "update",
+      "fromSide": "right",
+      "toNode": "camera-steering-capture",
+      "toSide": "left",
+      "label": "展开 ThirdPerson.UpdateView"
+    },
+    {
+      "id": "camera-steering-snapshot",
+      "fromNode": "camera-steering-capture",
+      "fromSide": "right",
+      "toNode": "camera-steering-status",
+      "toSide": "left",
+      "label": "原快照／来源键"
+    },
+    {
+      "id": "camera-steering-qualify",
+      "fromNode": "camera-steering-status",
+      "fromSide": "bottom",
+      "toNode": "camera-steering-project",
+      "toSide": "top",
+      "label": "Valid ＋ 有真实轨迹观测"
+    },
+    {
+      "id": "camera-steering-return-zero",
+      "fromNode": "camera-steering-status",
+      "fromSide": "left",
+      "toNode": "camera-steering-compose",
+      "toSide": "top",
+      "label": "Initial／不适用／无两端观测 → 各原路径"
+    },
+    {
+      "id": "camera-steering-explicit-off",
+      "fromNode": "camera-steering-capture",
+      "fromSide": "bottom",
+      "toNode": "camera-steering-compose",
+      "toSide": "left",
+      "label": "显式关闭 → 初始侧移0"
+    },
+    {
+      "id": "camera-steering-target",
+      "fromNode": "camera-steering-project",
+      "fromSide": "left",
+      "toNode": "camera-steering-compose",
+      "toSide": "right",
+      "label": "纯投影 Success → target"
+    },
+    {
+      "id": "camera-steering-view-result",
+      "fromNode": "camera-steering-compose",
+      "fromSide": "left",
+      "toNode": "update",
+      "toSide": "bottom",
+      "label": "原 UpdateView Result；Success 才推进权重"
+    },
+    {
+      "id": "camera-steering-failure",
+      "fromNode": "update",
+      "fromSide": "bottom",
+      "toNode": "fallback",
+      "toSide": "right",
+      "label": "UpdateView／配置／权重任一 Failure"
+    },
+    {
+      "id": "camera-steering-source-failure",
+      "fromNode": "camera-steering-status",
+      "fromSide": "top",
+      "toNode": "update",
+      "toSide": "top",
+      "label": "Invalid／未知状态／失配 → 原 Failure"
+    },
+    {
+      "id": "camera-steering-geometry-failure",
+      "fromNode": "camera-steering-project",
+      "fromSide": "bottom",
+      "toNode": "update",
+      "toSide": "right",
+      "label": "投影 Failure → 清本人展示并返回"
     }
   ]
 }

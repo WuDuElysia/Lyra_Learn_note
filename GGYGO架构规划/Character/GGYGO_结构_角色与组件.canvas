@@ -73,7 +73,7 @@
     {
       "id": "movement",
       "type": "text",
-      "text": "## UGGYGOCharacterMovementComponent\n`SetMovementSet(Data)` → 配置步态/曲线。\n`HasMoveInput()` / `GetHorizontalSpeed()` / `IsTurnBackCurveDriven()` → 发布动画语义。\n[[Movement/结构]]",
+      "text": "## UGGYGOCharacterMovementComponent\nSetMovementSet(Data,OutError)→唯一校验并接受配置；缺失/拒绝不授执行。\nGetLocomotionSteeringSnapshot() const→只读原区间/启动暂态，消费公开scope，不凭InitState标签等待。\nHasMoveInput / GetHorizontalSpeed / IsTurnBackCurveDriven→动画语义。\n[[Movement/结构]]",
       "x": 1050,
       "y": 920,
       "width": 430,
@@ -158,6 +158,16 @@
       "y": 230,
       "width": 720,
       "height": 650,
+      "color": "5"
+    },
+    {
+      "id": "character-pawn-data-initialization-scope",
+      "type": "text",
+      "text": "## PawnExtension｜原同步初始化 scope\nIsPawnDataInitializationInProgress() const\n输入：游戏线程、原CheckDefaultInitialization／ApplyPawnDataToConsumers同步调用。\n输出：原调用仍在栈上的bool；无scope、登记/身份/生命周期失效为false。\nFPawnDataInitializationScope只持原Extension/Pawn/World弱身份和父scope；组件借用当前栈记录。\n嵌套正常退出恢复原父scope，最外层退出关闭；OnUnregister清指针，EndPlay先关准入/清指针。旧析构不恢复失效scope或覆盖后继。\n真实后续BeginPlay仅重开准入，新调用才有scope。\nCMC只读此公开事实；accepted Set唯一归CMC，scope不代表接受/ASC Ready/长期标签等待，不建timer或执行器。\n[[Character/结构#原 PawnData 同步初始化调用|完整接口]] · [[计划_角色与组件#同步初始化 scope 与冷启动边界|机制理由]]",
+      "x": 2170,
+      "y": 980,
+      "width": 720,
+      "height": 500,
       "color": "5"
     }
   ],
@@ -289,6 +299,22 @@
       "toNode": "local-asc-resource",
       "toSide": "right",
       "label": "只读认证原H/Context；不复制Binding/Ready权威"
+    },
+    {
+      "id": "e-extension-pawn-data-initialization-scope",
+      "fromNode": "extension",
+      "fromSide": "right",
+      "toNode": "character-pawn-data-initialization-scope",
+      "toSide": "top",
+      "label": "原Check/Apply借用栈scope；公开只读在途事实"
+    },
+    {
+      "id": "e-movement-pawn-data-initialization-query",
+      "fromNode": "movement",
+      "fromSide": "right",
+      "toNode": "character-pawn-data-initialization-scope",
+      "toSide": "left",
+      "label": "GetLocomotionSteeringSnapshot→IsPawnDataInitializationInProgress"
     }
   ]
 }

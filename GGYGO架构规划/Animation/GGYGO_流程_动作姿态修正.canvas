@@ -13,7 +13,7 @@
     {
       "id": "pose_role_cache",
       "type": "text",
-      "text": "## 角色配置 / 原CacheBones\nABP持FullBody、Bip001/Root及原组件对齐；角色声明RequiredPoseCorrectionSlot。\n原CacheBones→BuildReferenceCache：当前Mesh参考/实际CompactPose/独立骨分支。\nepoch标逻辑配置/参考变化；缺必需骨明确不可用。\n原OnInitialize清GT publication；临时Source值不跨Evaluate。",
+      "text": "## 角色配置 / 原CacheBones\nABP持FullBody、Bip001/Root／原组件对齐和Required声明。\nCacheBones→BuildReferenceCache：当前Mesh参考／实际CompactPose／独立骨分支；epoch标配置／参考变化，缺骨明确不可用。\n普通WalkRun只旋转Body后代Bip001-Spine，不改Body／Root／固定祖先。\n原OnInitialize清GT publication；Source值不跨Evaluate。",
       "x": 0,
       "y": 330,
       "width": 480,
@@ -33,7 +33,7 @@
     {
       "id": "pose_native_play",
       "type": "text",
-      "text": "## RequiredReady→原生播放\nTask先持原ticket并有Ready前OnFailed消费者，再TryPlayMontageWithOwnership。\nASC/Guard沿完整原生调用签原Playback Handle；姿态ticket不替代播放身份。\nGA捕原snapshot申请CMC Main句柄。\nExplicitNotRequired为显式普通Slot模式，不轮询。",
+      "text": "## RequiredReady→原生播放\nTask持原ticket，Ready前配置作者点／登记NotifyReceived与OnFailed，再TryPlayMontageWithOwnership。\n原Handle／Guard认证播放；ticket不代播放身份。\nGA按原snapshot申请Main→End同一CMC句柄。\n[[Animation/普攻动画实施#作者单点信号配置|作者点接缝]]",
       "x": 1240,
       "y": 330,
       "width": 600,
@@ -63,7 +63,7 @@
     {
       "id": "pose_source_borrow",
       "type": "text",
-      "text": "## 原生Slot Evaluate / Source借用\nFAnimNode_Slot唯一Update/权重/混合/Notify执行。\n派生Evaluate先清scratch→Super.Evaluate。\nPostEvaluateSourcePose只在Source确实参与时读Q(source)；阈值省略的Source不读。\nAlwaysUpdateSourcePose不等于强制Evaluate。\n原provider/native counter/原WeightData核对；无第二Source求值。",
+      "text": "## 原生Slot Evaluate / Source借用\nFAnimNode_Slot唯一Update／权重／混合／Notify。\n普通WalkRun Source已过单Spine组件空间旋转，其他状态原路；无第二Source求值。\n派生Evaluate清scratch→Super.Evaluate；PostEvaluateSourcePose只在Source真参与时读Q(source)，阈值省略不读。\nAlwaysUpdateSourcePose不等于强制Evaluate；核原provider／counter／WeightData。\n[[GGYGO_流程_动画表现.canvas|普通分支实际接线]]",
       "x": 560,
       "y": 840,
       "width": 560,
@@ -73,17 +73,17 @@
     {
       "id": "pose_correct_z",
       "type": "text",
-      "text": "## 同次Z分离→Body translation\nQ(P)=参考父基底Body局部Z−Trajectory局部Z。\nTarget.XY=原ComponentAlignment.XY。\nTarget.Z=anchorZ+Q(native slot)−u·Q(actual Source)−v·Q(mesh ref)。\nu/v用原生有效Source/Total系数；祖先按固定参考契约校验。\n实际Body父链InverseTransformPosition→只SetTranslation。\n[[Animation/动作姿态修正#4. 同次原生 Slot 的 Z 分离|系数/公式/有效期]]",
+      "text": "## 同次XYZ分离→Body translation\nQ(P)=参考Body父基底.TransformVector(Body局部Translation)\n−参考Trajectory父基底.TransformVector(Trajectory局部Translation)。\nTarget=ComponentAlignment+Q(native)−u·Q(actual Source)−v·Q(mesh ref)。\nu／v取原生有效Source／Total系数，核固定参考祖先。\n实际父链InverseTransformPosition→只SetTranslation，保authored XYZ余量。\n[[Animation/动作姿态修正#4. 同次原生 Slot 的 Z 分离|公式／有效期]]",
       "x": 1240,
       "y": 840,
       "width": 600,
-      "height": 480,
+      "height": 530,
       "color": "5"
     },
     {
       "id": "pose_final_mesh",
       "type": "text",
-      "text": "## 原输出pose→最终Mesh\nBody旋转/缩放与Root分支保持原生结果。\n原LocalToCS→原CSToLocal→原Inertialization→Root。\nEvaluate退出清借用Source标量；不保存pose/位置/时钟。\n最终buffer与native Montage position可能有一帧差，不能当Slot中间值。",
+      "text": "## 原输出pose→最终Mesh\n本节点只写Body translation；Body旋转／缩放、Root与其他骨保原生结果（普通Spine旋转来自Source）。\n原LocalToCS→原CSToLocal→原Inertialization→Root；退出清Source XYZ临时向量，无pose／位置／clock缓存。\n最终buffer／position可有一帧差；None不等于资源完成。\n[[Animation/计划_动画与表现层#WalkRun运动偏移（2026-10-07，Gate106）|Gate106有限证据]]；未隔离原骨／IK贡献。",
       "x": 1980,
       "y": 840,
       "width": 560,
@@ -113,7 +113,7 @@
     {
       "id": "pose_evidence",
       "type": "text",
-      "text": "## 当前必要证据 / 开放边界\nNormal01 Main最终Body组件Z已变化、XY近零；含原Inertialization。147为回调采样/146种BodyXYZ，未采End/完整BlendIn-Out/其他普攻。\n两正常End后真实Walk/Run；两Required故障原清理/不可用户取消时强制End/自然后继/PIE收尾行为PASS。\nGate101-R2原报告3 Success/3 Fail，生产Error不滤，Movement完整负向断言保留。\n[[Animation/动作姿态修正#7. 实际证据与未验证边界|真实日志/报告/未验]]",
+      "text": "## 当前必要证据 / 开放边界\n最终Mesh只提供表现缓冲，不发行动作完成或足底接触事实。\nTask持原播放身份，CMC末贡献经GA原资源认证消费。\n参考基底来自当前Mesh，不混用独立Skeleton单位。\n验证边界回文字计划，不按采样数定义接口。\n[[Animation/动作姿态修正#7. 实际证据与未验证边界|日志与边界]]",
       "x": 0,
       "y": 1430,
       "width": 1120,
@@ -143,7 +143,7 @@
     {
       "id": "pose_cmc_boundary",
       "type": "text",
-      "text": "## 独立CMC动作与原生物理\nGA显式BuildSourceBinding(原Montage,Slot,Main)→按原snapshot BeginMontageActionMotion，持精确句柄。\nMovement按原PosXYZ区间/RMS给CMC胶囊贡献；Section/完成/失败只Release原Handle，End受理移动Cancel原End。\nBodyZ不回写此链，pose node/provider不写Velocity/Acceleration/RequestedVelocity或输入资格。\n原生物理动量与未准入驱动由Movement区分；退休RMS不等于应清零Velocity。\n[[Movement/动作曲线执行|动作接口]] · [[Movement/结构|源准入/动量与清理]]",
+      "text": "## 独立CMC动作与原生物理\nGA BuildSourceBindingRange→原snapshot BeginMontageActionMotion，同一句柄／clock。\n原NotifyReceived→GA EnableStepInterruption，过点才受理移动／新攻击；Section不授门。\n无请求继续完整End；原自然BlendOut后，GA等Task／末位移两完成事实。\n取消／替换／失败只清本人资源，Body XYZ不回写物理或输入。\n[[Movement/动作曲线执行|动作接口]] · [[Movement/结构|清理]]",
       "x": 0,
       "y": 1930,
       "width": 1120,
@@ -294,7 +294,7 @@
       "fromSide": "left",
       "toNode": "pose_cmc_boundary",
       "toSide": "top",
-      "label": "GA另行申请Main动作句柄，与pose分开"
+      "label": "GA申请连续Main→End原句柄，与pose分离"
     },
     {
       "id": "pose_evidence_final",
@@ -302,7 +302,7 @@
       "fromSide": "left",
       "toNode": "pose_evidence",
       "toSide": "top",
-      "label": "最终buffer观察，仅有限已验范围"
+      "label": "最终表现缓冲不替代动作完成事实"
     }
   ]
 }

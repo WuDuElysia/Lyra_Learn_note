@@ -53,7 +53,7 @@
     {
       "id": "evaluate",
       "type": "text",
-      "text": "4. EvaluateStack(dt, OutView, OutRequest) → Result。\n使用本次原始合法 dt 更新模式、混合 View，\n按实际贡献聚合启用的保护请求。\n非法配置/算术逐层传播失败；\n完整成功才提交 View 与 Request。\n内部权重等推进不承诺回滚。\n[[GGYGO_流程_相机模式求值.canvas|求值子图]]",
+      "text": "4. EvaluateStack(dt, View, Request) → Result。\nThirdPerson.UpdateView → 原 CMC → 外侧投影／滤波，\n只合成 TargetOffset.Y，输出期望 View／Request。\nInitial 保构图；不适用回收；Invalid 明确 Failure。\n再混合 View／聚合请求，完整成功才输出。\n随后 Offset／唯一碰撞；内部推进不承诺回滚。\n[[GGYGO_流程_相机模式求值.canvas|真实调用与分支]]",
       "x": 1470,
       "y": 460,
       "width": 420,

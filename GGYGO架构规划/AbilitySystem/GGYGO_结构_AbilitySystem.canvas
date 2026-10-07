@@ -173,7 +173,7 @@
     {
       "id": "k3-task-resource-consumer",
       "type": "text",
-      "text": "## UGGYGOAbilityTask_PlayMontageAndWaitForEvent\n持有原Ability／ActorInfo／ASC／Mesh／Anim来源与Montage唯一Slot，消费ASC单一Playback／Guard。\nRegisterNativeCallbacks在Ready前接受一次非空回调包，返回精确token；包含五普通回调、SectionReceived和OnFailed。\nTryGetOriginalSectionSnapshot输出原ID／Section／Position／Rate；GA拥有原Activation与段资源。\nAcquireActionPoseContract返回ExplicitNotRequired或RequiredReady及原Ticket；Required模式使用引擎TickTask只读Poll。\nOnFailed携Montage／Slot／Stage／Diagnostic和原InstanceID，是自身清理后的失败事实。\nTask管理自身监听、实例委托、缩放和Ticket；按原Guard／ID释放资源，不从当前Avatar认领后继。\n[[AbilitySystem/结构#Task原实例与资源消费|接口与资源]] · [[Animation/动作姿态修正|姿态接口]] · [[计划_玩家普攻连段|GA资源]]",
+      "text": "## UGGYGOAbilityTask_PlayMontageAndWaitForEvent\n持有原Ability／ActorInfo／ASC／Mesh／Anim来源与Montage唯一Slot，消费ASC单一Playback／Guard。\nRegisterNativeCallbacks在Ready前接受一次非空回调包，返回精确token；包含五普通回调、SectionReceived、NotifyReceived和OnFailed。\nTryGetOriginalSectionSnapshot输出原ID／Section／Position／Rate；作者点接口见下方。\nGA拥有原Activation、段资源及打断许可；Task事实不授工作权。\nAcquireActionPoseContract返回ExplicitNotRequired或RequiredReady及原Ticket；Required模式使用引擎TickTask只读Poll。\nOnFailed携Montage／Slot／Stage／Diagnostic和原InstanceID，是自身清理后的失败事实。\nTask管理自身监听、实例委托、缩放和Ticket；按原Guard／ID释放资源，不从当前Avatar认领后继。\n[[AbilitySystem/结构#Task原实例与资源消费|接口与资源]] · [[Animation/动作姿态修正|姿态接口]] · [[计划_玩家普攻连段|GA资源]]",
       "x": 3500,
       "y": 320,
       "width": 900,
@@ -238,6 +238,26 @@
       "y": 1910,
       "width": 660,
       "height": 410,
+      "color": "1"
+    },
+    {
+      "id": "montage-native-notify-interface",
+      "type": "text",
+      "text": "## 同一Montage Task｜作者点接口\nResolveOriginalMontageNotify(Montage,Name,OutTime,Diagnostic)：恰一stock native点；原LinkedMontage／branchingpoint及有限TriggerTime，缺／重／错类型拒绝。\nConfigureOriginalMontageNotify(Name,Diagnostic)：原AwaitingActivation、Ready前一次配置。\nTryGetOriginalMontageNotifySnapshot(Fact,Position)：固定ID原实例与同一作者声明的只读快照；false清输出，不合成通知。\nFNativeCallbacks.NotifyReceived／BP NotifyReceived：精确原点事实，自然blend原实例可送达，退休Task不能接旧点。\n持有原Notify UObject／名字／时间和原AnimInstance订阅；不存数组裸指针或Editor GUID，不持业务门／输入／CMC或第二时钟。\nOnDestroy只RemoveDynamic原对象／本Task／NotifyBegin函数。\n[[AbilitySystem/结构#原生 Montage 作者信号|接口与来源]]",
+      "x": 3500,
+      "y": 2260,
+      "width": 900,
+      "height": 850,
+      "color": "5"
+    },
+    {
+      "id": "montage-native-notify-fact",
+      "type": "text",
+      "text": "## FGGYGOMontageNotifyFact\nMontage／Mesh／int32 MontageInstanceId／NotifyName／NotifyPositionSeconds。\n时间为作者GetTriggerTime含offset，非后来回调位置；快照另给原实例实际Position。\n来源封套为原Task／Guard／ActorInfo与配置原点，不借float Magnitude或ASC CancelPoint认证。\n事实不授当前播放、原GA／输入／镜头／CMC工作权。\nGA核原Activation／StepToken／Task／资源后消费，原资源持本播放许可。\n[[计划_玩家普攻连段|GA消费者]] · [[AbilitySystem/结构#原生 Montage 作者信号|数据契约]]",
+      "x": 3500,
+      "y": 3270,
+      "width": 900,
+      "height": 500,
       "color": "1"
     }
   ],
@@ -392,7 +412,7 @@
       "fromSide": "top",
       "toNode": "k4-committed-cleanup-source",
       "toSide": "bottom",
-      "label": "H1已调用：原Context查询＋显式Clear模式"
+      "label": "原Context查询＋显式Clear模式"
     },
     {
       "id": "k4-host-failed-init-consumer-target",
@@ -400,7 +420,7 @@
       "fromSide": "left",
       "toNode": "k4-failed-init-cleanup-proof",
       "toSide": "right",
-      "label": "H2已实施/编译：原失败Operation＋pureScope；动态未闭合"
+      "label": "原失败Operation＋pureScope调用清理接口"
     },
     {
       "id": "w0-task-original-gas-bucket",
@@ -441,6 +461,22 @@
       "toNode": "attribute-base-calculation-result",
       "toSide": "top",
       "label": "返回一次Outcome／Reason与有限候选；没有属性写入"
+    },
+    {
+      "id": "task-exposes-original-notify-interface",
+      "fromNode": "k3-task-resource-consumer",
+      "fromSide": "right",
+      "toNode": "montage-native-notify-interface",
+      "toSide": "right",
+      "label": "同一Task提供原声明配置、快照及精确订阅"
+    },
+    {
+      "id": "original-notify-interface-fact",
+      "fromNode": "montage-native-notify-interface",
+      "fromSide": "bottom",
+      "toNode": "montage-native-notify-fact",
+      "toSide": "top",
+      "label": "发布或读取原点事实；业务许可归GA资源"
     }
   ]
 }

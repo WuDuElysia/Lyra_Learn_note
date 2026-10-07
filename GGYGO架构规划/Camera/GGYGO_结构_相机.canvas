@@ -53,7 +53,7 @@
 		{
 			"id": "third",
 			"type": "text",
-			"text": "## UGGYGOCameraMode_ThirdPerson（C++）\n`UpdateView(dt)` → 从 Pawn 视点与控制朝向计算期望位置，并输出穿透请求。\n不访问 World、不 sweep、不保存恢复比例；设计参数仍由派生蓝图覆盖。",
+			"text": "## UGGYGOCameraMode_ThirdPerson\nUpdateView(dt) → Result／View／Request。\n原 CMC → 世界轨迹外侧投影 → 展示滤波。\n只合成 TargetOffset.Y；生命周期清本人展示。\n[[Camera/模式栈实现#ThirdPerson 的 WalkRun 构图响应|算法与生命周期]]；不查询 World。",
 			"x": 0,
 			"y": 740,
 			"width": 390,
@@ -63,7 +63,7 @@
 		{
 			"id": "pyrios-mode",
 			"type": "text",
-			"text": "## BP_CameraMode_ThirdPerson_Pyrios\n`/Game/Camera/Modes/`\nClass Defaults：构图／混合／穿墙参数。\nDA_Pawn_Pyrios 选类；继承 ThirdPerson。\n[[Camera/结构#设计参数与碰撞策略的归属|配置归属]]。",
+			"text": "## BP_CameraMode_ThirdPerson_Pyrios\n`/Game/Camera/Modes/BP_CameraMode_ThirdPerson_Pyrios`\nClass Defaults：构图／穿墙＋Steering 参数。\nDA_Pawn_Pyrios 选类；继承 ThirdPerson。\n[[Camera/结构#设计参数与碰撞策略的归属|曲线／幅度／增益／滤波配置]]。",
 			"x": 0,
 			"y": 1000,
 			"width": 390,
@@ -73,7 +73,7 @@
 		{
 			"id": "mode",
 			"type": "text",
-			"text": "## UGGYGOCameraMode\n`UpdateCameraMode(dt)` → Result。\n校验原始 dt/配置，清旧请求、UpdateView、推进权重；\n非法输入明确失败，不用默认混合参数。\n`GetCameraModeView()` → 单模式 View。\n`GetCameraPenetrationRequest()` → 可选保护请求。\n`GetTargetActor()` → 从 CameraComponent 找目标。",
+			"text": "## UGGYGOCameraMode\n`UpdateCameraMode(dt)` → Result。\n校验 dt／配置，清旧 Request → `UpdateView(dt)` → Result。\n派生成功并复核 View 后才推进 Alpha／Weight；Failure 原样传播。\nGetCameraModeView → View；\nGetCameraPenetrationRequest → Request。\nGetTargetActor → 原 CameraComponent 目标。",
 			"x": 500,
 			"y": 680,
 			"width": 420,
@@ -113,7 +113,7 @@
 		{
 			"id": "contract",
 			"type": "text",
-			"text": "## 状态归属与发布契约\nGA 持有原资源凭证；Hero 持有 Spec＋generation 并消费原 typed H。\nCameraComponent 持有 Offset 单槽 token、碰撞恢复比例及 Stack；Stack 持有模式池／活动栈；ThirdPerson 只声明期望视角与保护请求。\nPrepared 和 Commit 输出只活在单次调用；Manager 的准入／原身份／确认资格不复制持久 POV。\nLocalPlayer 只读取原关联与确认资格，用局部 scratch 运行原生投影并复核；不 Activate／Restart，不持有第二 Cache 或帧调度器。\nNotActivated／Stopped 的两个原生更新入口不写 Cache；Stopped＋confirmed 可继续只读最后有效视图。\n受控 DoUpdate 失败保持两帧原生 POV、时间戳和附加 PP；内部模式进度及任意 Setter／modifier 副作用不承诺整体回滚。\nRunning 摄影入口保持原生 Fill 行为，作用域外 POV setter 仍拒绝发布，时间戳按原生规则处理。\n非法 dt／类／配置／穿透参数明确失败；合法 dt0、半径0、恢复0和混合时间0按正常配置解释。\n[[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复子图]] · [[GGYGO_流程_相机模式求值.canvas|模式求值子图]]",
+			"text": "## 状态归属与发布契约\nGA 持有原资源凭证；Hero 持有 Spec＋generation 并消费原 typed H。\nCameraComponent 持有 Offset 单槽 token、碰撞恢复比例及 Stack；Stack 持有模式池／活动栈；ThirdPerson 持本模式侧移／弱来源键，声明期望视角与保护请求；CMC 独占移动事实与资格。\nPrepared 和 Commit 输出只活在单次调用；Manager 的准入／原身份／确认资格不复制持久 POV。\nLocalPlayer 只读取原关联与确认资格，用局部 scratch 运行原生投影并复核；不 Activate／Restart，不持有第二 Cache 或帧调度器。\nNotActivated／Stopped 的两个原生更新入口不写 Cache；Stopped＋confirmed 可继续只读最后有效视图。\n受控 DoUpdate 失败保持两帧原生 POV、时间戳和附加 PP；内部模式进度及任意 Setter／modifier 副作用不承诺整体回滚。\nRunning 摄影入口保持原生 Fill 行为，作用域外 POV setter 仍拒绝发布，时间戳按原生规则处理。\n非法 dt／类／配置／穿透参数明确失败；合法 dt0、半径0、恢复0和混合时间0按正常配置解释。\n[[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复子图]] · [[GGYGO_流程_相机模式求值.canvas|模式求值子图]]",
 			"x": 0,
 			"y": 1660,
 			"width": 1450,
@@ -148,6 +148,16 @@
 			"y": 1380,
 			"width": 420,
 			"height": 240,
+			"color": "4"
+		},
+		{
+			"id": "camera-steering-original-cmc",
+			"type": "text",
+			"text": "## UGGYGOCharacterMovementComponent\nMovement 原权威；GetLocomotionSteeringSnapshot()\n→ FGGYGOLocomotionSteeringSnapshot。\n原 OnMovementUpdated 发布已完成物理事实；CMC 判资格、区间有效期及来源换代。\nSnapshot：原 Movement／Character／UpdatedComponent、SourceEpoch、状态／诊断。\nInitial／Valid／NotApplicable／Invalid。\n真实轨迹 ActualSignedVelocityYawRate，bHasVelocityYawRate；胶囊 Yawrate 不替代轨迹。\n合格时同次 GT 读 GetHorizontalVelocityDirection／GetWalkRunBlendAlpha。\n[[Movement/结构|移动权威与接口]]",
+			"x": -650,
+			"y": 720,
+			"width": 470,
+			"height": 410,
 			"color": "4"
 		}
 	],
@@ -279,6 +289,14 @@
 			"toNode": "controller",
 			"toSide": "bottom",
 			"label": "只读原关联 + HasConfirmedNativeCameraView"
+		},
+		{
+			"id": "camera-steering-read-cmc",
+			"fromNode": "third",
+			"fromSide": "left",
+			"toNode": "camera-steering-original-cmc",
+			"toSide": "right",
+			"label": "读取原 CMC 事实"
 		}
 	]
 }

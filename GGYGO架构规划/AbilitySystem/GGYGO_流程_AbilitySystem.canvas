@@ -123,7 +123,7 @@
     {
       "id": "k3-play-result",
       "type": "text",
-      "text": "## 1｜Task先决契约与完整播放返回\n创建Task后、Ready前RegisterNativeCallbacks→精确token：原五普通回调＋SectionReceived＋typed OnFailed。原Activation/弱GA/原Task由调用方固定捕获。\nActivate捕原Ability/ActorInfo allocation/ASC/Mesh/Anim与Montage真实唯一Slot。\n→原Guard.AcquireActionPoseContract：ExplicitNotRequired明确普通模式；RequiredReady须有效原Ticket/失败消费者；Rejected/Unavailable或Ticket不一致→Startup失败(ID=NONE)，不播放。\n原资格有效→自身Cancel/Event订阅→TryPlayMontageWithOwnership(原参数/pureQuery)。\nASC捕源→GuardScope→完整Super.PlayMontage→Complete→复制Result并退出Scope；Accepted且真实Local/原源一致才签Playback。\nTask消费同一栈Result；失败/Superseded不清后继、不裸播放/扫描新实例或假Duration成功。\n[[AbilitySystem/结构|接口输入输出]] · [[Animation/动作姿态修正|声明与Acquire]]",
+      "text": "## 1｜Task先决契约与完整播放返回\n创建Task后、Ready前RegisterNativeCallbacks→精确token：原五普通回调＋SectionReceived／NotifyReceived＋typed OnFailed。原Activation/弱GA/原Task由调用方固定捕获。\nActivate捕原Ability/ActorInfo allocation/ASC/Mesh/Anim与Montage真实唯一Slot。\n→原Guard.AcquireActionPoseContract：ExplicitNotRequired明确普通模式；RequiredReady须有效原Ticket/失败消费者；Rejected/Unavailable或Ticket不一致→Startup失败(ID=NONE)，不播放。\n原资格有效→自身Cancel/Event订阅→TryPlayMontageWithOwnership(原参数/pureQuery)。\nASC捕源→GuardScope→完整Super.PlayMontage→Complete→复制Result并退出Scope；Accepted且真实Local/原源一致才签Playback。\nTask消费同一栈Result；失败/Superseded不清后继、不裸播放/扫描新实例或假Duration成功。\n[[AbilitySystem/结构|接口输入输出]] · [[Animation/动作姿态修正|声明与Acquire]]\n显式作者点订阅在Ready前ConfigureOriginalMontageNotify；声明、派发与清理见右侧分支。",
       "x": 3000,
       "y": 392,
       "width": 950,
@@ -133,7 +133,7 @@
     {
       "id": "k3-original-resource",
       "type": "text",
-      "text": "## 2｜原资源安装与Required-only只读Poll\n原返回重检Task/Ability/ActorInfo；在途停止义务按Result.Guard清原实例。已结束Task不安装资源。\n成功→保存原Handle/Guard/ID→精确BlendOut/Ended/Section委托→原scale lease→SetWaitingOnAvatar；最后外调后无成员写。\nReady返回：GA用TryGetOriginalSectionSnapshot固定实际ID/Section/Position/Rate，Main→CMC BeginMontageActionMotion；SectionReceived→真实End。\n仅RequiredReady启用原GameplayTasks Tick；TickTask不消费dt或求姿态，只向原Guard.PollActionPoseContract。\nPoll前后核原Task/Ability/ActorInfo/ASC/Guard；Valid继续，Failed/Invalidated→Playback失败(原ID)，不重新Acquire或静默跳过弱来源丢失。\n普通Event/Section仍核精确原实例和自身资格；票据不是播放/GA权力，CMC仍唯一胶囊执行。\n[[GGYGO_流程_玩家普攻连段.canvas|Main/End消费]] · [[Animation/动作姿态修正|姿态执行/epoch]]",
+      "text": "## 2｜原资源安装与Required-only只读Poll\n原返回重检Task/Ability/ActorInfo；在途停止义务按Result.Guard清原实例。已结束Task不安装资源。\n成功→保存原Handle/Guard/ID→精确BlendOut/Ended/Section委托与配置的原NotifyBegin订阅→原scale lease→SetWaitingOnAvatar；最后外调后无成员写。\nReady返回：GA用TryGetOriginalSectionSnapshot固定实际ID/Section/Position/Rate，GA按原范围调用CMC BeginMontageActionMotion；SectionReceived报告原转段。\n仅RequiredReady启用原GameplayTasks Tick；TickTask不消费dt或求姿态，只向原Guard.PollActionPoseContract。\nPoll前后核原Task/Ability/ActorInfo/ASC/Guard；Valid继续，Failed/Invalidated→Playback失败(原ID)，不重新Acquire或静默跳过弱来源丢失。\n普通Event/Section仍核精确原实例和自身资格；票据不是播放/GA权力，CMC仍唯一胶囊执行。\n[[GGYGO_流程_玩家普攻连段.canvas|Main/End消费]] · [[Animation/动作姿态修正|姿态执行/epoch]]",
       "x": 3000,
       "y": 1260,
       "width": 950,
@@ -153,7 +153,7 @@
     {
       "id": "k3-task-original-ended",
       "type": "text",
-      "text": "## 4｜自然结束、普通取消与Required失败\n自然原Ended：原Guard生命周期/ActorInfo/Task资格成立且非Interrupted→原包/载荷快照→native/捕获析构返回→原资格重检→BP Completed→自身EndTask。\n不Check已退休当前ASC归属，不要求原实例仍活动。Completed只原实例事实；GA另核Original，不授后继结束权。\n普通ExternalCancel/AbilityCancel/FailAndEndTask保持Cancelled与原Stop策略，各渠道至多一次。\nRequired失败独立路径：关闭普通Event/Section/完成入口→精确Stop原实例/释放scale→EndTask清自身订阅/Ticket→历史typed OnFailed。\nFact=原Montage/真实Slot/Stage/Diagnostic；Startup NONE，Playback确切原ID。\nUE EndTask已清Task.Ability并垃圾标记；历史发送者WeakTask.Get(true)拒RF销毁，GA核原激活/段/强Task/原资源，随后正式原End(true,true)。不能用live-Task/Guard门禁吞失败。\nnative消费者若真实结束原激活/同UObject接续，临时原End观察使旧BP不交付；无原End且历史资格成立才BP OnFailed。\nOnDestroy先关/脱包，再原Cancel/Event/实例/scale/Ticket清理；Tick标志保持到引擎退休登记，捕获释放后无旧Task写。\n普通停止仍按原Guard/ID，ASC认证且活动ID同原才CurrentMontageStop，否则仅精确本地原资源；不找当前Avatar/后继。\n[[AbilitySystem/结构#Task原实例与资源消费|Task契约]] · [[计划_玩家普攻连段|失败接收]]",
+      "text": "## 4｜自然结束、普通取消与Required失败\n自然原Ended：原Guard生命周期/ActorInfo/Task资格成立且非Interrupted→原包/载荷快照→native/捕获析构返回→原资格重检→BP Completed→自身EndTask。\n不Check已退休当前ASC归属，不要求原实例仍活动。Completed只原实例事实；GA另核Original，不授后继结束权。\n普通ExternalCancel/AbilityCancel/FailAndEndTask保持Cancelled与原Stop策略，各渠道至多一次。\nRequired失败独立路径：关闭普通Event/Section/完成入口→精确Stop原实例/释放scale→EndTask清自身订阅/Ticket→历史typed OnFailed。\nFact=原Montage/真实Slot/Stage/Diagnostic；Startup NONE，Playback确切原ID。\nUE EndTask已清Task.Ability并垃圾标记；历史发送者WeakTask.Get(true)拒RF销毁，GA核原激活/段/强Task/原资源，随后正式原End(true,true)。不能用live-Task/Guard门禁吞失败。\nnative消费者若真实结束原激活/同UObject接续，临时原End观察使旧BP不交付；无原End且历史资格成立才BP OnFailed。\nOnDestroy先关/脱包，再原AnimInstance自身NotifyBegin及Cancel/Event/实例/scale/Ticket清理；Tick标志保持到引擎退休登记，捕获释放后无旧Task写。\n普通停止仍按原Guard/ID，ASC认证且活动ID同原才CurrentMontageStop，否则仅精确本地原资源；不找当前Avatar/后继。\n[[AbilitySystem/结构#Task原实例与资源消费|Task契约]] · [[计划_玩家普攻连段|失败接收]]",
       "x": 3000,
       "y": 2950,
       "width": 950,
@@ -399,6 +399,76 @@
       "width": 840,
       "height": 580,
       "color": "5"
+    },
+    {
+      "id": "montage-notify-configure",
+      "type": "text",
+      "text": "## 原作者点的pre-Ready配置\n调用方→ResolveOriginalMontageNotify(Montage,Name,OutTime,Diagnostic)。\n恰一同名stock UAnimNotify_PlayMontageNotify；原LinkedMontage／branchingpoint／含offset有限TriggerTime，无同名Window／子类／重复。\nConfigureOriginalMontageNotify(Name,Diagnostic)仅原AwaitingActivation一次；保存原Notify UObject／名字／时间。\nReady前原RegisterNativeCallbacks包提供NotifyReceived。\nActivate复核声明与消费者；失败不播放，不以Main／End／旧ASC事件替代。\n[[AbilitySystem/结构#原生 Montage 作者信号|配置与失败]]",
+      "x": 4150,
+      "y": 1450,
+      "width": 930,
+      "height": 720,
+      "color": "5"
+    },
+    {
+      "id": "montage-notify-subscribe",
+      "type": "text",
+      "text": "## 成功原Result后安装订阅\nTryPlayMontageWithOwnership返回→重核原Task/Ability/ActorInfo。\n成功→原Playback／Guard／int32 ID→确切原实例。\n声明仍匹配→原ActivatedAnimInstance.OnPlayMontageNotifyBegin.AddDynamic(本Task,OnOriginalMontageNotifyBegin)。\n播放外调后声明改变→清原播放、重取弱原Task后FailAndEndTask。\n不查同资产当前播放、不接ASC CancelPoint；Ready返回可读快照，原native点触发则核payload。",
+      "x": 5250,
+      "y": 1450,
+      "width": 880,
+      "height": 650,
+      "color": "4"
+    },
+    {
+      "id": "montage-notify-startup-snapshot",
+      "type": "text",
+      "text": "## Ready后读取原位置\nGA核原Activation／StepToken／Task／资源→TryGetOriginalMontageNotifySnapshot(Fact,Position)。\n原Task／Guard／ActorInfo／声明有效→按固定ID读仍存在的原实例，位置须有限。\n输出原Montage／Mesh／ID／Name／作者TriggerTime及实际Position；false清输出。\nGA待同原Scope／CMC Handle就绪后解释非零纠正起点是否已越点；早期原信号也留在同原资源。\n不合成Notify／ASC事件、不锁业务门、不查询后继。\n[[GGYGO_流程_玩家普攻连段.canvas|GA初始化消费]]",
+      "x": 6350,
+      "y": 1450,
+      "width": 900,
+      "height": 750,
+      "color": "4"
+    },
+    {
+      "id": "montage-notify-authenticate",
+      "type": "text",
+      "text": "## 原native点→精确原来源\nUE UAnimNotify_PlayMontageNotify.BranchingPointNotify→原AnimInstance.OnPlayMontageNotifyBegin。\nOnOriginalMontageNotifyBegin核Name、原Mesh／Montage、非NONE int32原ID。\npayload.NotifyEvent必须是当前原Notifies数组配置单点，原Notify UObject／TriggerTime一致。\nCanDispatchOriginalInstanceFact核原Guard Call／Lifecycle、ActorInfo及Task开放，精确原实例仍存在。\n自然blend不走IsNotifyValid，不要求已退休ASC当前归属；退休Task／旧ID／后继拒绝。\n只复制FGGYGOMontageNotifyFact来源值，不外传借用的UE payload。",
+      "x": 5250,
+      "y": 2450,
+      "width": 880,
+      "height": 700,
+      "color": "5"
+    },
+    {
+      "id": "montage-notify-deliver",
+      "type": "text",
+      "text": "## 原包派发与消费\nDispatchOriginalMontageNotifyFact先捕弱原Task／Ability／ASC、原Guard并重核。\n共享不可变FNativeCallbacks包→NotifyReceived.ExecuteIfBound(Fact)。\nnative及快照捕获析构返回→重取原Task／重核来源与实例，才NotifyReceived.Broadcast(Fact)。\n原Task关闭不继续旧BP；BP返回后无Task访问。\nGA另核原Activation／StepToken／Task／资源，持本播放许可并请求原执行接口；事实不授GA／输入／镜头／CMC工作权。\n[[GGYGO_流程_玩家普攻连段.canvas|原资源业务门]]",
+      "x": 6350,
+      "y": 2450,
+      "width": 900,
+      "height": 700,
+      "color": "1"
+    },
+    {
+      "id": "montage-notify-retire",
+      "type": "text",
+      "text": "## 原Task退休清理\n原自然Ended／取消或调用方退Task→OnDestroy。\n先关闭入口并脱原native包→原ActivatedAnimInstance.RemoveDynamic(本Task,OnOriginalMontageNotifyBegin)。\n只撤原对象／自身函数；UE动态多播无FDelegateHandle，不Clear全表、不查新AnimInstance。\n按原策略退自己的Cancel/Event／实例／scale／Ticket→Super返回→释放捕获，之后无Task写。\n晚到原payload及已退休Task不污染同资产新播放。\n[[AbilitySystem/结构#原生 Montage 作者信号|订阅寿命]]",
+      "x": 6350,
+      "y": 3420,
+      "width": 900,
+      "height": 670,
+      "color": "1"
+    },
+    {
+      "id": "montage-notify-rejected",
+      "type": "text",
+      "text": "## 原声明／来源拒绝\nResolve／Configure失败→false、清输出与Diagnostic，调用方处理原配置失败。\nActivate声明失效或缺消费者→FailAndEndTask，保持Cancelled语义，不播放。\n播放外调后声明改变→精确停原资源、重检原Task后失败。\nnative来源不符／旧ID／退休Task→不派发、不授门。\n快照不可读→false清两输出，调用方定位原资源失败。\n不借End／另一通知／float事件兜底，不恢复旧工作权。",
+      "x": 4150,
+      "y": 3420,
+      "width": 930,
+      "height": 550,
+      "color": "3"
     }
   ],
   "edges": [
@@ -464,7 +534,7 @@
       "fromSide": "bottom",
       "toNode": "k4publish",
       "toSide": "top",
-      "label": "Host Install/公布原H→Publish/Dispatching桥接Ready，已编译；动态边界保留"
+      "label": "Host Install/公布原H→Publish/Dispatching桥接Ready"
     },
     {
       "id": "e-request-ordered-edge-detail",
@@ -592,7 +662,7 @@
       "fromSide": "right",
       "toNode": "k4-failed-init-consume",
       "toSide": "left",
-      "label": "仅已保存原Proof；H2已实施/编译，动态未闭合"
+      "label": "已保存的原Proof；调用方提交原Operation与pureScope"
     },
     {
       "id": "k4-cleanup-b-clear-postcondition",
@@ -681,6 +751,70 @@
       "toNode": "numeric-client-same-base",
       "toSide": "left",
       "label": "原batch排空、原源有效：重读当前Base与上限"
+    },
+    {
+      "id": "task-play-configured-notify",
+      "fromNode": "k3-play-result",
+      "fromSide": "right",
+      "toNode": "montage-notify-configure",
+      "toSide": "left",
+      "label": "显式原点订阅在Ready前完成"
+    },
+    {
+      "id": "notify-configure-native-subscribe",
+      "fromNode": "montage-notify-configure",
+      "fromSide": "right",
+      "toNode": "montage-notify-subscribe",
+      "toSide": "left",
+      "label": "合法声明与消费者→原生播放Succeeded"
+    },
+    {
+      "id": "notify-configure-rejected",
+      "fromNode": "montage-notify-configure",
+      "fromSide": "left",
+      "toNode": "montage-notify-rejected",
+      "toSide": "left",
+      "label": "缺失／重复／错类型／非法时间或注册状态"
+    },
+    {
+      "id": "notify-native-source-event",
+      "fromNode": "montage-notify-subscribe",
+      "fromSide": "bottom",
+      "toNode": "montage-notify-authenticate",
+      "toSide": "top",
+      "label": "原UE branching point带精确payload触发"
+    },
+    {
+      "id": "notify-ready-snapshot-read",
+      "fromNode": "montage-notify-subscribe",
+      "fromSide": "right",
+      "toNode": "montage-notify-startup-snapshot",
+      "toSide": "left",
+      "label": "Ready返回→调用方读取同ID原位置"
+    },
+    {
+      "id": "notify-source-verified-delivery",
+      "fromNode": "montage-notify-authenticate",
+      "fromSide": "right",
+      "toNode": "montage-notify-deliver",
+      "toSide": "left",
+      "label": "原来源成立→值事实与原注册包"
+    },
+    {
+      "id": "notify-source-rejected",
+      "fromNode": "montage-notify-authenticate",
+      "fromSide": "left",
+      "toNode": "montage-notify-rejected",
+      "toSide": "right",
+      "label": "payload或原Task／声明／身份不符"
+    },
+    {
+      "id": "notify-owner-task-retirement",
+      "fromNode": "montage-notify-deliver",
+      "fromSide": "bottom",
+      "toNode": "montage-notify-retire",
+      "toSide": "top",
+      "label": "原调用方退Task或原结束／取消时清理自身订阅"
     }
   ]
 }

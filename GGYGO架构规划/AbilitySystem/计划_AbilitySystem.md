@@ -101,6 +101,24 @@ T2现有接口：ASC `TryActivateAbilityWithTerminationBoundary`提供真实Try�
 
 C12普通换人退出：真实业务政策尚未决定，候选共享接口只读配对冻结、生产未实施；本轮没有扩大到队伍切换或修改已确认的原生命周期/Busy归属。
 
+## 原生 Montage 作者信号与 Task
+
+作者化打断点需要原播放的精确来源。旧GameplayEventWindow用float传实例ID，普通Task事件还要求未混出及当前ASC播放归属；它不承担新的持续打断许可。使用UE stock `UAnimNotify_PlayMontageNotify`单点，由Task发布原整数ID/Mesh/Montage/名字/触发位置事实，GA唯一解释并持有本播放许可，CMC继续执行原位移。自然混出期原事实和资源工作权分开，不修改UE/GAS或扩大旧Hit/Combo通路。
+
+公共接缝为`ResolveOriginalMontageNotify`、pre-Ready一次`ConfigureOriginalMontageNotify`、`TryGetOriginalMontageNotifySnapshot`及原注册包内的`NotifyReceived(FGGYGOMontageNotifyFact)`。声明必须恰一stock exact点，原LinkedMontage/nativebranchingpoint与有限`GetTriggerTime()`成立；缺失、重名、错误类型/子类/时间明确失败。Task只持原Notify UObject/名字/时间，不保存可失效数组裸指针或Editor GUID；原native payload还核原点、Mesh、Montage与int32 ID。派发复用原包快照、外调后重检和精确原AnimInstance RemoveDynamic清理，不增加门状态/计时器/第二播放执行器。
+
+原Ready后快照提供同ID真实位置，GA待原Scope/CMC Handle就绪后认证并初始化不同Step纠正起点是否已越作者点，不补发ASC事件。正式三Montage使用同名`Event.Montage.CancelPoint`，名字与Next1/2/0由Step/资产明确配置；具体一次开门、下一播放关闭、真实移动取消和下一段业务由[[计划_玩家普攻连段|连段计划]]记录。旧Main/End自动开门候选不构成当前策略，旧失败仍保留。
+
+### 约定验证与剩余边界
+
+2026-10-07 Gate105统一Editor编译Succeeded／exit0，6 actions、26.32秒。统筹完成四包精确保存与正常重启冷读：唯一stock点、通知名、Next1/2/0、完整总长保持，dirty为空，13批外保护保持。原五必要烟全部Success／0Error／17Warning，总时长43.915秒；Warning包含原生卡帧/CMC迭代、render变量和PIE退出InputFlushed/原资源退休，原报告及资产API初失败保留。
+
+有限行为覆盖：正式资产的Transient播放副本把作者点移入Main，Held移动与03→01新按下按信号准入；03副本点0.7秒，新请求响应0.013099秒；新播放重新关闭、三段原来源移动取消/真实释放重按/重置01、无请求完整第三段自然End，以及原Task注册包和原AnimInstance的自身Notify订阅清理。另保留TypedCorrectionPayload及ActionMotion.TimingAndOwnership原必要叶结果。副本验证不修改正式作者点或保存PIE资产。
+
+本次未验证HID硬件输入、完整网络/预测组合、所有技能/作者位置与晚期点组合、全动作或全部历史严格矩阵。自然混出期Notify的窄事实契约已实现并编译，不能把上述有限烟扩大为所有晚期作者点都已实测。
+
+实际证据：[构建日志](F:/ue_project/GGYGO/Saved/Logs/GGYGO_Gate105_InterruptionSignal_Build_20261007.log)、[五项必要烟报告](F:/ue_project/GGYGO/Saved/AutomationReports/GGYGO_Gate105_InterruptionSignal_Smoke_20261007_MCP.json)、[冷启动Editor日志](F:/ue_project/GGYGO/Saved/Logs/GGYGO_Gate105_InterruptionSignal_ColdSmoke_Editor_20261007.log)。接口和实际调用见[[AbilitySystem/结构#原生 Montage 作者信号|结构契约]]、[[GGYGO_流程_AbilitySystem.canvas|Task流程]]；统计与旧失败留在本计划，不放入结构/流程图。
+
 ## 当前连段输入Task增量（W0）
 
 W0与Combo native输入消费者已落盘并编译。固定Original/原Task/原订阅贯穿创建、Ready、OnPress及Context Cleanup；Gate79正常纠正与必要资源收尾有限通过。Gate69/70旧失败保留在模块验证记录，native捕获析构重入/remote同步回放/正式输入资产与网络仍未由本次普通链关闭。
@@ -290,7 +308,7 @@ GGYGO 需要的 GE 分类（都是编辑器里的蓝图资产，代码侧只提�
 
 动作游戏要额外接的两处：
 
-1. **AnimNotify → GameplayEvent**：动画帧上的判定窗口、连段窗口、可取消点，用 AnimNotify 发 GameplayEvent，GA 内用 `WaitGameplayEvent` 接。这是动作游戏最常用的模式。动作类 Notify 一律走这条路，不要让 AnimInstance 直连调用逻辑层的具体类型——那样动画层就成了逻辑层的上游，且被调用方换实现时动画层要跟着改。
+1. **AnimNotify → Task事实/GameplayEvent**：旧判定/连段窗口保留GameplayEvent通路；作者化打断点使用stock Montage Notify，由原Task的`NotifyReceived`交付精确原播放事实。AnimInstance不直连具体招式GA，Task不解释业务门；调用方按自身原资源消费，详见上方“原生 Montage 作者信号与 Task”。
 2. **命中 → GameplayEvent**：命中判定组件检测到命中后发事件，GA 决定要不要应用伤害 GE。
 
 `GameplayMessageRuntime`（已在 `GGYGO.Build.cs` 声明）和 GameplayEvent 是两个不同东西：

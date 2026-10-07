@@ -13,7 +13,7 @@
     {
       "id": "source",
       "type": "text",
-      "text": "1. CMC / ASC / Pawn 在各自引擎生命周期更新权威状态。\n\n来源接口：CMC::GetResolvedGait/GetWalkRunBlendAlpha/GetStopMotionType/HasMoveInput/GetTurnBackPhase，ASC::HasMatchingGameplayTag，Pawn Transform。",
+      "text": "1. CMC / ASC / Pawn更新权威。\n原CMC OnMovementUpdated发布完成Steering区间／资格；GT getter核原来源／新鲜度。\nGetResolvedGait／WalkRunBlendAlpha／Stop／TurnBack及ASC Tag保持；不读Graph决定移动。",
       "x": 0,
       "y": 405,
       "width": 385,
@@ -23,7 +23,7 @@
     {
       "id": "capture",
       "type": "text",
-      "text": "2. Base原生命周期\n先处理Owner/来源退休与配置发布，再StateCapture.Capture抓当时事实。\nReset清原publication、Frame/Debug和派生表现；新Owner不继承旧数据。\n配置旁支不是Graph采样。",
+      "text": "2. Base原生命周期\n先处理Owner／来源退休与配置发布，再StateCapture.Capture抓当时语义。\nGT取原Steering快照一次，同帧原alpha入Frame；非Invalid核原身份。\nReset清本人publication、Frame／Debug与派生表现；新Owner不继承旧数据。",
       "x": 470,
       "y": 405,
       "width": 420,
@@ -33,7 +33,7 @@
     {
       "id": "read",
       "type": "text",
-      "text": "3. ABP_Pyrios 读取输入、步态、WalkRun 混合、停止与转身语义。\n\nAnimBP 经 AnimationStateFrame 和只读查询获得事实；旧拆分引脚由兼容层填充。",
+      "text": "3. ABP读取原Frame／只读查询。\n输入、步态、WalkRun混合、Stop／TurnBack保持；旧拆分引脚由兼容层填充。\n原Steering只供GT有限倾身派生，worker不解析弱对象。",
       "x": 970,
       "y": 405,
       "width": 420,
@@ -53,7 +53,7 @@
     {
       "id": "play",
       "type": "text",
-      "text": "5. ABP选序列 / WalkRun1D\nGetSeqByKey/GetBlendSpaceByKey；EnterMove/Stop/TurnBack单次，Idle/Loop循环。\nWalkRun X仍用GaitBlendY alpha；本批Player/Evaluator/网络相位保持原状。\n最终物理与表现不承诺同clock。",
+      "text": "5. ABP选序列 / WalkRun1D\nGetSeqByKey/GetBlendSpaceByKey；EnterMove/Stop/TurnBack单次，Idle/Loop循环。\nWalkRun X=原GaitBlendY alpha，Player／Evaluator／BS轴／网络相位保持。\n普通WalkRun追加单Spine旋转；其他状态Source原路，物理／表现不承诺同clock。",
       "x": 1470,
       "y": 932,
       "width": 420,
@@ -63,7 +63,7 @@
     {
       "id": "compat",
       "type": "text",
-      "text": "兼容路径：ZZZ 适配旧 Snapshot，不持有 Locomotion 计时。\n\n生命周期 Hook 清 Memory、Snapshot、Events 指针上下文与公开表现字段。每帧再执行 LegacySnapshotAdapter::Capture → MapMovementState：WalkRunBlendAlpha → GaitBlendY；StopMotionType → StopValue 0/1/2。",
+      "text": "ZZZ原NativeUpdate：Super抓帧→RefreshDecisionContext兼容适配→UpdateWalkRunLeanPresentation。\n旧Adapter／MapMovementState仍只复制alpha→GaitBlendY、Stop→StopValue。\nLifecycle Hook清Memory／Snap／Events和自有倾身来源键，保配置；无移动clock。",
       "x": 970,
       "y": 972,
       "width": 420,
@@ -83,41 +83,41 @@
     {
       "id": "combo_entry",
       "type": "text",
-      "text": "## GA/Task启动原Main\nTask Ready前AcquireActionPoseContract，RequiredReady必须有OnFailed消费者。\nTryPlayMontageWithOwnership沿原生播放；GA捕原snapshot申请CMC Main句柄。\nABP用FullBody ActionPoseSlot。\n[[Animation/普攻动画实施|实际配置]] · [[计划_玩家普攻连段|原GA]]",
+      "text": "## GA/Task启动原播放\nGA BuildSourceBindingRange(Main,End)，新资源关门。\nTask Ready前ConfigureOriginalMontageNotify／登记NotifyReceived与OnFailed→TryPlayMontageWithOwnership。\n原snapshot申请CMC句柄；早期点／非零起点经原NotifySnapshot复核再开放。\n[[Animation/普攻动画实施#作者单点信号配置|配置]]",
       "x": 0,
       "y": 1430,
       "width": 430,
-      "height": 260,
+      "height": 350,
       "color": "3"
     },
     {
       "id": "combo_window",
       "type": "text",
-      "text": "## 原Montage时间轴\n原生播放触发Hit/Combo Begin/End GameplayEvent。\nGA核原播放来源后消费，Combat命中/伤害归原模块。\n01 Combo在115帧结束，早于116帧BlendOut；完整窗口/命中体验另验。",
+      "text": "## 原单点→统一打断门\nOnPlayMontageNotifyBegin→Task核原ID／Mesh／Montage→NotifyReceived。\nGA HandleMontageNotify→Scope／Handle就绪→EnableStepInterruption。\n过点合格移动Cancel原句柄；真实新攻击StartStep(Next1/2/0)，新段关门。\nHit／Combo另发事件，不授门。",
       "x": 510,
       "y": 1430,
       "width": 430,
-      "height": 260,
+      "height": 320,
       "color": "3"
     },
     {
       "id": "combo_end",
       "type": "text",
-      "text": "## 未换段 → End（资产已配置）\nMain.NextSectionName=End，End.NextSectionName=None。\nEnd 取素材前30/45/90帧；Combo跨入End 14/18/18帧。\n默认 BlendOut 从116/111/159帧开始，持续15帧（60 fps）。",
+      "text": "## 无受理请求→完整End\nMain.NextSectionName=End，End→停止，无自然Loop。\nHandleMontageSection只记原段落；同一CMC句柄继续轨迹。\n原生末采样间隔开始混出，时长独立读Montage.BlendOut。",
       "x": 1020,
       "y": 1430,
       "width": 430,
-      "height": 260,
+      "height": 330,
       "color": "3"
     },
     {
       "id": "combo_return",
       "type": "text",
-      "text": "## End→原locomotion\nSection变化/结束由GA释放本人Main CMC句柄。\n原生Slot混回持续Update的Source；受理移动可提前Cancel原End。\n两正常叶已真实Walk/Run；End/返回移动的最终pose及完整BlendOut未采。\n[[Animation/动作姿态修正|证据边界]]",
+      "text": "## 原动作结束→locomotion\n非中断BlendOut→NotifyMontageActionNaturalBlendOut核原实例。\nCMC末贡献与原Task Completed／有界drain各登记事实；TryCompleteStepMotion等两者→自然End。\n过点合格移动Cancel原资源→GA End，后续攻击从01。\n[[Animation/动作姿态修正|完成链]]",
       "x": 1530,
       "y": 1430,
       "width": 430,
-      "height": 280,
+      "height": 400,
       "color": "3"
     },
     {
@@ -153,7 +153,7 @@
     {
       "id": "source_retire",
       "type": "text",
-      "text": "## Uninitialize / Owner或配置退出\nBase→RetireLocomotionSourceBinding(originalProducer,originalConfigurationGeneration)，仅撤原publication。\n随后清本实例表现；不清后继source/GA资源。",
+      "text": "## Uninitialize / Owner或配置退出\nBase→RetireLocomotionSourceBinding仅撤原producer／代次。\nHook清本人Frame／表现；ResetWalkRunLeanPresentation清Angle／Valid／Failure／弱CMC／Epoch，不清后继资源。",
       "x": 0,
       "y": 1220,
       "width": 890,
@@ -163,7 +163,7 @@
     {
       "id": "action_pose_evaluate",
       "type": "text",
-      "text": "## 同次原生AnimGraph评估\nGuard NativeUpdateAnimation在GT核实际Montage输入并发布原native counter/能力。\nActionPoseSlot继承原生Slot Update/Evaluate；PostEvaluateSourcePose只借实际参与Source残差。\nEvaluate只改Body local translation，随后原空间转换/Inertialization输出最终Mesh。\n无再次Source Evaluate、第二mixer或clock。\n[[GGYGO_流程_动作姿态修正.canvas|源借用、公式与失败分支]]",
+      "text": "## 同次原生AnimGraph评估\nGT Guard核实际输入并发布native counter／能力。\nSuper Slot Evaluate唯一混合，hook只借同次参与Source XYZ向量。\nQ(native)扣Source／参考贡献加原组件对齐，只改Body local translation。\n原空间转换／Inertialization输出，借用不跨Evaluate。\n[[GGYGO_流程_动作姿态修正.canvas|公式与失败]]",
       "x": 2050,
       "y": 405,
       "width": 540,
@@ -183,12 +183,52 @@
     {
       "id": "action_pose_capsule",
       "type": "text",
-      "text": "## 胶囊与最终姿态分开验\nGA的BeginMontageActionMotion→CMC按原PosXYZ区间/RMS执行胶囊，来源与句柄精确清理。\nBodyZ只属Mesh姿态；不回写CMC速度/加速度/输入。\n最终Body证据仅Normal01 Main；两故障行为PASS但报告Fail，真实Error保留。\n[[Movement/动作曲线执行|动作CMC接口]] · [[Animation/动作姿态修正#7. 实际证据与未验证边界|已验/缺口]]",
+      "text": "## 胶囊与最终姿态分开验\n原BeginMontageActionMotion→同一RMS／CMC时钟按Main→End原PosXYZ执行。\n最后贡献经ApplyRootMotionToVelocity／AfterMovement→PublishMontageActionMotionCompletion一次。\nBody XYZ只属Mesh，None／SlotWeight不定义动作完成，不回写速度／输入。\n[[Movement/动作曲线执行|CMC接口]] · [[Animation/动作姿态修正|姿态边界]]",
       "x": 2050,
       "y": 1600,
       "width": 540,
       "height": 400,
       "color": "6"
+    },
+    {
+      "id": "steering_read",
+      "type": "text",
+      "text": "## GT Capture原区间\nGetLocomotionSteeringSnapshot一次→现有Frame。\nStatus／原三弱身份／Epoch／完成Serial、Frame、dt、真实速度轨迹导数／标志；资格归CMC。\n无Character不捕获；缺provider或原身份不符明确Invalid。\n胶囊Yaw／输入偏角不替代轨迹导数。",
+      "x": 970,
+      "y": 2150,
+      "width": 420,
+      "height": 400,
+      "color": "4"
+    },
+    {
+      "id": "walkrun_lean_update",
+      "type": "text",
+      "text": "## UZZZ原NativeUpdate倾身\nSuper／旧适配后→UpdateWalkRunLeanPresentation(原dt)。\nValid＋有效速度导数：rate/FullLeanYawRate钳[-1,1] × lerp(WalkMax,RunMax,原alpha)。\n1-exp(-响应×原AnimDt)唯一有限姿态滤波；减幅／无观察用Recovery，其余Enter。\n本角色180deg/s、Walk2°／Run6°、Enter12／Recovery8。\n输出Angle正右／Valid／Failure；Enabled非法值立即失败，原弱来源／Epoch切换先Reset。\n[[Animation/计划_动画与表现层#WalkRun运动偏移（2026-10-07，Gate106）|Gate106有限证据]]",
+      "x": 1470,
+      "y": 2150,
+      "width": 420,
+      "height": 450,
+      "color": "5"
+    },
+    {
+      "id": "walkrun_spine_pose",
+      "type": "text",
+      "text": "## 普通Moving→WalkRun姿态\n原BS Player→L2C→stock ModifyBone(Bip001-Spine)→C2L→原Result。\nAngle→MakeRotator.Pitch（Yaw／Roll0）→Rotation；Valid→SelectFloat true1／false0→Alpha。\nRotation Additive／ComponentSpace，Translation／Scale Ignore；无蓝图第二滤波。\n正Pitch向ActorRight倾；原GaitBlendY／BS轴／主图／另24图保持，不改Body／Root。",
+      "x": 2050,
+      "y": 2150,
+      "width": 540,
+      "height": 420,
+      "color": "1"
+    },
+    {
+      "id": "walkrun_lean_release",
+      "type": "text",
+      "text": "## 自有恢复／失效出口\nInitial合法原初始化等待：Angle0／Valid=false，不当有效零观察。NotApplicable或无速度导数：target0有限恢复，近零清Valid。\nInvalid／无效Enabled配置：立即清Angle／Valid、保FailureReason，定位Instance／Mesh／Config与原因，错误码去重。\n原弱CMC／SourceEpoch变化、Lifecycle Hook→ResetWalkRunLeanPresentation；保原AnimSet／Tuning，不重判输入／移动相位或清GA资源。",
+      "x": 1470,
+      "y": 2680,
+      "width": 1120,
+      "height": 250,
+      "color": "3"
     }
   ],
   "edges": [
@@ -254,7 +294,7 @@
       "fromSide": "right",
       "toNode": "combo_window",
       "toSide": "left",
-      "label": "播放推进触发各窗口"
+      "label": "原native单点触发／原窗口各发事件"
     },
     {
       "id": "combo_default_end",
@@ -262,7 +302,7 @@
       "fromSide": "right",
       "toNode": "combo_end",
       "toSide": "left",
-      "label": "未消费换段请求，Section 默认前进"
+      "label": "无受理请求，原Section链前进"
     },
     {
       "id": "combo_end_locomotion",
@@ -270,7 +310,7 @@
       "fromSide": "right",
       "toNode": "combo_return",
       "toSide": "left",
-      "label": "自然混出／受理移动提前Cancel原End后回移动"
+      "label": "无请求等两事实自然End；过点合格移动可结束原动作"
     },
     {
       "id": "kevin_combat_source",
@@ -318,7 +358,7 @@
       "fromSide": "right",
       "toNode": "action_pose_evaluate",
       "toSide": "left",
-      "label": "原状态机pose作为同次Slot Source"
+      "label": "其他状态原Source；普通WalkRun见单Spine支路"
     },
     {
       "id": "action_pose_main_native",
@@ -358,7 +398,71 @@
       "fromSide": "bottom",
       "toNode": "action_pose_capsule",
       "toSide": "left",
-      "label": "GA另申请CMC动作句柄，姿态不执行胶囊"
+      "label": "GA申请连续Main→End原句柄，姿态不执行胶囊"
+    },
+    {
+      "id": "capture_steering_fact",
+      "fromNode": "capture",
+      "fromSide": "bottom",
+      "toNode": "steering_read",
+      "toSide": "top",
+      "label": "Capture实际getter→同一StateFrame"
+    },
+    {
+      "id": "steering_native_lean",
+      "fromNode": "steering_read",
+      "fromSide": "right",
+      "toNode": "walkrun_lean_update",
+      "toSide": "left",
+      "label": "原DTO＋同帧alpha"
+    },
+    {
+      "id": "lean_scalar_to_spine",
+      "fromNode": "walkrun_lean_update",
+      "fromSide": "right",
+      "toNode": "walkrun_spine_pose",
+      "toSide": "left",
+      "label": "只读Angle／Valid"
+    },
+    {
+      "id": "walkrun_player_spine",
+      "fromNode": "play",
+      "fromSide": "bottom",
+      "toNode": "walkrun_spine_pose",
+      "toSide": "top",
+      "label": "普通WalkRun原Player pose"
+    },
+    {
+      "id": "walkrun_spine_source",
+      "fromNode": "walkrun_spine_pose",
+      "fromSide": "top",
+      "toNode": "action_pose_evaluate",
+      "toSide": "right",
+      "label": "回原Result／状态机，作为原生Slot Source"
+    },
+    {
+      "id": "lean_status_release",
+      "fromNode": "walkrun_lean_update",
+      "fromSide": "bottom",
+      "toNode": "walkrun_lean_release",
+      "toSide": "top",
+      "label": "按原Status／来源键清理或恢复"
+    },
+    {
+      "id": "lifecycle_lean_reset",
+      "fromNode": "source_retire",
+      "fromSide": "bottom",
+      "toNode": "walkrun_lean_release",
+      "toSide": "top",
+      "label": "原Lifecycle Hook调用Reset"
+    },
+    {
+      "id": "lean_release_alpha",
+      "fromNode": "walkrun_lean_release",
+      "fromSide": "right",
+      "toNode": "walkrun_spine_pose",
+      "toSide": "bottom",
+      "label": "Angle／Valid归零或有限恢复结果"
     }
   ]
 }

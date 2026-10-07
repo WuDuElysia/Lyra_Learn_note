@@ -3,7 +3,7 @@
     {
       "id": "combo-f-nav",
       "type": "text",
-      "text": "# 玩家普攻｜执行流程\n受控激活→读取段配置→原Task播放Main／End→处理输入、命中和移动中断→清理原资源→原能力结束。\nRequired姿态失败由Task清理后发送OnFailed，GA核原激活与段资源后请求End。\n[[计划_玩家普攻连段|连段说明]] · [[GGYGO_结构_玩家普攻连段.canvas|结构]] · [[GGYGO_流程_AbilitySystem.canvas|GAS流程]]",
+      "text": "# 玩家普攻｜执行流程\n受控激活→原Task/CMC连续Main→End→作者点开启本原资源许可→真实新攻击或移动打断；无请求自然两事实收尾。\nSection与旧ComboWindow只投影；新步关门，前点输入不缓存。Required失败仍沿原Task历史事实→GA正式End。\n[[计划_玩家普攻连段|连段说明]] · [[GGYGO_结构_玩家普攻连段.canvas|结构]] · [[GGYGO_流程_AbilitySystem.canvas|GAS流程]]",
       "x": 0,
       "y": 0,
       "width": 2720,
@@ -23,7 +23,7 @@
     {
       "id": "combo-f-main",
       "type": "text",
-      "text": "2. StartStep(Original,i)\n精确退旧窗口/原Task/Action/observer。\nBuildSourceBinding(原Montage/Slot/Main)→新Task preReady包→Acquire/播放。\nReady原Snapshot固定ID/Section/Position/Rate；Main→CMC BeginMontageActionMotion及原失败观察。\nRequired失败：Stop/EndTask→历史OnFailed核GA原资源→End(true,true)→Cleanup；普通Cancel保持。\nwatchdog只诊断，不模拟窗口/运动。",
+      "text": "2. StartStep(Original,i)\n退原Trace→CMC Replaced→旧Task；建立新关门资源。\nBuildSourceBindingRange(Main,End)与作者点resolver校验；原Task ConfigureOriginalMontageNotify(preReady)→Acquire/播放。\nReady原Snapshot固定ID/Position/Rate→InitializeStepMotion→CMC BeginMontageActionMotion及失败/完成观察。\n早到原点事实或合法纠正起播已过点：核原Notify快照/Scope/Handle后开门。\nRequired失败仍先清Task→历史OnFailed→正式End；watchdog不模拟运动。",
       "x": 530,
       "y": 250,
       "width": 450,
@@ -33,7 +33,7 @@
     {
       "id": "combo-f-input",
       "type": "text",
-      "text": "3. WaitComboInput → HandleInputPressed\n真实新按下带SourceStep/RequestId，服务器先消费GAS事件。\n拒绝旧号/错段/已关窗/终段。\n否则刷新唯一Pending与截止时间。\nTryAdvanceCombo(Original)。",
+      "text": "4. WaitComboInput→HandleInputPressed\n真实新按下带SourceStep/RequestId，服务器先消费原GAS事件。\n核Original/当前段/递增号/本原资源门。\n门关闭或Next=NONE：RejectRequest，不存Pending、不在过点重播。\n门开且Next有效：一次真实新请求进入即时换段分支。",
       "x": 1060,
       "y": 250,
       "width": 450,
@@ -43,7 +43,7 @@
     {
       "id": "combo-f-window",
       "type": "text",
-      "text": "4. Montage事件 → 原窗口\npayload匹配Montage、主Mesh与实例ID；Task/GA核对原播放/段来源。\nCombo Begin开窗推进，End关窗清Pending。\n服务器Hit Begin→OpenTraceWindow(Original)，End→ReleaseTraceWindow(Original)。\n原Owned句柄和hit订阅绑定Original/段/Task。",
+      "text": "3. 原Montage事实交付\n原AnimInstance native单点→Task NotifyReceived→HandleMontageNotify；核原Montage/Mesh/ID/名称/TriggerTime。\nEnableStepInterruption只开本原Resource门→Query/SubscribeQualifiedMovementIntent(原Scope)，已held可立即接管。\nSectionReceived仅投影；ComboWindow仅历史窗口元数据。\nHit Begin/End→OpenTraceWindow/ReleaseTraceWindow；Owned句柄仍绑定Original/段/Task。",
       "x": 1060,
       "y": 700,
       "width": 450,
@@ -53,7 +53,7 @@
     {
       "id": "combo-f-branch",
       "type": "text",
-      "text": "5. TryAdvanceCombo(Original)\n开窗 && Pending未过期 && next合法：\n消费一次Pending → StartStep(Original,next)。\n否则保持本段Main→End。\n旧栈返回只核对原来源，不清后继资源。",
+      "text": "5. 本原资源许可的输入分支\n新攻击且门开：StartStep(Original,Next,0,RequestId)，立即替换原段；新播放重新关门。\n真实移动Qualified：原Scope/Intent逐字段重查一致，必须持原CMC Handle才可取消。\n无新请求：同一原Task/CMC继续完整Main→End，不自动循环。\n旧事实/栈只核原来源，不清后继。",
       "x": 530,
       "y": 700,
       "width": 450,
@@ -63,7 +63,7 @@
     {
       "id": "combo-f-end",
       "type": "text",
-      "text": "6. 真实SectionReceived → EnterStepEnd\n原Montage/ID、非loop；ReleaseMontageActionMotion(handle,Completed)。\nQuery/Subscribe原Scope的QualifiedMovementIntent；held或新按下同样核原Intent。\nQualified复核一致→CancelMontageActionMotionForMovement→End(Original,true,true)。\n普通无输入→自然Completed→Authority/false；不可用/执行失败明确中止。\n不靠dt游标，不借后继请求。",
+      "text": "6. 原动作取消 / 自然收尾\nQualified复核一致→CancelMontageActionMotionForMovement(原Handle,Intent)→退休门→End(Original,true,true)。\n无请求：原BlendOut→NotifyMontageActionNaturalBlendOut；Task Completed→ReleaseMontageActionMotion(Completed)有限drain。\nCMC AfterMovement末贡献消费→原Handle完成事实。TryCompleteStepMotion两事实齐全才自然End(Authority,false)。",
       "x": 0,
       "y": 700,
       "width": 450,
@@ -73,7 +73,7 @@
     {
       "id": "combo-f-clean",
       "type": "text",
-      "text": "7. 原请求驱动派生Cleanup\nRequired失败发送Task已EndTask；GA核自身原激活/段/强Task/资源，Get(true)拒销毁标志，不要求发送者仍Active。\nContext匹配Original，先脱成员/段/Pending/Timer/订阅/Motion。\n原CMC UnsubscribeQualifiedMovementIntent/ReleaseMontageActionMotion；原World/Trace/Mesh退Timer/窗口、恢复Tick/URO/prerequisite。\n退原callbacks并结束原Task；基类一次native End，Task清自身原播放/输入/Ticket。\n旧栈不清后继；普通Cancel不换成依赖失败。",
+      "text": "7. 原请求驱动派生Cleanup\nRequired历史发送Task已EndTask；GA核自身Original/段/强Task/资源，Get(true)拒销毁标志，不要求仍Active。\nContext匹配Original，先退休门、脱成员/段/Timer/订阅/Motion。\n原CMC UnsubscribeQualifiedMovementIntent/ReleaseMontageActionMotion；原World/Trace/Mesh退Timer/窗口并恢复Tick/URO/prerequisite。\n退原callbacks/结束Task；Task按原AnimInstance精确撤自身Notify订阅，清原播放/输入/Ticket。\n基类执行native End；旧栈不清后继，普通Cancel保持。",
       "x": 530,
       "y": 1120,
       "width": 450,
@@ -83,7 +83,7 @@
     {
       "id": "combo-f-correct",
       "type": "text",
-      "text": "权威确认 / 拒绝与来源\nSendAuthoritativeStep → ASC ClientCorrectAbilityState(Spec,key,TargetData)。\nASC筛原Spec/实例/key；Combo ReceiveAbilityCorrection校验单项确切类型、范围/Revision。\nCorrectPredictedStepForActivation只处理保存Original，StartStep返回再查原段。\n原请求证明只在核心GAS维护。",
+      "text": "权威确认 / 拒绝与来源\nSendAuthoritativeStep→ASC ClientCorrectAbilityState(Spec,key,TargetData)。\nASC筛原Spec/实例/key；Combo ReceiveAbilityCorrection核单项确切类型、范围/Revision。\nCurrentStepRequestId按请求号拒旧接受回滚，不按段数排序，支持03→01。\n合法不同步纠正→StartStep(SafePosition)，原Task点/实际位置认证许可；返回复核原资源。\n原激活证明仍只由核心GAS维护。",
       "x": 1590,
       "y": 250,
       "width": 520,
@@ -160,11 +160,11 @@
     },
     {
       "id": "combo-fe-window",
-      "fromNode": "combo-f-input",
+      "fromNode": "combo-f-main",
       "fromSide": "bottom",
       "toNode": "combo-f-window",
       "toSide": "top",
-      "label": "接收原Montage事件"
+      "label": "原Task交付Notify / Section / Event事实"
     },
     {
       "id": "combo-fe-eval",
@@ -172,7 +172,7 @@
       "fromSide": "left",
       "toNode": "combo-f-branch",
       "toSide": "right",
-      "label": "Combo窗口评估Pending"
+      "label": "原作者点开门 / Query及订阅真实移动"
     },
     {
       "id": "combo-fe-next",
@@ -180,7 +180,7 @@
       "fromSide": "top",
       "toNode": "combo-f-main",
       "toSide": "bottom",
-      "label": "合法请求消费一次→StartStep"
+      "label": "过点新攻击且Next有效→StartStep"
     },
     {
       "id": "combo-fe-end",
@@ -188,7 +188,7 @@
       "fromSide": "left",
       "toNode": "combo-f-end",
       "toSide": "right",
-      "label": "真实原Section进入End"
+      "label": "合格移动取消；无请求保持自然轨迹"
     },
     {
       "id": "combo-fe-clean",
@@ -204,7 +204,15 @@
       "fromSide": "bottom",
       "toNode": "combo-f-clean",
       "toSide": "left",
-      "label": "自然End或认证移动→固定Original End"
+      "label": "原移动取消或两完成事实→固定Original End"
+    },
+    {
+      "id": "combo-fe-input-gate",
+      "fromNode": "combo-f-input",
+      "fromSide": "left",
+      "toNode": "combo-f-branch",
+      "toSide": "top",
+      "label": "当前新请求即时核本原Resource门"
     },
     {
       "id": "combo-fe-correct",

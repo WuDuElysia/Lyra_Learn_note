@@ -43,7 +43,7 @@
     {
       "id": "init",
       "type": "text",
-      "text": "## 4. Extension｜唯一配置分发\nSetPawnData／Controller／feature通知→CheckDefaultInitialization；先推进其他feature。\n原Manager查询：\n`HaveAllFeaturesReachedInitState`\n`(Pawn,DataAvailable)`\n所有feature≥DataAvailable→DataInitialized→`ApplyPawnDataToConsumers`→原CMC `SetMovementSet(PawnData->MovementSet)`。\n各feature独立推进；本链与ASC绑定、Base／Health订阅独立，不发布ASC Ready。\n[[Character/结构|初始化守卫与职责]]",
+      "text": "## 4. Extension｜唯一配置分发\nSetPawnData／Controller／feature通知→CheckDefaultInitialization进入原同步scope；先推进其他feature，再ContinueInitStateChain。\n原Manager查询HaveAllFeaturesReachedInitState(Pawn,DataAvailable)。\n所有feature≥DataAvailable→HandleChangeInitState(DataInitialized)→ApplyPawnDataToConsumers嵌套scope→原CMC SetMovementSet(PawnData->MovementSet)。\n各feature独立推进；本链不发布ASC Ready，标签不证明Set接受。\n[[Character/结构#原 PawnData 同步初始化调用|同步调用契约]]",
       "x": 1460,
       "y": 405,
       "width": 430,
@@ -129,6 +129,36 @@
       "width": 720,
       "height": 335,
       "color": "4"
+    },
+    {
+      "id": "pawn-data-sync-call",
+      "type": "text",
+      "text": "## 原同步初始化调用在途\nCheckDefaultInitialization进入FPawnDataInitializationScope。\nCheckDefaultInitializationForImplementers→同步推进Hero等原feature，再ContinueInitStateChain。\nHandleChangeInitState(DataInitialized)→ApplyPawnDataToConsumers建立嵌套scope→SetMovementSet→Cue预热请求。\n组件仅借用当前栈记录；公开IsPawnDataInitializationInProgress() const只读原Extension/Pawn/World与登记/生命周期，返回原同步在途bool。\n不等待Cue异步完成，不提交accepted/ASC Ready，不改原调度。\n[[Character/结构#原 PawnData 同步初始化调用|接口与所有权]]",
+      "x": 2890,
+      "y": 405,
+      "width": 720,
+      "height": 400,
+      "color": "5"
+    },
+    {
+      "id": "movement-startup-scope-qualification",
+      "type": "text",
+      "text": "## 启动表现读取｜CMC唯一限定\nCamera/Animation读取GetLocomotionSteeringSnapshot() const。\n已有accepted Set→沿原配置/源校验和native区间分支；scope不替代配置准入。\n缺Set→先验原CMC/Character/UpdatedComponent、原Extension/GameWorld；Set从未提交、累计native interval=0、Extension未越过DataInitialized才检查暂态。\n① 原Actor未完成BeginPlay：真实构造注册期→Initial，覆盖Anim早于Extension登记。\n② Actor已完成BeginPlay：IsPawnDataInitializationInProgress() const为true→仅本同步栈Initial；为false→明确Invalid。\nnull/拒绝提交、已有native interval、DataInitialized已越过或生命周期关闭→缺Set Invalid。Stop/Reset不抹去Set提交事实。\nSpawned/DataAvailable长停不开放等待；accepted Set唯一归CMC。\n[[Movement/结构|原快照与执行]]",
+      "x": 2890,
+      "y": 865,
+      "width": 720,
+      "height": 490,
+      "color": "4"
+    },
+    {
+      "id": "pawn-data-sync-scope-exit",
+      "type": "text",
+      "text": "## 原scope退出／失效\n正常返回：仅当前指针仍等于自己才恢复原父scope；最外层退出→无scope。\nOnUnregister→先清指针，再Super。\nEndPlay→先关scope准入/清指针，再原资源释放/feature注销；旧析构不恢复失效父scope或覆盖后继。\ngetter的原身份/登记/生命周期失效→false。\n真实后续BeginPlay仅重开准入；须新的原同步调用建立scope。\n构造完成后scope=false且缺accepted Set→后续读取明确Invalid，不按帧重试或建立Ready。",
+      "x": 2890,
+      "y": 1415,
+      "width": 720,
+      "height": 350,
+      "color": "3"
     }
   ],
   "edges": [
@@ -219,6 +249,38 @@
       "toNode": "init",
       "toSide": "top",
       "label": "同GI全局顺序注册→提供≥比较前置"
+    },
+    {
+      "id": "e-init-pawn-data-sync-call",
+      "fromNode": "init",
+      "fromSide": "right",
+      "toNode": "pawn-data-sync-call",
+      "toSide": "left",
+      "label": "CheckDefaultInitialization／ApplyPawnDataToConsumers→原栈scope"
+    },
+    {
+      "id": "e-pawn-data-sync-call-steering-read",
+      "fromNode": "pawn-data-sync-call",
+      "fromSide": "bottom",
+      "toNode": "movement-startup-scope-qualification",
+      "toSide": "top",
+      "label": "同步回调中GetLocomotionSteeringSnapshot→只读在途事实"
+    },
+    {
+      "id": "e-pawn-data-sync-call-exit",
+      "fromNode": "pawn-data-sync-call",
+      "fromSide": "right",
+      "toNode": "pawn-data-sync-scope-exit",
+      "toSide": "right",
+      "label": "原调用返回／注销／EndPlay→关闭原scope"
+    },
+    {
+      "id": "e-pawn-data-scope-exit-steering-result",
+      "fromNode": "pawn-data-sync-scope-exit",
+      "fromSide": "left",
+      "toNode": "movement-startup-scope-qualification",
+      "toSide": "bottom",
+      "label": "后续Get：无在途且缺accepted Set→Invalid"
     }
   ]
 }

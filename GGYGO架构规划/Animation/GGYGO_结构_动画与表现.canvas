@@ -13,7 +13,7 @@
     {
       "id": "source",
       "type": "text",
-      "text": "## CMC / ASC / Pawn（权威）\nCMC拥有运动段、time/cycle/alpha、请求与胶囊执行。\n公开PublishLocomotionSourceBinding接收原配置；Retire仅撤原producer/代次。\nCapture只读步态/输入/Stop/TurnBack；ASC提供Tag，Pawn提供朝向。\n[[Movement/结构|Movement]] · [[AbilitySystem/结构|GAS]]",
+      "text": "## CMC / ASC / Pawn（权威）\nCMC拥有运动段、time/cycle/alpha、真实轨迹／Yaw及胶囊执行。\nPublish接收原source配置；Retire仅撤原producer/代次。\n原native区间由CMC发布Steering快照；Capture只读事实，ASC提供Tag。\n[[Movement/结构|Movement]] · [[AbilitySystem/结构|GAS]]",
       "x": 0,
       "y": 280,
       "width": 390,
@@ -23,7 +23,7 @@
     {
       "id": "capture",
       "type": "text",
-      "text": "## FGGYGOAnimationStateCapture\n`Capture(OutFrame, OutDebug, Pawn)` → 在游戏线程取 CMC/ASC/Pawn 事实，集中处理缺失来源。",
+      "text": "## FGGYGOAnimationStateCapture\nCapture(OutFrame,OutDebug,Pawn)在GT集中取事实。\n原CMC GetLocomotionSteeringSnapshot只取一次；核原CMC／Character，缺必需provider明确Invalid。\n无Character为Captured=false，worker不解析弱来源。",
       "x": 500,
       "y": 280,
       "width": 420,
@@ -33,7 +33,7 @@
     {
       "id": "frame",
       "type": "text",
-      "text": "## FGGYGOAnimationStateFrame\n`bHasMoveInput`、`WalkRunBlendAlpha`、`StopMotionType`、步态、转身相位、状态 Tag 等只读语义；不存 ABP 状态名、资产或连线。",
+      "text": "## FGGYGOAnimationStateFrame\n原输入、WalkRunBlendAlpha、StopMotionType、步态、转身、Tag保持。\nbLocomotionSteeringCaptured＋LocomotionSteering承载原native区间值／弱身份。\n无第二方向／区间权威、ABP状态名、资产或Player时间。",
       "x": 1000,
       "y": 280,
       "width": 420,
@@ -53,7 +53,7 @@
     {
       "id": "abp",
       "type": "text",
-      "text": "## ABP_Pyrios\n消费StateFrame/兼容字段，选Sequence/BS；Locomotion Player/相位保持。\nFullBody ActionPoseSlot替换旧Slot/ModifyBone；保留原空间转换/Inertialization。\nRequiredPoseCorrectionSlot=FullBody；Bip001/Root与原组件对齐由ABP配置。\n视觉与CMC不承诺同clock。",
+      "text": "## ABP_Pyrios\n消费原语义／GaitBlendY，Player／Evaluator／相位保持。\n普通WalkRun单Spine组件空间Additive Pitch，只读Angle／Valid；Translation／Scale Ignore。\nFullBody ActionPoseSlot保Body XYZ，替换原Slot与顶层Bip001全轴平移修正。\nRequired FullBody、Bip001/Root／原对齐由ABP配置，物理／表现不承诺同clock。",
       "x": 1000,
       "y": 1060,
       "width": 420,
@@ -63,7 +63,7 @@
     {
       "id": "compat",
       "type": "text",
-      "text": "## UZZZAnimInstance / Snapshot（兼容）\nResolveLocomotionSourceBinding解析本人AnimSet；检查真实引用/rate/length/BS样本配置。\nStateFrame→旧Snapshot；MapMovementState只复制alpha→GaitBlendY，Stop→StopValue。\nReset清Memory/Snap/Events借用与表现字段，保留AnimSet/Tuning。\n无走跑插值、早停或曲线计时器。",
+      "text": "## UZZZAnimInstance / Snapshot\nResolveLocomotionSourceBinding解析本人AnimSet，核真实引用／rate／length／BS样本。\nLegacySnapshotAdapter／MapMovementState复制alpha→GaitBlendY、Stop→StopValue。\n原NativeUpdate随后从同帧Steering＋alpha派生有限倾身，不重判移动资格。\nReset清Memory/Snap/Events及自身倾身／来源键，保AnimSet/Tuning；无运动计时器。",
       "x": 500,
       "y": 750,
       "width": 420,
@@ -73,7 +73,7 @@
     {
       "id": "data",
       "type": "text",
-      "text": "## FZZZAnimSet / Tuning\n五个single route→既有序列表；walkRun→实际BS，Loop来自BS样本。\n六个SourceKey是明确配置，缺key/asset携Error，不选替代。\n[[GGYGO_结构_动画曲线.canvas|源引用与算法]]",
+      "text": "## FZZZAnimSet / Tuning\n五single route→原序列表；walkRun→实际BS，Loop取BS样本。缺key／asset明确失败。\nWalkRunLean显式Enabled、满倾角速度／Walk／Run最大角／进入恢复响应；Enabled非法值不兜底。\n[[GGYGO_结构_动画曲线.canvas|源引用与算法]]",
       "x": 0,
       "y": 1050,
       "width": 390,
@@ -103,7 +103,7 @@
     {
       "id": "combo_montages",
       "type": "text",
-      "text": "## 三份普攻 Montage（初版已保存）\nAM_Pyrios_Attack_Normal_01/02/03。Main → End → 停止，Slot=FullBody。\nMain 全段 + End 前 30/45/90 帧（60 fps）；BlendIn/Out=0.10/0.25 s。\n[[Animation/普攻动画实施|实际帧区间与验证范围]]",
+      "text": "## 三份普攻 Montage（初版已保存）\nMain→完整End→停止，FullBody；Blend时长独立配置。\nActionSignal持唯一stock Montage Notify，Name=Event.Montage.CancelPoint，时点由作者拖动。\n原Hit／Combo／Sound保留。\n[[Animation/普攻动画实施#作者单点信号配置|单点配置]]",
       "x": 520,
       "y": 1920,
       "width": 440,
@@ -113,17 +113,17 @@
     {
       "id": "combo_ga",
       "type": "text",
-      "text": "## PlayerCombo GA（跨模块）\nComboStep引用Montage；GA管换段/输入与原资源。\nMain调用BeginMontageActionMotion，持精确CMC句柄；Section/失败/结束清本人资源。\n历史OnFailed核原Activation后强制End。\n[[计划_玩家普攻连段|GA与验收]]",
+      "text": "## PlayerCombo GA（跨模块）\n持原Activation／StepToken／Task与CMC句柄；Main→End共用资源。\nHandleMontageNotify→EnableStepInterruption，GA唯一持门；新播放关闭。\n过点接受合格移动或新攻击，Next1/2/0；无请求等两完成事实自然End。\n[[计划_玩家普攻连段|GA生命周期]]",
       "x": 1040,
       "y": 2100,
       "width": 440,
-      "height": 280,
+      "height": 360,
       "color": "3"
     },
     {
       "id": "combo_notify",
       "type": "text",
-      "text": "## GameplayEventWindow\nHit/Combo独立时间窗口发Begin/End GameplayEvent。\nGA核原播放来源，Combat负责命中去重，伤害走GAS。\n窗口资产配置与完整命中/网络验收分开。\n[[Animation/普攻动画实施|帧区间与边界]]",
+      "text": "## Montage单点与窗口\nstock点→Task.NotifyReceived：原Montage／Mesh／int32实例ID／Name／Trigger事实。\nGA核原资源后持门；Notify不持玩法状态。\nGameplayEventWindow另发Hit／Combo事件，不授打断门。\n[[Animation/普攻动画实施#作者单点信号配置|作者操作]]",
       "x": 520,
       "y": 2380,
       "width": 440,
@@ -133,7 +133,7 @@
     {
       "id": "combo_slot_gate",
       "type": "text",
-      "text": "## 已保存的FullBody接线\n状态机→ActionPoseSlot→原LocalToCS→原CSToLocal→原Inertialization→Root。\n旧Slot/ModifyBone已删除，AlwaysUpdateSourcePose=true。\n原对齐Z=50.8019981384，角色必需FullBody；其余24图保持。\n[[Animation/普攻动画实施|实际ABP配置]]",
+      "text": "## 已保存的FullBody主图\n状态机→ActionPoseSlot→原LocalToCS→原CSToLocal→原Inertialization→Root。\n退役旧Slot及顶层Bip001全轴Translation Replace；保AlwaysUpdateSourcePose=true、原对齐Z=50.8019981384／Required FullBody。\nGate106只改普通WalkRun单Spine支路；主图及另24图保持。\n[[Animation/动作姿态修正|实际配置与分责]]",
       "x": 0,
       "y": 2380,
       "width": 440,
@@ -198,7 +198,7 @@
       "width": 800,
       "height": 490,
       "color": "4",
-      "text": "## ASC / Montage Task（跨模块）\nASC完整Super播放并复制Guard结果；GAS保有原Local/Rep/GA状态。\nTask消费原Result/Handle/Guard，管理事件/委托/scale lease。\nRequired-only native TickTask读Poll；失败精确Stop/归还资源/EndTask后发历史OnFailed。\n[[AbilitySystem/结构|原资源与派发边界]]"
+      "text": "## ASC / Montage Task（跨模块）\nASC完整Super播放并复制Guard结果；GAS持原播放状态。\nTask管理原Handle／Guard／scale与精确订阅。\nConfigureOriginalMontageNotify→原OnPlayMontageNotifyBegin→NotifyReceived强身份事实；TryGetOriginalMontageNotifySnapshot只读原实例／点。\nRequired-only Tick Poll；失败清原资源后OnFailed。\n[[AbilitySystem/结构|原Task接口]]"
     },
     {
       "id": "source_binding",
@@ -213,7 +213,7 @@
     {
       "id": "action_pose_slot",
       "type": "text",
-      "text": "## FGGYGOAnimNode_ActionPoseSlot\n继承FAnimNode_Slot；原生Update/Evaluate/权重/Notify唯一执行混合。\n输入：Source/Slot、Body/Trajectory骨、组件对齐。\nPostEvaluateSourcePose仅借同次实际参与Source标量；Evaluate只写Body local translation。\nCheckCapability/ValidateMontageCapability→能力与诊断；epoch/failureSerial为派生状态。\nEditor包装UGGYGOAnimGraphNode_ActionPoseSlot持Node，编译校验/注册Slot。\n[[Animation/动作姿态修正|算法与最低能力]]",
+      "text": "## FGGYGOAnimNode_ActionPoseSlot\n原生Slot唯一Update／Evaluate／权重／Notify混合。\n输入Source／Slot、Body／Trajectory和ComponentAlignment。\nPostEvaluateSourcePose借同次参与Source XYZ向量；Evaluate只写Body local translation。\nCheckCapability／ValidateMontageCapability发布能力／诊断。\nepoch／failureSerial是派生状态，Editor包装序列化Node。\n[[Animation/动作姿态修正|向量算法]]",
       "x": 2720,
       "y": 1250,
       "width": 860,
@@ -233,7 +233,7 @@
     {
       "id": "action_pose_boundary",
       "type": "text",
-      "text": "## Mesh姿态 / CMC胶囊 / 验证\nBody相对Trajectory的Z归姿态节点；原生Slot混合，最终buffer含Inertialization。\nPosXYZ曲线区间与原生物理归CMC；node/provider不写Velocity/Acceleration/RequestedVelocity。\nGA持原CMC句柄并清理，Task清原播放/scale。\n最终证据仅Normal01 Main；两Pose故障行为PASS但报告Fail/真实Error保留。\n[[Animation/动作姿态修正#7. 实际证据与未验证边界|已验与未验]] · [[Movement/结构|CMC]]",
+      "text": "## Mesh姿态 / CMC胶囊 / 验证\nBody相对Trajectory的XYZ余量归姿态节点，原Slot输出接Inertialization。\nPosXYZ区间／clock／物理归CMC，node/provider不写速度或输入权限。\nTask管原播放／scale，GA等两完成事实并清自己原资源。\n[[Animation/动作姿态修正|职责边界]] · [[Movement/结构|CMC]]",
       "x": 2720,
       "y": 2540,
       "width": 860,
@@ -243,12 +243,32 @@
     {
       "id": "action_motion_binding",
       "type": "text",
-      "text": "## FGGYGOActionMotionSourceBinding\nBuildSourceBinding(原Montage,显式Slot,Section)→原资产/段/速率只读配置。\nValidateSourceBinding→原配置一致；MapMontageInterval→原源片段区间。\n不读曲线、不推进clock、不签播放权限；GA/CMC/RMS/有界SavedMove按资源持引用。\n[[Movement/动作曲线执行|Movement求值与执行]]",
+      "text": "## FGGYGOActionMotionSourceBinding\nBuildSourceBindingRange(原Montage,Slot,Main,End)→真实Sections／原Segment只读配置。\nValidateSourceBinding核原身份；MapMontageInterval分原源／loop区间。\nResolveMappedSegmentEnd只认有来源的最后端点量化，原raw GetEndPos保留，内段gap／overlap拒绝。\n不读曲线／推进clock／签播放权限，GA／CMC／RMS／有界SavedMove持引用。\n[[Movement/动作曲线执行|原求值与执行]]",
       "x": 1760,
       "y": 3060,
       "width": 800,
-      "height": 360,
+      "height": 430,
       "color": "4"
+    },
+    {
+      "id": "steering_snapshot",
+      "type": "text",
+      "text": "## Movement｜原完成区间快照\nFGGYGOLocomotionSteeringSnapshot／GT GetLocomotionSteeringSnapshot() const。\n原CMC／Character／UpdatedComponent弱身份＋SourceEpoch、完成Serial／Frame／native dt。\nInitial／Valid／NotApplicable／Invalid与Diagnostic归CMC；合法原初始化等待和明确无效依赖分开。\nActualSignedVelocityYawRate＋有效导数标志描述真实速度轨迹；ActualSignedYawRate描述胶囊Yaw，不混用。\n[[Animation/结构#WalkRun倾身：原区间事实与普通分支|共享接口与清理]]",
+      "x": 1760,
+      "y": 3600,
+      "width": 800,
+      "height": 390,
+      "color": "4"
+    },
+    {
+      "id": "walkrun_lean",
+      "type": "text",
+      "text": "## UZZZ｜有限WalkRun倾身\nUpdateWalkRunLeanPresentation(原AnimDelta)消费同帧原DTO／alpha；不读worker对象、不重判资格。\n只持原弱CMC／Epoch、一个有限滤波角与诊断去重。\nWalkRunLeanAngleDegrees／bWalkRunLeanPresentationValid／WalkRunLeanFailureReason是Transient只读表现。\n原来源／Epoch变化、Lifecycle Reset清本人资源；Initial等待、无观察恢复、Invalid清角＋定位诊断。\nABP拥有骨轴／空间；180deg/s、Walk2°、Run6°、进入12／恢复8。\n[[Animation/计划_动画与表现层#WalkRun运动偏移（2026-10-07，Gate106）|Gate106有限证据]]",
+      "x": 2720,
+      "y": 3600,
+      "width": 860,
+      "height": 390,
+      "color": "5"
     }
   ],
   "edges": [
@@ -330,7 +350,7 @@
       "fromSide": "right",
       "toNode": "combo_ga",
       "toSide": "left",
-      "label": "GameplayEvent窗口由GA校验原来源后消费"
+      "label": "Task原单点NotifyReceived／Window GameplayEvent分责，由GA核原来源"
     },
     {
       "id": "combo_slot_pose",
@@ -483,7 +503,7 @@
       "fromSide": "right",
       "toNode": "action_motion_binding",
       "toSide": "left",
-      "label": "调用BuildSourceBinding；持原Main配置与CMC句柄"
+      "label": "调用BuildSourceBindingRange，持原Main→End配置与同一CMC句柄"
     },
     {
       "id": "action_pose_execution_boundary",
@@ -491,7 +511,47 @@
       "fromSide": "right",
       "toNode": "action_pose_boundary",
       "toSide": "top",
-      "label": "只改Mesh Body；胶囊执行与验证边界见下方"
+      "label": "只改Mesh Body XYZ余量，物理归CMC"
+    },
+    {
+      "id": "steering_cmc_owner",
+      "fromNode": "source",
+      "fromSide": "bottom",
+      "toNode": "steering_snapshot",
+      "toSide": "top",
+      "label": "CMC拥有并发布原native完成区间"
+    },
+    {
+      "id": "steering_capture_getter",
+      "fromNode": "steering_snapshot",
+      "fromSide": "left",
+      "toNode": "capture",
+      "toSide": "left",
+      "label": "GT调用GetLocomotionSteeringSnapshot一次"
+    },
+    {
+      "id": "lean_frame_input",
+      "fromNode": "frame",
+      "fromSide": "bottom",
+      "toNode": "walkrun_lean",
+      "toSide": "top",
+      "label": "同帧原DTO＋WalkRunBlendAlpha，只读"
+    },
+    {
+      "id": "lean_config_input",
+      "fromNode": "data",
+      "fromSide": "bottom",
+      "toNode": "walkrun_lean",
+      "toSide": "top",
+      "label": "Tuning.WalkRunLean参数与Enabled校验"
+    },
+    {
+      "id": "lean_abp_output",
+      "fromNode": "walkrun_lean",
+      "fromSide": "top",
+      "toNode": "abp",
+      "toSide": "right",
+      "label": "Angle／Valid驱动单Spine；Failure供诊断"
     }
   ]
 }

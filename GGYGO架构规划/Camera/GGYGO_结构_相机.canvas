@@ -3,7 +3,7 @@
 		{
 			"id": "nav",
 			"type": "text",
-			"text": "# Camera｜结构图\n箭头按标签表示调用、持有、数据输出或继承。[[Camera/结构|结构文档]] · [[GGYGO_流程_相机.canvas|主流程]]",
+			"text": "# Camera｜结构图\n箭头按标签表示调用、持有、数据输出或继承。[[Camera/结构|结构文档]] · [[GGYGO_流程_相机.canvas|主流程]]。\nPyrios 当前显式关闭额外横移；右侧 Query 为独立只读观察。",
 			"x": 0,
 			"y": 0,
 			"width": 1410,
@@ -43,7 +43,7 @@
 		{
 			"id": "component",
 			"type": "text",
-			"text": "## UGGYGOCameraComponent\n`PrepareCameraView` → 单次求值、Result + Prepared。\nPrepared 的 `TryGetCandidateView` → 只读候选。\n`CommitPreparedCameraView` → 消费候选并写原对象；\n复核上下文，不再求值；失败不发布成功输出。\n兼容 `GetCameraView` 复用同一核心，不以 Super 兜底。\n`ReinitializeCameraEvaluation` → 显式重建 Stack/池；\n保留覆盖与 Offset 凭证，不求值、不发布。\nOffset：合法 Set 才替换/发号；Clear 仅当前 token。\nReset 清运行状态，序号不重置。\n持有 Stack/Offset/唯一碰撞恢复比例；\n每次求值在 Offset 后至多一次 ECC_Camera。",
+			"text": "## UGGYGOCameraComponent\n`PrepareCameraView` → 单次求值、Result + Prepared。\nPrepared 的 `TryGetCandidateView` → 只读候选。\n`CommitPreparedCameraView` → 消费候选并写原对象；\n复核上下文，不再求值；失败不发布成功输出。\n兼容 `GetCameraView` 复用同一核心，不以 Super 兜底。\n`ReinitializeCameraEvaluation` → 显式重建 Stack/池；\n保留覆盖与 Offset 凭证，不求值、不发布。\nQueryCameraMode(精确 Class) → 同次只读 Observation。\nOffset：合法 Set 才替换/发号；Clear 仅当前 token。\nReset 清运行状态，序号不重置。\n持有 Stack/Offset/唯一碰撞恢复比例；\n每次求值在 Offset 后至多一次 ECC_Camera。",
 			"x": 1020,
 			"y": 300,
 			"width": 420,
@@ -53,7 +53,7 @@
 		{
 			"id": "third",
 			"type": "text",
-			"text": "## UGGYGOCameraMode_ThirdPerson\nUpdateView(dt) → Result／View／Request。\n原 CMC → 世界轨迹外侧投影 → 展示滤波。\n只合成 TargetOffset.Y；生命周期清本人展示。\n[[Camera/模式栈实现#ThirdPerson 的 WalkRun 构图响应|算法与生命周期]]；不查询 World。",
+			"text": "## UGGYGOCameraMode_ThirdPerson\nUpdateView(dt) → Result／View／Request。\nPyrios 当前显式关闭：清本人侧移，继续原构图。\n可选启用时：原 CMC → 外侧投影／滤波，只合成 TargetOffset.Y。\n原旋转／FOV／请求保持；不查询 World。\n[[Camera/模式栈实现#ThirdPerson 的 WalkRun 构图响应|可选算法与清理]]",
 			"x": 0,
 			"y": 740,
 			"width": 390,
@@ -63,7 +63,7 @@
 		{
 			"id": "pyrios-mode",
 			"type": "text",
-			"text": "## BP_CameraMode_ThirdPerson_Pyrios\n`/Game/Camera/Modes/BP_CameraMode_ThirdPerson_Pyrios`\nClass Defaults：构图／穿墙＋Steering 参数。\nDA_Pawn_Pyrios 选类；继承 ThirdPerson。\n[[Camera/结构#设计参数与碰撞策略的归属|曲线／幅度／增益／滤波配置]]。",
+			"text": "## BP_CameraMode_ThirdPerson_Pyrios\n`/Game/Camera/Modes/BP_CameraMode_ThirdPerson_Pyrios`\n当前 bEnableWalkRunSteeringOffset=false。\n原构图／FOV／穿墙和旧 Steering 参数保留。\nDA_Pawn_Pyrios 选类；继承 ThirdPerson。\n[[Camera/结构#设计参数与碰撞策略的归属|配置归属]]",
 			"x": 0,
 			"y": 1000,
 			"width": 390,
@@ -159,6 +159,16 @@
 			"width": 470,
 			"height": 410,
 			"color": "4"
+		},
+		{
+			"id": "camera-mode-observation-contract",
+			"type": "text",
+			"text": "## FGGYGOCameraModeObservation\n原观察消费者 → Component.QueryCameraMode(精确已加载类) const。\nComponent 验 GT／原注册 Owner/World/Stack；\nStack helper 只读原 exact-class pool／active／outer。\n返回 Status、OriginalOwner/Component/Stack/Mode、bInPool/bActive、Diagnostic。\nUnavailable：空身份＋诊断；NotInstantiated：仅原 provenance。\nAvailable：原池对象，active 单独判定；inactive 不读旧开关、不计关闭覆盖。\n不是 POV 发布／正贡献或未来资格；不创建／Push／求值／重建／修改数组访问旗标。\n仅调用局部值，无第二状态／缓存／时钟。\n[[Camera/结构#同次 GT 模式只读观察|消费合同]]\n[[Camera/模式栈实现#同次 GT 查询既有模式|池与 active 查询]]",
+			"x": 1580,
+			"y": 300,
+			"width": 520,
+			"height": 570,
+			"color": "4"
 		}
 	],
 	"edges": [
@@ -192,7 +202,7 @@
 			"fromSide": "right",
 			"toNode": "stack",
 			"toSide": "left",
-			"label": "持有 Stack；Push / Evaluate 返回 Result"
+			"label": "持有 Stack；Push/Evaluate 执行，Query 只读成员"
 		},
 		{
 			"id": "e5",
@@ -296,7 +306,15 @@
 			"fromSide": "left",
 			"toNode": "camera-steering-original-cmc",
 			"toSide": "right",
-			"label": "读取原 CMC 事实"
+			"label": "仅显式启用侧移时读取原 CMC 事实"
+		},
+		{
+			"id": "camera-mode-observation-query-component",
+			"fromNode": "camera-mode-observation-contract",
+			"fromSide": "left",
+			"toNode": "component",
+			"toSide": "right",
+			"label": "调用 QueryCameraMode(exact Class) → 局部 Observation"
 		}
 	]
 }

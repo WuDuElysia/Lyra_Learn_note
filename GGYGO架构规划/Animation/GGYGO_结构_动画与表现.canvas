@@ -63,7 +63,7 @@
     {
       "id": "compat",
       "type": "text",
-      "text": "## UZZZAnimInstance / Snapshot\nResolveLocomotionSourceBinding解析本人AnimSet，核真实引用／rate／length／BS样本。\nLegacySnapshotAdapter／MapMovementState复制alpha→GaitBlendY、Stop→StopValue。\n原NativeUpdate随后从同帧Steering＋alpha派生有限倾身，不重判移动资格。\nReset清Memory/Snap/Events及自身倾身／来源键，保AnimSet/Tuning；无运动计时器。",
+      "text": "## UZZZAnimInstance / Snapshot\nResolveLocomotionSourceBinding解析本人AnimSet，核真实引用／rate／length／BS样本。\nLegacySnapshotAdapter／MapMovementState复制alpha→GaitBlendY、Stop→StopValue。\n原NativeUpdate随后从同帧方向偏差＋alpha直接线性倾身，NA单独恢复，不重判移动资格。\nReset清Memory/Snap/Events及自身倾身／来源键，保AnimSet/Tuning；无运动计时器。",
       "x": 500,
       "y": 750,
       "width": 420,
@@ -73,7 +73,7 @@
     {
       "id": "data",
       "type": "text",
-      "text": "## FZZZAnimSet / Tuning\n五single route→原序列表；walkRun→实际BS，Loop取BS样本。缺key／asset明确失败。\nWalkRunLean显式Enabled、满倾角速度／Walk／Run最大角／进入恢复响应；Enabled非法值不兜底。\n[[GGYGO_结构_动画曲线.canvas|源引用与算法]]",
+      "text": "## FZZZAnimSet / Tuning\n五single route→原序列表；walkRun→实际BS，Loop取BS样本。缺key／asset明确失败。\nWalkRunLean：Enabled、参考角≥180°、0≤Walk≤Run≤90、有限正NA Recovery；非法值明确失败。\n旧FullLeanYawRate／Enter原名序列化保留，metadata deprecated，运行不读。\n[[GGYGO_结构_动画曲线.canvas|源引用与算法]]",
       "x": 0,
       "y": 1050,
       "width": 390,
@@ -253,7 +253,7 @@
     {
       "id": "steering_snapshot",
       "type": "text",
-      "text": "## Movement｜原完成区间快照\nFGGYGOLocomotionSteeringSnapshot／GT GetLocomotionSteeringSnapshot() const。\n原CMC／Character／UpdatedComponent弱身份＋SourceEpoch、完成Serial／Frame／native dt。\nInitial／Valid／NotApplicable／Invalid与Diagnostic归CMC；合法原初始化等待和明确无效依赖分开。\nActualSignedVelocityYawRate＋有效导数标志描述真实速度轨迹；ActualSignedYawRate描述胶囊Yaw，不混用。\n[[Animation/结构#WalkRun倾身：原区间事实与普通分支|共享接口与清理]]",
+      "text": "## Movement｜原完成区间快照\nFGGYGOLocomotionSteeringSnapshot／GT GetLocomotionSteeringSnapshot() const。\n原三弱身份＋Epoch、完成Serial／Frame／native dt；Status／资格／新鲜度归CMC。\nDesiredDirectionError：PhysicsRotation后Actor→原准入Acceleration方向，度[-180,180]、正右。\n胶囊YawRate／实际速度YawRate＋导数标志各自保留，不驱动当前Valid倾身。\n[[Animation/结构#WalkRun倾身：原区间事实与普通分支|共享接口与清理]]",
       "x": 1760,
       "y": 3600,
       "width": 800,
@@ -263,7 +263,7 @@
     {
       "id": "walkrun_lean",
       "type": "text",
-      "text": "## UZZZ｜有限WalkRun倾身\nUpdateWalkRunLeanPresentation(原AnimDelta)消费同帧原DTO／alpha；不读worker对象、不重判资格。\n只持原弱CMC／Epoch、一个有限滤波角与诊断去重。\nWalkRunLeanAngleDegrees／bWalkRunLeanPresentationValid／WalkRunLeanFailureReason是Transient只读表现。\n原来源／Epoch变化、Lifecycle Reset清本人资源；Initial等待、无观察恢复、Invalid清角＋定位诊断。\nABP拥有骨轴／空间；180deg/s、Walk2°、Run6°、进入12／恢复8。\n[[Animation/计划_动画与表现层#WalkRun运动偏移（2026-10-07，Gate106）|Gate106有限证据]]",
+      "text": "## UZZZ｜方向线性WalkRun倾身\nUpdateWalkRunLeanPresentation消费同帧原方向／alpha；Valid直接error/FullAngle × lerp(WalkMax,RunMax,alpha)，零偏差立即零／Valid=true。\nRecoverWalkRunLeanPresentation仅NA按原AnimDt恢复；只持原弱CMC／Epoch、退出姿态与错误去重。\nAngle／Valid／Failure为Transient只读；Initial清姿态，Invalid明确失败；原来源切换／Lifecycle Reset清本人资源。\n参考角180°、Walk2°／Run6°、NA Recovery8；骨轴归ABP。\n[[Animation/计划_动画与表现层#身体线性侧倾（2026-10-09）|当前契约与有限验收]]",
       "x": 2720,
       "y": 3600,
       "width": 860,
@@ -535,7 +535,7 @@
       "fromSide": "bottom",
       "toNode": "walkrun_lean",
       "toSide": "top",
-      "label": "同帧原DTO＋WalkRunBlendAlpha，只读"
+      "label": "同帧原方向偏差＋WalkRunBlendAlpha，只读"
     },
     {
       "id": "lean_config_input",
@@ -543,7 +543,7 @@
       "fromSide": "bottom",
       "toNode": "walkrun_lean",
       "toSide": "top",
-      "label": "Tuning.WalkRunLean参数与Enabled校验"
+      "label": "新参考角／WalkRun强度／NA恢复显式校验"
     },
     {
       "id": "lean_abp_output",

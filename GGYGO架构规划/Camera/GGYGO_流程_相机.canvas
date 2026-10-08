@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Camera｜流程图\n原生更新入口与单次 GG 求值／发布链。[[GGYGO_结构_相机.canvas|结构图]] · [[Camera/结构|结构文档]]。\n[[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复子图]] · [[GGYGO_流程_相机模式求值.canvas|模式求值子图]]。",
+      "text": "# Camera｜流程图\n原生更新入口与单次 GG 求值／发布链。[[GGYGO_结构_相机.canvas|结构图]] · [[Camera/结构|结构文档]]。\n[[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复子图]] · [[GGYGO_流程_相机模式求值.canvas|模式求值子图]]。\n右侧是独立只读诊断，不驱动求值／发布；Pyrios 当前不开额外镜头横移。",
       "x": 0,
       "y": 0,
       "width": 1890,
@@ -43,7 +43,7 @@
     {
       "id": "push",
       "type": "text",
-      "text": "3. PushCameraMode(Class) → Result。\n合法类复用实例并置顶，已在顶也可成功。\n非法类/配置或空活动栈明确失败。\n不跳过 Push 后继续旧栈，\n不转 UCameraComponent::GetCameraView 业务兜底。\n只有 Push 成功才 EvaluateStack。\n显式 Restart 先重建原 GG Stack/实例池，\n与日常 ClearStack 保留池的语义分开。",
+      "text": "3. PushCameraMode(Class) → Result。\n合法类复用实例并置顶，已在顶也可成功。\n非法类/配置明确失败；空栈合法 Push 建完整基底。\n不跳过 Push 后继续旧栈，\n不转 UCameraComponent::GetCameraView 业务兜底。\n只有 Push 成功才 EvaluateStack。\n显式 Restart 先重建原 GG Stack/实例池，\n与日常 ClearStack 保留池的语义分开。",
       "x": 970,
       "y": 460,
       "width": 420,
@@ -53,7 +53,7 @@
     {
       "id": "evaluate",
       "type": "text",
-      "text": "4. EvaluateStack(dt, View, Request) → Result。\nThirdPerson.UpdateView → 原 CMC → 外侧投影／滤波，\n只合成 TargetOffset.Y，输出期望 View／Request。\nInitial 保构图；不适用回收；Invalid 明确 Failure。\n再混合 View／聚合请求，完整成功才输出。\n随后 Offset／唯一碰撞；内部推进不承诺回滚。\n[[GGYGO_流程_相机模式求值.canvas|真实调用与分支]]",
+      "text": "4. EvaluateStack(dt, View, Request) → Result。\nPyrios ThirdPerson 显式 disabled：清自身侧移、走原构图。\n可选 enabled 才读 CMC → 外侧投影／滤波，合成 Y。\nInitial 保构图；不适用回收；Invalid 明确 Failure。\n原 Rotation／FOV／GA Offset／保护链保持。\n混合 View／聚合请求，完整成功才输出；随后 Offset／唯一碰撞。\n[[GGYGO_流程_相机模式求值.canvas|真实调用与分支]]",
       "x": 1470,
       "y": 460,
       "width": 420,
@@ -129,6 +129,26 @@
       "width": 420,
       "height": 420,
       "color": "3"
+    },
+    {
+      "id": "camera-flow-observation-call",
+      "type": "text",
+      "text": "独立观察调用（原引擎链不由此驱动）\n原 Saved 消费者核 PC／Manager／ViewTarget／同原 CameraComponent，传显式精确已加载 Class。\n同次 GT 调 query_camera_mode(Class)。\n只读当前原 Stack／池／active 身份；不创建、Push、求值或重启。\n[[Camera/结构#同次 GT 模式只读观察|反射合同]]",
+      "x": 2070,
+      "y": 230,
+      "width": 520,
+      "height": 270,
+      "color": "4"
+    },
+    {
+      "id": "camera-flow-observation-result",
+      "type": "text",
+      "text": "返回调用局部 Observation\nUnavailable：空身份＋Diagnostic，观察明确失败，不改变 Camera 准入。\nNotInstantiated：保原 Component/Owner/Stack；仅首次原有限绑定截止等待，无模式替代。\nAvailable：原池 exact-class Mode；每次核同原 Stack／Mode 与 outer。\n只有当前 active＋in-pool 时读 live 开关；当前 Pyrios=false。\n合法覆盖 inactive 记 N/A，不读旧 bool、不计覆盖；恢复仍须同原对象。\n不认证 confirmed POV／正贡献，不保存第二状态；下一次采样重新查询。\n[[Camera/结构#身体线性侧倾与 Camera 观察检查点（2026-10-09）|冷读／生产与有限可视证据]]",
+      "x": 2070,
+      "y": 570,
+      "width": 520,
+      "height": 440,
+      "color": "1"
     }
   ],
   "edges": [
@@ -243,6 +263,14 @@
       "toNode": "photography-only",
       "toSide": "top",
       "label": "暂停、不要求 full tick 且 provider 支持 → 摄影入口"
+    },
+    {
+      "id": "camera-flow-observation-local-result",
+      "fromNode": "camera-flow-observation-call",
+      "fromSide": "bottom",
+      "toNode": "camera-flow-observation-result",
+      "toSide": "top",
+      "label": "QueryCameraMode → 同次身份／成员事实，非发布结果"
     }
   ]
 }

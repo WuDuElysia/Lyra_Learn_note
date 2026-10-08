@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# 相机模式栈求值与最终保护｜实现子图\n[[Camera/模式栈实现|算法说明]] · [[GGYGO_结构_相机.canvas|类结构]] · [[GGYGO_流程_相机.canvas|返回主流程]]。\n索引0为顶；Hero先仲裁。View／Request 边传递数据，完整 Evaluate 成功后才施加 Offset。\n本图展开普通 GG 求值；摄影入口走主流程的原生摄影分支。",
+      "text": "# 相机模式栈求值与最终保护｜实现子图\n[[Camera/模式栈实现|算法说明]] · [[GGYGO_结构_相机.canvas|类结构]] · [[GGYGO_流程_相机.canvas|返回主流程]]。\n索引0为顶；Hero先仲裁。View／Request 边传递数据，完整 Evaluate 成功后才施加 Offset。\nPyrios 当前关闭额外横移；右侧保留可选启用算法，右下只读观察不推进求值。\n摄影入口走主流程原生分支。",
       "x": 0,
       "y": 0,
       "width": 1900,
@@ -133,7 +133,7 @@
     {
       "id": "camera-steering-capture",
       "type": "text",
-      "text": "ThirdPerson.UpdateView(dt)\n原 Pivot／Pitch 限制 → UpdateSteeringFromMovement(dt, PivotRotation)。\n显式关闭：清本人展示，走原构图。\n启用：原 Character 的原 CMC → GetLocomotionSteeringSnapshot。\n校验原身份；CMC／SourceEpoch 变更时先 ResetSteeringPresentation。\n资格与原生区间时效仅由 CMC 判定。\n[[Camera/模式栈实现#原移动事实与状态资格|原事实契约]]",
+      "text": "ThirdPerson.UpdateView(dt)\n原 Pivot／Pitch → UpdateSteeringFromMovement。\nPyrios 当前 bEnableWalkRunSteeringOffset=false：\nReset 本人侧移／弱来源键，继续原构图；不读 CMC，不留滤波尾巴。\n仅显式 enabled：原 Character 的原 CMC → Snapshot。\n原身份／SourceEpoch 变更先清展示；资格归 CMC。\n[[Camera/模式栈实现#原移动事实与状态资格|可选启用契约]]",
       "x": 2070,
       "y": 350,
       "width": 470,
@@ -143,7 +143,7 @@
     {
       "id": "camera-steering-status",
       "type": "text",
-      "text": "消费 Snapshot.Status／bHasVelocityYawRate\nInitial：侧移0，继续原 View；不制造零角速度观测。\nNotApplicable／Valid但无两端速度观测：target0，正常滤波回收。\nValid且有观测：同次 GT 读原水平速度方向／WalkRun alpha，调用纯投影。\nInvalid／未知状态／来源失配：清本人展示，带原 Diagnostic 返回 Failure。\n必需配置失败不改成 Initial 或无限等待。",
+      "text": "仅显式启用后消费 Snapshot.Status／bHasVelocityYawRate\nInitial：侧移0，继续原 View；不制造零角速度观测。\nNotApplicable／Valid无两端观测：target0，正常滤波回收。\nValid且有观测：同次 GT 读原方向／alpha，调用纯投影。\nInvalid／未知状态／失配：清本人展示，携原 Diagnostic 返回 Failure。\n必需配置失败不改成 Initial 或无限等待。\n当前 Pyrios disabled 不进入本分支。",
       "x": 2650,
       "y": 350,
       "width": 470,
@@ -153,7 +153,7 @@
     {
       "id": "camera-steering-project",
       "type": "text",
-      "text": "ComputeSteeringLateralTarget → Result／target\n真实轨迹 ActualSignedVelocityYawRate\n→ abs(rate) 响应曲线 × Amplitude × Lerp(WalkGain,RunGain,alpha)。\n投影前限 MaxDistance。\nWorldOutside = Cross(Up,速度方向) × -sign(rate)。\ntarget = 幅度 × Dot(WorldOutside,完整 camera-right)。\ndouble 三轴右轴保持正交；侧视减弱、前视可反号；不改原旋转／FOV。\n非法曲线／输入／结果明确 Failure。\n[[Camera/模式栈实现#世界弯道外侧投影为纯横移|几何与校验]]",
+      "text": "可选 enabled：ComputeSteeringLateralTarget → Result／target\n真实轨迹 ActualSignedVelocityYawRate\n→ abs(rate) 响应曲线 × Amplitude × Lerp(WalkGain,RunGain,alpha)。\n投影前限 MaxDistance。\nWorldOutside = Cross(Up,速度方向) × -sign(rate)。\ntarget = 幅度 × Dot(WorldOutside,完整 camera-right)。\ndouble 三轴右轴保持正交；侧视减弱、前视可反号；不改原旋转／FOV。\n非法曲线／输入／结果明确 Failure。\n[[Camera/模式栈实现#世界弯道外侧投影为纯横移|几何与校验]]",
       "x": 2650,
       "y": 800,
       "width": 470,
@@ -163,11 +163,31 @@
     {
       "id": "camera-steering-compose",
       "type": "text",
-      "text": "返回原 ThirdPerson.UpdateView\n适用／回收路径：UpdateSteeringPresentation(dt,target) → Result；目标绝对值减小用 ReturnSpeed，否则 EnterSpeed，FInterpTo。\nInitial／显式关闭跳过滤波，保持侧移0。\n成功：复制 TargetOffset，仅 Y += SteeringLateralOffset → 原 PivotRotation.RotateVector → View.Location。\n原 Rotation／ControlRotation／FOV／穿透请求继续原规则；返回 Success，再由基类推进权重。\n滤波／算术失败返回 Failure；不申请 GA Offset token。\n[[Camera/模式栈实现#展示滤波、合成与清理|展示归属与清理]]",
+      "text": "返回原 ThirdPerson.UpdateView\n当前 Pyrios disabled：侧移0，保原 TargetOffset／Rotation／ControlRotation／FOV／穿透请求。\n可选适用／回收才 UpdateSteeringPresentation(dt,target) → Result；绝对值减小 ReturnSpeed，否则 EnterSpeed，FInterpTo。\nInitial／显式关闭跳过滤波。\n成功：复制 TargetOffset，Y += 本人侧移 → 原 PivotRotation → View.Location。\nSuccess 后基类推进权重；滤波／算术失败明确 Failure。\n原 GA Offset 与最终碰撞仍各走唯一入口。\n[[Camera/模式栈实现#展示滤波、合成与清理|展示归属与清理]]",
       "x": 2070,
       "y": 1260,
       "width": 470,
       "height": 420,
+      "color": "1"
+    },
+    {
+      "id": "camera-eval-observation-read",
+      "type": "text",
+      "text": "独立同次 GT：QueryCameraMode(精确 Class)\n原 registered Component／Owner／World／当前 Stack outer 必须有效。\nStack const helper 扫既有 pool／active 元数据，精确类池对象须唯一且 outer 为原 Stack。\n同类 active 必须就是该原池对象；无效／重复／错 outer 明确 Unavailable。\n不执行上述 Push／Update／Blend，不修改 View／Weight／成员或配置旗标。\n[[Camera/模式栈实现#同次 GT 查询既有模式|查询实现]]",
+      "x": 2070,
+      "y": 1790,
+      "width": 470,
+      "height": 360,
+      "color": "4"
+    },
+    {
+      "id": "camera-eval-observation-membership",
+      "type": "text",
+      "text": "同次读取结果，不拥有权威状态\nUnavailable：对象／flags 清空＋Diagnostic。\nNotInstantiated：保原 Owner／Component／Stack，无 Mode；不创建／查 CDO替代。\nAvailable：Mode 是精确原池对象，bInPool=true；bActive 仅当前成员身份。\nClear／裁剪后可能同 Mode pooled＋inactive；原脚本记 N/A，不读旧 switch／计关闭覆盖。\n每次重验原对象；active 不认证正贡献或 POV 发布，原 Cache 准入仍归 Manager。\n[[Camera/结构#同次 GT 模式只读观察|消费者合同]]",
+      "x": 2650,
+      "y": 1790,
+      "width": 470,
+      "height": 400,
       "color": "1"
     }
   ],
@@ -282,7 +302,7 @@
       "fromSide": "right",
       "toNode": "camera-steering-status",
       "toSide": "left",
-      "label": "原快照／来源键"
+      "label": "仅显式启用 → 原快照／来源键"
     },
     {
       "id": "camera-steering-qualify",
@@ -306,7 +326,7 @@
       "fromSide": "bottom",
       "toNode": "camera-steering-compose",
       "toSide": "left",
-      "label": "显式关闭 → 初始侧移0"
+      "label": "当前 Pyrios 显式关闭 → 清本人展示，侧移0"
     },
     {
       "id": "camera-steering-target",
@@ -347,6 +367,14 @@
       "toNode": "update",
       "toSide": "right",
       "label": "投影 Failure → 清本人展示并返回"
+    },
+    {
+      "id": "camera-eval-observation-returns-membership",
+      "fromNode": "camera-eval-observation-read",
+      "fromSide": "right",
+      "toNode": "camera-eval-observation-membership",
+      "toSide": "left",
+      "label": "返回 Observation 的精确原身份与 pool／active"
     }
   ]
 }

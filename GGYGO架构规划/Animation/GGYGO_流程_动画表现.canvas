@@ -33,7 +33,7 @@
     {
       "id": "read",
       "type": "text",
-      "text": "3. ABP读取原Frame／只读查询。\n输入、步态、WalkRun混合、Stop／TurnBack保持；旧拆分引脚由兼容层填充。\n原Steering只供GT有限倾身派生，worker不解析弱对象。",
+      "text": "3. ABP读取原Frame／只读查询。\n输入、步态、WalkRun混合、Stop／TurnBack保持；旧拆分引脚由兼容层填充。\n原Steering只供GT方向线性倾身／NA恢复，worker不解析弱对象。",
       "x": 970,
       "y": 405,
       "width": 420,
@@ -193,7 +193,7 @@
     {
       "id": "steering_read",
       "type": "text",
-      "text": "## GT Capture原区间\nGetLocomotionSteeringSnapshot一次→现有Frame。\nStatus／原三弱身份／Epoch／完成Serial、Frame、dt、真实速度轨迹导数／标志；资格归CMC。\n无Character不捕获；缺provider或原身份不符明确Invalid。\n胶囊Yaw／输入偏角不替代轨迹导数。",
+      "text": "## GT Capture原区间\nGetLocomotionSteeringSnapshot一次→现有Frame。\n原三弱身份／Epoch／完成Serial、Frame、native dt与Status；资格／新鲜度归CMC。\nDesiredDirectionError为原Actor→准入方向[-180,180]°、正右；同帧alpha保持。\n无Character不捕获，缺provider／原身份不符明确Invalid；worker不解析弱对象。",
       "x": 970,
       "y": 2150,
       "width": 420,
@@ -203,7 +203,7 @@
     {
       "id": "walkrun_lean_update",
       "type": "text",
-      "text": "## UZZZ原NativeUpdate倾身\nSuper／旧适配后→UpdateWalkRunLeanPresentation(原dt)。\nValid＋有效速度导数：rate/FullLeanYawRate钳[-1,1] × lerp(WalkMax,RunMax,原alpha)。\n1-exp(-响应×原AnimDt)唯一有限姿态滤波；减幅／无观察用Recovery，其余Enter。\n本角色180deg/s、Walk2°／Run6°、Enter12／Recovery8。\n输出Angle正右／Valid／Failure；Enabled非法值立即失败，原弱来源／Epoch切换先Reset。\n[[Animation/计划_动画与表现层#WalkRun运动偏移（2026-10-07，Gate106）|Gate106有限证据]]",
+      "text": "## UZZZ原NativeUpdate倾身\nSuper抓帧／旧适配后→UpdateWalkRunLeanPresentation。\nValid：angle=原DesiredDirectionError/FullAngle × lerp(WalkMax,RunMax,同帧alpha)。\n直接赋值；偏差减半→角减半，零偏差→零／Valid=true；无角速度门／饱和／Enter滤波。\n参考角≥180°；本角色180°、Walk2°／Run6°、仅NA Recovery8。\n输出正右Angle／Valid／Failure；非法配置／值明确失败，原弱来源／Epoch切换先Reset。\n[[Animation/计划_动画与表现层#身体线性侧倾（2026-10-09）|当前契约与有限验收]]",
       "x": 1470,
       "y": 2150,
       "width": 420,
@@ -223,7 +223,7 @@
     {
       "id": "walkrun_lean_release",
       "type": "text",
-      "text": "## 自有恢复／失效出口\nInitial合法原初始化等待：Angle0／Valid=false，不当有效零观察。NotApplicable或无速度导数：target0有限恢复，近零清Valid。\nInvalid／无效Enabled配置：立即清Angle／Valid、保FailureReason，定位Instance／Mesh／Config与原因，错误码去重。\n原弱CMC／SourceEpoch变化、Lifecycle Hook→ResetWalkRunLeanPresentation；保原AnimSet／Tuning，不重判输入／移动相位或清GA资源。",
+      "text": "## 自有恢复／失效出口\n仅NotApplicable→RecoverWalkRunLeanPresentation：自身角×exp(-Recovery×原AnimDt)，RunMax界内恢复，近零清Valid；dt有限非负。\nInitial合法等待清姿态／Valid，不伪造有效零偏差。Invalid／非法Enabled配置或值立即清角／Valid、保定位Failure并去重。\n原弱CMC／Epoch变化、Lifecycle Hook→Reset清本人角／Valid／Failure／来源键，保AnimSet／Tuning；不重判移动或清GA资源。",
       "x": 1470,
       "y": 2680,
       "width": 1120,
@@ -414,7 +414,7 @@
       "fromSide": "right",
       "toNode": "walkrun_lean_update",
       "toSide": "left",
-      "label": "原DTO＋同帧alpha"
+      "label": "原方向偏差＋同帧alpha；Status归原CMC"
     },
     {
       "id": "lean_scalar_to_spine",
@@ -422,7 +422,7 @@
       "fromSide": "right",
       "toNode": "walkrun_spine_pose",
       "toSide": "left",
-      "label": "只读Angle／Valid"
+      "label": "Valid直接Angle／Valid；骨轴与空间归ABP"
     },
     {
       "id": "walkrun_player_spine",
@@ -446,7 +446,7 @@
       "fromSide": "bottom",
       "toNode": "walkrun_lean_release",
       "toSide": "top",
-      "label": "按原Status／来源键清理或恢复"
+      "label": "NA独立恢复；Initial／Invalid／来源切换清理"
     },
     {
       "id": "lifecycle_lean_reset",

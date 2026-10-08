@@ -1,132 +1,20 @@
 {
-  "nodes": [
-    {
-      "id": "nav",
-      "type": "text",
-      "text": "# 能力仲裁｜流程子图\n受控请求、Can评估与组预留/终检；组规则、输入来源、原激活身份分别唯一归属。\n[[GGYGO_结构_AbilitySystem.canvas|结构图]] · [[计划_AbilitySystem|模块计划]] · [[GGYGO_流程_原请求终止.canvas|原完成门禁]]",
-      "x": 0,
-      "y": 0,
-      "width": 1660,
-      "height": 150,
-      "color": "6"
-    },
-    {
-      "id": "request",
-      "type": "text",
-      "text": "1. InputTag / ActionTag定位Spec。\n玩家Process、Boss执行请求点调用TryActivateAbilityWithTerminationBoundary，只进入一次native Try。\nBoss CanActivateAbilityByHandle为QueryOnly预检，无玩家retry来源；真Try仍再准入，不raw回退。",
-      "x": 0,
-      "y": 351,
-      "width": 390,
-      "height": 330,
-      "color": "5"
-    },
-    {
-      "id": "tag",
-      "type": "text",
-      "text": "2. final GA::CanActivateAbility。\n独立来源评估→原ActorInfo/GAS/BP/成本/Tag/Mapping检查→组规则→Additional追加业务条件。\n评估封闭后真实失败由ASC final NotifyAbilityFailed消费，Query/raw不借外层来源。",
-      "x": 470,
-      "y": 351,
-      "width": 390,
-      "height": 330,
-      "color": "5"
-    },
-    {
-      "id": "group",
-      "type": "text",
-      "text": "3. ASC按原组规则仲裁。\nSingleInstance核旧实例可取消性、优先级/平手；Queued只拒占用，Coexist保持。\nControlled Try另核原Busy/活动同实例、来源与支持的实例策略；不复制GAS Active或建立自动激活队列。",
-      "x": 940,
-      "y": 351,
-      "width": 410,
-      "height": 330,
-      "color": "5"
-    },
-    {
-      "id": "allow",
-      "type": "text",
-      "text": "4A. 实际NotifyActivated：GA签Original；ASC分配sequence/登记预留。\nActiveCount++后final Activate：Initialize原批次→原来源重核→Finalize。\n较新pending拒较旧，settled冲突按原取消；终检只看权威组登记。\n完成自己的attempt，原仍有效才相机→Body；不清重入后继。",
-      "x": 1430,
-      "y": 216,
-      "width": 410,
-      "height": 420,
-      "color": "1"
-    },
-    {
-      "id": "reject",
-      "type": "text",
-      "text": "4B. final NotifyAbilityFailed。\n消费本次独立Can来源→原GAS/GA反馈；只有真实Queued且原来源有效才发OnAbilityInputRetryable(const完整Retry)。\nHero核原ID/Tag/deadline/Binding保存有限请求，不续期或自动取消占位。",
-      "x": 1430,
-      "y": 675,
-      "width": 410,
-      "height": 350,
-      "color": "3"
-    },
-    {
-      "id": "freed",
-      "type": "text",
-      "text": "5. 原实例结束→ASC NotifyAbilityEnded。\n先摘原组登记，再native通知；返回后组仍空才OnAbilityGroupFreed。\nHero核原请求后Queue完整Retry，由唯一Process再尝试；组空不是Completed，原Busy期间不立即重开同实例。",
-      "x": 940,
-      "y": 824,
-      "width": 410,
-      "height": 350,
-      "color": "4"
-    }
-  ],
-  "edges": [
-    {
-      "id": "e1",
-      "fromNode": "request",
-      "fromSide": "right",
-      "toNode": "tag",
-      "toSide": "left",
-      "label": "Spec请求→一次受控native Try / QueryOnly预检"
-    },
-    {
-      "id": "e2",
-      "fromNode": "tag",
-      "fromSide": "right",
-      "toNode": "group",
-      "toSide": "left",
-      "label": "原GAS/Tag检查通过→唯一组规则"
-    },
-    {
-      "id": "e3",
-      "fromNode": "group",
-      "fromSide": "right",
-      "toNode": "allow",
-      "toSide": "left",
-      "label": "Can通过→实际Notify身份/预留→ActiveCount++后的终检"
-    },
-    {
-      "id": "e4",
-      "fromNode": "group",
-      "fromSide": "right",
-      "toNode": "reject",
-      "toSide": "left",
-      "label": "真实阻断/占组→本次失败来源"
-    },
-    {
-      "id": "e5",
-      "fromNode": "reject",
-      "fromSide": "right",
-      "toNode": "freed",
-      "toSide": "left",
-      "label": "仅Queued有限请求等待占位真实结束；不自动取消"
-    },
-    {
-      "id": "e6",
-      "fromNode": "freed",
-      "fromSide": "left",
-      "toNode": "request",
-      "toSide": "bottom",
-      "label": "原ID/Tag/期限有效→Queue完整Retry→唯一Process受控Try"
-    },
-    {
-      "id": "e7-original-active-end-group-freed",
-      "fromNode": "allow",
-      "fromSide": "bottom",
-      "toNode": "freed",
-      "toSide": "top",
-      "label": "原激活结束进入ASC原Ended；终止完成另等全退出"
-    }
-  ]
+	"nodes":[
+		{"id":"nav","type":"text","text":"# 能力仲裁｜流程子图\n受控请求、Can评估与组预留/终检；组规则、输入来源、原激活身份分别唯一归属。\n[[GGYGO_结构_AbilitySystem.canvas|结构图]] · [[计划_AbilitySystem|模块计划]] · [[GGYGO_流程_原请求终止.canvas|原完成门禁]]","x":0,"y":0,"width":1660,"height":150,"color":"6"},
+		{"id":"request","type":"text","text":"1. InputTag / ActionTag定位Spec。\n玩家Process、Boss执行请求点调用TryActivateAbilityWithTerminationBoundary，只进入一次native Try。\nBoss CanActivateAbilityByHandle为QueryOnly预检，无玩家retry来源；真Try仍再准入，不raw回退。","x":0,"y":351,"width":390,"height":330,"color":"5"},
+		{"id":"tag","type":"text","text":"2. final GA::CanActivateAbility。\n独立来源评估→原ActorInfo/GAS/BP/成本/Tag/Mapping检查→组规则→Additional追加业务条件。\n评估封闭后真实失败由ASC final NotifyAbilityFailed消费，Query/raw不借外层来源。","x":470,"y":351,"width":390,"height":330,"color":"5"},
+		{"id":"group","type":"text","text":"3. ASC按原组规则仲裁。\nSingleInstance核旧实例可取消性、优先级/平手；Queued只拒占用，Coexist保持。\nControlled Try另核原Busy/活动同实例、来源与支持的实例策略；不复制GAS Active或建立自动激活队列。","x":940,"y":351,"width":410,"height":330,"color":"5"},
+		{"id":"allow","type":"text","text":"4A. 实际NotifyActivated：GA签Original；ASC分配sequence/登记预留。\nActiveCount++后final Activate：Initialize原批次→原来源重核→Finalize。\n较新pending拒较旧，settled冲突按原取消；终检只看权威组登记。\n完成自己的attempt，原仍有效才相机→Body；不清重入后继。","x":1430,"y":216,"width":410,"height":420,"color":"1"},
+		{"id":"reject","type":"text","text":"4B. final NotifyAbilityFailed。\n消费独立Can/原来源；真实Queued先在ASC提交Spec许可及首次等待顺序，再Super原失败反馈。\n回调可同步释放占位；返栈重核原源才发OnAbilityInputRetryable观察。Hero不保存等待/Queue，raw/Query不借许可。","x":1430,"y":675,"width":410,"height":350,"color":"3"},
+		{"id":"freed","type":"text","text":"5. 原实例结束→ASC NotifyAbilityEnded。\n先摘登记→Super减ActiveCount/通知→返栈组仍空。\nASC先取整批等待/全部清零，按首次真实Queued顺序内部Queue；拒绝候选也已消费。\n再OnAbilityGroupFreed观察；下次唯一Process受控Try。\n仅新Queued再入尾；组空不是Completed，原Busy不立即重开。","x":940,"y":824,"width":410,"height":350,"color":"4"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"request","fromSide":"right","toNode":"tag","toSide":"left","label":"Spec请求→一次受控native Try / QueryOnly预检"},
+		{"id":"e2","fromNode":"tag","fromSide":"right","toNode":"group","toSide":"left","label":"原GAS/Tag检查通过→唯一组规则"},
+		{"id":"e3","fromNode":"group","fromSide":"right","toNode":"allow","toSide":"left","label":"Can通过→实际Notify身份/预留→ActiveCount++后的终检"},
+		{"id":"e4","fromNode":"group","fromSide":"right","toNode":"reject","toSide":"left","label":"真实阻断/占组→本次失败来源"},
+		{"id":"e5","fromNode":"reject","fromSide":"right","toNode":"freed","toSide":"left","label":"真实Queued在ASC登记等待；只等占位真实结束"},
+		{"id":"e6","fromNode":"freed","fromSide":"left","toNode":"request","toSide":"bottom","label":"整批等待先消费→合法原Retry进入Pending→下一唯一Process"},
+		{"id":"e7-original-active-end-group-freed","fromNode":"allow","fromSide":"bottom","toNode":"freed","toSide":"top","label":"原激活结束进入ASC原Ended；终止完成另等全退出"}
+	]
 }

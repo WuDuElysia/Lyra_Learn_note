@@ -8,6 +8,30 @@
 
 > 前序动作／姿态检查点（2026-10-06）：必需姿态 Ticket/typed OnFailed、Combo Main 动作请求与 End 原移动事实中断已接齐，统一 Editor 构建 Succeeded。Gate101-R2 六叶原报告为3 Success/3 Fail，原Error/Warning不滤掉；分项及有限 BodyZ 见 [[计划_玩家普攻连段#本轮编译与必要冒烟证据|集中证据]]。原生命周期/Busy契约不改变，严格红测、完整姿态混合、Cook/联机/HID继续开放。该检查点时C12尚未决；目前用户已选择默认取消／不可取消前检拒绝／显式后台继续，并完成约定必要烟，现状见 [[Teams/结构]]、[[计划_实施状态]]，不由本历史描述恢复待决门禁。
 
+## 职责拆分与输入等待收尾（2026-10-08）
+
+本需求保持原生返回、GA终止及播放政策，收敛重复的来源字段和职责混合，并把有限输入等待归回ASC。原生GAS、ActorInfo、GA原记录、Montage Guard和输入来源继续各有唯一权威。
+
+| 当前落地 | 职责与依赖 |
+| --- | --- |
+| ActorInfo来源值 | `FGGYGOActorInfoSource`由ASC实际快照和GA激活Proof共用；强/弱allocation寿命与ResourceWork/Termination目的归外层资源，不签新身份或Ready。 |
+| 无状态数值计算 | `GGYGOAttributeCalculation`及独立结果类型只处理已认证栈值；ASC保留实时capture、CustomQualifies外调、重新capture/源认证，HealthSet保留目标/边界/Base提交与OwnPost。 |
+| 私有绑定协议 | 单ASC以`TUniquePtr`独占`FGGYGOAvatarBindingProtocol`，唯一保存身份/操作/提交源/native Busy/失败Init证明/发布记录；ASC保留native执行、外调前后认证与公开桥。 |
+| 原请求有限等待 | ASC独占真实Queued许可、首次等待顺序、整批取走和既有PendingRetries；Super失败反馈前登记，组空后按原顺序Queue，再供观察，下次唯一Process消费。Hero只留原Action/ID/deadline/H关联；Closing精确归还自身ID，保留native绑定/IMC与首观察。 |
+| 原作者点 | Task在无外调段一次解析并认证点/payload/原实例；native消费者及捕获析构返栈后重新核完整来源/原声明，才交付BP。公开快照独立完整认证。 |
+
+### 构建与有限验证
+
+- 首次构建失败日志保留；协议分类函数恢复同一私有协议归属后修正调用。第二次统一构建Succeeded，12 actions／43.70秒；夹具修正后的第三次Succeeded，7 actions／24.12秒。
+- 首轮17叶为13 Success／4 Fail。四个ActorInfo叶（native Busy、生命周期/历史、同Binding Refresh后原End、精确一次发布与后继）及CurrentValueSettlement均Success、0 Error／0 Warning；Origin嵌套raw/丢失唤醒、RetryIdentity和LocalResources有真实失败，报告不改写。
+- 失败根因分别是普通占位夹具用raw启动却要求受控完整退出，以及Closing中撤销Binding后的真实ActivationChanged被期望为成功。普通占位改用受控入口，真正同Spec内层raw保留；原严格断言与完整资源清理保留，新增active/组登记检查。Character负例仅精确接受原动态日志一次与真实失败三元组，不改生产结束政策。
+- 五叶定向复测全部Success，3.32958秒、0 Error／8 Warning，包含上述四个失败叶及ProductionNativeHeld。有限链路已验，不能据此关闭全模块或全部历史严格矩阵。
+- 收到QUIT_EDITOR后出现AnimationEditor析构访问异常，原Editor日志保留，不声明正常退出。联机/Cook/视觉/性能、Input X2编辑器夹具隔离与Host partial-installed分支动态覆盖仍独立开放。
+
+证据：[首次构建失败](F:/ue_project/GGYGO/Saved/Logs/ComplexityAuditBuild_20261008_1.log)、[第二次构建](F:/ue_project/GGYGO/Saved/Logs/ComplexityAuditBuild_20261008_2.log)、[第三次构建](F:/ue_project/GGYGO/Saved/Logs/ComplexityAuditBuild_20261008_3.log)、[首轮原生报告](F:/ue_project/GGYGO/Saved/AutomationReports/ComplexityAuditSmoke_20261008_1/index.json)、[定向复测报告](F:/ue_project/GGYGO/Saved/AutomationReports/ComplexityAuditSmoke_20261008_2/index.json)、[首轮Editor日志](F:/ue_project/GGYGO/Saved/Logs/ComplexityAuditEditor_20261008_1.log)。
+
+当前静态职责见[[AbilitySystem/结构|结构文档]]与[[GGYGO_结构_AbilitySystem.canvas|结构图]]；实际顺序见[[GGYGO_流程_AbilitySystem.canvas|主流程]]、[[GGYGO_流程_能力仲裁.canvas|仲裁]]与[[GGYGO_流程_原请求终止.canvas|终止]]。批次、失败历史与验收范围只保留在计划/原证据，图文不放改动轮次或审批记录。
+
 ## 3. AbilitySystem 层：照抄 Lyra 的部分
 
 ### 3.1 可以直接照抄的清单
@@ -61,13 +85,21 @@ ActorInfo三Try／一次发布、历史C1a Gate47～48与C1b Gate49R1有编译�
 
 两个ASC清理来源、Host H1/H2与Hero消费已实施并编译，来源职责仍见[[AbilitySystem/结构#原已提交清理来源（Destroy）|提交来源]]、[[AbilitySystem/结构#失败Init原写入清理（未提交证明）|失败Init来源]]及[[AbilitySystem/结构#清理调用方|调用方门禁]]。GA/派生共同生命周期与受控生产请求点现已接齐，普通/故障必要冒烟有限验收；Avatar完整换绑/Destroy与原严格失败、正式资产/联机仍独立留账。
 
-## 当前原请求输入增量（07E2：已接Hero并编译，动态边界保留）
+## 当前原请求输入职责
+
+ASC唯一持有原请求、Spec held/queued、有序边沿、真实Queued有限许可与等待。`NotifyAbilityFailed`在Super外调前提交本次许可和首次等待顺序，返栈重核后才发观察通知。真实GroupFreed先取走整批等待并清零，再按首次真实Queued顺序内部Queue；拒绝候选也已消费，只有新真实Queued可回到尾部。既有Process按原ID/Tag/deadline/Policy消费，deadline不决定held或Released，没有第二Tick或内联自动Try。
+
+Hero首观察固定原Action/Tag/deadline，再Receive；未Ready/拒绝不在同Action补发。Completed/Canceled精确End原ID为Released，原H Closing/来源失效为Invalidated。Closing只退自身H输入关联，保留原NativeSession绑定/IMC与首次观察；同H Refreshed更新Context，新Ready不重放Action。Hero不保存有限候选，不调用Queue，也不订阅Retryable/GroupFreed作为重试执行链。
+
+### 前序接线记录（07E2）
+
+以下保留当时Hero接线与未验范围；其中Hero缓冲/Queue归属已由上方当前职责替代，旧夹具/严格失败不据历史编译或普通烟自动关闭。
 
 ASC已替换旧Tag生产入口为Receive(Tag,PreviousIdentity,OriginalDeadline)、End(Identity,Released/Invalidated)、Queue(const OriginalRetry&)；OnAbilityInputRetryable改为const完整单载荷，Hero A已实际消费并编译。原weak ASC／revision／serial由ASC签发，完整Tag／ID／原绝对deadline精确匹配，不用-1补窗口。唯一Spec held／queued聚合、有序边沿及按边沿冻结来源已实现，final Can／Notify只消费本次来源。
 
 首按Action来源与原deadline由Input／Hero提供；多来源任一held则Spec保持，最后真实释放才Released，失效用Invalidated。deadline到期不伪松键；Query/raw不借来源。Hero A已接EnhancedInput ActionInstance的Triggered/Completed/Canceled，保存原ID并核原Tag/deadline/Binding后Queue完整Retry；局部失效只End自己的ID。Hero B1已注册并回放typed本地H通知，Released只退原会话；B2已装配Source→CMC原移动输入会话。旧-1断言/运行夹具、真实混合来源及资产/联机未由编译证明，不把Hero迁移写成这些专项已通过。
 
-当前消费：Process在原InputScope内一次受控Try→bNativeAccepted消费，Origin/Can/Retryable规则保持；OnSpawn和Boss BT也已接一次受控入口并编译，不raw重试，remote接受不是本地Activation证明。Combo/Boss/Admission已迁薄扩展点及原资源Context Cleanup；Gate79普通链有限通过。原B0/输入合同与新的原激活来源分责，RPC/网络、混合来源及原strict/raw失败仍开放。见[[AbilitySystem/结构#单次 Can 评估与输入失败来源（B0）|输入接口]]及[[AbilitySystem/计划_原请求终止|终止契约]]。
+当前消费：Process在原InputScope内一次受控Try→bNativeAccepted消费，Origin/Can/Retryable规则保持；OnSpawn和Boss BT也已接一次受控入口并编译，不raw重试，remote接受不是本地Activation证明。Combo/Boss/Admission已迁薄扩展点及原资源Context Cleanup；Gate79普通链有限通过。原B0/输入合同与新的原激活来源分责，RPC/网络、混合来源及原strict/raw失败仍开放。见[[AbilitySystem/结构#单次 Can 评估与输入失败来源|输入接口]]及[[AbilitySystem/计划_原请求终止|终止契约]]。
 
 ## 当前精确Montage增量（K3）
 
@@ -99,7 +131,7 @@ T2现有接口：ASC `TryActivateAbilityWithTerminationBoundary`提供真实Try�
 
 实际接口输入/输出见 [[AbilitySystem/结构#Task原实例与资源消费|Task契约]]；Main/End/失败资源流与唯一集中证据见 [[计划_玩家普攻连段]]。姿态执行见 [[Animation/动作姿态修正|Animation契约]]，胶囊执行见 [[Movement/结构|Movement职责]]。Gate101/R1实现失败经本轮修正和R2复测关闭，原失败报告保留；不把负例报告Fail改成全通过。
 
-C12普通换人退出：真实业务政策尚未决定，候选共享接口只读配对冻结、生产未实施；本轮没有扩大到队伍切换或修改已确认的原生命周期/Busy归属。
+C12普通换人退出已由用户选择默认取消／不可取消前检拒绝／显式后台继续，并完成约定必要烟；现状由[[Teams/结构]]、[[计划_实施状态]]记录。本需求不改变该业务政策或原生命周期/Busy归属。
 
 ## 原生 Montage 作者信号与 Task
 
@@ -129,7 +161,7 @@ W0与Combo native输入消费者已落盘并编译。固定Original/原Task/原�
 | native与清理契约 | 可选pre-Ready单播RegisterNativeCallback返回精确FDelegateHandle，UnregisterNativeCallback只按原token先脱后释放；空/重复/迟到明确拒绝。原Consume→native/捕获析构返回→弱原Task/原订阅核验→BP；同步回放结束不能写Waiting。OnDestroy先关/脱资源，再原桶remove自身handle，不消费后继事件，捕获释放后无旧Task写尾。 |
 | 验收／迁移 | Combo已在原Task Ready前注册native回调，精确token与原桶资源已随Context清理；Gate79有限纠正及原Task资源断言通过。未单独运行native/析构重入或同步remote回放专项，正式资产和网络继续开放；不新增严格矩阵。 |
 
-实际接口输入/作用/输出、清理与失败诊断见[[AbilitySystem/结构#原事件桶与输入Task订阅（W0）|W0契约]]，节点位于[[GGYGO_结构_AbilitySystem.canvas|结构图]]及[[GGYGO_流程_AbilitySystem.canvas|流程图]]。
+实际接口输入/作用/输出、清理与失败诊断见[[AbilitySystem/结构#原事件桶与输入Task订阅|W0契约]]，节点位于[[GGYGO_结构_AbilitySystem.canvas|结构图]]及[[GGYGO_流程_AbilitySystem.canvas|流程图]]。
 
 ## 当前GA激活接缝与OnSpawn入口
 
@@ -177,7 +209,7 @@ Exclusive_Blocking     // 阻止所有其他 Exclusive 激活
 |---|---|---|
 | `Coexist` | 组内任意多个可同时激活 | Buff 类、被动 |
 | `SingleInstance` | 组内同时只能一个，按优先级决定去留 | 技能组、大招组 |
-| `SingleInstanceQueued` | 组内同时只能一个，被拒绝的激活由调用方缓冲重试 | 独立攻击实例之间的准入；玩家 GA 内段序由窗口与单请求缓存管理 |
+| `SingleInstanceQueued` | 组内同时只能一个；玩家真实Queued许可/有限等待归ASC，调用方只提供原请求 | 独立攻击实例之间的准入；玩家 GA 内段序由窗口与单请求缓存管理 |
 
 **自身策略**（`EGGYGOAbilitySelfPolicy`）：
 
@@ -215,7 +247,7 @@ TMap<FGameplayTag, TArray<TWeakObjectPtr<UGGYGOGameplayAbility>>> ActiveAbilitie
 3. **同组规则检查**：查 `GroupTag` 对应的 `GroupRule`
    - `Coexist` → 通过
    - `SingleInstance` → 不可取消旧实例直接阻断；可取消时比较优先级，平手按 `bNewcomerWinsOnTie`。查询只判断，不持有另一份取消队列。
-   - `SingleInstanceQueued` → 若组内已有实例 → 拒绝激活并返回可重试原因；意图缓冲归 HeroComponent。
+   - `SingleInstanceQueued` → 若组内已有实例 → 拒绝激活；本次真实玩家输入来源才在ASC保存有限许可/等待，查询或raw不借来源。
 4. **Tag 关系检查**：交给照抄来的 `GGYGOAbilityTagRelationshipMapping`，处理与组无关的 Tag 级 Block/Cancel
 
 `NotifyAbilityActivated` 阶段（改状态）：
@@ -227,7 +259,7 @@ TMap<FGameplayTag, TArray<TWeakObjectPtr<UGGYGOGameplayAbility>>> ActiveAbilitie
 `OnAbilityEnded` 阶段：
 
 8. 项目 ASC 在 Super `NotifyAbilityEnded` 前摘除旧组登记，但暂不广播组空。
-9. Super 减少 ActiveCount 并广播结束；legacy/raw路由可发生重入登记，返回后仅当组仍为空才发 `OnAbilityGroupFreed`，Hero据此核原ID/Tag/deadline缓冲。T2受控路由的同实例原Busy须待全部关联调用退出后释放；组空通知本身不是原请求Completed，也不授新激活许可。
+9. Super 减少 ActiveCount 并广播结束；legacy/raw路由可发生重入登记，返回后仅当组仍为空才内部唤醒：先取走/清零整批等待，按首次真实Queued顺序验证原ID/Tag/deadline并加入既有PendingRetries，再发 `OnAbilityGroupFreed`观察。下次Process消费，新真实Queued才重入尾部。T2受控路由的同实例原Busy须待全部关联调用退出后释放；组空通知本身不是原请求Completed，也不授新激活许可。
 
 **D4 对应 `SingleInstance` 的 `bNewcomerWinsOnTie=true` 默认值：可取消旧实例的平手由后来者取代；不可取消旧实例仍保留槽位。** `UncancelableActive` 使用现有通用组失败 Tag，不归类为 Queued 重试。
 
@@ -241,10 +273,15 @@ TMap<FGameplayTag, TArray<TWeakObjectPtr<UGGYGOGameplayAbility>>> ActiveAbilitie
 
 ```
 AbilitySystem/
-  GGYGOAbilitySystemComponent.h/.cpp     组表 + 仲裁实现
+  GGYGOAbilitySystemComponent.h/.cpp     原请求/组仲裁、native执行与来源认证
+  GGYGOActorInfoSource.h                ActorInfo普通字段证据
+  GGYGOAttributeCalculation.h/.cpp      已认证栈值的无状态计算
+  GGYGOAttributeBaseCalculationTypes.h  数值结果类型
+  Private/
+    GGYGOAvatarBindingProtocol.h/.cpp   ASC独占的唯一事务元数据
   Abilities/
     GGYGOGameplayAbility.h/.cpp          GroupTag / Priority / SelfPolicy 字段
-  Groups/                                （新目录）
+  Groups/
     GGYGOAbilityGroupConfig.h/.cpp       DataAsset：Map<GroupTag, FGGYGOAbilityGroupRule>
     GGYGOAbilityGroupTypes.h             枚举 + 规则结构体
 ```

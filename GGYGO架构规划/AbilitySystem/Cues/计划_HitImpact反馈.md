@@ -63,6 +63,17 @@
 
 Gate64 失败时 Cue.cpp 的旧冻结哈希为 `225CB88D978234A43D053F824D3945A7D3411A2825A111BD17037227936F3C77`；该历史失败保留。其它两个文件未因本次机械修正改变。
 
+## 诊断与排查
+
+| 现象 | 优先检查 |
+| --- | --- |
+| 默认 Cue 不播放，MissingHitResult | GA 是否交付原 Context；正常无 Hit 表现是否明确配置 ParametersLocation / TargetCenter。 |
+| 无表面 Tag 反馈不符合预期 | NoSurfacePolicy 与 DefaultEffect；普通材质本来不提供项目 Tags。 |
+| UnmatchedSurfaceTag | 实际 AggregatedTargetTags、SurfaceEffects 顺序/层级及漏映射；未显式允许时不得通用替代。 |
+| InheritedPlacementConflict | 父类 DefaultPlacementInfo / 每项 Override、Socket 和附着配置；合法原点/Overlap 可能触发原生位置兼容限制。 |
+| 原生回调后剩余反馈中止 | 原 Target/World 与所选资源生命周期；不会换目标、World 或资产继续播放。 |
+| 后续同类失败没有重复日志 | 每个 Cue 对象每种原因只报告一次；查首条包含资产/对象/模式/Tag 的诊断。 |
+
 ## 必要原烟检查与验收顺序
 
 原路径：`GGYGO.AbilitySystem.HitSemantics.ContextAndCueLocation`。统筹已在 Gate64R1 新运行时执行 Success、0 error / 0 warning；原 `GGYGO.AbilitySystem.HitSemantics.PayloadTargetAndSurfaceTags` 同样通过，没有新增叶或扩穷尽矩阵。

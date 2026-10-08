@@ -3,7 +3,7 @@
     {
       "id": "hitimpact-structure-nav",
       "type": "text",
-      "text": "# HitImpact｜静态结构\n所属 AbilitySystem / Cues。箭头标签表示数据、持有、继承或调用关系。\n[[AbilitySystem/Cues/结构|接口与职责]] · [[GGYGO_流程_HitImpact.canvas|执行流程]] · [[计划_HitImpact反馈|实施与验收]] · [[AbilitySystem/结构|父模块]]",
+      "text": "# HitImpact｜静态结构\n所属AbilitySystem／Cues。箭头标签表示数据、持有、继承或接口调用关系。\n[[AbilitySystem/Cues/结构|接口与职责]] · [[GGYGO_流程_HitImpact.canvas|执行流程]] · [[AbilitySystem/结构|父模块]]",
       "x": 0,
       "y": 0,
       "width": 1730,
@@ -13,7 +13,7 @@
     {
       "id": "hitimpact-structure-input",
       "type": "text",
-      "text": "## 载荷提供者与输入\nCombat::OnMeleeHit → GA::BuildHitEffectPayload → Context / 可选 Spec / Cue。\n输入：原 Target、World、FGameplayCueParameters；EffectContext.HitResult、Location/Normal、AggregatedTargetTags。\nPhysics 仅提供材质 Tags，普通材质无项目 Tags。\n[[Combat/结构|碰撞职责]] · [[Physics/结构|材质职责]] · [[AbilitySystem/结构|GA/GAS 契约]]",
+      "text": "## 载荷提供者与输入\nCombat提供窗口内去重HitResult；GA的BuildHitEffectPayload提供Context／可选Spec／Cue载荷。\n输入为原Target、World和FGameplayCueParameters：HitResult、Location／Normal、AggregatedTargetTags。\nPhysics提供材质Tags，普通材质无项目Tags。\n[[Combat/结构|碰撞职责]] · [[Physics/结构|材质职责]] · [[AbilitySystem/结构|GA／GAS接口]]",
       "x": 0,
       "y": 250,
       "width": 470,
@@ -23,7 +23,7 @@
     {
       "id": "hitimpact-structure-cue",
       "type": "text",
-      "text": "## UGGYGOGameplayCueNotify_HitImpact\nHandleGameplayCue(Target,Event,Params) → Executed 在 K2 前校验。\nOnExecute_Implementation(Target,Params) → Super 前再校验并同步派发。\nResolveImpactPresentation(Target,Params) const → 无播放/Context 写入，返回只读结果。\n持有配置及每原因一次诊断标记；无命中权威、Tick 或第二调度器。\n[[AbilitySystem/Cues/结构#关键接口契约|输入/作用/输出]]",
+      "text": "## UGGYGOGameplayCueNotify_HitImpact\nHandleGameplayCue(Target,Event,Params)：Cue事件入口，消费原载荷。\nOnExecute_Implementation(Target,Params)：同步表现执行入口。\nResolveImpactPresentation(Target,Params) const：返回只读解析结果，不播放或写Context。\n持有资产配置与每原因一次诊断标记，不持命中／伤害权威或第二Cue调度器。\n[[AbilitySystem/Cues/结构#关键接口契约|输入、产物与责任]]",
       "x": 570,
       "y": 250,
       "width": 580,
@@ -63,7 +63,7 @@
     {
       "id": "hitimpact-structure-playback",
       "type": "text",
-      "text": "## 同一 Cue 的调用期资源 / 播放接口\nOnExecute 复制位置/旋转、参数与强粒子/声音引用，捕原 Target/World 弱身份。\nSuper / OnBurst 后重检；自身用 Niagara::SpawnSystemAtLocation 与 GameplayStatics::PlaySoundAtLocation。\n退出释放调用期强引用；失效中止剩余反馈，不换资源。\n[[Audio/结构|声音资源职责]]",
+      "text": "## 调用期资源与播放接口\n位置／旋转／参数按值；所选粒子／声音为调用期强引用，原Target／World为弱身份。\n自身反馈接口：Niagara::SpawnSystemAtLocation、GameplayStatics::PlaySoundAtLocation。\n调用期资源不存入成员；退出释放强引用，依赖失效不换资源继续。\n[[Audio/结构|声音资源职责]]",
       "x": 1250,
       "y": 790,
       "width": 480,
@@ -73,7 +73,7 @@
     {
       "id": "hitimpact-structure-status",
       "type": "text",
-      "text": "## 当前边界\n源码及原测试迁移已冻结；Gate64R1 编译成功、五原叶均 Success 各 0E/0W；原 Gate64 C2662、C4996 与全烟启动 13Error/2Warning 保留。[[计划_HitImpact反馈#实施与验证状态|验证状态]]\n返回 true 不是实际播放证明。父类冲突配置的完整适配、正式 BP/材质接线、实际父类/BP/媒体与网络未验。\n伤害仍归 GA/GE/Execution/AttributeSet；没有新增命中、音频或帧调度权威。",
+      "text": "## 反馈职责与接口边界\n伤害归GA／GE／Execution／AttributeSet；本类只消费载荷并提供表现。\n父类Burst持有原生反馈与条件，自身SurfaceEffects持有表面粒子／声音配置。\n位置模式由资产显式选择，父类落点冲突明确拒绝。\n同步返回true不表示粒子可见、声音可听或网络到达。",
       "x": 0,
       "y": 1210,
       "width": 1730,

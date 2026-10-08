@@ -1,85 +1,13 @@
 {
-  "nodes": [
-    {
-      "id": "action-nav",
-      "type": "text",
-      "x": 0,
-      "y": 0,
-      "width": 1800,
-      "height": 150,
-      "color": "6",
-      "text": "# 动作曲线｜原Montage XYZ与明确Profile模式\n原Task／Main→End来源 → CMC同一RMS／native时间 → 胶囊物理；作者点授权、混出、Task完成与贡献消费分别认证。\n[[Movement/动作曲线执行|契约与证据]] · [[Movement/结构]] · [[Movement/GGYGO_流程_移动与位移.canvas|主流程]]"
-    },
-    {
-      "id": "action-author",
-      "type": "text",
-      "x": 0,
-      "y": 240,
-      "width": 410,
-      "height": 260,
-      "color": "4",
-      "text": "## 原资产与离线业务生产\nPyrios原Sequence含累计RootMotion_PosX/Y/Z；Animation依原Montage／FullBody建立完整Main→End绑定。\nMontage作者单点Name=Event.Montage.CancelPoint；完整End与末帧混出／独立时长归资产，原Sequence保留。\nKevin离线业务生产保持独立模式；原曲线唯一来源，缺失明确拒绝。"
-    },
-    {
-      "id": "action-profile",
-      "type": "text",
-      "x": 490,
-      "y": 240,
-      "width": 410,
-      "height": 260,
-      "color": "4",
-      "text": "## 原SourceBinding／业务Profile\n当前普攻：原Montage／Slot／有序Sections／Segments；Task给原实例／位置／固定速率。\nMapMontageInterval逐源／loop差分PosXYZ；私有native末端量化认证完整源末帧，raw身份不变。\nnative动画RootMotion互斥；业务Profile另配CV／Duration／Scale，地面XY，无错误替代。"
-    },
-    {
-      "id": "action-ga",
-      "type": "text",
-      "x": 0,
-      "y": 630,
-      "width": 410,
-      "height": 270,
-      "color": "5",
-      "text": "## GA／原Task编排\nGA持原Activation／StepToken／Task／Handle，Main→End同一轨迹。\n原Task Point事实 → HandleMontageNotify → EnableStepInterruption；新播放关门。\n过点QueryQualifiedMovementIntent／SubscribeQualifiedMovementIntent原Scope；Held／新Press须合格，原Handle不换。\n移动精确取消后结束GA／重置；新攻击由GA接续，Section不授门。\n自然等TaskCompleted＋MotionCompleted；必需Pose失效中止。\n[[AbilitySystem/结构]] · [[Animation/结构]]"
-    },
-    {
-      "id": "action-begin",
-      "type": "text",
-      "x": 490,
-      "y": 630,
-      "width": 410,
-      "height": 290,
-      "color": "5",
-      "text": "## CMC::BeginMontageActionMotion\n原Source／Instance／当前Section位置／Rate／Scale → 核身份／范围／互斥／有限值 → 原Handle或失败。\nauthority或原本地autonomous，Walking／NavWalking／Falling。\n捕获Actor基准与MeshScale×业务Scale一次，退自身Stop／TurnBack，挂同一Action RMS。\nMain→End不换资源；End校正启动读取当前原位置。Profile另为明确地面XY。"
-    },
-    {
-      "id": "action-sample",
-      "type": "text",
-      "x": 990,
-      "y": 630,
-      "width": 410,
-      "height": 290,
-      "color": "5",
-      "text": "## native RMS PrepareRootMotion\n实际sim／tick＋同一native时间映射Main→End的原Sequence分片，累计PosXYZ逐源／loop差分。\n固定Actor基准×捕获Scale → WorldDelta／tick → Override XYZ。\n零位移持有；最后区间标bPreparedNaturalEnd，不在Prepare宣告消费完成。\nnative Walking／NavWalking／Falling继续胶囊碰撞／重力／落地。"
-    },
-    {
-      "id": "action-clean",
-      "type": "text",
-      "x": 1490,
-      "y": 630,
-      "width": 410,
-      "height": 290,
-      "color": "1",
-      "text": "## 打断／失败／精确释放\nGA作者点后QueryQualifiedMovementIntent／原Scope订阅；合格Held／新Press → CancelMontageActionMotionForMovement → 原输入WalkRun。\nGA结束／重置连段，新播放关门；CMC不持攻击门／段政策。\n自然：TaskCompleted＋MotionCompleted → RequestAbilityEnd。\nCompleted有界收据；其他理由中和原贡献、撤原回调。\nGA先脱资源再退原Observer／Handle／Task／Trace，保空气Z／后继。"
-    },
-    {
-      "id": "action-scope",
-      "type": "text",
-      "x": 490,
-      "y": 1050,
-      "width": 1410,
-      "height": 200,
-      "color": "6",
-      "text": "## 实际验证与剩余边界\n完成须同一Activation／StepToken／Task／Handle／Source；OwnerSync输入Scope不是动作ID。\nactive Montage=None、BlendOut或Release成功不代表胶囊最后贡献已消费。\nNotifyNatural在消费完成前核原live实例；瞬时移除实例的其他混出配置须明确兼容。\nPose只修身体余量；胶囊执行与鞋底几何分别验收，碰撞不走追补链。\n[[Movement/计划_移动与动作位移|实际验收／历史失败／未验范围]]"
-    },
+	"nodes":[
+		{"id":"action-nav","type":"text","text":"# 动作曲线｜原Montage XYZ与明确Profile模式\n原Task／Main→End来源 → CMC同一RMS／native时间 → 胶囊物理；作者点授权、混出、Task完成与贡献消费分别认证。\n[[Movement/动作曲线执行|契约与证据]] · [[Movement/结构]] · [[Movement/GGYGO_流程_移动与位移.canvas|主流程]]","x":0,"y":0,"width":1800,"height":150,"color":"6"},
+		{"id":"action-scope","type":"text","text":"## 实际验证与剩余边界\n完成须同一Activation／StepToken／Task／Handle／Source；OwnerSync输入Scope不是动作ID。\nactive Montage=None、BlendOut或Release成功不代表胶囊最后贡献已消费。\nNotifyNatural在消费完成前核原live实例；瞬时移除实例的其他混出配置须明确兼容。\nPose只修身体余量；胶囊执行与鞋底几何分别验收，碰撞不走追补链。\n[[Movement/计划_移动与动作位移#15. 当前实现：复杂度收口与职责拆分|本轮有限门禁／历史失败／未验范围]]","x":490,"y":1050,"width":1410,"height":360,"color":"6"},
+		{"id":"action-author","type":"text","text":"## 原资产与离线业务生产\nPyrios原Sequence含累计RootMotion_PosX/Y/Z；Animation依原Montage／FullBody建立完整Main→End绑定。\nMontage作者单点Name=Event.Montage.CancelPoint；完整End与末帧混出／独立时长归资产，原Sequence保留。\nKevin离线业务生产保持独立模式；原曲线唯一来源，缺失明确拒绝。","x":-205,"y":240,"width":410,"height":300,"color":"4"},
+		{"id":"action-profile","type":"text","text":"## 原SourceBinding／业务Profile\n当前普攻：原Montage／Slot／有序Sections／Segments；Task给原实例／位置／固定速率。\nMapMontageInterval同次完整验证，Movement核执行曲线一次；逐源／loop差分PosXYZ；私有native末端量化认证完整源末帧，raw身份不变。\nnative动画RootMotion互斥；业务Profile另配CV／Duration／Scale，地面XY，无错误替代。","x":695,"y":240,"width":410,"height":350,"color":"4"},
+		{"id":"action-ga","type":"text","text":"## GA／原Task编排\nGA持原Activation／StepToken／Task／Handle，Main→End同一轨迹。\n原Task Point事实 → HandleMontageNotify → EnableStepInterruption；新播放关门。\n过点QueryQualifiedMovementIntent／SubscribeQualifiedMovementIntent原Scope；Held／新Press须合格，原Handle不换。\n移动精确取消后结束GA／重置；新攻击由GA接续，Section不授门。\n自然等TaskCompleted＋MotionCompleted；必需Pose失效中止。\n[[AbilitySystem/结构]] · [[Animation/结构]]","x":-205,"y":630,"width":410,"height":380,"color":"5"},
+		{"id":"action-begin","type":"text","text":"## CMC::BeginMontageActionMotion\n原Source／Instance／当前Section位置／Rate／Scale → 核身份／范围／互斥／有限值 → 原Handle或失败。\nauthority或原本地autonomous，Walking／NavWalking／Falling。\n捕获Actor基准与MeshScale×业务Scale一次，退自身Stop／TurnBack，挂同一Action RMS。\nMain→End不换资源；End校正读取当前原位置。动作槽归CMC私有ActionMotionExecution，无第二时钟；Profile明确路径见下方。","x":620,"y":630,"width":410,"height":390,"color":"5"},
+		{"id":"action-sample","type":"text","text":"## native RMS PrepareRootMotion\n实际sim／tick＋同一native时间映射Main→End的原Sequence分片，累计PosXYZ逐源／loop差分。\n固定Actor基准×捕获Scale → WorldDelta／tick → Override XYZ。\n零位移持有；最后区间标bPreparedNaturalEnd，不在Prepare宣告消费完成。\nnative Walking／NavWalking／Falling继续胶囊碰撞／重力／落地。","x":1360,"y":660,"width":410,"height":360,"color":"5"},
+		{"id":"action-clean","type":"text","text":"## 打断／失败／精确释放\nGA作者点后QueryQualifiedMovementIntent／原Scope订阅；合格Held／新Press → CancelMontageActionMotionForMovement → 原输入WalkRun。\nGA结束／重置连段，新播放关门；CMC不持攻击门／段政策。\n自然：TaskCompleted＋MotionCompleted → RequestAbilityEnd。\nCompleted有界收据；其他理由中和原贡献、撤原回调。\nGA先脱资源再退原Observer／Handle／Task／Trace，保空气Z／后继。","x":2080,"y":630,"width":410,"height":390,"color":"1"},
     {
       "id": "action-native-task-facts",
       "type": "text",
@@ -99,57 +27,19 @@
       "width": 550,
       "height": 430,
       "color": "1"
-    }
-  ],
-  "edges": [
-    {
-      "id": "action-e1",
-      "fromNode": "action-author",
-      "fromSide": "right",
-      "toNode": "action-profile",
-      "toSide": "left",
-      "label": "原动画来源或明确业务Profile生产"
     },
-    {
-      "id": "action-e2",
-      "fromNode": "action-profile",
-      "fromSide": "bottom",
-      "toNode": "action-begin",
-      "toSide": "top",
-      "label": "原绑定／实例／位置／固定rate／scale"
-    },
-    {
-      "id": "action-e3",
-      "fromNode": "action-ga",
-      "fromSide": "right",
-      "toNode": "action-begin",
-      "toSide": "left",
-      "label": "原Task快照及必需Pose就绪后申请，GA持Handle"
-    },
-    {
-      "id": "action-e4",
-      "fromNode": "action-begin",
-      "fromSide": "right",
-      "toNode": "action-sample",
-      "toSide": "left",
-      "label": "安装固定Actor基准XYZ资源，Profile模式另明确"
-    },
-    {
-      "id": "action-e5",
-      "fromNode": "action-sample",
-      "fromSide": "right",
-      "toNode": "action-clean",
-      "toSide": "left",
-      "label": "原来源／播放依赖失败：中止并清原贡献"
-    },
-    {
-      "id": "action-e6",
-      "fromNode": "action-clean",
-      "fromSide": "bottom",
-      "toNode": "action-scope",
-      "toSide": "right",
-      "label": "按原资源条件清理；契约与计划入口"
-    },
+		{"id":"profile-original-begin","type":"text","text":"## 明确Profile：原GA申请并观察\nBoss BeginOriginalMeleeMotion携保存Original／CMC／Profile／rate→CMC BeginActionMotion。\n核authority／地面／互斥及必需配置，返回原Handle或INDEX_NONE＋定位诊断。\nGA保存原CMC／Handle后ObserveActionMotionFailure；唯一原槽持强Profile／弱原角色Mesh。\n注册拒绝精确清原资源并失败原动作，外调后重验原身份。\n[[BossAI/结构|原消费者]]","x":620,"y":1580,"width":550,"height":400,"color":"5"},
+		{"id":"profile-native-prepare","type":"text","text":"## Profile RMS：原native实际区间\n原资源随Clone保留，回放不调用当前观察者；native时间唯一。\nPrepareRootMotion核原Profile／曲线／rate／duration／CMC／Mesh和finite sim／tick。\n差分累计轨迹×捕获Scale→固定入口Mesh旋转→WorldXY／tick。\n失效明确诊断；合法零／partial末帧保持。\n同一ActionMotionExecution仅资源与观察者，不推进时钟。","x":1360,"y":1580,"width":550,"height":400,"color":"5"},
+		{"id":"profile-original-failure","type":"text","text":"## Profile失效：先退原资源→原GA\n坏配置／模式／区间／非有限位移→原source Additive／Identity／MarkedForRemoval，不伪装Finished。\nFailProfileActionMotion精确中和原source→EndActionMotion清原slot／observer→至多一次原Handle／Error回调。\nBoss核保存原CMC／Handle／Original→FailOriginalAction→RequestAbilityEnd(Original,true,true)。\n不重捕当前激活／借HasActive；重复Prepare／End不重发，不清后继。\n[[Movement/动作曲线执行#显式业务 Profile 兼容模式|失败合同]]","x":2080,"y":1580,"width":550,"height":430,"color":"1"},
+		{"id":"profile-normal-tail","type":"text","text":"## Profile正常零区间／末帧／退出\n零位移／零sim继续合法；partial最后区间原native贡献保持。\n自然到期、正常离地或原GA EndActionMotion精确退自己，不中和正常Prepared末帧。\nProfile没有Montage完成观察语义；两明确模式不互相兜底。\nGA精确清原Handle，RMS／CMC保持原生生命周期。","x":1360,"y":2180,"width":550,"height":300,"color":"1"}
+	],
+	"edges":[
+		{"id":"action-e1","fromNode":"action-author","fromSide":"right","toNode":"action-profile","toSide":"left","label":"原动画来源或明确业务Profile生产"},
+		{"id":"action-e2","fromNode":"action-profile","fromSide":"bottom","toNode":"action-begin","toSide":"top","label":"原绑定／实例／位置／固定rate／scale"},
+		{"id":"action-e3","fromNode":"action-ga","fromSide":"right","toNode":"action-begin","toSide":"left","label":"原Task快照及必需Pose就绪后申请，GA持Handle"},
+		{"id":"action-e4","fromNode":"action-begin","fromSide":"right","toNode":"action-sample","toSide":"left","label":"安装固定Actor基准XYZ资源，Profile模式另明确"},
+		{"id":"action-e5","fromNode":"action-sample","fromSide":"right","toNode":"action-clean","toSide":"left","label":"原来源／播放依赖失败：中止并清原贡献"},
+		{"id":"action-e6","fromNode":"action-clean","fromSide":"bottom","toNode":"action-scope","toSide":"right","label":"按原资源条件清理；契约与计划入口"},
     {
       "id": "action-original-task-facts",
       "fromNode": "action-ga",
@@ -181,6 +71,11 @@
       "toNode": "action-clean",
       "toSide": "right",
       "label": "Observe完成回传原Handle：MotionCompleted"
-    }
-  ]
+    },
+		{"id":"profile-explicit-mode-request","fromNode":"action-profile","fromSide":"bottom","toNode":"profile-original-begin","toSide":"top","label":"GA明确选择业务Profile地面XY模式"},
+		{"id":"profile-begin-original-native","fromNode":"profile-original-begin","fromSide":"right","toNode":"profile-native-prepare","toSide":"left","label":"保存原CMC／Handle／观察者，安装唯一原RMS"},
+		{"id":"profile-runtime-original-failure","fromNode":"profile-native-prepare","fromSide":"right","toNode":"profile-original-failure","toSide":"left","label":"配置／区间／数值失效，明确退原资源"},
+		{"id":"profile-runtime-normal-tail","fromNode":"profile-native-prepare","fromSide":"bottom","toNode":"profile-normal-tail","toSide":"top","label":"合法零／partial末帧或正常地面退出"},
+		{"id":"profile-begin-rejection-end","fromNode":"profile-original-begin","fromSide":"bottom","toNode":"profile-original-failure","toSide":"bottom","label":"启动／观察拒绝：精确原Cancelled End"}
+	]
 }

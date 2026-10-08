@@ -3,7 +3,7 @@
     {
       "id": "ga-term-nav",
       "type": "text",
-      "text": "# 原请求终止｜GA原记录与ASC退出见证\nfinal生命周期、Initialize/Body/Context Cleanup及原消费者已共同启用并编译，必要正常/故障行为有限验证。箭头表示原请求、真实调用或退出见证；GAS管Active/spec/count/tasks，GA唯一原记录，ASC只见证并发布，没有自动重启。\n[[AbilitySystem/计划_原请求终止|契约与未验边界]] · [[AbilitySystem/结构|结构文档]] · [[GGYGO_结构_AbilitySystem.canvas|结构图]] · [[GGYGO_流程_AbilitySystem.canvas|主流程]]",
+      "text": "# 原请求终止｜GA原记录与ASC退出见证\n沿箭头查看原请求、真实调用和退出见证。GAS拥有Active／Spec／count／Task，GA持唯一原记录，ASC认证退出并发布完成。\n[[AbilitySystem/结构|结构文档]] · [[GGYGO_结构_AbilitySystem.canvas|结构图]] · [[GGYGO_流程_AbilitySystem.canvas|主流程]]",
       "x": 0,
       "y": 0,
       "width": 1760,
@@ -73,7 +73,7 @@
     {
       "id": "ga-term-native-ended",
       "type": "text",
-      "text": "## 7B｜UE账本退休与ASC原Ended\nGA早数据通知返回→native清IsActive、处理原Task→ActiveTasks.Reset→ASC::NotifyAbilityEnded。\nASC原OnAbilityEnded的ReplicateEnd固定false，因Notify没有该输入；WasCancelled仍是原取消参数。\nObserveOriginalNativeEnd核原记录、原End作用域、Spec与真实来源。原Ended是必要见证，End尾部仍未返回，不据inactive补Completed。",
+      "text": "## 7B｜UE账本退休与ASC原Ended\nGA早数据通知返回→native清IsActive、处理原Task→ActiveTasks.Reset→ASC::NotifyAbilityEnded。\nASC原OnAbilityEnded的ReplicateEnd固定false，因Notify没有该输入；WasCancelled仍是原取消参数。\nObserveOriginalNativeEnd核原记录、原End作用域、Spec与真实来源。原Ended是必要见证，End尾部仍未返回，不据inactive补Completed。\n原早回调若撤销Binding，Termination目的认证失败→ActivationChanged；native已End的历史保留，不补Completed。",
       "x": 0,
       "y": 3000,
       "width": 700,
@@ -113,7 +113,7 @@
     {
       "id": "ga-term-facts",
       "type": "text",
-      "text": "## 原完成历史的消费\nNotice保存首次Original Activation/Termination及参数，是原完成历史，非当前idle/后继End权限。\nBoss BT已消费同步Try历史或异步匹配Notice，先解绑原等待再Finish；业务核原来源后显式新请求。\nTask自然Completed不是GA原Notice；项目Completed不证明任意异步资源或网络确认。\n[[AbilitySystem/计划_原请求终止|结果/剩余范围]]",
+      "text": "## 原完成历史的消费\nNotice保存首次Original Activation／Termination及参数，非当前idle或后继End权限。\nBoss BT消费同步Try结果或异步匹配Notice，先解绑原等待再Finish；业务核原来源后显式新请求。\nTask自然Completed只描述原实例，项目Completed只描述原能力完整退出。",
       "x": 0,
       "y": 5120,
       "width": 700,
@@ -123,7 +123,7 @@
     {
       "id": "ga-term-migration",
       "type": "text",
-      "text": "## 已接消费者与剩余边界\nCombo/Boss/Admission已用Initialize/Body/Context Cleanup，End/Cancel不再派生覆写；Process/OnSpawn/Boss BT已接受控Try。\n必要Combo正常/GE故障中止与Boss Mesh A→全返回→B有限验证。\n无Montage/相机业务资源probe：A同Binding Controller Refresh后End、B拒旧A、同端点新Binding拒旧C、自有grant清C且无业务Completed已验。带播放/表现/CMC资源刷新清理、刷新后Cancel未验；C12未决/未实施。\n原strict/raw、移除/极端重入、完整正式Boss/Combo资产/战斗与RPC/网络仍未整体验收。\n[[计划_玩家普攻连段|Combo]] · [[BossAI/结构|Boss]]",
+      "text": "## 原完成通知的调用方\nBoss BT匹配原Activation与同步／异步Notice，结束自己的等待。\nCombo／Boss的Initialize／Body／Context Cleanup分别管理原激活初始化、业务和原资源归还；End／Cancel由final基类执行。\nProcess／OnSpawn／Boss BT通过受控Try发起能力请求，不由完成通知自动重启。\n[[GGYGO_流程_玩家普攻连段.canvas|Combo运行流程]] · [[BossAI/结构|Boss接口]]",
       "x": 900,
       "y": 5120,
       "width": 860,
@@ -133,7 +133,7 @@
     {
       "id": "ga-term-failed",
       "type": "text",
-      "text": "## 明确失败出口\n异源、失效、不可结束/取消、K3 capture 失败或必要原 Ended/返回见证缺失 → Rejected/Stale/Failed 与真实 Reason。\n重复请求不能换首次参数；失败不变 NoOwnedPlayback/当前资源/成功，不清后继，不回滚已发生的原生动作。\n结果是操作历史，不能由 bool/当前 inactive 补造权限。",
+      "text": "## 明确失败出口\n异源、失效、不可结束／取消、原Montage捕获失败或必要Ended／返回见证缺失 → Rejected／Stale／Failed及真实Reason。\n重复请求不改变首次参数；失败不认领当前资源，不清后继，不回滚已发生的原生动作。\n操作结果不能由bool或当前inactive补造。",
       "x": 900,
       "y": 880,
       "width": 860,
@@ -143,7 +143,7 @@
     {
       "id": "ga-term-unsupported",
       "type": "text",
-      "text": "## 明确未闭合来源\n原激活来自raw非虚Try/CallActivate：实际Original和原资源Cleanup可成立；不可变Proof缺受控Try外层返回来源→UnsupportedEntry、无协议Completed。\nfinal End/Cancel已见证自身跨度，不能用旧“只有raw Cancel自身虚返回未证”的解释。\nPendingRemove/锁内native teardown必要返回未闭合；匹配Context只清原资源，不加第二continuation或补完成。",
+      "text": "## 缺少完成见证的入口\nraw非虚Try／CallActivate来源：Original和原资源Cleanup可以成立；缺受控Try外层返回来源 → UnsupportedEntry，无协议Completed。\nfinal End／Cancel仅见证自身跨度，不证明raw外层Try退出。\nPendingRemove／锁内native teardown缺少必要退出见证时，匹配Context只清原资源，不补完成或增加continuation。",
       "x": 900,
       "y": 3530,
       "width": 860,
@@ -153,7 +153,7 @@
     {
       "id": "ga-term-e14",
       "type": "text",
-      "text": "## E14｜Builder与不同消费者\n显式空GE正常Context/Cue；非空必需Spec失败→false/空输出/定位诊断，无该hit的伤害或Cue。\nCombo依赖/Builder故障→固定Original正式End(true,true)，含不可取消场景；Boss只拒该hit、保留动作。\n有效Spec免疫/拒绝后的碰撞Cue保持。必要四Case行为已验，真实生产Error/Fail保留；正式资产/数值/网络未验。\n[[GGYGO_流程_伤害结算.canvas|命中分支]]",
+      "text": "## Builder失败与消费者响应\n显式空GE为正常Context／Cue模式；非空必需Spec失败 → false／空输出／诊断，不施加该hit的GE或Cue。\nCombo依赖／Builder故障 → 固定Original正式End(true,true)，包括不可取消场景；Boss只拒该hit并保留动作。\n有效Spec被免疫／拒绝后的碰撞Cue按消费者政策执行。\n[[GGYGO_流程_伤害结算.canvas|命中分支]]",
       "x": 900,
       "y": 4590,
       "width": 860,
@@ -163,7 +163,7 @@
     {
       "id": "ga-term-ga-early-ended",
       "type": "text",
-      "text": "## 7A｜GA原生早数据通知\nSuper::EndAbility→OnGameplayAbilityEndedWithData，携实际ReplicateEnd/WasCancelled；广播后Clear实例委托，复用实例须逐激活订阅。\n本次Combo：项目资源已恢复，两原Task已Finished/OwnerFinished；UE ActiveTasks仍保留两原引用，随后才Reset。\n这是合法native待退休阶段，不能直接改账本、跳过实际任务断言或据此启动同实例后继。\nGA回调全退出→继续native End。精确数量仅属该夹具。",
+      "text": "## 7A｜GA原生早数据通知\nSuper::EndAbility → OnGameplayAbilityEndedWithData，携原ReplicateEnd／WasCancelled；广播后清实例委托。\n原项目资源清理已执行；原Task结束与UE ActiveTasks登记退休是不同阶段，native随后处理Task并Reset数组。\n此时尚未完整退出End，不据早通知启动同实例后继。\nGA回调全部返回 → 继续native End。",
       "x": 900,
       "y": 2470,
       "width": 860,
@@ -266,7 +266,7 @@
       "fromSide": "right",
       "toNode": "ga-term-migration",
       "toSide": "left",
-      "label": "已接生产消费者；有限证据与剩余严格/资产网络分开"
+      "label": "原调用方匹配完成事实，结束自己的等待或提出显式新请求"
     },
     {
       "id": "ga-term-e-request-failed",
@@ -306,7 +306,7 @@
       "fromSide": "bottom",
       "toNode": "ga-term-unsupported",
       "toSide": "top",
-      "label": "锁中移除原实例，原生 teardown 仍未闭合"
+      "label": "锁内移除：必要native teardown退出见证缺失"
     },
     {
       "id": "ga-term-e-e14-migration",
@@ -323,6 +323,14 @@
       "toNode": "ga-term-native-ended",
       "toSide": "right",
       "label": "GA原回调退出→native处理/Reset Task登记→ASC原通知"
+    },
+    {
+      "id": "ga-term-native-ended-source-changed",
+      "fromNode": "ga-term-native-ended",
+      "fromSide": "right",
+      "toNode": "ga-term-failed",
+      "toSide": "right",
+      "label": "原Ended来源认证失败→ActivationChanged；不生成Completed"
     }
   ]
 }

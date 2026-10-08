@@ -3,7 +3,7 @@
     {
       "id": "hitimpact-flow-nav",
       "type": "text",
-      "text": "# HitImpact｜Executed 执行流程\n按箭头看实际入口、校验与反馈；这里只展开原生实现路径，BP 覆写拓扑须资产验收。\n[[AbilitySystem/Cues/结构|结构与接口]] · [[GGYGO_结构_HitImpact.canvas|静态关系]] · [[计划_HitImpact反馈#实施与验证状态|编译/冒烟/资产状态]] · [[AbilitySystem/结构|父模块]]\n源码/原测试已冻；Gate64R1 编译与五原叶有限通过。true 不证明实际父类/BP/媒体或网络反馈。",
+      "text": "# HitImpact｜Executed执行流程\n沿箭头查看原生入口、校验、反馈和拒绝分支；BP覆写由对应资产编排。\n[[AbilitySystem/Cues/结构|结构与接口]] · [[GGYGO_结构_HitImpact.canvas|静态关系]] · [[AbilitySystem/结构|父模块]]",
       "x": 0,
       "y": 0,
       "width": 2340,

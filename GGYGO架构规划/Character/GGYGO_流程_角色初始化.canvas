@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Character｜初始化流程图\nSystem提供同GI原生顺序；各feature独立推进，Extension唯一分发PawnData配置。\nHost/ASC真实绑定发布与Base/Health资源订阅各有独立生命周期；InitState不授ASC Ready。\n[[GGYGO_结构_角色与组件.canvas|结构图]] · [[Character/结构|结构文档]]",
+      "text": "# Character｜初始化流程图\nSystem提供同GI原生顺序；各feature独立推进，Extension唯一分发PawnData配置。\nHost/ASC发布、Base/Health订阅与Hero输入各有独立生命周期；Closing不证明原生退出成功，InitState不授ASC Ready。\n[[GGYGO_结构_角色与组件.canvas|结构图]] · [[Character/结构|结构文档]]",
       "x": 0,
       "y": 0,
       "width": 1650,
@@ -53,7 +53,7 @@
     {
       "id": "hero",
       "type": "text",
-      "text": "## 玩家分支｜Hero原生输入装配\nBeginPlay／CharacterBase::SetupPlayerInputComponent→InitializePlayerInput；输入与相机委托沿既有入口。\nHero只等待Extension≥DataAvailable，可先到GameplayReady；Setup可独立建立输入会话。\n输入准入：原Started／OwnerSync Ready→查原Source仍Held→`TryAdmitInitialMovementInputRequest`。\n原Session／Binding／Observer按来源精确清理，Hero不持第二held或执行状态。\n[[Movement/结构|输入准入与执行]]",
+      "text": "## 玩家分支｜Hero原生输入装配\nBeginPlay／Setup→InitializePlayerInput。\nHero只等Extension≥DataAvailable，可先到GameplayReady。\nReady H关联；首Triggered锁观察/截止→Receive。\nClosing→退休匹配关联/观察→原SourceASC End(ID,Invalidated)；保留绑定/IMC/Action锁存。\n等待许可归ASC；Released／自身退出清原会话。\n移动Started／OwnerSync Ready→原Source仍Held→原准入；按来源清Session/Binding/Observer。\n[[Input/结构|能力输入]] · [[Movement/结构|移动准入与执行]]",
       "x": 1460,
       "y": 878,
       "width": 430,
@@ -83,7 +83,7 @@
     {
       "id": "unbind",
       "type": "text",
-      "text": "Host原H退出链\nDetach／销毁／EndPlay→捕原H/Context Request(Release)。\nWithdraw→原Cancel/Input/Cue→ASC Clear→退Host原资源/订阅→真实发布Released。\n已提交与未commit清理由ASC分别认证。\n旧栈失效停止，不按当前槽收养后继；关闭的Extension仅退休通知义务。",
+      "text": "## Host原H退出链\nDetach／销毁／EndPlay→捕原H/Context Request Release。\nWithdraw→一次Closing→原Cancel/Input/Cue→ASC Clear→退Host资源→Released。\nEndPlay先关准入/Closing，再释放捕获H。\n外调后重验原范围；失败保留，旧栈不清后继。\n关闭Released不广播，仅退休原通知义务。",
       "x": 460,
       "y": 986,
       "width": 410,
@@ -103,7 +103,7 @@
     {
       "id": "local-asc-phases",
       "type": "text",
-      "text": "## 原请求／真实发布链\nRequestAvatarBinding携原端点/H/Context→实际Steps，不授第二Ready。\nInstallLocalAbilitySystemResources(ASC,Pawn,CommittedContext)只建Installed H。\nHost公布原H/Context/Avatar→ASC Publish验Installed→原Receipt实际Dispatching→NotifyLocalResourcesReady(H,Receipt)。\nRelease：Withdraw(H)→原Context Cancel→全输入退休→Cue保旧Avatar路由→ASC Clear→退Host原H/销毁订阅→真实NotifyReleased(H)。\n外调后重检原范围；旧栈不收养后继，普通Ready/Released可同步完整接续，原生Busy不排队。\nExtension关闭后的Released只退休原义务，Failed/LifecycleClosed且不广播；各消费者独立精确清理。\nBase/Health/Hero/CMC各持原订阅与资源；外调只复核原记录，不复制Binding/Ready权威。\n[[Character/结构#ASC 本地资源四阶段接口（L1）|本地合同]] · [[Combatants/结构|Host边界]] · [[AbilitySystem/结构|ASC]]",
+      "text": "## 原请求／真实发布与退出链\nRequestAvatarBinding携原端点/H/Context→实际Steps，不授第二Ready；Install(ASC,Pawn,CommittedContext)只建Installed H。\nHost公布原H/Context/Avatar→ASC Publish验Installed→Receipt真实Dispatching→NotifyLocalResourcesReady(H,Receipt)。\n普通Release：Withdraw(H)先撤槽/未Installed→一次Closing→原Context Cancel→原范围全输入退休→Cue保旧Avatar路由→ASC Clear→退Host原H/订阅→真实NotifyReleased。\nExtension EndPlay：入口捕原H→先关准入→同一Closing→按捕获H请求原Host Release；后续Withdraw不重发。每H义务先消费再外调，Closing只原H/空Context。\nHero Closing：先退休匹配H关联/观察→原SourceASC End原ID Invalidated；不查旧Ready，不全清其他来源，保留native绑定/IMC/Action锁存。ASC唯一管等待许可。\nClosing不证明Cancel/Clear成功或Released；外调返栈重验原范围，失效停止且保留真实失败，不收养后继。Host原生Busy不排队。\n关闭Extension的NotifyReleased只退休原义务，Failed/LifecycleClosed且不广播。Base合法Closing返回，Health仍按Released/自身退出清理，Camera/CMC沿原生命周期。\n原订阅/token与资源各归消费者；旧两无参通知退役，仅typed原H通知。C1/X1有限编译/复测见计划，不证明全World/Feature或网络生命周期。\n[[Character/结构#ASC 本地资源四阶段接口（L1）|本地合同]] · [[Combatants/结构|Host边界]] · [[AbilitySystem/结构|ASC]] · [[计划_角色与组件#C1／X1 原H关闭合同与有限验证|验证边界]]",
       "x": 0,
       "y": 1560,
       "width": 1890,
@@ -118,7 +118,7 @@
       "width": 720,
       "height": 760,
       "color": "5",
-      "text": "## Base→Health原资源链\nBase PostInitializeComponents Super后先装原订阅，再RegisterLocalAbilitySystemNoticeAndCall；回放先退休时，晚token精确还原Extension。\nConsume复制原订阅/整Notice：Ready携Extension/H/PublishedContext→InitializeWithLocalAbilitySystemResource验本Pawn、真实Ready、实际HealthSet。\n唯一原记录安装五token→投影既有DeathState→三次UI初值；外调后复核原记录/Context，失效只退本次原记录，不清合法后继。\nRefreshed同H→RefreshLocalAbilitySystemResource认证新Context，不重装token/UI；lambda每入口复制当前认证Context。\nReleased只携原H→UninitializeFromLocalAbilitySystemResource：匹配原记录→先退休/摘槽→原Set五精确Remove，不RequireReady。\nBase EndPlay/BeginDestroy关准入、退原通知token；Health EndPlay/OnUnregister独立退五token，不等Extension广播。真实新BeginPlay才重开。\n旧BP共用原H机制；Base不调用旧BP/无参数回调。DeathState唯一归Health，数值归HealthSet。\n本Pawn/Extension/H身份不符或未Ready→明确失败；安装失效只退休原记录，不绑定替代资源。\nBase死亡事件关闭移动/碰撞并安排下一帧退场；常改演出由蓝图消费。\n[[Character/结构#Health原资源与五委托（已编码，未编译）|完整接口]]"
+      "text": "## Base→Health原资源链\nBase PostInitializeComponents Super后先装原订阅，再RegisterLocalAbilitySystemNoticeAndCall；回放先退休时，晚token精确还原Extension。\nConsume复制原订阅/整Notice：Ready携Extension/H/PublishedContext→InitializeWithLocalAbilitySystemResource验本Pawn、真实Ready、实际HealthSet。\n唯一原记录安装五token→投影既有DeathState→三次UI初值；仍有后续操作的外调返栈复核原记录/Context，失效只退本次原记录，不清合法后继。\nRefreshed同H→RefreshLocalAbilitySystemResource认证新Context，不重装token/UI；lambda每入口复制当前认证Context。\nClosing原H/空Context→Base合法返回，不清Health，不伪造Released；Camera/CMC保持各自原生命周期。\nReleased原H→UninitializeFromLocalAbilitySystemResource：匹配原记录→先退休/摘槽→原Set五精确Remove，不RequireReady。\nBase EndPlay/BeginDestroy关准入、退原通知token；Health EndPlay/OnUnregister独立退五token，不等Extension广播。真实新BeginPlay才重开。\n旧BP共用原H机制；Base不调用旧BP/无参数回调。DeathState唯一归Health，数值归HealthSet。\n本Pawn/Extension/H身份不符或未Ready→明确失败；安装失效只退休原记录，不绑定替代资源。\nBase死亡事件关闭移动/碰撞并安排下一帧退场；常改演出由蓝图消费。\n[[Character/结构#Health原资源与五委托（已编码，未编译）|完整接口]]"
     },
     {
       "id": "system-initstate-order",
@@ -240,7 +240,7 @@
       "fromSide": "right",
       "toNode": "health-original-resource-flow",
       "toSide": "bottom",
-      "label": "原typed通知→Health消费；Base先建原订阅，独立于InitState"
+      "label": "typed原H→Base：Ready/Refreshed/Released接Health，Closing合法返回"
     },
     {
       "id": "e-system-initstate-order",

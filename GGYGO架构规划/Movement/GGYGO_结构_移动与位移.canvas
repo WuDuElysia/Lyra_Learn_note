@@ -1,444 +1,57 @@
 {
-  "nodes": [
-    {
-      "id": "nav",
-      "type": "text",
-      "text": "# Movement｜结构图\n箭头与标签表示持有、调用和只读数据交付；CMC唯一持请求／FAILED、移动时间与胶囊执行。\n[[Movement/结构|结构文档]] · [[Movement/GGYGO_流程_移动与位移.canvas|流程图]] · [[计划蓝图|模块入口]]\n动作：Main→完整End同一RMS／native时间执行；原Task完成与最后贡献消费完成分责，GA作者信号后授权打断，CMC不持攻击门。",
-      "x": 0,
-      "y": 0,
-      "width": 2630,
-      "height": 220,
-      "color": "6"
-    },
-    {
-      "id": "input",
-      "type": "text",
-      "text": "## Hero／Input 来源接口\nInput 唯一发行 Session／Request／Fact 与真实 Press／Held／Release。\nHero 转交原资源：Bind／Consume／Invalidate → CMC；Input_Move 提交轴值，ForceWalk 提交请求。\n轴值／零Acceleration不证明来源或释放；Hero1等待原Owner Ready并查询Source仍Held后一次准入。\n[[Input/结构|来源职责]] · [[Character/结构|装配职责]]",
-      "x": 0,
-      "y": 300,
-      "width": 480,
-      "height": 300,
-      "color": "4"
-    },
-    {
-      "id": "set",
-      "type": "text",
-      "text": "## UGGYGOMovementSet｜移动规则\nValidateMovementSet(Error)校原标量＋已启用steering必需曲线／角速度；不认证动画源。\nSetMovementSet(Set,Error)接纳配置，GetMovementSet只读实际accepted。\n速度／保持／混合／停止／转身／物理与角响应配置；曲线false才固定速度。\nPyrios专用Set配置steering；七旧曲线DA仍退役，共享默认Set保持。\n[[Movement/结构#正式 MovementSet 分发与只读查询|分发与校验]]",
-      "x": 0,
-      "y": 640,
-      "width": 480,
-      "height": 300,
-      "color": "4"
-    },
-    {
-      "id": "cmc",
-      "type": "text",
-      "text": "## UGGYGOCharacterMovementComponent\n唯一请求／FAILED、Gait／hold／Alpha、motion time／cycle、TurnBack与胶囊执行。\nPublish／RetireLocomotionSourceBinding只接收／退休原代际，不撤后继或GA。\nBefore：普通段成功Commit；Stop／TurnBack Stage捕获Origin／Input。\nPrepare(Source,sim,tick)核原group求实际区间，Consume同结果一次提交。\nCalcVelocity在Super后约束真实速度方向；PhysicsRotation以Velocity目标交原Super旋转。\nOnMovementUpdated发布完成区间；GetLocomotionSteeringSnapshot只读四状态，见下方DTO。\nBeginMontageActionMotion持原实例XYZ；精确Release／Cancel保后继。\n原生物理前快照与完成结果只用于速度准入，无第二速度权威。\nReset／EndPlay／回放退出精确清自身资源；缺坏源明确失败。\n[[Movement/结构|接口与状态归属]]",
-      "x": 600,
-      "y": 300,
-      "width": 610,
-      "height": 660,
-      "color": "5"
-    },
-    {
-      "id": "sampler",
-      "type": "text",
-      "text": "## FGGYGOLocomotionSourceBinding｜不可变来源\nAnimation定义共享DTO；原Producer／Character／Mesh弱身份，生命周期／配置代际、Available／Missing／Invalid／Stale及错误。\n原Sequence／BlendSpace强引用、RouteKey、PlayLength、SequenceRateScale；实际BS SampleIndex／Value／SampleRateScale与loop语义。\n无曲线副本、播放时钟、姿态历史、求值速度或准入；强引用随当前绑定／SavedMove／Origin／Input原生命周期释放。\n[[Movement/结构#动画唯一来源与发布生命周期|输入与有效期]]",
-      "x": 1320,
-      "y": 300,
-      "width": 600,
-      "height": 360,
-      "color": "4"
-    },
-    {
-      "id": "rms",
-      "type": "text",
-      "text": "## FRootMotionSource_GGYGOCurve\nStop／TurnBack原生资源，持原Origin／只读Prepared。\nnative PrepareRootMotion(sim,tick) → 原CMC Prepare／Consume → 安装Override速度、native时间／结束状态。\n实时t0=OriginMotion+(SourceTime−OriginSource)，t1=t0+sim；端点速度×sim/tick，非平移积分。\nStop结束：正sim且原Sample.Speed恰为0（RootMotionScale前）；正小值／Scale=0不提前结束，TurnBack按阶段。\nClone保原引用；Matches／Update拒绝本地Origin不符。NetSerialize wire保持，加载清本地引用；导入Origin未认证。\n旧贡献只退自己，独立Action沿原仲裁。",
-      "x": 1320,
-      "y": 710,
-      "width": 600,
-      "height": 470,
-      "color": "4"
-    },
-    {
-      "id": "saved",
-      "type": "text",
-      "text": "## FSavedMove_GGYGO／MoveData／Response\nSetMoveFor → 原语义、SourceBinding、输入checkpoint、Owner nonce／generation。\nPostUpdate → 保原Input／Prepared；PostUpdate_Replay不覆盖；来源变化／有关RMS限制合并。\nPrepMoveFor在native Super前BeginReplay原记录／SavedRootMotion；Prepared存在却缺原native source明确拒绝。\nauthority按自身Candidate.MotionTime重算实际区间；旧Prepared仅供区间元信息，禁止直接提交旧候选／速度。\nClear／EndReplay清自身引用，不重开FAILED或补新Ready。\nOwner v2原receipt／ACK／correction完整返回后Ready；本地原绑定不证明网络导入。\n[[Movement/结构#SavedMove 原绑定与权威校正|回放契约]]",
-      "x": 600,
-      "y": 1030,
-      "width": 610,
-      "height": 480,
-      "color": "5"
-    },
-    {
-      "id": "frame",
-      "type": "text",
-      "text": "## FGGYGOAnimationStateFrame／现有AnimBP\nCapture原Gait／Alpha／StopType／TurnBack及steering快照。\nABP原单BS：X=0 Walk／1 Run，GaitBlendY兼容映射；其余24图与输入保持。\nWalkRun内部单Bip001-Spine原生ModifyBone只管旋转展示，主ActionPoseSlot链保持。\nWalkRunBlendAlpha公开；旧字段／轴名保留，Player相位未迁，无同钟／脚滑承诺。\n[[Animation/结构|表现职责]]",
-      "x": 2030,
-      "y": 910,
-      "width": 600,
-      "height": 330,
-      "color": "1"
-    },
-    {
-      "id": "contract",
-      "type": "text",
-      "text": "## 当前边界与架构核对\n原动画是Locomotion速度曲线唯一编辑源；Set持移动／角响应规则，七旧DA已退役，ActionMotionProfile模式独立。\nAnimation管来源／身体余量／倾身；CMC管请求／native时间／胶囊及真实速度；Camera管外侧横移。\n作者点权限归GA，新播放关门；Main／End不授门，End入口不释放；TaskCompleted与MotionCompleted分责。\n原Handle／实例／Owner／Source精确匹配，旧释放不认领后继；steering整区间排除Action／TurnBack／混合。\n动量与steering样本仅为派生事实；无第二Tick／运动时钟／执行链。Gadge／GA_Dodge占位。\n[[Movement/计划_移动与动作位移#14.5 整链验收与剩余边界|Gate106有限证据与历史失败]] · [[Movement/动作曲线执行|动作契约]]",
-      "x": 0,
-      "y": 2200,
-      "width": 2630,
-      "height": 300,
-      "color": "6"
-    },
-    {
-      "id": "movement-test-map",
-      "type": "text",
-      "x": 0,
-      "y": 1930,
-      "width": 520,
-      "height": 230,
-      "color": "4",
-      "text": "## L_Movement_Test｜正式夹具与历史入口\n原Experience／PawnData、阻挡地面与PlayerStart装配；地图不发行移动资格。\n原生输入沿GA作者信号授权精确取消原Handle，恢复原Walk／Run；HID未验。\n历史38秒／4513帧Run／TurnBack仍是新来源门禁前证据。\n[[Movement/移动测试关卡|配置与有限证据]]"
-    },
-    {
-      "id": "action-profile",
-      "type": "text",
-      "x": 0,
-      "y": 2600,
-      "width": 500,
-      "height": 270,
-      "color": "4",
-      "text": "## 业务Profile与原Montage绑定\nUGGYGOActionMotionProfile：显式业务TranslationCurve／Duration／Scale，首帧0；服务器地面XY。\nFGGYGOActionMotionSourceBinding：原Montage／Slot／有序Sections／Segments；BuildSourceBindingRange明确Main→End。\n纯求值原PosXYZ；逐源／loop差分，不跨源累计归零制造跳变。\n两模式明确选择，无错误替代；原raw段终点与私有native末端映射分开。\n[[Movement/动作曲线执行|来源与模式契约]]"
-    },
-    {
-      "id": "action-executor",
-      "type": "text",
-      "x": 600,
-      "y": 2600,
-      "width": 610,
-      "height": 300,
-      "color": "5",
-      "text": "## 同一CMC｜动作接口\n原Task快照＋Source／Instance／Position／Rate／Scale → BeginMontageActionMotion → 原Handle／明确失败。\nMain→End同一资源／native时间；GA作者信号后QueryQualifiedMovementIntent／SubscribeQualifiedMovementIntent原Scope，CMC不持门／阶段。\nNotifyMontageActionNaturalBlendOut → 核原末段auto-blend窗口，准许有限尾区间。\nObserveMontageActionMotionCompletion → AfterMovement发布已消费末区间的原Handle。\nRelease(...,Completed) → 原Task完成的有界Drain；成功不等于消费完成。\nQuery／Subscribe／Cancel接口核原Scope／Intent／Handle；CancelMontageActionMotionForMovement仅清原XY，保空气Z／后继；其他退役撤自身贡献／回调。\n[[Movement/动作曲线执行#当前普攻：原 Montage 来源与 CMC 接口|触发与清理]]"
-    },
-    {
-      "id": "action-rms",
-      "type": "text",
-      "x": 1320,
-      "y": 2600,
-      "width": 600,
-      "height": 300,
-      "color": "4",
-      "text": "## FRootMotionSource_GGYGOActionCurve\nOriginalMontage：Main→End的native实际区间 → 原PosXYZ差分 → 固定入口Actor旋转×捕获Scale一次 → 世界XYZ／tick。\nnative时间唯一，零位移继续持有；末区间标bPreparedNaturalEnd。\n原生ApplyRootMotionToVelocity消费贡献；AfterMovement才通知原Handle，GA无第二运动时钟。\n取消IgnoreZ、敏感离地；native碰撞／重力／落地；不追补受阻轨迹。\nTaskCompleted只准原资源有界Drain；取消／替换不通知旧完成。Profile模式仍地面XY。\n[[Movement/GGYGO_流程_动作曲线执行.canvas|动作流程]]"
-    },
-    {
-      "id": "locomotion-evaluation",
-      "type": "text",
-      "text": "## GGYGOLocomotionEvaluation｜纯求值\nValidateSource／ValidateBinding → 原资产身份／长度／速率／loop／必需运行曲线合格。\nEvaluateSingleInterval(Source,t0,t1,Scale,out,error) → 端点Speed／Dir、区间Yaw、缩放速度向量；原EvaluateCurveData，秒×SequenceRateScale。\nEvaluateWalkRunInterval(Binding,cycle,dt,alpha,Scale,out,error) → 原BS GetSamplesFromBlendInput权重／GetAnimationLengthFromSampleData周期；各源先求值，再混合速度向量与Yaw。\n零／微小正值／Scale=0／向量抵消合法；缺方向、负／非有限明确失败且Reset输出。\n无缓存／日志／状态／时钟；Scale不缩放Yaw。\n原生纯查询不等于最终AnimGraph滤波／marker／姿态相位。\n[[Movement/结构#纯求值与普通移动提交|算法与提交]]",
-      "x": 2030,
-      "y": 300,
-      "width": 600,
-      "height": 530,
-      "color": "4"
-    },
-    {
-      "id": "input-consumer",
-      "type": "text",
-      "text": "## 同一 CMC｜原事实消费与 FAILED\nConsumeMovementInputFact(Binding,Fact,Error) → 完整原身份／Mode／Proof／Event校验；Recorded／Duplicate／Stale／Rejected。\nCold一次窗首Started在配置／执行失败前耗尽；恢复需真实Release→Neutral→新Press。\n完整同Event才Duplicate且不重执行；旧Request高Event仍Stale，不污染水位；零Acceleration不证明释放。\n纯求值Reject(originalSerial,error)／RMS Report(Origin,error) → Fail原请求。无号不补请求、旧源不失败后继。\n配置／Reset／同Started／Ready不自动重试。\n[[Input/结构|物理权威]] · [[Movement/结构#原请求失败与 Input 消费|消费契约]]",
-      "x": 600,
-      "y": 1630,
-      "width": 610,
-      "height": 430,
-      "color": "6"
-    },
-    {
-      "id": "local-asc-subscription",
-      "type": "text",
-      "text": "## 同一 CMC｜ASC 身份订阅\nBeginPlay Cache → PrepareLocalAbilitySystemSubscription原Extension一次注册；持原Handle／opaque派生缓存。\nReady验证原Owner／PublishedContext，新opaque才Reset；同Ready／Refreshed不Reset，晚Released不清后继。\nGetReadyLocalAbilitySystemComponent const → CantMove查询。\nRelease只注销原Handle，不清FAILED／GA；EndPlay先封闭执行及原CurveRMS／回放，再清自身订阅。\n已编译，独立动态未验。\n[[Character/结构|发布源]] · [[Movement/结构#本地 ASC 身份订阅|资源清理]]",
-      "x": 0,
-      "y": 1480,
-      "width": 520,
-      "height": 380,
-      "color": "4"
-    },
-    {
-      "id": "native-owner-sync",
-      "type": "text",
-      "x": 1320,
-      "y": 1410,
-      "width": 600,
-      "height": 490,
-      "color": "4",
-      "text": "## 同一 CMC｜原生 Owner 同步\nGetMovementOwnerSyncScope(out,error) → 活原Scope；非运动许可。\nSubscribe(Scope,callback,outObserver,error) → 先安装Observer再同步Replay；bool仅曾安装，回调后重验。\nUnsubscribe(原Observer,reason,error) → 精确取消，含在途Invalidated未调用项。\n唯一Scope／nonce／server generation来自原Pawn／PC／连接／Driver生命周期。\nOwner v2原move → native receipt → ACK／correction完整返回后Ready；不补旧move。\nM3／Hero1一次TryAdmit须原资源匹配并Source仍Held；Ready不重开FAILED或合成Press。\n已编译；正式物理输入／完整网络未验，EndPlay封闭原入口后退休原范围。\n[[Movement/结构#原生移动 Owner 同步|接口与生命周期]]"
-    },
-    {
-      "id": "source-publisher",
-      "type": "text",
-      "x": 0,
-      "y": 980,
-      "width": 520,
-      "height": 430,
-      "color": "4",
-      "text": "## Animation｜原来源发布者\nUGGYGOAnimInstanceBase原Initialize／Update／Uninitialize观察原Owner／Mesh／主Producer／配置，发布或退休原代际。\nUZZZAnimInstance从FZZZAnimSet解析五原非循环Sequence＋walkRun实际BS样本；缺／坏源明确Missing／Invalid。\n无曲线拷贝／移动时钟／速度或准入；原强资产引用随原绑定释放。\n固定模式无resolver为正常可选能力缺席；曲线请求必须合格。\n[[Animation/结构|Animation职责]] · [[Movement/结构#动画唯一来源与发布生命周期|跨模块入口]]"
-    },
-    {
-      "id": "native-passive-velocity",
-      "type": "text",
-      "text": "## 同一CMC｜新驱动与原生动量\nNativeMovementVelocityResult只记录同角色／胶囊已完成结果；不是速度权威、输入或曲线成功样本。\nBefore核有限／未被改写的来速，捕获当前move快照。\nUpdateVelocityBeforeMovement消费快照：UE已直接Override而尚未StartNewPhysics；拒绝其XYZ贡献，仅已有动量资格保地面速度。\n物理内Calc暂屏新Acceleration／RequestedMove／ForceMaxAccel／RVO，让Super制动；被Override跳过的Calc补执行一次，不应用该RMS。\nAfter在外部委托前记实际结果；仅已接受native校正可更新派生记录。\nStop／精确原动作清XY／组件更换／EndPlay失效。未知RMS资源不归CMC删除。\n[[Movement/结构#新请求准入与原生动量|阶段／身份／清理]]",
-      "x": 1010,
-      "y": 3000,
-      "width": 700,
-      "height": 580,
-      "color": "4"
-    },
-    {
-     "id": "steering-evaluation",
-     "type": "text",
-     "text": "## GGYGOLocomotionSteeringEvaluation｜无状态数学\nValidateConfiguration(Set,error)：enabled须orient、有限界限／正增益、角响应0..180°／Y0..1；无默认曲线。\nEvaluateAngularBudget(Set,error°,Alpha,nativeDt,out,error)：绝对角响应→界限插值×Alpha增益→夹界→dt角预算≤180°；实时拒绝cubic超界／溢出。\nConstrainPlanarHeading(old,native,yaw,budget)：约束原方向→Super方向，保水平幅值／Z，首个零速端用实际胶囊。\nCalculateVelocityYawRate(old,new,dt,out)：有限非零两端才有实际heading导数。\n无状态／日志／clock／配置修改；Walk增益大，追赶快、弧线弱。\n[[Movement/计划_移动与动作位移#14.1 无状态角预算与真实执行|算法与参数]]",
-     "x": 3520,
-     "y": 1695,
-     "width": 720,
-     "height": 560,
-     "color": "4"
-    },
-    {
-     "id": "steering-snapshot",
-     "type": "text",
-     "text": "## FGGYGOLocomotionSteeringSnapshot｜完成区间只读值\nGT GetLocomotionSteeringSnapshot()：原CMC／Character／UpdatedComponent弱身份、SourceEpoch、serial／frame／native dt及诊断。\nInitial：合法原初始化在途或accepted依赖尚无区间；没有有效导数／准入。\nValid：整区间实际普通steering；bHasVelocityYawRate要求有限非零速度两端。\nNotApplicable：显式关闭、接管／混合／无输入、正常过期或native校正替换结果；展示回收。\nInvalid：原生命周期／必需Set／源／数值失败，明确诊断。\nActualSignedYawRate=胶囊ΔYaw/dt；ActualSignedVelocityYawRate=OldVelocity→完成Velocity的headingΔYaw/dt，UE右正；两者可反号。\ngetter核原Set／源、身份与结果，只允许当前／上一帧，replay不发live样本。Reset／源／Owner／Stop清观测、换epoch。\n[[Movement/结构#WalkRun 普通转向与只读完成区间|契约与清理]]",
-     "x": 2440,
-     "y": 2545,
-     "width": 780,
-     "height": 590,
-     "color": "5"
-    },
-    {
-     "id": "steering-consumers",
-     "type": "text",
-     "text": "## Animation／Camera｜只读表现消费\nAnimation Capture同次带DTO＋原Velocity方向／偏角／Alpha；UZZZ原NativeUpdate→UpdateWalkRunLeanPresentation。\n速度角速度／fullRate归一化×Walk→Run限幅；原指数平滑，ABP只写Bip001-Spine旋转，保原Body／Trajectory／ActionPoseSlot。\nThirdPerson::UpdateView→UpdateSteeringFromMovement：真实轨迹外侧投影camera-right→模式TargetOffset.Y。\n原Stack→GA Offset→Component唯一碰撞；ControlRotation／旋转／FOV保持。\nInitial保初始；NotApplicable／无速度导数回收；Invalid清展示，Camera typed failure传播原停止门禁，不自动重启。\n源epoch／动画Reset／模式失活各清自己滤波，无移动权限／第二调度。\n[[Animation/结构|动画职责]] · [[Camera/结构|镜头职责]] · [[Movement/计划_移动与动作位移#14.3 角色资产与表现接线|保存参数与接线]]",
-     "x": 3520,
-     "y": 2545,
-     "width": 780,
-     "height": 570,
-     "color": "1"
-    },
-    {
-     "id": "configuration-init-scope",
-     "type": "text",
-     "text": "## Character｜原同步初始化范围\nExtension持PawnData，ApplyPawnDataToConsumers→SetMovementSet唯一分发。\nIsPawnDataInitializationInProgress() const：核原Extension／Pawn／World的当前同步调用scope，CheckDefaultInitialization与Apply入口持有、返回即关闭；EndPlay封闭。\nCMC未提交Set／无native区间／原Extension未DataInitialized时，构造期或BeginPlay后真实scope可Initial。\nsetter提交／拒绝／解绑、native区间、同步返回或DataInitialized关闭未绑定窗口；停在Spawned／DataAvailable不准无限等待。\n无新Ready／计时／轮询；accepted Set仍唯一移动配置准入。\n[[Character/结构|初始化职责]] · [[Movement/结构#原配置初始化的窄边界|窄接口合同]]",
-     "x": 200,
-     "y": 3360,
-     "width": 610,
-     "height": 490,
-     "color": "4"
-    }
-  ],
-  "edges": [
-    {
-      "id": "e1",
-      "fromNode": "input",
-      "fromSide": "right",
-      "toNode": "cmc",
-      "toSide": "left",
-      "label": "AddMovementInput／ForceWalk；轴值不认证请求"
-    },
-    {
-      "id": "e2",
-      "fromNode": "set",
-      "fromSide": "right",
-      "toNode": "cmc",
-      "toSide": "left",
-      "label": "Extension.DataInitialized → SetMovementSet校验接纳"
-    },
-    {
-      "id": "e3",
-      "fromNode": "sampler",
-      "fromSide": "left",
-      "toNode": "cmc",
-      "toSide": "right",
-      "label": "提供原不可变来源快照；接收不等于执行合格"
-    },
-    {
-      "id": "e4",
-      "fromNode": "cmc",
-      "fromSide": "right",
-      "toNode": "rms",
-      "toSide": "left",
-      "label": "Stage保存原Origin／Input并Apply原曲线源"
-    },
-    {
-      "id": "e5",
-      "fromNode": "cmc",
-      "fromSide": "left",
-      "toNode": "saved",
-      "toSide": "top",
-      "label": "SetMoveFor／PostUpdate：起始语义＋原Input／Prepared"
-    },
-    {
-      "id": "e6",
-      "fromNode": "cmc",
-      "fromSide": "left",
-      "toNode": "frame",
-      "toSide": "right",
-      "label": "提供提交后的只读事实；相位未迁移"
-    },
-    {
-      "id": "e7",
-      "fromNode": "rms",
-      "fromSide": "left",
-      "toNode": "saved",
-      "toSide": "right",
-      "label": "Clone保留原引用，进入SavedRootMotion"
-    },
-    {
-      "id": "movement-test-floor-cmc",
-      "fromNode": "movement-test-map",
-      "fromSide": "right",
-      "toNode": "cmc",
-      "toSide": "left",
-      "label": "为 CMC 原生物理查询提供阻挡地面"
-    },
-    {
-      "id": "action-data-cmc",
-      "fromNode": "action-profile",
-      "fromSide": "right",
-      "toNode": "action-executor",
-      "toSide": "left",
-      "label": "明确业务Profile或原Montage来源／播放参数"
-    },
-    {
-      "id": "action-cmc-rms",
-      "fromNode": "action-executor",
-      "fromSide": "right",
-      "toNode": "action-rms",
-      "toSide": "left",
-      "label": "持同一Main→End资源／native时间；原Handle释放与完成"
-    },
-    {
-      "id": "cmc-evaluation",
-      "fromNode": "cmc",
-      "fromSide": "right",
-      "toNode": "locomotion-evaluation",
-      "toSide": "left",
-      "label": "普通段／原生Prepare调用纯区间数学"
-    },
-    {
-      "id": "evaluation-profile",
-      "fromNode": "locomotion-evaluation",
-      "fromSide": "top",
-      "toNode": "sampler",
-      "toSide": "bottom",
-      "label": "验证并求值原Sequence／实际BS引用"
-    },
-    {
-      "id": "cmc-local-asc-subscription",
-      "fromNode": "cmc",
-      "fromSide": "left",
-      "toNode": "local-asc-subscription",
-      "toSide": "right",
-      "label": "持原订阅；Cache／CantMove／EndPlay消费"
-    },
-    {
-      "id": "rms-original-cmc-prepare",
-      "fromNode": "rms",
-      "fromSide": "top",
-      "toNode": "cmc",
-      "toSide": "right",
-      "label": "native实际区间→原CMC Prepare／唯一Consume"
-    },
-    {
-      "id": "saved-original-cmc-replay",
-      "fromNode": "saved",
-      "fromSide": "top",
-      "toNode": "cmc",
-      "toSide": "bottom",
-      "label": "原绑定／group回放；authority按自身基线重算"
-    },
-    {
-      "id": "input-consumer-native-owner-sync",
-      "fromNode": "input-consumer",
-      "fromSide": "right",
-      "toNode": "native-owner-sync",
-      "toSide": "left",
-      "label": "同一CMC的Owner同步接口；Ready不授予输入准入"
-    },
-    {
-      "id": "publisher-original-binding",
-      "fromNode": "source-publisher",
-      "fromSide": "bottom",
-      "toNode": "sampler",
-      "toSide": "left",
-      "label": "解析原资产／元信息，构造原代际快照"
-    },
-    {
-      "id": "publisher-lifecycle-cmc",
-      "fromNode": "source-publisher",
-      "fromSide": "bottom",
-      "toNode": "cmc",
-      "toSide": "top",
-      "label": "Publish／Retire仅自身原发布"
-    },
-    {
-      "id": "input-consumer-original-request",
-      "fromNode": "input-consumer",
-      "fromSide": "top",
-      "toNode": "cmc",
-      "toSide": "bottom",
-      "label": "认证原事实、发行执行请求与精确FAILED"
-    },
-    {
-      "id": "cmc-native-passive-result",
-      "fromNode": "cmc",
-      "fromSide": "bottom",
-      "toNode": "native-passive-velocity",
-      "toSide": "top",
-      "label": "持当前区间／实际结果，沿原native入口做速度准入"
-    },
-    {
-     "id": "cmc-steering-math",
-     "fromNode": "cmc",
-     "fromSide": "right",
-     "toNode": "steering-evaluation",
-     "toSide": "top",
-     "label": "原CalcVelocity／PhysicsRotation调用纯角预算与方向约束"
-    },
-    {
-     "id": "set-steering-configuration",
-     "fromNode": "set",
-     "fromSide": "bottom",
-     "toNode": "steering-evaluation",
-     "toSide": "left",
-     "label": "提供角响应／界限／WalkRun增益，校验不复制动画速度"
-    },
-    {
-     "id": "cmc-completed-steering-snapshot",
-     "fromNode": "cmc",
-     "fromSide": "bottom",
-     "toNode": "steering-snapshot",
-     "toSide": "top",
-     "label": "OnMovementUpdated唯一发布，getter重验完成区间"
-    },
-    {
-     "id": "snapshot-presentation-consumers",
-     "fromNode": "steering-snapshot",
-     "fromSide": "right",
-     "toNode": "steering-consumers",
-     "toSide": "left",
-     "label": "GT值快照与原Alpha／Velocity派生事实，无执行权"
-    },
-    {
-     "id": "frame-steering-consumption",
-     "fromNode": "steering-snapshot",
-     "fromSide": "left",
-     "toNode": "frame",
-     "toSide": "bottom",
-     "label": "原Capture带DTO；AnimBP消费展示角，不写CMC"
-    },
-    {
-     "id": "cmc-original-init-query",
-     "fromNode": "cmc",
-     "fromSide": "left",
-     "toNode": "configuration-init-scope",
-     "toSide": "right",
-     "label": "只读IsPawnDataInitializationInProgress；accepted配置仍由Set分发"
-    }
-  ]
+	"nodes":[
+		{"id":"frame","type":"text","text":"## FGGYGOAnimationStateFrame／现有AnimBP\nCapture原Gait／Alpha／StopType／TurnBack及steering快照。\nABP原单BS：X=0 Walk／1 Run，GaitBlendY兼容映射；其余24图与输入保持。\nWalkRun内部单Bip001-Spine原生ModifyBone只管旋转展示，主ActionPoseSlot链保持。\nX轴名WalkRunBlendAlpha；旧GaitBlendY／walkRun序列化保留。Player相位未迁，无同钟／脚滑承诺。\n[[Animation/结构|表现职责]]","x":-2220,"y":-145,"width":600,"height":330,"color":"1"},
+		{"id":"source-publisher","type":"text","text":"## Animation｜原来源发布者\nUGGYGOAnimInstanceBase原Initialize／Update／Uninitialize观察原Owner／Mesh／主Producer／配置，发布或退休原代际。\nUZZZAnimInstance从FZZZAnimSet解析五原非循环Sequence＋walkRun实际BS样本；缺／坏源明确Missing／Invalid。\n无曲线拷贝／移动时钟／速度或准入；原强资产引用随原绑定释放。\n固定模式无resolver为正常可选能力缺席；曲线请求必须合格。\n[[Animation/结构|Animation职责]] · [[Movement/结构#动画唯一来源与发布生命周期|跨模块入口]]","x":1040,"y":-1360,"width":520,"height":430,"color":"4"},
+		{"id":"set","type":"text","text":"## UGGYGOMovementSet｜移动规则\nValidateMovementSet(Error)校原标量＋已启用steering必需曲线／角速度；不认证动画源。\nSetMovementSet(Set,Error)接纳配置，GetMovementSet只读实际accepted。\n速度／保持／混合／停止／转身／物理与角响应配置；曲线false才固定速度。\nPyrios专用Set配置steering；七旧曲线DA仍退役，共享默认Set保持。\n[[Movement/结构#正式 MovementSet 分发与只读查询|分发与校验]]","x":-2160,"y":710,"width":480,"height":300,"color":"4"},
+		{"id":"input","type":"text","text":"## Hero／Input 来源接口\nInput 唯一发行 Session／Request／Fact 与真实 Press／Held／Release。\nHero 转交原资源：Bind／Consume／Invalidate → CMC；Input_Move 提交轴值，ForceWalk 提交请求。\n轴值／零Acceleration不证明来源或释放；Hero1等待原Owner Ready并查询Source仍Held后一次准入。\n[[Input/结构|来源职责]] · [[Character/结构|装配职责]]","x":-2280,"y":240,"width":480,"height":300,"color":"4"},
+		{"id":"movement-test-map","type":"text","text":"## L_Movement_Test｜正式夹具与历史入口\n原Experience／PawnData、阻挡地面与PlayerStart装配；地图不发行移动资格。\n原生输入沿GA作者信号授权精确取消原Handle，恢复原Walk／Run；HID未验。\n历史38秒／4513帧Run／TurnBack仍是新来源门禁前证据。\n[[Movement/移动测试关卡|配置与有限证据]]","x":-2040,"y":1155,"width":520,"height":230,"color":"4"},
+		{"id":"local-asc-subscription","type":"text","text":"## 同一 CMC｜ASC 身份订阅\nBeginPlay Cache → PrepareLocalAbilitySystemSubscription原Extension一次注册；持原Handle／opaque派生缓存。\nReady验证原Owner／PublishedContext，新opaque才Reset；同Ready／Refreshed不Reset，晚Released不清后继。\nGetReadyLocalAbilitySystemComponent const → CantMove查询。\nRelease只注销原Handle，不清FAILED／GA；EndPlay先封闭执行及原CurveRMS／回放，再清自身订阅。\n已编译，独立动态未验。\n[[Character/结构|发布源]] · [[Movement/结构#本地 ASC 身份订阅|资源清理]]","x":-1940,"y":1520,"width":520,"height":380,"color":"4"},
+		{"id":"cmc","type":"text","text":"## UGGYGOCharacterMovementComponent\n唯一请求／FAILED、Gait／hold／Alpha、motion time／cycle、TurnBack与胶囊执行。\nPublish／Retire仅接收／退休原来源，不撤后继或GA。\n普通段成功Commit；Stop／TurnBack由唯一Stage捕获Origin／Input，native Prepare求实际区间。\nConsumeLocomotionCurvePrepared bool核原身份后一次提交；拒绝为Stale／空OutPrepared，Finished转换仅此处。\nCommit→PublishCommittedTurnBackState派生发布，Reset清相位；RemoveInactiveLocomotionCurveSources仅清退场。\nCalcVelocity在Super后约束速度方向，PhysicsRotation沿Super追真实Velocity。\nOnMovementUpdated发布完成区间；steering DTO只读。\n动作facade沿私有唯一槽／native RMS；原生速度记录只认证动量。\nReset／EndPlay／回放退出精确清自己，缺坏源明确失败。\n[[Movement/结构|接口与状态归属]]","x":1010,"y":-395,"width":610,"height":660,"color":"5"},
+		{"id":"input-consumer","type":"text","text":"## 同一 CMC｜原事实消费与 FAILED\nConsumeMovementInputFact(Binding,Fact,Error) → 完整原身份／Mode／Proof／Event校验；Recorded／Duplicate／Stale／Rejected。\nCold一次窗首Started在配置／执行失败前耗尽；恢复需真实Release→Neutral→新Press。\n完整同Event才Duplicate且不重执行；旧Request高Event仍Stale，不污染水位；零Acceleration不证明释放。\n纯求值Reject(originalSerial,error)／RMS Report(Origin,error) → Fail原请求。无号不补请求、旧源不失败后继。\n配置／Reset／同Started／Ready不自动重试。\n[[Input/结构|物理权威]] · [[Movement/结构#原请求失败与 Input 消费|消费契约]]","x":1010,"y":1760,"width":610,"height":360,"color":"6"},
+		{"id":"saved","type":"text","text":"## GGYGOMovementPrediction.h/.cpp\n原Owner值／SourceCheckpoint、FSavedMove_GGYGO／MoveData／Response及wire实现；CMC仍持原容器与Scope生命周期。\nSetMoveFor捕获原语义／来源／Input与Owner身份；PostUpdate保原Input／Prepared，Replay不覆盖，相关来源／RMS限制合并。\nPrepMoveFor在native Super前装原记录／SavedRootMotion；有Prepared却缺原源明确拒绝。\nauthority按自身MotionTime重算actual区间，旧Prepared只供元信息，不能提交旧速度。\n原wire／ForceWalk Custom_3保持；Clear／EndReplay不重开FAILED或补新Ready，网络导入未认证。\n[[Movement/结构#SavedMove 原绑定与权威校正|回放契约]]","x":200,"y":960,"width":610,"height":500,"color":"5"},
+		{"id":"rms","type":"text","text":"## FRootMotionSource_GGYGOCurve\nStop／TurnBack原生资源，持原Origin／只读Prepared。\nnative PrepareRootMotion(sim,tick) → 原CMC Prepare／Consume → 安装Override速度、native时间／结束状态。\n实时t0=OriginMotion+(SourceTime−OriginSource)，t1=t0+sim；端点速度×sim/tick，非平移积分。\nStop结束：正sim且原Sample.Speed恰为0（RootMotionScale前）；正小值／Scale=0不提前结束，TurnBack按阶段。\nClone保原引用；Matches／Update拒绝本地Origin不符。NetSerialize wire保持，加载清本地引用；导入Origin未认证。\n旧贡献只退自己，独立Action沿原仲裁。","x":2440,"y":960,"width":600,"height":470,"color":"4"},
+		{"id":"locomotion-evaluation","type":"text","text":"## GGYGOLocomotionEvaluation｜纯求值\n公开SingleInterval独立ValidateSource；公开WalkRun完整ValidateBinding一次，内部SampleValidatedInterval只消费同次已验证源。\nSingle：原Sequence区间→端点Speed／Dir、区间Yaw、缩放速度向量；秒×SequenceRateScale。\nWalkRun：原BS权重／GetAnimationLengthFromSampleData周期，各源先求值，再混合速度向量与Yaw。\n零／微小正值／Scale=0／向量抵消合法；负／非有限／缺方向明确失败，Reset输出。\n无跨帧Valid缓存／状态／时钟；CMC先核原publication／生命周期，执行边界仍实时认证。\n原生纯查询不证明AnimGraph滤波／marker／姿态同相位。\n[[Movement/结构#纯求值与普通移动提交|算法与提交]]","x":3520,"y":80,"width":600,"height":530,"color":"4"},
+		{"id":"sampler","type":"text","text":"## FGGYGOLocomotionSourceBinding｜不可变来源\nAnimation定义共享DTO；原Producer／Character／Mesh弱身份，生命周期／配置代际、Available／Missing／Invalid／Stale及错误。\n原Sequence／BlendSpace强引用、RouteKey、PlayLength、SequenceRateScale；实际BS SampleIndex／Value／SampleRateScale与loop语义。\n无曲线副本、播放时钟、姿态历史、求值速度或准入；强引用随当前绑定／SavedMove／Origin／Input原生命周期释放。\n[[Movement/结构#动画唯一来源与发布生命周期|输入与有效期]]","x":3520,"y":-930,"width":600,"height":360,"color":"4"},
+		{"id":"native-owner-sync","type":"text","text":"## 同一 CMC｜原生 Owner 同步\nGetMovementOwnerSyncScope(out,error) → 活原Scope；非运动许可。\nSubscribe(Scope,callback,outObserver,error) → 先安装Observer再同步Replay；bool仅曾安装，回调后重验。\nUnsubscribe(原Observer,reason,error) → 精确取消，含在途Invalidated未调用项。\n唯一Scope／nonce／server generation来自原Pawn／PC／连接／Driver生命周期。\nOwner v2原move → native receipt → ACK／correction完整返回后Ready；不补旧move。\nM3／Hero1一次TryAdmit须原资源匹配并Source仍Held；Ready不重开FAILED或合成Press。\n已编译；正式物理输入／完整网络未验，EndPlay封闭原入口后退休原范围。\n[[Movement/结构#原生移动 Owner 同步|接口与生命周期]]","x":2680,"y":1695,"width":600,"height":490,"color":"4"},
+		{"id":"nav","type":"text","text":"# Movement｜结构图\n箭头与标签表示持有、调用和只读数据交付；CMC唯一持请求／FAILED、移动时间与胶囊执行。\n[[Movement/结构|结构文档]] · [[Movement/GGYGO_流程_移动与位移.canvas|流程图]] · [[计划蓝图|模块入口]]\n动作：Main→完整End同一RMS／native时间执行；原Task完成与最后贡献消费完成分责，GA作者信号后授权打断，CMC不持攻击门。","x":-1820,"y":-1360,"width":2630,"height":260,"color":"6"},
+		{"id":"contract","type":"text","text":"## 当前边界与架构核对\n原动画是Locomotion速度曲线唯一编辑源；Set持移动／角响应规则，七旧DA已退役，ActionMotionProfile模式独立。\nAnimation管来源／身体余量／倾身；CMC管请求／native时间／胶囊及真实速度；Camera管外侧横移。\n作者点权限归GA，新播放关门；Main／End不授门，End入口不释放；TaskCompleted与MotionCompleted分责。\n原Handle／实例／Owner／Source精确匹配，旧释放不认领后继；steering整区间排除Action／TurnBack／混合。\n动量与steering样本仅为派生事实；无第二Tick／运动时钟／执行链。Gadge／GA_Dodge占位。\n[[Movement/计划_移动与动作位移#15. 当前实现：复杂度收口与职责拆分|本轮有限门禁与未验边界]] · [[Movement/动作曲线执行|动作契约]]","x":-1970,"y":2120,"width":2630,"height":300,"color":"6"},
+		{"id":"action-rms","type":"text","text":"## FRootMotionSource_GGYGOActionCurve\nOriginalMontage：Main→End的native实际区间 → 原PosXYZ差分 → 固定入口Actor旋转×捕获Scale一次 → 世界XYZ／tick。\nnative时间唯一，零位移继续持有；末区间标bPreparedNaturalEnd。\n原生ApplyRootMotionToVelocity消费贡献；AfterMovement才通知原Handle，GA无第二运动时钟。\n取消IgnoreZ、敏感离地；native碰撞／重力／落地；不追补受阻轨迹。\nTaskCompleted只准原资源有界Drain；取消／替换不通知旧完成。Profile模式仍地面XY。\n[[Movement/GGYGO_流程_动作曲线执行.canvas|动作流程]]","x":60,"y":2545,"width":600,"height":430,"color":"4"},
+		{"id":"action-profile","type":"text","text":"## 业务Profile与原Montage绑定\nUGGYGOActionMotionProfile：显式业务TranslationCurve／Duration／Scale，首帧0；服务器地面XY。\nFGGYGOActionMotionSourceBinding：原Montage／Slot／有序Sections／Segments；BuildSourceBindingRange明确Main→End。\n纯求值原PosXYZ；逐源／loop差分，不跨源累计归零制造跳变。\n两模式明确选择，无错误替代；原raw段终点与私有native末端映射分开。\n[[Movement/动作曲线执行|来源与模式契约]]","x":-2020,"y":2560,"width":500,"height":330,"color":"4"},
+		{"id":"action-executor","type":"text","text":"## 同一CMC｜动作公开接口\n原Task快照＋Source／Instance／Position／Rate／Scale→BeginMontageActionMotion→原Handle／失败。\n显式Profile由Begin／EndActionMotion申请／退原资源；两模式共一槽。\nObserveActionMotionFailure核原Handle，唯一失败接收者；旧Montage-only入口严格拒Profile。\nNotifyNatural核原末段auto-blend，ObserveCompletion只在native最后贡献消费后通知。\nRelease Completed仅有界Drain；成功不等于消费完成。\nGA作者点／原Scope Intent授权后精确Cancel原XY，保空气Z／后继；CMC不持攻击门。\n[[Movement/动作曲线执行|触发与清理]]","x":-1100,"y":2560,"width":610,"height":450,"color":"5"},
+		{"id":"native-passive-velocity","type":"text","text":"## 同一CMC｜新驱动与原生动量\nNativeMovementVelocityResult只记录同角色／胶囊已完成结果；不是速度权威、输入或曲线成功样本。\nBefore核有限／未被改写的来速，捕获当前move快照。\nUpdateVelocityBeforeMovement消费快照：UE已直接Override而尚未StartNewPhysics；拒绝其XYZ贡献，仅已有动量资格保地面速度。\n物理内Calc暂屏新Acceleration／RequestedMove／ForceMaxAccel／RVO，让Super制动；被Override跳过的Calc补执行一次，不应用该RMS。\nAfter在外部委托前记实际结果；仅已接受native校正可更新派生记录。\nStop／精确原动作清XY／组件更换／EndPlay失效。未知RMS资源不归CMC删除。\n[[Movement/结构#新请求准入与原生动量|阶段／身份／清理]]","x":1010,"y":2545,"width":700,"height":580,"color":"4"},
+		{"id":"steering-evaluation","type":"text","text":"## GGYGOLocomotionSteeringEvaluation｜无状态数学\nValidateConfiguration(Set,error)：enabled须orient、有限界限／正增益、角响应0..180°／Y0..1；无默认曲线。\nEvaluateAngularBudget(Set,error°,Alpha,nativeDt,out,error)：绝对角响应→界限插值×Alpha增益→夹界→dt角预算≤180°；实时拒绝cubic超界／溢出。\nConstrainPlanarHeading(old,native,yaw,budget)：约束原方向→Super方向，保水平幅值／Z，首个零速端用实际胶囊。\nCalculateVelocityYawRate(old,new,dt,out)：有限非零两端才有实际heading导数。\n无状态／日志／clock／配置修改；Walk增益大，追赶快、弧线弱。\n[[Movement/计划_移动与动作位移#14.1 无状态角预算与真实执行|算法与参数]]","x":3520,"y":1695,"width":720,"height":560,"color":"4"},
+		{"id":"steering-snapshot","type":"text","text":"## FGGYGOLocomotionSteeringSnapshot｜完成区间只读值\nGT GetLocomotionSteeringSnapshot()：原CMC／Character／UpdatedComponent弱身份、SourceEpoch、serial／frame／native dt及诊断。\nInitial：合法原初始化在途或accepted依赖尚无区间；没有有效导数／准入。\nValid：整区间实际普通steering；bHasVelocityYawRate要求有限非零速度两端。\nNotApplicable：显式关闭、接管／混合／无输入、正常过期或native校正替换结果；展示回收。\nInvalid：原生命周期／必需Set／源／数值失败，明确诊断。\nActualSignedYawRate=胶囊ΔYaw/dt；ActualSignedVelocityYawRate=OldVelocity→完成Velocity的headingΔYaw/dt，UE右正；两者可反号。\ngetter核原Set／源、身份与结果，只允许当前／上一帧，replay不发live样本。Reset／源／Owner／Stop清观测、换epoch。\n[[Movement/结构#WalkRun 普通转向与只读完成区间|契约与清理]]","x":2440,"y":2545,"width":780,"height":590,"color":"5"},
+		{"id":"steering-consumers","type":"text","text":"## Animation／Camera｜只读表现消费\nAnimation Capture同次带DTO＋原Velocity方向／偏角／Alpha；UZZZ原NativeUpdate→UpdateWalkRunLeanPresentation。\n速度角速度／fullRate归一化×Walk→Run限幅；原指数平滑，ABP只写Bip001-Spine旋转，保原Body／Trajectory／ActionPoseSlot。\nThirdPerson::UpdateView→UpdateSteeringFromMovement：真实轨迹外侧投影camera-right→模式TargetOffset.Y。\n原Stack→GA Offset→Component唯一碰撞；ControlRotation／旋转／FOV保持。\nInitial保初始；NotApplicable／无速度导数回收；Invalid清展示，Camera typed failure传播原停止门禁，不自动重启。\n源epoch／动画Reset／模式失活各清自己滤波，无移动权限／第二调度。\n[[Animation/结构|动画职责]] · [[Camera/结构|镜头职责]] · [[Movement/计划_移动与动作位移#14.3 角色资产与表现接线|保存参数与接线]]","x":3520,"y":2545,"width":780,"height":570,"color":"1"},
+		{"id":"configuration-init-scope","type":"text","text":"## Character｜原同步初始化范围\nExtension持PawnData，ApplyPawnDataToConsumers→SetMovementSet唯一分发。\nIsPawnDataInitializationInProgress() const：核原Extension／Pawn／World的当前同步调用scope，CheckDefaultInitialization与Apply入口持有、返回即关闭；EndPlay封闭。\nCMC未提交Set／无native区间／原Extension未DataInitialized时，构造期或BeginPlay后真实scope可Initial。\nsetter提交／拒绝／解绑、native区间、同步返回或DataInitialized关闭未绑定窗口；停在Spawned／DataAvailable不准无限等待。\n无新Ready／计时／轮询；accepted Set仍唯一移动配置准入。\n[[Character/结构|初始化职责]] · [[Movement/结构#原配置初始化的窄边界|窄接口合同]]","x":200,"y":3360,"width":610,"height":490,"color":"4"},
+		{"id":"action-private-execution","type":"text","text":"## FGGYGOActionMotionExecution｜CMC私有按值成员\nActionMotionExecution{*this}绑定原CMC；持唯一Handle／SourceID、Profile／Montage原资源、失败／完成观察者与有界completed事实。\n原Profile强引用＋弱CMC／Character／Mesh，原Montage实例／Source；RMS Clone保身份，不复制回调。\n失效精确退原source／slot／observer后一次通知；正常末帧与Task／Motion两事实保持。\nClose／RetireCompletedResource脱委托，捕获析构留到原外层返回；外调后重验弱原对象。\n无Tick／动作时钟；RMS持native时间，CMC执行胶囊。\n[[Movement/结构#CMC 私有职责与原生生命周期|归属与清理]]","x":-1100,"y":3220,"width":680,"height":470,"color":"5"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"input","fromSide":"right","toNode":"cmc","toSide":"left","label":"AddMovementInput／ForceWalk；轴值不认证请求"},
+		{"id":"e2","fromNode":"set","fromSide":"right","toNode":"cmc","toSide":"left","label":"Extension.DataInitialized → SetMovementSet校验接纳"},
+		{"id":"e3","fromNode":"sampler","fromSide":"left","toNode":"cmc","toSide":"right","label":"提供原不可变来源快照；接收不等于执行合格"},
+		{"id":"e4","fromNode":"cmc","fromSide":"right","toNode":"rms","toSide":"left","label":"Stage保存原Origin／Input并Apply原曲线源"},
+		{"id":"e5","fromNode":"cmc","fromSide":"left","toNode":"saved","toSide":"top","label":"SetMoveFor／PostUpdate：起始语义＋原Input／Prepared"},
+		{"id":"e6","fromNode":"cmc","fromSide":"left","toNode":"frame","toSide":"right","label":"提供提交后的只读事实；相位未迁移"},
+		{"id":"e7","fromNode":"rms","fromSide":"left","toNode":"saved","toSide":"right","label":"Clone保留原引用，进入SavedRootMotion"},
+		{"id":"movement-test-floor-cmc","fromNode":"movement-test-map","fromSide":"right","toNode":"cmc","toSide":"left","label":"为 CMC 原生物理查询提供阻挡地面"},
+		{"id":"action-data-cmc","fromNode":"action-profile","fromSide":"right","toNode":"action-executor","toSide":"left","label":"明确业务Profile或原Montage来源／播放参数"},
+		{"id":"action-cmc-rms","fromNode":"action-private-execution","fromSide":"right","toNode":"action-rms","toSide":"left","label":"安装同一原动作RMS／资源；native时间不迁入helper"},
+		{"id":"cmc-evaluation","fromNode":"cmc","fromSide":"right","toNode":"locomotion-evaluation","toSide":"left","label":"普通段／原生Prepare调用纯区间数学"},
+		{"id":"evaluation-profile","fromNode":"locomotion-evaluation","fromSide":"top","toNode":"sampler","toSide":"bottom","label":"验证并求值原Sequence／实际BS引用"},
+		{"id":"cmc-local-asc-subscription","fromNode":"cmc","fromSide":"left","toNode":"local-asc-subscription","toSide":"right","label":"持原订阅；Cache／CantMove／EndPlay消费"},
+		{"id":"rms-original-cmc-prepare","fromNode":"rms","fromSide":"top","toNode":"cmc","toSide":"right","label":"native实际区间→原CMC Prepare／唯一Consume"},
+		{"id":"saved-original-cmc-replay","fromNode":"saved","fromSide":"top","toNode":"cmc","toSide":"bottom","label":"原绑定／group回放；authority按自身基线重算"},
+		{"id":"input-consumer-native-owner-sync","fromNode":"input-consumer","fromSide":"right","toNode":"native-owner-sync","toSide":"left","label":"同一CMC的Owner同步接口；Ready不授予输入准入"},
+		{"id":"publisher-original-binding","fromNode":"source-publisher","fromSide":"bottom","toNode":"sampler","toSide":"left","label":"解析原资产／元信息，构造原代际快照"},
+		{"id":"publisher-lifecycle-cmc","fromNode":"source-publisher","fromSide":"bottom","toNode":"cmc","toSide":"top","label":"Publish／Retire仅自身原发布"},
+		{"id":"input-consumer-original-request","fromNode":"input-consumer","fromSide":"top","toNode":"cmc","toSide":"bottom","label":"认证原事实、发行执行请求与精确FAILED"},
+		{"id":"cmc-native-passive-result","fromNode":"cmc","fromSide":"bottom","toNode":"native-passive-velocity","toSide":"top","label":"持当前区间／实际结果，沿原native入口做速度准入"},
+		{"id":"cmc-steering-math","fromNode":"cmc","fromSide":"right","toNode":"steering-evaluation","toSide":"top","label":"原CalcVelocity／PhysicsRotation调用纯角预算与方向约束"},
+		{"id":"set-steering-configuration","fromNode":"set","fromSide":"bottom","toNode":"steering-evaluation","toSide":"left","label":"提供角响应／界限／WalkRun增益，校验不复制动画速度"},
+		{"id":"cmc-completed-steering-snapshot","fromNode":"cmc","fromSide":"bottom","toNode":"steering-snapshot","toSide":"top","label":"OnMovementUpdated唯一发布，getter重验完成区间"},
+		{"id":"snapshot-presentation-consumers","fromNode":"steering-snapshot","fromSide":"right","toNode":"steering-consumers","toSide":"left","label":"GT值快照与原Alpha／Velocity派生事实，无执行权"},
+		{"id":"frame-steering-consumption","fromNode":"steering-snapshot","fromSide":"left","toNode":"frame","toSide":"bottom","label":"原Capture带DTO；AnimBP消费展示角，不写CMC"},
+		{"id":"cmc-original-init-query","fromNode":"cmc","fromSide":"left","toNode":"configuration-init-scope","toSide":"right","label":"只读IsPawnDataInitializationInProgress；accepted配置仍由Set分发"},
+		{"id":"cmc-action-private-slot","fromNode":"action-executor","fromSide":"bottom","toNode":"action-private-execution","toSide":"top","label":"CMC按值持有唯一动作槽；公开入口转交原资源"}
+	]
 }

@@ -1,152 +1,22 @@
 {
-  "nodes": [
-    {
-      "id": "nav",
-      "type": "text",
-      "text": "# Combatants｜结构图\n外置 ASC 宿主的最小共同契约。[[Combatants/结构|结构文档]] · 玩家 [[Teams/结构]] · Boss [[BossAI/结构]]",
-      "x": 0,
-      "y": 0,
-      "width": 1530,
-      "height": 130,
-      "color": "6"
-    },
-    {
-      "id": "base",
-      "type": "text",
-      "text": "## AGGYGOCombatantState【H1/H2/H3源码冻结】\n持ASC／属性集；Avatar选择／复制及原Pawn订阅归Host。\nRequest返回实际历史；只借Extension H。\nDestroyed/EndPlay→唯一Close，均在Super前。\n先关准入；重复不重捕；覆盖pre-BeginPlay。\n有H走原Release；无H真实ClearActorInfo/Receipt。\nflag非成功；Busy／失败保留，不重试／排队。\n只退役原Context或自己的Clear Commit，不清后继。\nH3已入Gate57新DLL；单叶通过，Host换绑未验。",
-      "x": 530,
-      "y": 300,
-      "width": 470,
-      "height": 400,
-      "color": "5"
-    },
-    {
-      "id": "attr",
-      "type": "text",
-      "text": "## ASC／HealthSet／CombatSet\nHost默认子对象；ASC独占ActorInfo及清理证明。\n组件GetOwner固定Host；ActorInfo可明确全清。\n活跃Host无Avatar仍保留属性/GE/冷却/死亡Tag。\n[[AbilitySystem/结构|ASC原权限]]",
-      "x": 0,
-      "y": 320,
-      "width": 410,
-      "height": 210,
-      "color": "4"
-    },
-    {
-      "id": "pawn",
-      "type": "text",
-      "text": "## APawn／PawnExtension【源码已接】\nInit/Release/Refresh兼容入口→Host原请求。\nInstall／NotifyReady／Withdraw／NotifyReleased唯一掌本地H。\nGetter仅真实Ready；当前槽快照不授权限。\n关闭后仍可撤原资源；不执行原生ActorInfo。\n[[Character/结构|原H及typed Notice接口]]",
-      "x": 1110,
-      "y": 320,
-      "width": 420,
-      "height": 350,
-      "color": "4"
-    },
-    {
-      "id": "slot",
-      "type": "text",
-      "text": "## AGGYGOCharacterSlot\nPawnData 复制回调与 Authority 初始化共用幂等 ASC 规则配置；AbilitySet 仍只由 Authority 授予。[[Teams/结构]]",
-      "x": 0,
-      "y": 790,
-      "width": 410,
-      "height": 230,
-      "color": "4"
-    },
-    {
-      "id": "health",
-      "type": "text",
-      "text": "## UGGYGOHealthComponent\nBase typed Notice转交原H＋Context，源码已接。\nHealth唯一原记录持ASC/HealthSet及五token，原H精确刷新/释放。\nDeathState本地唯一；Dying/Dead单调投影，解绑不清Tag、不隐式复活。\n[[Character/结构|Health/Base原资源]]",
-      "x": 530,
-      "y": 790,
-      "width": 470,
-      "height": 230,
-      "color": "3"
-    },
-    {
-      "id": "boss",
-      "type": "text",
-      "text": "## AGGYGOBossState\nBossDefinition 复制回调按初始形态 PawnData 幂等安装 ASC 规则；能力授予仍只由 Authority 执行。[[BossAI/结构]]",
-      "x": 1110,
-      "y": 790,
-      "width": 420,
-      "height": 230,
-      "color": "4"
-    },
-    {
-      "id": "contract",
-      "type": "text",
-      "text": "## ASC原清理接口与当前验证\nCheckAvatarBindingCleanupContext(ExpectedContext, OutReason)→原提交清理资格；可含精确Revoked，非新工作资格。\nTryCleanupFailedAvatarActorInfoInit(原Operation, pure query)→仅清原失败actual写入；Init仍失败，无Receipt/Notice/Ready。\nHost明确Clear模式：Closing→ClearActorInfo；活跃持久Owner普通解绑→PreserveOwner；拒绝不换模式重试。\nH3：Destroyed/EndPlay→唯一Close(Super前)，覆盖pre-BeginPlay；有H原Release，无H真实Clear/Receipt，非Extension通知。\nflag仅准入／单次派发；Busy／失败保留。Invalidate仅原Context或自己Clear Commit，元数据退休≠物理Clear；重复不重捕后继。\nHost/Extension/Health/Base已接；Hero A动作消费者源码冻结、有限接受，旧Pressed/Released/两参数Queue已移除；B typed H/Source→CMC未接。\nBuild55/56旧失败保留；Gate57成功：9 actions/37.13s/7 UHT文件，runtime与Editor DLL已链接，H3/Hero A已入新DLL。\n18:06:35 NativeLifecycleAndHistory单叶Success，事件段0错误/0警告；不证明原R0(2 Fail/12 errors)、真实Host换绑、Hero B或Teams正式装配；正式资产/网络待统筹。\n[[AbilitySystem/结构|ASC唯一权限]] · [[Combatants/结构#关键实现：实际提交、发布与退出|原请求及清理]]",
-      "x": 0,
-      "y": 1100,
-      "width": 1450,
-      "height": 340,
-      "color": "6"
-    },
-    {
-      "id": "combatants-host-port",
-      "type": "text",
-      "text": "## IGGYGOAvatarBindingHostInterface\nRequestAvatarBinding(Request)→native同步结果。\n原weak Host/ASC/Pawn/Extension＋Context/H。\nInit空H；Release/Refresh需原H＋完整Context。\n返回实际ASC/Local/Input Steps，不授当前Ready/清理权限。\nHost已实现；Extension三入口已请求。\nASC组件GetOwner定位原端口，不用ActorInfo Owner。\nBusy不排队；不新增Ready或第二证明。\n[[Character/结构#Host原生请求接口（已定义，生产迁移中）|接口契约]]",
-      "x": 1720,
-      "y": 320,
-      "width": 540,
-      "height": 420,
-      "color": "4"
-    }
-  ],
-  "edges": [
-    {
-      "id": "e1",
-      "fromNode": "base",
-      "fromSide": "left",
-      "toNode": "attr",
-      "toSide": "right",
-      "label": "持有默认ASC／属性集；请求ASC原清理"
-    },
-    {
-      "id": "e2",
-      "fromNode": "base",
-      "fromSide": "right",
-      "toNode": "pawn",
-      "toSide": "left",
-      "label": "调用原H四阶段／真实发布桥"
-    },
-    {
-      "id": "e3",
-      "fromNode": "slot",
-      "fromSide": "top",
-      "toNode": "base",
-      "toSide": "bottom",
-      "label": "继承最小宿主"
-    },
-    {
-      "id": "e4",
-      "fromNode": "boss",
-      "fromSide": "top",
-      "toNode": "base",
-      "toSide": "bottom",
-      "label": "继承最小宿主"
-    },
-    {
-      "id": "e5",
-      "fromNode": "pawn",
-      "fromSide": "bottom",
-      "toNode": "health",
-      "toSide": "top",
-      "label": "typed Notice经Base转交原H/Context→Health"
-    },
-    {
-      "id": "e6",
-      "fromNode": "health",
-      "fromSide": "left",
-      "toNode": "attr",
-      "toSide": "bottom",
-      "label": "仅当前Avatar向ASC投影死亡标签"
-    },
-    {
-      "id": "combatants-implements-port",
-      "fromNode": "pawn",
-      "fromSide": "right",
-      "toNode": "combatants-host-port",
-      "toSide": "left",
-      "label": "Extension调用原Request端口"
-    }
-  ]
+	"nodes":[
+		{"id":"nav","type":"text","text":"# Combatants｜结构图\n外置 ASC 宿主的最小共同契约。[[Combatants/结构|结构文档]] · 玩家 [[Teams/结构]] · Boss [[BossAI/结构]]","x":0,"y":0,"width":1530,"height":130,"color":"6"},
+		{"id":"base","type":"text","text":"## AGGYGOCombatantState\n持ASC／属性集；Avatar选择／复制及原Pawn订阅归Host。\nRequest(原端点/Context/H)→实际Steps，只借原H。\nDestroyed/EndPlay→唯一Close，均在Super前。\n先关准入；重复不重捕；覆盖pre-BeginPlay。\n有H走原Release；无H真实ClearActorInfo/Receipt。\nCleanupOwnCommit→外调返栈重取原弱端点。\n用本次Clear Receipt发布；原初始化失败保留。\nflag非成功；Busy／失败不重试／排队。\n只退役原Context或自己的Clear Commit，不清后继。","x":530,"y":300,"width":470,"height":400,"color":"5"},
+		{"id":"attr","type":"text","text":"## ASC／HealthSet／CombatSet\nHost默认子对象；ASC独占ActorInfo及清理证明。\n组件GetOwner固定Host；ActorInfo可明确全清。\n活跃Host无Avatar仍保留属性/GE/冷却/死亡Tag。\n[[AbilitySystem/结构|ASC原权限]]","x":0,"y":320,"width":410,"height":210,"color":"4"},
+		{"id":"pawn","type":"text","text":"## APawn／PawnExtension\nInit/Release/Refresh兼容入口→Host原请求。\nInstall／NotifyReady／Withdraw／NotifyReleased唯一掌本地H。\nWithdraw(原H)→撤槽、未Installed、同步Closing。\nClosing仅原H关联失去准入，不证明Clear／Released。\nGetter仅真实Ready；当前槽快照不授权限。\n关闭后仍可撤原资源；不执行原生ActorInfo。\n[[Character/结构|原H及typed Notice接口]]","x":1110,"y":320,"width":420,"height":350,"color":"4"},
+		{"id":"slot","type":"text","text":"## AGGYGOCharacterSlot\nPawnData 复制回调与 Authority 初始化共用幂等 ASC 规则配置；AbilitySet 仍只由 Authority 授予。[[Teams/结构]]","x":0,"y":790,"width":410,"height":230,"color":"4"},
+		{"id":"health","type":"text","text":"## UGGYGOHealthComponent\nBase typed Notice转交原H＋Context，源码已接。\nHealth唯一原记录持ASC/HealthSet及五token，原H精确刷新/释放。\nDeathState本地唯一；Dying/Dead单调投影，解绑不清Tag、不隐式复活。\n[[Character/结构|Health/Base原资源]]","x":530,"y":790,"width":470,"height":230,"color":"3"},
+		{"id":"boss","type":"text","text":"## AGGYGOBossState\nBossDefinition 复制回调按初始形态 PawnData 幂等安装 ASC 规则；能力授予仍只由 Authority 执行。[[BossAI/结构]]","x":1110,"y":790,"width":420,"height":230,"color":"4"},
+		{"id":"contract","type":"text","text":"## 原清理契约与验证边界\nCheckAvatarBindingCleanupContext(原Context, OutReason)→ASC认证原提交清理资格；可含精确Revoked，非新工作资格。\nTryCleanupFailedAvatarActorInfoInit(原Operation, pure query)→只清原失败actual写入；Init仍失败，无Receipt/Notice/Ready。\nHost caller query固定原弱端点／组件Owner／Ext-Pawn／selection／原H与槽；不另建ActorInfo validator或Ready。\nCleanupOwnCommit：Withdraw同步Closing及native Clear返栈后重取原接收者；后继不符即停止。\n成功Clear按Cleared.CommittedContext／真实ClearPublication发布；原初始化／发布失败与实际清理Steps分别保留。\nHost明确模式：生命周期关闭→ClearActorInfo；活跃持久Owner普通解绑→PreserveOwner；拒绝不换模式重试。\n唯一Close在Super前；flag仅准入／单次派发；Invalidate元数据退休≠物理Clear，不重捕后继。\n本轮统一构建通过，ExpectedASCAndEndPlay首轮Success／0E0W；旧失败证据保留。\npartial-installed分支仅静态保护，无合法直接最短动态复现；普通叶不覆盖此分支。联机／Cook／视觉／性能及历史严格问题独立留账。\n[[AbilitySystem/结构|ASC唯一权限]] · [[Combatants/结构#关键实现：实际提交、发布与退出|原请求及清理]]","x":0,"y":1100,"width":1450,"height":340,"color":"6"},
+		{"id":"combatants-host-port","type":"text","text":"## IGGYGOAvatarBindingHostInterface\nRequestAvatarBinding(Request)→native同步结果。\n原weak Host/ASC/Pawn/Extension＋Context/H。\nInit空H；Release/Refresh需原H＋完整Context。\n返回实际ASC/Local/Input Steps，不授当前Ready/清理权限。\nHost已实现；Extension三入口已请求。\nASC组件GetOwner定位原端口，不用ActorInfo Owner。\nBusy不排队；不新增Ready或第二证明。\n[[Character/结构#Host原生请求接口（已定义，生产迁移中）|接口契约]]","x":1720,"y":320,"width":540,"height":420,"color":"4"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"base","fromSide":"left","toNode":"attr","toSide":"right","label":"持有默认ASC／属性集；请求ASC原清理"},
+		{"id":"e2","fromNode":"base","fromSide":"right","toNode":"pawn","toSide":"left","label":"调用原H四阶段／真实发布桥"},
+		{"id":"e3","fromNode":"slot","fromSide":"top","toNode":"base","toSide":"bottom","label":"继承最小宿主"},
+		{"id":"e4","fromNode":"boss","fromSide":"top","toNode":"base","toSide":"bottom","label":"继承最小宿主"},
+		{"id":"e5","fromNode":"pawn","fromSide":"bottom","toNode":"health","toSide":"top","label":"typed Notice经Base转交原H/Context→Health"},
+		{"id":"e6","fromNode":"health","fromSide":"left","toNode":"attr","toSide":"bottom","label":"仅当前Avatar向ASC投影死亡标签"},
+		{"id":"combatants-implements-port","fromNode":"pawn","fromSide":"right","toNode":"combatants-host-port","toSide":"left","label":"Extension调用原Request端口"}
+	]
 }

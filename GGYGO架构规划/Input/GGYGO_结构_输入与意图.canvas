@@ -1,328 +1,42 @@
 {
-  "nodes": [
-    {
-      "id": "nav",
-      "type": "text",
-      "text": "# Input｜结构图\nHero A/B1/B2与原H镜头清理已生产接入、Gate59编译；必要Camera单叶通过。正式输入／移动／Run／网络未验。\nSource唯一事实／请求，CMC唯一执行／FAILED，ASC唯一held／queued。边标签区分持有、接口调用与事实交付。\nGate54私有InputKey注入及FAILED旧红叶保留。[[Input/结构|证据与动态边界]]\n[[Input/结构|结构文档]] · [[GGYGO_流程_输入与意图.canvas|流程图]] · [[计划_输入与意图|计划]]",
-      "x": 0,
-      "y": 0,
-      "width": 2200,
-      "height": 180,
-      "color": "6"
-    },
-    {
-      "id": "action",
-      "type": "text",
-      "text": "## Enhanced Input／InputAction／Mapping Context\nUEnhancedPlayerInput：原生InputKey与映射处理。\nAction轴值／触发事件不等同真实物理释放证明。\nSubsystem.AddMappingContext／RemoveMappingContext：按原注册次数平衡持有。\n正式IMC_Default（15）／IMC_MouseLook（1）已保存CountRegistrations，原映射／过滤保持。\n仅关闭旧注册配置拒绝；Hero／Run实战未验。",
-      "x": 0,
-      "y": 230,
-      "width": 390,
-      "height": 280,
-      "color": "4"
-    },
-    {
-      "id": "config",
-      "type": "text",
-      "text": "## UGGYGOInputConfig\nNative Actions → 轴值/视角 Tag；Ability Actions → 能力 InputTag。\n用精确 Tag 匹配区分鼠标与摇杆。",
-      "x": 0,
-      "y": 530,
-      "width": 390,
-      "height": 205,
-      "color": "4"
-    },
-    {
-      "id": "component",
-      "type": "text",
-      "text": "## UGGYGOInputComponent\n按InputTag绑定原Action，返回native绑定句柄供自身会话退出解绑。\nNative值回调、Move实例回调及Ability原绑定来源分别接入；不决定GA或发行来源请求。",
-      "x": 490,
-      "y": 350,
-      "width": 420,
-      "height": 220,
-      "color": "5"
-    },
-    {
-      "id": "hero",
-      "type": "text",
-      "text": "## UGGYGOHeroComponent\nInitializePlayerInput：Action／自身IMC。\n原Action观察→Receive／End原ID；Buffer／Queue固定deadline。\nB1 typed H订阅；B2原Scope装配。\nSource GetRequest证明后AddMovementInput。\nGate59编译；正式输入未验。\n[[Input/结构|接口与边界]]",
-      "x": 1010,
-      "y": 270,
-      "width": 420,
-      "height": 350,
-      "color": "5"
-    },
-    {
-      "id": "pc",
-      "type": "text",
-      "text": "## AGGYGOPlayerController｜原生执行入口\nInitInputSystem()：原配置／对象身份→原资源BeginNativeCreation→Super一次→返回重验→Complete；早退只Close原Ticket，不替换输入对象。\n私有Idle／Running／Rejected仅管理此Actor创建执行。嵌套Running明确Busy，不Super／排队；非暂态失败锁存Rejected，修依赖后重新创建，不由Tick重试。\n失效／销毁后不写阶段，诊断用入栈路径；资格归OriginResource，held／请求归PlayerInput。\nD8～D10创建侧已冻结／静态接受已Gate44编译、夹具已验／正式出生未验；默认项目PlayerInput有Record。未登记Override仍MissingConstructionWitness，正式首按未验。\nPostProcessInput(dt,paused)：原当前ASC.ProcessAbilityInput，统一本帧消费；原Getter／编队调试保持。",
-      "x": 1550,
-      "y": 660,
-      "width": 650,
-      "height": 410,
-      "color": "4"
-    },
-    {
-      "id": "cmc",
-      "type": "text",
-      "text": "## UGGYGOCharacterMovementComponent\nGetMovementInputBindingSerial：读取当前消费绑定版本。\nBindMovementInputSession：expected serial比较交换，接收精确原来源。\nConsumeMovementInputFact(Binding, Fact)：验证原绑定／完整ModeProof事件，Cold一次／Rearm需Neutral；Recorded不代表执行成功。\nInvalidateMovementInputSession：仅失效匹配的原绑定。\nCMC唯一持有执行身份、移动状态与失败门禁；Acceleration只用于方向／大小，不能证明真实释放。\n[[Movement/结构]]",
-      "x": 490,
-      "y": 720,
-      "width": 420,
-      "height": 445,
-      "color": "1"
-    },
-    {
-      "id": "asc",
-      "type": "text",
-      "text": "## UGGYGOAbilitySystemComponent\nReceive(Tag,PreviousID,Deadline)→原请求ID。\nEnd(ID,Released/Invalidated)；Queue完整原Retry。\n唯一Spec held／queued聚合与Process执行；Retry仅带原ID／Tag／deadline。\nHero A已消费；Gate59编译，正式输入未验。\n[[AbilitySystem/结构|原请求接口]]",
-      "x": 1010,
-      "y": 960,
-      "width": 420,
-      "height": 380,
-      "color": "1"
-    },
-    {
-      "id": "contract",
-      "type": "text",
-      "text": "## 职责与实施边界\nInput观察并发行来源事实；Hero只持原观察与订阅／Scope句柄；CMC唯一执行移动及FAILED，ASC唯一能力held／queued与执行。\nHero B2已接原CMC serial→Source Begin→CMC Bind→保存原Binding→Attach；真实重建触发，不以H Ready装配。\nAbility Completed/Canceled→原请求Released；Movement Released必须真物理证明；H Released仅本地撤回；SessionInvalidated仅生命周期失效。\nCold资格不等于执行成功，异常恢复仍真释放后重按，跨Producer无转交证明拒绝。Recorded执行失败保留原请求／释放链。\nGate59编译与Camera单叶通过；Gate54注入夹具、FAILED旧失败保持。正式Hero移动、Run、硬件及网络未验；无假Neutral／默认速度／自动重试。",
-      "x": 0,
-      "y": 3730,
-      "width": 1450,
-      "height": 350,
-      "color": "6"
-    },
-    {
-      "id": "playerinput",
-      "type": "text",
-      "text": "## UGGYGOPlayerInput : UEnhancedPlayerInput\n唯一键／设备观察者与来源号发行者，不持移动执行／FAILED。D12-A/B及后继观察拆分已编译；Hero B2已装配并随Gate59编译，正式Source／Hero动态未验。\nPostInitProperties→原资源Record：默认类已配置；出生夹具已验／Override待验。\nBeginMovementInputSession(Pawn,Component,Action)→CaptureOriginalOrigin／校验原路由→实际Session，仅Cold Claim；成功仅准备。\nAttachMovementInputReceiver(Session,Binding,Receiver)→显式Opened；未碰映射不参加、不伪Neutral／Unresolved；重复Attach不替换。\nInputKey→原生Observe→Movement Projection→Super一次→只匹配原观察/Session。真实首数字Press可Cold，异常后仍须真实释放再按。\nIssuePhysicalRequest(Proof,Session)→实际Request／Event提交→Consume原Claim→重验→Started。消费失败无Started、不复用号。\nGetMovementInputRequest→只读有效held；End仅退Movement义务，不改raw；真实Flush另记原生缺口，销毁才清设备记录。\n首次Begin前Flush仅保经Cold认证的原weak后立即Retire；新Producer无交接证明拒绝Rearm。\n[[Input/结构#原资格与真实请求发行（D12-B）|资格与发行契约]]",
-      "x": 0,
-      "y": 1850,
-      "width": 680,
-      "height": 640,
-      "color": "5"
-    },
-    {
-      "id": "observer",
-      "type": "text",
-      "text": "## UGGYGOMovementInputRouteObserver\n同一PlayerInput头文件中的薄资源对象；由PlayerInput持有，不是新的执行器。\nInitialize(Subsystem, Pawn, Session)：订阅映射重建、控制器变化及Pawn EndPlay，回调始终携带捕获的原Session。\nDetach()：撤销原订阅，幂等释放；旧回调不能结束后继会话。\n路由失效交回PlayerInput.EndMovementInputSession；不产生真实Released，不修改CMC移动状态，不新增Tick／计时器。",
-      "x": 780,
-      "y": 1850,
-      "width": 600,
-      "height": 420,
-      "color": "4"
-    },
-    {
-      "id": "facts",
-      "type": "text",
-      "text": "## GGYGOMovementInputTypes.h｜中性值\nSession = 原Producer弱身份＋SessionSerial；Request = Session＋RequestSerial。\nBinding = 原Consumer弱身份＋BindingSerial＋SourceSession；Fact = Request／EventSerial／Kind／Reason／SessionMode／StartProof。\n七Kind保持；D11枚举／字段已Gate45编译：Mode仅Opened（Cold／Rearm），Proof仅Started（首按／释放再按），其它Kind Invalid。\nCMC完整ModeProof／Cold一次窗Gate48合成专项通过；Source D12-B已发行显式字段、冻结Gate49R1已编译／夹具已验／正式Source未验，不代表正式Hero首W或移动成功。\n原Binding＋Fact双参数委托；弱身份及发行号分责，无权威状态／调度。",
-      "x": 0,
-      "y": 3270,
-      "width": 1450,
-      "height": 350,
-      "color": "6"
-    },
-    {
-      "id": "origin",
-      "type": "text",
-      "text": "## UGGYGOMovementInputOriginResource｜Input资格资源\nD7已Gate43编译；D8～D10创建侧源码冻结已Gate44编译、夹具已验／正式出生未验；Outer原LocalPlayer，GGYGOLocalPlayer已强引用保有同一对象（D8源码冻结／已Gate44编译、夹具已验／正式出生未验），Getter不能创建或重授。只管理资格／同步创建票据，不观察物理输入，不发行Source请求或CMC执行号。\nInitializeFromPlayerAdded(Player, BeforeSuper) → 真实Added候选；NotifyPlayerRemoved／NotifyControllerChanged → 按原身份退休及关闭范围。\nBeginNativeCreation(Controller, Class) → 原栈Ticket；RecordNativeCreatedProducer → 精确构造见证；CompleteNativeCreation(Ticket, Actual) → 匹配Record／当前关系／已赋槽才登记；CloseNativeCreation(Ticket, Reason) → Actor失效仍按原票据幂等清理，旧票据不关后继。\nClaimInitialQualification(Producer, Session) → 一次认领，不是移动成功；ConsumeInitialQualification(Request) → 真实发行后消费；RetireInitialQualification → 永久退休。\nGetQualification(Producer) → Unavailable／Cold／Rearm；Rearm绝不证明物理释放。PlayerInput D12-B已接Claim／Consume／Retire，冻结但Gate49R1已编译／夹具已验／正式Source未验。PostInit与默认类已写已Gate44编译、夹具已验／正式出生未验，Source消费仅夹具有限验收；联机临时Controller初始化语义待决。",
-      "x": 0,
-      "y": 2530,
-      "width": 1450,
-      "height": 620,
-      "color": "4"
-    },
-    {
-      "id": "originhost",
-      "type": "text",
-      "text": "## UGGYGOLocalPlayer｜原生生命周期薄宿主\nD8源码冻结／静态接受；已Gate44编译、夹具已验／正式出生未验。\nUPROPERTY MovementInputOriginResource → 保有同一原资源；GetMovementInputOriginResource()只读，不创建／初始化／重授。\nPlayerAdded两重载 → 捕获原Controller与资源，Super一次后InitializeFromPlayerAdded。\nPlayerRemoved／BeginDestroy → Super前退休，保留原对象；重复Added不NewObject重授。\nReceivedPlayerController → 资源通知早于原生广播；SpawnPlayActor → 捕获原资源，Super后通知实际Controller，保留返回与错误。\n只转发生命周期，不保存资格阶段、held、来源／执行号；原SquadPresets缓存不变。Controller范围／PostInit均冻结已Gate44编译、夹具已验／正式出生未验；联机dummy语义待用户决定。",
-      "x": 1550,
-      "y": 2530,
-      "width": 650,
-      "height": 620,
-      "color": "4"
-    },
-    {
-      "id": "hero-local-asc-resource",
-      "type": "text",
-      "text": "## Hero原H订阅／派生retry资源\nPrepareLocalAbilitySystemSubscription→先持原记录，再注册typed Notice；成功不保证Ready。\nReady核原H／真实PublishedContext，只关联既有输入；Refreshed同H不重装。\nAssociateInputSessionWithLocalResource→原H＋既有输入代次／组件；FAbilityRetryBinding固定原记录/H与代次。\nReleased先撤H，输入／retry按归属释放；原镜头清理独立于有无输入，重检原槽／代次保护后继。\nReleaseLocalAbilitySystemSubscription→退原token及所属retry；不全ASC.Clear。\nGate59编译；必要无输入Camera叶通过，正式输入未验。\n[[Input/结构#Hero本地ASC身份订阅与原H清理|完整接口]] · [[Character/结构|Extension资源]]",
-      "x": 1550,
-      "y": 1170,
-      "width": 650,
-      "height": 550,
-      "color": "4"
-    },
-    {
-      "id": "raw-movement-obligation-boundary",
-      "type": "text",
-      "x": 1550,
-      "y": 1850,
-      "width": 650,
-      "height": 630,
-      "color": "5",
-      "text": "## PlayerInput唯一事实／派生义务\nFPhysicalSource唯一原Key/Device raw/down、ObservedAxes、原生缺口与真实释放序列，使用唯一ObservationRevision。\nFMovementSourceObligation只持Key/Device、Participant、可空ReleaseAfterRevision／原因，不复制raw/held/轴mask。\nObservePhysicalInput→原事实副本；ProjectMovementObservation只读原表／映射／自身义务。\nBarrier／Adopt／End只改Movement义务；数字真Released或全部必要轴分量真零的证明起始须晚于边界。\n真实Flush记原生缺口，合成松键不恢复；raw历史保留至Producer销毁。\nGate59已编译。能力A观察真实Action回调／原绑定，允许Injected／Chord／Combo；Hero不读私表或另建物理held。\n[[Input/结构#原生观察与Movement义务分离|字段与接口]]"
-    },
-    {
-      "id": "hero-movement-scope",
-      "type": "text",
-      "text": "## Hero原移动Scope／薄映射通知资源\nFGGYGOHeroMovementInputScope：原Pawn／IC／Source／Subsystem／CMC／MoveAction弱身份＋输入代次＋自身IMC注册数量；只持原Session／Binding／诊断与退休标记。\nUGGYGOHeroMovementMappingObserver：Hero UPROPERTY保有，同一Hero h/cpp；Initialize订阅真实ControlMappingsRebuilt，Detach退原订阅，回调携捕获原Scope。\nHandleMovementMappingsRebuilt：自身注册记录齐备后装配；原CMC serial→Source Begin→CMC Bind CAS→保存Binding→Attach。输入值回调不Begin。\nReceiver固定原Session／Binding／弱Scope／原CMC；GetRequest只读真held，退资源用原End／Invalidate。没有第二raw／held／Neutral／FAILED或调度器。\n[[Input/结构#Hero移动来源装配与精确退出（B2）|资源、接口与清理]]",
-      "x": 0,
-      "y": 1400,
-      "width": 1450,
-      "height": 360,
-      "color": "4"
-    }
-  ],
-  "edges": [
-    {
-      "id": "e1",
-      "fromNode": "action",
-      "fromSide": "right",
-      "toNode": "config",
-      "toSide": "left",
-      "label": "配置 InputTag"
-    },
-    {
-      "id": "e2",
-      "fromNode": "config",
-      "fromSide": "right",
-      "toNode": "component",
-      "toSide": "left",
-      "label": "提供动作与标签映射"
-    },
-    {
-      "id": "e3",
-      "fromNode": "component",
-      "fromSide": "right",
-      "toNode": "hero",
-      "toSide": "left",
-      "label": "触发已绑定回调"
-    },
-    {
-      "id": "e4",
-      "fromNode": "hero",
-      "fromSide": "right",
-      "toNode": "cmc",
-      "toSide": "left",
-      "label": "Source GetRequest原held证明后投射移动轴值"
-    },
-    {
-      "id": "e5",
-      "fromNode": "hero",
-      "fromSide": "bottom",
-      "toNode": "asc",
-      "toSide": "top",
-      "label": "Receive/End完整原ID；Completed/Canceled=Released，失效=Invalidated"
-    },
-    {
-      "id": "e6",
-      "fromNode": "pc",
-      "fromSide": "bottom",
-      "toNode": "asc",
-      "toSide": "top",
-      "label": "PostProcessInput 统一消费"
-    },
-    {
-      "id": "e7",
-      "fromNode": "asc",
-      "fromSide": "left",
-      "toNode": "hero",
-      "toSide": "right",
-      "label": "完整原Retry→Buffer；GroupFreed→Queue原ID/Tag/deadline"
-    },
-    {
-      "id": "e8",
-      "fromNode": "playerinput",
-      "fromSide": "right",
-      "toNode": "observer",
-      "toSide": "left",
-      "label": "持有原会话观察资源；Initialize / Detach"
-    },
-    {
-      "id": "e9",
-      "fromNode": "playerinput",
-      "fromSide": "bottom",
-      "toNode": "facts",
-      "toSide": "top",
-      "label": "签发来源身份；交付Binding与Fact"
-    },
-    {
-      "id": "e10",
-      "fromNode": "cmc",
-      "fromSide": "bottom",
-      "toNode": "facts",
-      "toSide": "top",
-      "label": "依赖同一值类型；消费原Binding与Fact"
-    },
-    {
-      "id": "e11",
-      "fromNode": "playerinput",
-      "fromSide": "bottom",
-      "toNode": "origin",
-      "toSide": "top",
-      "label": "PostInit与D12-B Claim／实际请求Consume／Retire已编译，夹具已验／生产未验"
-    },
-    {
-      "id": "e12",
-      "fromNode": "originhost",
-      "fromSide": "left",
-      "toNode": "origin",
-      "toSide": "right",
-      "label": "UPROPERTY持有；Added／Removed／Controller转发（已编译；夹具已验／正式出生未验）"
-    },
-    {
-      "id": "e13",
-      "fromNode": "pc",
-      "fromSide": "bottom",
-      "toNode": "origin",
-      "toSide": "top",
-      "label": "Init调用Begin／Complete；栈退出Close原Ticket（D9已Gate44编译、夹具已验／正式出生未验）"
-    },
-    {
-      "id": "e-hero-local-asc-resource",
-      "fromNode": "hero",
-      "fromSide": "right",
-      "toNode": "hero-local-asc-resource",
-      "toSide": "left",
-      "label": "持有原记录/token/H及既有输入派生retry资源"
-    },
-    {
-      "id": "e-raw-movement-obligation-boundary",
-      "fromNode": "playerinput",
-      "fromSide": "top",
-      "toNode": "raw-movement-obligation-boundary",
-      "toSide": "top",
-      "label": "同一PlayerInput拆事实与消费义务；不增第二held"
-    },
-    {
-      "id": "e-hero-movement-scope",
-      "fromNode": "hero",
-      "fromSide": "bottom",
-      "toNode": "hero-movement-scope",
-      "toSide": "top",
-      "label": "持有原Scope与薄通知；原输入生命周期"
-    },
-    {
-      "id": "e-scope-movement-source",
-      "fromNode": "hero-movement-scope",
-      "fromSide": "bottom",
-      "toNode": "playerinput",
-      "toSide": "top",
-      "label": "原Session：Begin / Attach / GetRequest / End"
-    },
-    {
-      "id": "e-scope-movement-consumer",
-      "fromNode": "hero-movement-scope",
-      "fromSide": "top",
-      "toNode": "cmc",
-      "toSide": "bottom",
-      "label": "原CMC：GetBindingSerial / Bind CAS / Invalidate"
-    },
-    {
-      "id": "e-source-movement-fact",
-      "fromNode": "playerinput",
-      "fromSide": "right",
-      "toNode": "cmc",
-      "toSide": "left",
-      "label": "事实数据：经Hero安装的Receiver交付原Binding+Fact"
-    }
-  ]
+	"nodes":[
+		{"id":"nav","type":"text","text":"# Input｜结构图\nI1／X1／C2已编译并通过必要有限链路：LocalSessionReady首轮成功，RetryIdentity／Origin定向复测成功；X2编辑器夹具隔离未实施。\nSource唯一物理事实／移动请求，CMC唯一执行／FAILED，ASC唯一能力请求／held／Queued许可／等待。边标签表达持有、调用和交付。\n[[Input/结构#本轮复杂度整理与验证边界|实际证据与未验范围]] · [[Input/结构|结构文档]] · [[GGYGO_流程_输入与意图.canvas|流程图]] · [[计划_输入与意图|计划]]","x":0,"y":0,"width":2200,"height":180,"color":"6"},
+		{"id":"pc","type":"text","text":"## AGGYGOPlayerController｜原生执行入口\nInitInputSystem()：原配置／对象身份→原资源BeginNativeCreation→Super一次→返回重验→Complete；早退只Close原Ticket，不替换输入对象。\n私有Idle／Running／Rejected仅管理此Actor创建执行。嵌套Running明确Busy，不Super／排队；非暂态失败锁存Rejected，修依赖后重新创建，不由Tick重试。\n失效／销毁后不写阶段，诊断用入栈路径；资格归OriginResource，held／请求归PlayerInput。\nD8～D10创建侧已冻结／静态接受已Gate44编译、夹具已验／正式出生未验；默认项目PlayerInput有Record。未登记Override仍MissingConstructionWitness，正式首按未验。\nPostProcessInput(dt,paused)：原当前ASC.ProcessAbilityInput，统一本帧消费；原Getter／编队调试保持。","x":1550,"y":660,"width":650,"height":410,"color":"4"},
+		{"id":"cmc","type":"text","text":"## UGGYGOCharacterMovementComponent\nGetMovementInputBindingSerial：读取当前消费绑定版本。\nBindMovementInputSession：expected serial比较交换，接收精确原来源。\nConsumeMovementInputFact(Binding, Fact)：验证原绑定／完整ModeProof事件，Cold一次／Rearm需Neutral；Recorded不代表执行成功。\nInvalidateMovementInputSession：仅失效匹配的原绑定。\nCMC唯一持有执行身份、移动状态与失败门禁；Acceleration只用于方向／大小，不能证明真实释放。\n[[Movement/结构]]","x":490,"y":720,"width":420,"height":445,"color":"1"},
+		{"id":"asc","type":"text","text":"## UGGYGOAbilitySystemComponent\nReceiveAbilityInputRequest(Tag,PreviousID,Deadline)→原请求ID；End(ID,Released/Invalidated)。\n唯一原Request／Spec held／真实Queued许可／有序等待；现有Process统一消费。\nGroupFreed仅内部排下次Process，不内联Try、不续期。\n公用Retryable／GroupFreed delegate仍可只读观察，Hero无生产订阅。\n[[AbilitySystem/结构|ASC权威与接口]]","x":1010,"y":960,"width":420,"height":380,"color":"1"},
+		{"id":"contract","type":"text","text":"## 职责与实施边界\nInput发行移动来源；Hero持原native Session／Action／H关联与Scope资源；CMC执行移动／FAILED，ASC持能力请求、held／许可／等待／Process。\nAction Completed/Canceled结束能力观察；H Closing只退休原请求，H Released仅本地撤回；Movement Released仍须真实物理证明。\n首绝对deadline只限定有限Retry，不释放held。H association、native generation、ASC revision/requestserial、Source Session及CMC执行身份不能合并。\nCold资格不等于执行成功，异常恢复仍真Release→Press；Recorded执行失败保留原请求／释放链。\n本轮有限链路通过；X2未实施。联机／Cook／视觉／性能／完整后继关闭组合等未验，无假Neutral／默认速度／自动重试。\n[[Input/结构#本轮复杂度整理与验证边界|证据与剩余边界]]","x":0,"y":3730,"width":1450,"height":350,"color":"6"},
+		{"id":"playerinput","type":"text","text":"## UGGYGOPlayerInput : UEnhancedPlayerInput\n唯一键／设备观察者与来源号发行者，不持移动执行／FAILED。D12-A/B及后继观察拆分已编译；Hero B2已装配并随Gate59编译，正式Source／Hero动态未验。\nPostInitProperties→原资源Record：默认类已配置；出生夹具已验／Override待验。\nBeginMovementInputSession(Pawn,Component,Action)→CaptureOriginalOrigin／校验原路由→实际Session，仅Cold Claim；成功仅准备。\nAttachMovementInputReceiver(Session,Binding,Receiver)→显式Opened；未碰映射不参加、不伪Neutral／Unresolved；重复Attach不替换。\nInputKey→原生Observe→Movement Projection→Super一次→只匹配原观察/Session。真实首数字Press可Cold，异常后仍须真实释放再按。\nCommitPhysicalRequest(Proof,Session)→实际Request／Event提交→Consume原Claim→Started。同栈复用原已核路由；消费失败无Started、不复用号，交付外调后仍核原weak／Session。\nGetMovementInputRequest→只读有效held；End仅退Movement义务，不改raw；真实Flush另记原生缺口，销毁才清设备记录。\n首次Begin前Flush仅保经Cold认证的原weak后立即Retire；新Producer无交接证明拒绝Rearm。\n[[Input/结构#原资格与真实请求发行（D12-B）|资格与发行契约]]","x":0,"y":1850,"width":680,"height":640,"color":"5"},
+		{"id":"observer","type":"text","text":"## UGGYGOMovementInputRouteObserver\n同一PlayerInput头文件中的薄资源对象；由PlayerInput持有，不是新的执行器。\nInitialize(Subsystem, Pawn, Session)：订阅映射重建、控制器变化及Pawn EndPlay，回调始终携带捕获的原Session。\nDetach()：撤销原订阅，幂等释放；旧回调不能结束后继会话。\n路由失效交回PlayerInput.EndMovementInputSession；不产生真实Released，不修改CMC移动状态，不新增Tick／计时器。","x":780,"y":1850,"width":600,"height":420,"color":"4"},
+		{"id":"origin","type":"text","text":"## UGGYGOMovementInputOriginResource｜Input资格资源\nD7已Gate43编译；D8～D10创建侧源码冻结已Gate44编译、夹具已验／正式出生未验；Outer原LocalPlayer，GGYGOLocalPlayer已强引用保有同一对象（D8源码冻结／已Gate44编译、夹具已验／正式出生未验），Getter不能创建或重授。只管理资格／同步创建票据，不观察物理输入，不发行Source请求或CMC执行号。\nInitializeFromPlayerAdded(Player, BeforeSuper) → 真实Added候选；NotifyPlayerRemoved／NotifyControllerChanged → 按原身份退休及关闭范围。\nBeginNativeCreation(Controller, Class) → 原栈Ticket；RecordNativeCreatedProducer → 精确构造见证；CompleteNativeCreation(Ticket, Actual) → 匹配Record／当前关系／已赋槽才登记；CloseNativeCreation(Ticket, Reason) → Actor失效仍按原票据幂等清理，旧票据不关后继。\nClaimInitialQualification(Producer, Session) → 一次认领，不是移动成功；ConsumeInitialQualification(Request) → 真实发行后消费；RetireInitialQualification → 永久退休。\nGetQualification(Producer) → Unavailable／Cold／Rearm；Rearm绝不证明物理释放。PlayerInput D12-B已接Claim／Consume／Retire，冻结但Gate49R1已编译／夹具已验／正式Source未验。PostInit与默认类已写已Gate44编译、夹具已验／正式出生未验，Source消费仅夹具有限验收；联机临时Controller初始化语义待决。","x":0,"y":2530,"width":1450,"height":620,"color":"4"},
+		{"id":"hero-local-asc-resource","type":"text","text":"## Hero原native Session／H关联资源\nFPlayerInputSession持原IC／Subsystem／PlayerInput弱身份、native generation、绑定／自身IMC／Action观察。\nFAbilityActionBinding与首Observation固定Tag／有限绝对deadline，只接首Receive原ID；拒绝仍锁存。\nFLocalAbilitySystemSubscription持原Extension／Pawn、token、opaque H及弱native归还来源；FAbilityInputAssociation只关联原订阅/H/Session。\nReady关联既有Session；Refreshed同H不重建。\nClosing先退休原association／observations，再End原SourceASC ID Invalidated；保留native绑定／IMC／活动Action锁存及原归还来源。\n真实Released／自身Release才归还原native范围；旧H不清后继。\n[[Input/结构#Hero本地ASC身份订阅与原H清理|契约与清理]] · [[Character/结构|Extension原H事实]]","x":1550,"y":1170,"width":650,"height":550,"color":"4"},
+		{"id":"raw-movement-obligation-boundary","type":"text","text":"## PlayerInput唯一事实／派生义务\nFPhysicalSource唯一原Key/Device raw/down、ObservedAxes、原生缺口与真实释放序列，使用唯一ObservationRevision。\nFMovementSourceObligation只持Key/Device、Participant、可空ReleaseAfterRevision／原因，不复制raw/held/轴mask。\nObservePhysicalInput→原事实副本；ProjectMovementObservation只读原表／映射／自身义务。\nBarrier／Adopt／End只改Movement义务；数字真Released或全部必要轴分量真零的证明起始须晚于边界。\n真实Flush记原生缺口，合成松键不恢复；raw历史保留至Producer销毁。\nGate59已编译。能力A观察真实Action回调／原绑定，允许Injected／Chord／Combo；Hero不读私表或另建物理held。\n[[Input/结构#原生观察与Movement义务分离|字段与接口]]","x":1550,"y":1850,"width":650,"height":630,"color":"5"},
+		{"id":"hero-movement-scope","type":"text","text":"## Hero原移动Scope／薄映射通知资源\nFGGYGOHeroMovementInputScope：原Pawn／IC／Source／Subsystem／CMC／MoveAction弱身份＋输入代次＋自身IMC注册数量；只持原Session／Binding／诊断与退休标记。\nUGGYGOHeroMovementMappingObserver：Hero UPROPERTY保有，同一Hero h/cpp；Initialize订阅真实ControlMappingsRebuilt，Detach退原订阅，回调携捕获原Scope。\nHandleMovementMappingsRebuilt：自身注册记录齐备后装配；原CMC serial→Source Begin→CMC Bind CAS→保存Binding→Attach。输入值回调不Begin。\nReceiver固定原Session／Binding／弱Scope／原CMC；GetRequest只读真held，退资源用原End／Invalidate。没有第二raw／held／Neutral／FAILED或调度器。\n[[Input/结构#Hero移动来源装配与精确退出（B2）|资源、接口与清理]]","x":0,"y":1400,"width":1450,"height":360,"color":"4"},
+		{"id":"action","type":"text","text":"## Enhanced Input／InputAction／Mapping Context\nUEnhancedPlayerInput：原生InputKey与映射处理。\nAction轴值／触发事件不等同真实物理释放证明。\nSubsystem.AddMappingContext／RemoveMappingContext：按原注册次数平衡持有。\n正式IMC_Default（15）／IMC_MouseLook（1）已保存CountRegistrations，原映射／过滤保持。\n仅关闭旧注册配置拒绝；Hero／Run实战未验。","x":-1240,"y":289,"width":426,"height":371,"color":"4"},
+		{"id":"config","type":"text","text":"## UGGYGOInputConfig\nNative Actions → 轴值/视角 Tag；Ability Actions → 能力 InputTag。\n用精确 Tag 匹配区分鼠标与摇杆。","x":-618,"y":300,"width":426,"height":271,"color":"4"},
+		{"id":"component","type":"text","text":"## UGGYGOInputComponent\nBindNativeAction→按配置绑定Look／ForceWalk等native回调。\nBindActionInstanceLambda→Move／Ability原Action实例回调；返回native句柄，RemoveBinds只移除自身原绑定。\n未使用的Tag-only BindAbilityActions已退役。\n不决定GA、发行请求或持等待。","x":201,"y":280,"width":459,"height":291,"color":"5"},
+		{"id":"hero","type":"text","text":"## UGGYGOHeroComponent\n持有原native Session：绑定／IMC／Action观察。\nReceive(Tag,原ID,首绝对deadline)；End原ID。\nH association与native Session分寿命；不持激活等待或生产Retry订阅。\nSource GetRequest证明后AddMovementInput。\n相机两原生入口仅复用同栈认证。\n[[Input/结构|接口与边界]]","x":1040,"y":250,"width":420,"height":350,"color":"5"},
+		{"id":"originhost","type":"text","text":"## UGGYGOLocalPlayer｜原生生命周期薄宿主\nD8源码冻结／静态接受；已Gate44编译、夹具已验／正式出生未验。\nUPROPERTY MovementInputOriginResource → 保有同一原资源；GetMovementInputOriginResource()只读，不创建／初始化／重授。\nPlayerAdded两重载 → 捕获原Controller与资源，Super一次后InitializeFromPlayerAdded。\nPlayerRemoved／BeginDestroy → Super前退休，保留原对象；重复Added不NewObject重授。\nReceivedPlayerController → 资源通知早于原生广播；SpawnPlayActor → 捕获原资源，Super后通知实际Controller，保留返回与错误。\n只转发生命周期，不保存资格阶段、held、来源／执行号；原SquadPresets缓存不变。Controller范围／PostInit均冻结已Gate44编译、夹具已验／正式出生未验；联机dummy语义待用户决定。","x":1900,"y":2530,"width":650,"height":620,"color":"4"},
+		{"id":"facts","type":"text","text":"## GGYGOMovementInputTypes.h｜中性值\nSession = 原Producer弱身份＋SessionSerial；Request = Session＋RequestSerial。\nBinding = 原Consumer弱身份＋BindingSerial＋SourceSession；Fact = Request／EventSerial／Kind／Reason／SessionMode／StartProof。\n七Kind保持；D11枚举／字段已Gate45编译：Mode仅Opened（Cold／Rearm），Proof仅Started（首按／释放再按），其它Kind Invalid。\nCMC完整ModeProof／Cold一次窗Gate48合成专项通过；Source D12-B已发行显式字段、冻结Gate49R1已编译／夹具已验／正式Source未验，不代表正式Hero首W或移动成功。\n原Binding＋Fact双参数委托；弱身份及发行号分责，无权威状态／调度。","x":-2200,"y":3040,"width":1450,"height":350,"color":"6"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"action","fromSide":"right","toNode":"config","toSide":"left","label":"配置 InputTag"},
+		{"id":"e2","fromNode":"config","fromSide":"right","toNode":"component","toSide":"left","label":"提供动作与标签映射"},
+		{"id":"e3","fromNode":"component","fromSide":"right","toNode":"hero","toSide":"left","label":"触发已绑定回调"},
+		{"id":"e4","fromNode":"hero","fromSide":"right","toNode":"cmc","toSide":"left","label":"Source GetRequest原held证明后投射移动轴值"},
+		{"id":"e5","fromNode":"hero","fromSide":"bottom","toNode":"asc","toSide":"top","label":"Receive/End完整原ID；Completed/Canceled=Released，失效=Invalidated"},
+		{"id":"e6","fromNode":"pc","fromSide":"bottom","toNode":"asc","toSide":"top","label":"PostProcessInput 统一消费"},
+		{"id":"e7","fromNode":"hero-local-asc-resource","fromSide":"left","toNode":"asc","toSide":"right","label":"原H关联派生请求；Closing仅End原SourceASC ID"},
+		{"id":"e8","fromNode":"playerinput","fromSide":"right","toNode":"observer","toSide":"left","label":"持有原会话观察资源；Initialize / Detach"},
+		{"id":"e9","fromNode":"playerinput","fromSide":"bottom","toNode":"facts","toSide":"right","label":"签发来源身份；交付Binding与Fact"},
+		{"id":"e10","fromNode":"cmc","fromSide":"bottom","toNode":"facts","toSide":"right","label":"依赖同一值类型；消费原Binding与Fact"},
+		{"id":"e11","fromNode":"playerinput","fromSide":"bottom","toNode":"origin","toSide":"top","label":"PostInit与D12-B Claim／实际请求Consume／Retire已编译，夹具已验／生产未验"},
+		{"id":"e12","fromNode":"originhost","fromSide":"left","toNode":"origin","toSide":"right","label":"UPROPERTY持有；Added／Removed／Controller转发（已编译；夹具已验／正式出生未验）"},
+		{"id":"e13","fromNode":"pc","fromSide":"bottom","toNode":"origin","toSide":"top","label":"Init调用Begin／Complete；栈退出Close原Ticket（D9已Gate44编译、夹具已验／正式出生未验）"},
+		{"id":"e-hero-local-asc-resource","fromNode":"hero","fromSide":"right","toNode":"hero-local-asc-resource","toSide":"left","label":"持有native Session／原订阅token/H及派生association"},
+		{"id":"e-raw-movement-obligation-boundary","fromNode":"playerinput","fromSide":"top","toNode":"raw-movement-obligation-boundary","toSide":"top","label":"同一PlayerInput拆事实与消费义务；不增第二held"},
+		{"id":"e-hero-movement-scope","fromNode":"hero","fromSide":"bottom","toNode":"hero-movement-scope","toSide":"top","label":"持有原Scope与薄通知；原输入生命周期"},
+		{"id":"e-scope-movement-source","fromNode":"hero-movement-scope","fromSide":"bottom","toNode":"playerinput","toSide":"top","label":"原Session：Begin / Attach / GetRequest / End"},
+		{"id":"e-scope-movement-consumer","fromNode":"hero-movement-scope","fromSide":"top","toNode":"cmc","toSide":"bottom","label":"原CMC：GetBindingSerial / Bind CAS / Invalidate"},
+		{"id":"e-source-movement-fact","fromNode":"playerinput","fromSide":"right","toNode":"cmc","toSide":"left","label":"事实数据：经Hero安装的Receiver交付原Binding+Fact"}
+	]
 }

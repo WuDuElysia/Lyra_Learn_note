@@ -1,6 +1,6 @@
 # Kevin DemonBattle 战斗接入计划
 
-> 本计划由 Combat 玩家动作/GA 集成（战斗模块）唯一维护；BossAI 与 Combat 查询图文分别由其长期模块作者维护，本文通过链接引用。当前 BossMelee 已消费受控 Original、原资源批次、Owned Trace 和原终止接口，Gate79 NormalLifecycle 在隔离原生夹具中 Success/0E0W；正式 Kevin 接线、动作实战与联机不在该结果内。动画模块维护动作分组/Montage/骨架/builder，根会话统一安排构建、UE 与最终验收。禁止把人工暂定判定写成原游戏还原。
+> 本计划由 Combat 玩家动作/GA 集成（战斗模块）唯一维护；BossAI 与 Combat 查询图文分别由其长期模块作者维护，本文通过链接引用。当前 BossMelee 已消费受控 Original、原资源批次、Owned Trace、原终止接口及原Profile失败观察；2026-10-08 NormalLifecycle 在隔离原生夹具中 Success/0E0W，包含真实Profile RMS失效/原资源先退役/后继保护。正式 Kevin 接线、动作实战与联机不在该结果内。动画模块维护动作分组/Montage/骨架/builder，根会话统一安排构建、UE 与最终验收。禁止把人工暂定判定写成原游戏还原。
 > [[BossAI/结构]] · [[Combat/结构]] · [[GGYGO_结构_BossAI.canvas]] · [[GGYGO_流程_Combat.canvas]] · [[Animation/BH3_Kevin_DemonBattle导入]]
 
 ## 1. 已核对的来源与现状
@@ -19,7 +19,7 @@
 | Combat 命中查询模块 | `Combat/HitDetection/GGYGOMeleeTraceComponent.h/.cpp`、必要自动化测试 | 唯一窗口/采样/去重/Tick和Owned接口；无效配置明确失败，不拥有伤害或GA终止 |
 | 动画模块 | Kevin 动作目录、Montage/Notify、骨架 Socket、最小 ABP、独立编辑器 builder | 优先复用 `BossStageCTestAssetBuilder.cpp` 的原生构造方式；不由战斗模块同时编辑 GGYGOEditor |
 | 战斗模块准备、根会话协调执行 | `AAADocs/Scripts/wire_bh3_kevin_combat.py` 与 Wiring Config；新 Kevin GA BP、PawnData/AbilitySet/ActionSet/Definition | 依赖预检后才创建；既有受管资产只读比较并报告差异，不覆盖用户调参；不改旧 Test、主场景或 Pyrios |
-| Movement 模块 | `UGGYGOActionMotionProfile`、CMC `BeginActionMotion/EndActionMotion` 与 RMS | 位移唯一执行者；GA 只校验配置、传入速率并持有句柄，不实现第二套轨迹采样 |
+| Movement 模块 | `UGGYGOActionMotionProfile`、CMC `BeginActionMotion/ObserveActionMotionFailure/EndActionMotion` 与 RMS | 位移及原失败观察唯一执行者；GA经共享入口启动，传入速率、持原句柄并消费原失败，不实现第二套轨迹采样或生命周期 |
 
 本轮不创建通用攻击图框架，不为每段动作写 C++。首批玩法是 Ice01/Ice02；具体 Montage、伤害、Socket、半径、速率与 Profile 放 GA BP，选招参数放 ActionSet。投射物、范围场、召唤、抓取/投技与飞行位移明确为后续执行器，不能全部套武器扫掠。
 
@@ -32,6 +32,12 @@ BossMelee InitializeAbilityActivation / ActivateAbilityBody:
   校验 Montage、必需GE、Socket/数值，及 Profile/有效速率/CMC前置
   前置或动作资源失败 → FailOriginalAction → 原 End(true,true)
   Commit / 原 Motion / Task Ready 返回点均核对原批次和终止资格
+  可选Profile → BeginOriginalMeleeMotion → CMC.BeginActionMotion → 保存原MotionHandle
+  CMC.ObserveActionMotionFailure(原Handle, 固定原批次闭包) → CMC持有原观察
+原Profile RMS运行失败:
+  CMC先中性化原贡献/退原槽及观察 → 至多一次原Handle/Reason回调
+  GA核原批次/弱原CMC/句柄 → FailOriginalAction → RequestAbilityEnd(Original,true,true)
+  保留Cancelled；原End资格由GAS判定，不要求已退役CMC仍Active或旧资源工作许可
 HitWindowBegin:
   当前原 Task/实例、Montage、主 Mesh与服务器权限有效
   原窗口 Active时保留去重，不重新开窗
@@ -59,7 +65,7 @@ Trace 每个原回调返回后:
 
 ### 原终止阶段与业务失败响应
 
-底层 Original/End/Cancel/延期/Completed 唯一归项目 GA/ASC 协议；Boss 只保存其原资源批次与清理句柄，Task/Combat/CMC各自执行和退出。`FailOriginalAction` 对生命周期前置或动作资源失败使用固定Original的正式End；原Cancel未被接收时不换一个请求强制成功。`CleanupAbilityResourcesForTermination` 在native Super End前释放匹配资源，派生在外调之后不写后继成员。
+底层 Original/End/Cancel/延期/Completed 唯一归项目 GA/ASC 协议；Boss 只保存其原资源批次与清理句柄，Task/Combat/CMC各自执行和退出。`FailOriginalAction` 对生命周期前置或动作资源失败使用`RequestAbilityEnd(Original, true, true)`保留Cancelled事实；原Cancel未被接收时不换一个请求强制成功。`OwnsOriginalResources`限制失败所属批次，资源继续工作另受`CaptureCurrentActivation`限制，原End资格由核心协议检查。`CleanupAbilityResourcesForTermination` 在native Super End前摘原批次并释放匹配资源，原`EndActionMotion`注销观察，派生在外调之后不写后继成员。共享`BeginOriginalMeleeMotion`由正式Body和既有夹具共同调用；夹具不自造GA终止结果。
 
 本机UE的 GA `OnGameplayAbilityEndedWithData` 是早通知，保留native End参数；Finished/OwnerFinished原Task仍可能登记，原生Reset在广播后才完成。ASC `OnAbilityEnded` 位于Reset之后，复制字段固定false。项目Completed还须通过原协议/调用跨度门禁，不能把早通知或资源已释放当成原请求已返回；正常后继在受控调用方的返回后继续。具体见 [[AbilitySystem/计划_原请求终止|终止契约]] 和 [[GGYGO_流程_原请求终止.canvas|原请求流程]]。玩家夹具中的“两原Task”数量不能套到Boss。
 
@@ -71,7 +77,7 @@ raw非虚Try/CallActivate也可在真实NotifyActivated签原身份并清理资�
 
 判定按上帧/本帧最大武器长度与半径推导分段，间距不超过半径；默认 `MaxTraceSegments=64`，超过预算关闭窗口并告警。无效 Socket 不回退到 Mesh 原点。首帧只建立基线，后续逐点跨帧球扫掠；低帧率大角度旋转仍采用直线路径近似。专用通道、敌我过滤和精确身体受击体未完成；首个场景限定一 Boss 对一个有 ASC 的验证目标，不能据此声称完整群战或原游戏 HitBox 还原。
 
-动作位移首版只支持从零开始、固定速率、不跳 Section 的线性 Montage；有效速率包括 GA 速率、全局调试缩放与 Montage RateScale，CMC 与 Montage 使用同一时间尺度。BlendOut 只关判定，最终结束/取消释放动作句柄；寻路经现有 Controller 停止，后续移动由 BT 新请求决定。Profile 是独立累计位移曲线，Montage 必须引用派生原地动画，防止双重位移。
+动作位移首版只支持从零开始、固定速率、不跳 Section 的线性 Montage；有效速率包括 GA 速率、全局调试缩放与 Montage RateScale，CMC 与 Montage 使用同一时间尺度。BlendOut 只关判定，最终结束/取消释放动作句柄；寻路经现有 Controller 停止，后续移动由 BT 新请求决定。Profile 是独立累计位移曲线，服务器地面水平执行XY、排除Z，是明确正常模式；Montage 必须引用派生原地动画，防止双重位移。M3补充原失败传播，不强制迁移为Montage XYZ来源，不迁统一资产；自然末帧、合法零间隔及离地保留正常规则，Profile不发布完成信号。可选Profile未配为无动作位移模式，已配但无效明确失败。接口详见[[Movement/动作曲线执行]]。
 
 ## 4. 可复用数据与暂定数据
 
@@ -92,18 +98,20 @@ raw非虚Try/CallActivate也可在真实NotifyActivated签原身份并清理资�
 - 已有资产必须带本工具所有权元数据；已有受管资产只读比较配置、报告差异，保留人工调参。所有伤害、范围、胶囊、朝向及选择权重均标记人工暂定。
 - `behavior_tree` 暂为空，只支持计划中的手动触发隔离验收；不能宣称 Target 初始化或自动选招已接线。
 
-## 6. 当前有限验收与正式战斗边界（2026-10-05）
+## 6. 当前有限验收与正式战斗边界（2026-10-08）
 
 | 范围 | 实际证据与当前结论 | 剩余门禁 |
 | --- | --- | --- |
-| 共享原生构建 | Gate79 Editor Succeeded（4 actions、12.03秒、exit0） | 编译不证明Kevin资产/实战 |
-| Boss正常生命周期 | Gate79 `GGYGO.BossAI.Melee.NormalLifecycle` Success/0E0W；隔离夹具的受控原请求/原Task/Motion/Owned资源正常链有限通过 | 本叶不证明Kevin Ice01/02真实伤害/Cue、素材配置或所有失败响应 |
+| 共享原生构建 | 2026-10-08 ComplexityAudit Build2 Succeeded（12 actions、43.70秒）、Build3 Succeeded（7 actions、24.12秒）；Gate79保持历史检查点 | 编译不证明Kevin资产/实战，也不代表编辑器退出正常 |
+| Boss普通资源与M3失败消费 | 首轮 `GGYGO.BossAI.Melee.NormalLifecycle` Success/0E0W；保留原Mesh/Completed A→完整返回→B。实际CMC启动真实Profile RMS，已接受配置失效经native Prepare取消原GA，native End前原位移退役/Mesh恢复；原Completed恰一次、旧RMS Clone晚失败/旧Handle不伤后继、后继正常清理 | 三条负向生产Error精确各预期一次，非预期Error仍失败。本叶隔离Montage，不证明完整N0/Trace/watchdog/GE、Kevin Ice01/02素材或同Binding Refresh组合 |
 | 玩家运行命中 | Gate79四Case行为PASS；两故障叶仍Fail并保留1/2条生产Error，稳定说明见[[计划_玩家普攻连段]] | 不推导Boss命中故障会结束整动作 |
-| raw/native严格边界 | Gate71 `GGYGO.BossAI.Melee.EndReentry` 实际Fail，旧结束回调内raw重激活及后继保持断言未关闭；Gate79未选择该叶 | 保留原报告/日志和严格场景，不用NormalLifecycle替代 |
+| raw/native严格边界 | Gate71 `GGYGO.BossAI.Melee.EndReentry` 实际Fail，旧结束回调内raw重激活及后继保持断言未关闭；Gate79及本轮17叶未选择该叶 | 保留原报告/日志和严格场景，不用NormalLifecycle替代 |
 | Combat查询 | Owned接口与独立查询证据由[[Combat/结构]]唯一记录；本计划只说明实际消费者 | 正式Kevin窗口/Socket/敌我/TraceChannel/完整实战另验 |
 | 正式资产与网络 | 本需求只改原生链及笔记，没有生成/迁移Kevin GA/ABP/Montage/Socket/GE/Cue/Definition/BT | 由各资产作者回读，完整动作、实际数值和Cue表现、双端/延迟仍未验 |
 
-本次七叶整体仍是5 Success/2 Fail/0 Warning、exit1；局部有限接受不改写Gate71/75/77/78历史失败或原诊断。原始证据集中在项目 `AAADocs/Modules/CombatActions/Module_Repair_04_Validation.md` 与各模块验证记录；不在本计划复制逐次日志。
+本轮Boss证据为项目`Saved/AutomationReports/ComplexityAuditSmoke_20261008_1/index.json`中的NormalLifecycle与两条行为PASS记录；共享构建见`Saved/Logs/ComplexityAuditBuild_20261008_2.log`、`_3.log`。首轮17叶13 Success/4 Fail的原报告保留；其余失败修正后的五叶定向复测全Success不扩大本模块验收范围。联机/Cook/视觉/性能与正式Kevin实战仍未验，不标全部Kevin技能或Boss实战完成。
+
+前序Gate79七叶整体5 Success/2 Fail/0 Warning、exit1保持历史事实；局部有限接受不改写Gate71/75/77/78历史失败或原诊断。历史证据集中在项目 `AAADocs/Modules/CombatActions/Module_Repair_04_Validation.md` 与各模块验证记录；不在本计划复制逐次日志。
 
 ### 历史准备检查点（本批未重新资产回读）
 

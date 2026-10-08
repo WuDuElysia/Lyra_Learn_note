@@ -1,104 +1,14 @@
 {
   "nodes": [
     {
-      "id": "nav",
-      "type": "text",
-      "text": "# AbilitySystem｜流程图\n能力请求→受控Try→原激活身份→动作与Task→原资源清理→全部调用退出后发布Completed。\nRequiredPose路径先Acquire再原生Tick Poll；失败先EndTask，再发送OnFailed，由GA决定原能力终止。\n[[GGYGO_结构_AbilitySystem.canvas|结构]] · [[AbilitySystem/结构|接口]] · [[计划_玩家普攻连段|连段说明]] · [[GGYGO_流程_原请求终止.canvas|终止]] · [[GGYGO_流程_能力仲裁.canvas|仲裁]] · [[GGYGO_流程_伤害结算.canvas|结算]]",
-      "x": 0,
-      "y": 0,
-      "width": 1650,
-      "height": 210,
-      "color": "6"
-    },
-    {
-      "id": "grant",
-      "type": "text",
-      "text": "1. 状态宿主创建 ASC 与基础属性，并按 AbilitySet 授予 GA / GE。\n\n调用：CombatantState 构造 ASC/属性 → CharacterSlot::InitializeForPawnData(PawnData) → AbilitySet::GiveToAbilitySystem(ASC, Handles, Source)。",
-      "x": 0,
-      "y": 392,
-      "width": 385,
-      "height": 230,
-      "color": "5"
-    },
-    {
-      "id": "request",
-      "type": "text",
-      "text": "2. Hero观察原ActionInstance：首观察先锁定Tag/deadline，再Receive取得原ID；未Ready/拒绝也不在同Action中补发。\n真实Completed/Canceled→End原ID(Released)；原H Closing/会话失效→End自身ID(Invalidated)，Closing保留native绑定/IMC及首观察。\nPlayerController::PostProcessInput→唯一Process冻结原边沿来源→InputScope内受控Try→按bNativeAccepted消费。\nremote接受不证明本地Activation；Boss Query不携玩家输入来源。",
-      "x": 470,
-      "y": 392,
-      "width": 385,
-      "height": 370,
-      "color": "5"
-    },
-    {
-      "id": "check",
-      "type": "text",
-      "text": "3. 原生 Try 准入与 GA::CanActivateAbility（final）。\n\n每层 Can 独立评估，在原核心检查的外调前认领本次输入许可。\nActorInfo → Super::CanActivateAbility（原 GAS/BP、冷却、成本、Tag）→ ASC::IsActivationBlockedByGroup → CanActivateAbilityAdditional。\n返回前封闭本层结果；QueryOnly／嵌套 raw 无输入重试证明。\n原生前置拒绝未进 Can 时也走 Notify，先耗尽匹配许可。\n组规则见 [[GGYGO_流程_能力仲裁.canvas|仲裁子图]]。",
-      "x": 940,
-      "y": 392,
-      "width": 400,
-      "height": 400,
-      "color": "5"
-    },
-    {
-      "id": "active",
-      "type": "text",
-      "text": "4. Native NotifyAbilityActivated → GA签Original，ASC登记sequence/预留。\nActiveCount++ → final Activate核原参数，Initialize(Original)一次初始化原批次。\n原来源仍有效→Finalize终检/完成原attempt→相机/offset→Body(Original,原参数)，默认native Super/BP。\n每个外调返回重核Original；结束/Busy/来源改变不执行旧Body。派生持自己的原Task/窗口/句柄。\n[[GGYGO_流程_原请求终止.canvas|原来源与全退出]]",
-      "x": 1430,
-      "y": 243,
-      "width": 420,
-      "height": 430,
-      "color": "1"
-    },
-    {
-      "id": "fail",
-      "type": "text",
-      "text": "拒绝：NotifyAbilityFailed（final）。\n复制FailureTags→一次消费本层Can/原输入来源；原生前置拒绝先耗尽匹配许可。\n真实Queued且原源有效→ASC登记原Spec许可与首次等待顺序，再Super原失败反馈。\nSuper回调可释放占位；内部等待已可被真实组空消费。\nSuper返回重核原ASC/GA/ID/Tag/deadline/Policy→OnAbilityInputRetryable观察；Hero不保存等待或Queue。\nHandleAbilityFailed及客户端原路由保持；raw/Query/失效来源不借Retry许可。",
-      "x": 1430,
-      "y": 700,
-      "width": 420,
-      "height": 490,
-      "color": "3"
-    },
-    {
-      "id": "end",
-      "type": "text",
-      "text": "5. 固定Original→RequestEnd/Cancel。\nfinal End一次Cleanup(Context)→native End；派生只归还自己的原资源，Task执行自身清理。\nGA早通知→UE重置Task登记→ASC原Ended→所有实际调用/原Try退出→封存/退Busy→项目Completed。\n组空或Task Completed均不是原Notice。\n[[GGYGO_流程_原请求终止.canvas|真实时点/失败分支]]",
-      "x": 940,
-      "y": 878,
-      "width": 400,
-      "height": 390,
-      "color": "1"
-    },
-    {
-      "id": "damage",
-      "type": "text",
-      "text": "原Owned hit→共享Builder。\nCombo显式无GE成功载荷直接Cue；Boss要求有效GE。有效Spec走GE／Execution／HealthSet元属性，并保留碰撞Cue。\n必需依赖／Builder失败不Apply/Cue：Combo正式End固定Original，Boss只拒该hit。\nHealthSet的Current目标／ASC计算／原Base提交见本图下方数值分支。\n[[GGYGO_流程_伤害结算.canvas|命中分支]] · [[Messages/结构#HealthSet 的 Current 结算|Current结算]]",
-      "x": 1430,
-      "y": 1242,
-      "width": 420,
-      "height": 360,
-      "color": "4"
-    },
-    {
       "id": "k4flow",
       "type": "text",
       "text": "ActorInfo事务与Host请求流程\n1. 调用方明确选择TryExecuteAvatarActorInfoTransaction／TryBootstrapAvatarActorInfoTransaction／TryReplaceRevokedAvatarActorInfoTransaction，传原Context、明确Kind／ClearMode、必需同步纯谓词和独立OutPublication。\n2. 入口清输出、ASC认证准入→私有协议Reserve原Operation；进入IsAvatarBindingNativeWriteBusy所描述的RAII窗口。谓词外调前后核对原Operation、Admission对应Current／Unissued／Revoked和原端点，撤销后不复活。\n3. 限定Super：Init→InitAbilityActorInfo；Clear/PreserveOwner→Init(owner,null)；ClearActorInfo→ClearActorInfo；Refresh→RefreshAbilityActorInfo。\n4. Super完整返回后重检→协议CommitValidatedSource保存唯一来源/Context→保存原Kind／Before的不可变Receipt；只有本次真正提交才bCommitted=true和非空凭据。失败明确返回，无改动作／回滚／自动排队；退出仅清原Operation。\n5. Receipt.TryGetCommittedEvidence只读历史，不证明当前执行或Ready；ASC持有唯一当前资源引用。\nHost Request→三Try之一→提交→Extension Install→Host公布原H/Context/Avatar→Publish。Health/Base/Hero消费各自原H，失败结果不授权后继动作。",
       "x": 0,
       "y": 1750,
       "width": 1850,
-      "height": 560,
-      "color": "6"
-    },
-    {
-      "id": "k4publish",
-      "type": "text",
-      "text": "一次发布与GA通知流程\n1. Host在Install并公布原资源后调用PublishAvatarBindingNotice(原Receipt,pureQuery)；原Dispatching桥接Extension Ready，Hero消费typed本地H。\n2. 捕获历史副本，核对真实Proof、Pending、完整Context／LastWrite、实际ActorInfo和生命周期；每次Query外调前后重检，查询闭包不持久保存。\n3. ASC完成原认证→私有协议置唯一记录Dispatching → OnAvatarBindingNotice的唯一原生Broadcast(Receipt, Notice)。接收者仍须校验真实派发及自己的原资源；派发期间不占原生Busy。\n4. 事件后重检；仅原Init＋不同的新有效Pawn进入GA通知。同Pawn Init／Refresh／Clear不走首次出生分支。\n5. 每项原SpecHandle＋弱实例候选：Recheck → FindAbilitySpecFromHandle(..., EConsiderPending::None)＋原实例成员核对 → OnPawnAvatarSet → Recheck。已移除／待移除／脱离原Spec跳过。\n6. OnPawn后重收集Spawn Handle；每项Recheck → 查非PendingRemove原Spec并复制 → TryActivateAbilityOnSpawn：保留OnSpawn/未Active/Avatar/网络端选择，合格后一次项目ASC.TryActivateAbilityWithTerminationBoundary(Handle)；非法/非项目ASC诊断拒绝，无raw回退 → Recheck；不跨外调保留容器引用。\nNativeAccepted不等于本地Activation或Completed。GA以共同原身份与final入口执行：Initialize一次初始化原批次，原准入/相机后Body默认native Super/BP；外调返回核固定Original，结束/Busy不进入旧业务。[[AbilitySystem/结构#激活薄hook与OnSpawn受控入口|接口与门禁]]\n7. 回调内B合法接管：A返回原历史bCommitted=true＋Stale；原Proof／Context作用域仅撤A，不能清B或继续A通知。纯Query或实际字段失败同样明确关闭原许可。\n8. 最后精确重检 → 私有协议Consumed并释放当前强Proof引用，只保留派发来源元数据；IsAvatarBindingPublicationContextCurrent仍不等于全局Ready。\n9. 原凭据派发中重入：Busy／PublicationInProgress；成功消费后再发：Rejected／PublicationAlreadyConsumed。Pending／Closed／历史不能通过真实派发认证。",
-      "x": 0,
-      "y": 2470,
-      "width": 1850,
-      "height": 660,
-      "color": "5"
+      "color": "6",
+      "height": 250
     },
     {
       "id": "k4cancel",
@@ -111,56 +21,6 @@
       "color": "5"
     },
     {
-      "id": "ability-input-ordered-edge-flow",
-      "type": "text",
-      "x": 2030,
-      "y": 392,
-      "width": 700,
-      "height": 670,
-      "color": "5",
-      "text": "## Process输入消费\nReceive冻结原ID/Tag/deadline及首次Spec集合，记录真实边沿；多个held来源按OR保持。\nProcess外调前捕Edges，逐Edge冻结InitialSourcesByEdge；Press A→Release A→Press B不让B进入A的Can来源。\n同边沿OR、同Spec本批最多一次Try；剩余边沿进入既有DeferredEdges，下次PostProcess消费。\nInputScope/Origin包一次受控Try；本次许可先消费，native接受才消费输入，Busy/Rejected不raw重试。\nfinal Can独立评估→final Notify真实Queued才重授原许可/等待；Query/raw不借来源。\nPendingRetries仍经原ID/Tag/deadline/Policy核对，FiniteRetry不重开窗口。\nReleased按最后held发释放，未过期Triggered tap可retry；WhileInputActive有限retry另需held。\nInvalidated不伪Released；deadline只退休有限许可/等待/Pending，不松键。\n[[AbilitySystem/结构#单次 Can 评估与输入失败来源|输入接口]]"
-    },
-    {
-      "id": "k3-play-result",
-      "type": "text",
-      "text": "## 1｜Task先决契约与完整播放返回\n创建Task后、Ready前RegisterNativeCallbacks→精确token：原五普通回调＋SectionReceived／NotifyReceived＋typed OnFailed。原Activation/弱GA/原Task由调用方固定捕获。\nActivate捕原Ability/ActorInfo allocation/ASC/Mesh/Anim与Montage真实唯一Slot。\n→原Guard.AcquireActionPoseContract：ExplicitNotRequired明确普通模式；RequiredReady须有效原Ticket/失败消费者；Rejected/Unavailable或Ticket不一致→Startup失败(ID=NONE)，不播放。\n原资格有效→自身Cancel/Event订阅→TryPlayMontageWithOwnership(原参数/pureQuery)。\nASC捕源→GuardScope→完整Super.PlayMontage→Complete→复制Result并退出Scope；Accepted且真实Local/原源一致才签Playback。\nTask消费同一栈Result；失败/Superseded不清后继、不裸播放/扫描新实例或假Duration成功。\n[[AbilitySystem/结构|接口输入输出]] · [[Animation/动作姿态修正|声明与Acquire]]\n显式作者点订阅在Ready前ConfigureOriginalMontageNotify；声明、派发与清理见右侧分支。",
-      "x": 3000,
-      "y": 392,
-      "width": 950,
-      "height": 680,
-      "color": "5"
-    },
-    {
-      "id": "k3-original-resource",
-      "type": "text",
-      "text": "## 2｜原资源安装与Required-only只读Poll\n原返回重检Task/Ability/ActorInfo；在途停止义务按Result.Guard清原实例。已结束Task不安装资源。\n成功→保存原Handle/Guard/ID→精确BlendOut/Ended/Section委托与配置的原NotifyBegin订阅→原scale lease→SetWaitingOnAvatar；最后外调后无成员写。\nReady返回：GA用TryGetOriginalSectionSnapshot固定实际ID/Section/Position/Rate，GA按原范围调用CMC BeginMontageActionMotion；SectionReceived报告原转段。\n仅RequiredReady启用原GameplayTasks Tick；TickTask不消费dt或求姿态，只向原Guard.PollActionPoseContract。\nPoll前后核原Task/Ability/ActorInfo/ASC/Guard；Valid继续，Failed/Invalidated→Playback失败(原ID)，不重新Acquire或静默跳过弱来源丢失。\n普通Event/Section仍核精确原实例和自身资格；票据不是播放/GA权力，CMC仍唯一胶囊执行。\n[[GGYGO_流程_玩家普攻连段.canvas|Main/End消费]] · [[Animation/动作姿态修正|姿态执行/epoch]]",
-      "x": 3000,
-      "y": 1260,
-      "width": 950,
-      "height": 680,
-      "color": "4"
-    },
-    {
-      "id": "k3-exact-clear",
-      "type": "text",
-      "text": "## 3｜原BlendOut精确Clear\n原实例携Guard回调→MatchesOriginalMontageCallback→标混出，释放自身缩放。\nTask→TryClearMontageAnimatingAbility(原Handle)。Check通过→qualified基类GA.SetCurrentMontage(null)→Local.AnimatingAbility=null→核对→退休Proof。\n旧A不匹配当前B返回Stale／原因；B停止后仍可清自己。\n不进virtual业务setter后盲清Local，不Stop／延期到技能结束。\n原BlendOut/Interrupted：原包/载荷快照→native及捕获析构返回→弱原Task、同原Guard/ActorInfo/Task资格重检→既有BP；原Task关闭不继续旧BP。\n[[AbilitySystem/结构#精确Montage播放归属|播放接口]]",
-      "x": 3000,
-      "y": 2110,
-      "width": 950,
-      "height": 680,
-      "color": "1"
-    },
-    {
-      "id": "k3-task-original-ended",
-      "type": "text",
-      "text": "## 4｜自然结束、普通取消与Required失败\n自然原Ended：原Guard生命周期/ActorInfo/Task资格成立且非Interrupted→原包/载荷快照→native/捕获析构返回→原资格重检→BP Completed→自身EndTask。\n不Check已退休当前ASC归属，不要求原实例仍活动。Completed只原实例事实；GA另核Original，不授后继结束权。\n普通ExternalCancel/AbilityCancel/FailAndEndTask保持Cancelled与原Stop策略，各渠道至多一次。\nRequired失败独立路径：关闭普通Event/Section/完成入口→精确Stop原实例/释放scale→EndTask清自身订阅/Ticket→历史typed OnFailed。\nFact=原Montage/真实Slot/Stage/Diagnostic；Startup NONE，Playback确切原ID。\nUE EndTask已清Task.Ability并垃圾标记；历史发送者WeakTask.Get(true)拒RF销毁，GA核原激活/段/强Task/原资源，随后正式原End(true,true)。不能用live-Task/Guard门禁吞失败。\nnative消费者若真实结束原激活/同UObject接续，临时原End观察使旧BP不交付；无原End且历史资格成立才BP OnFailed。\nOnDestroy先关/脱包，再原AnimInstance自身NotifyBegin及Cancel/Event/实例/scale/Ticket清理；Tick标志保持到引擎退休登记，捕获释放后无旧Task写。\n普通停止仍按原Guard/ID，ASC认证且活动ID同原才CurrentMontageStop，否则仅精确本地原资源；不找当前Avatar/后继。\n[[AbilitySystem/结构#Task原实例与资源消费|Task契约]] · [[计划_玩家普攻连段|失败接收]]",
-      "x": 3000,
-      "y": 2950,
-      "width": 950,
-      "height": 700,
-      "color": "1"
-    },
-    {
       "id": "k4-cleanup-sources-nav",
       "type": "text",
       "text": "## 两种来源分别认证｜承接上方ActorInfo事务与清理\n第一行：已提交原Context；第二行：完整native Init返回后未commit失败的原WrittenActual。均不借Ready或当前端点猜来源。\n[[AbilitySystem/结构#清理调用方|清理接口]]",
@@ -171,54 +31,14 @@
       "color": "6"
     },
     {
-      "id": "k4-committed-cleanup-entry",
-      "type": "text",
-      "text": "## 已提交清理｜捕获原范围\nHost Release或自己已提交的失败收尾捕原H/完整Context/弱端点；Extension先Withdraw原H并同步Closing。\nClosing归还原消费者关联；Hero精确Invalidated自身ID，仍保留native输入会话。Host返栈重核原scope、重取原弱端点。\n→ CheckAvatarBindingCleanupContext(Expected, OutReason)。\n只用原Issuer/Binding/LastWrite，不从后继补权。\n[[AbilitySystem/结构#原已提交清理来源（Destroy）|来源]]",
-      "x": 0,
-      "y": 4100,
-      "width": 600,
-      "height": 390,
-      "color": "5"
-    },
-    {
       "id": "k4-committed-cleanup-check",
       "type": "text",
       "text": "## 已提交清理｜纯GT核原提交来源\nCurrent或Revoked＋实际保存原提交快照 → 比精确Context/LastWrite/Issuer、原ActorInfo allocation/完整字段。\nCommittedCleanup允许仍合法分配、Destroy中的原Owner/Avatar；ASC无效/字段变了明确失败。\n逻辑撤销保留仅cleanup资格；工作查询仍Current/live。\n查询不签身份/执行/Ready；真实typed/legacy写入已经退休旧源则拒绝。",
       "x": 710,
       "y": 4100,
       "width": 620,
-      "height": 430,
-      "color": "5"
-    },
-    {
-      "id": "k4-committed-cleanup-actions",
-      "type": "text",
-      "text": "## 已提交清理｜原Context动作依次返回\nHost → TryCancelAvatarBindingAbilities(Expected, With/Without, pureScope)\n→ 原范围ClearAbilityInput\n→ TryRemoveAvatarBindingGameplayCues(Expected, pureScope)，仍用旧Avatar。\nCancel/Cue仅MatchCommittedCleanupContext；原native Busy中query前后/完整Super返回重检→Complete。\n不commit/Receipt/Notice；失去原scope或source即停止，不清后继。",
-      "x": 1440,
-      "y": 4100,
-      "width": 620,
-      "height": 460,
-      "color": "5"
-    },
-    {
-      "id": "k4-committed-cleanup-clear",
-      "type": "text",
-      "text": "## 已提交清理｜调用方显式Clear模式\nHost捕原Host/Owner关闭事实，关闭→ClearActorInfo；正常保Owner→PreserveOwner。\n→ TryExecuteAvatarActorInfoTransaction(Clear, OutPublication)。\nquery/原操作核对→ClearAbilityInput监听者返回后写前重检→退休旧源→qualified native。\nPreserveOwner遇关闭Owner/宿主明确LifecycleClosed，不错误后换模式重试。",
-      "x": 2170,
-      "y": 4100,
-      "width": 620,
-      "height": 450,
-      "color": "3"
-    },
-    {
-      "id": "k4-committed-cleanup-result",
-      "type": "text",
-      "text": "## 已提交清理｜typed Clear实际提交出口\n原Super完整返回/重检→Commit→bCommitted=true及Released Receipt。\nHost仅退自己的原H/订阅，再Publish/NotifyLocalResourcesReleased沿既有规则；失败历史不回滚后继。\nClear不重开已关闭组件宿主；cleanup query成功不等于Ready或新工作。",
-      "x": 2900,
-      "y": 4100,
-      "width": 820,
-      "height": 430,
-      "color": "1"
+      "color": "5",
+      "height": 260
     },
     {
       "id": "k4-committed-cleanup-stale",
@@ -227,78 +47,8 @@
       "x": 710,
       "y": 4690,
       "width": 620,
-      "height": 300,
-      "color": "3"
-    },
-    {
-      "id": "k4-committed-cleanup-mode-rejected",
-      "type": "text",
-      "text": "## A模式拒绝｜LifecycleClosed\n显式PreserveOwner碰关闭Owner/组件宿主→原失败。\n调用方事先选择的ClearActorInfo是正常模式，不是失败后的替代路径；ASC不自动换Mode/排队/重试。",
-      "x": 2170,
-      "y": 4690,
-      "width": 620,
-      "height": 300,
-      "color": "3"
-    },
-    {
-      "id": "k4-failed-init-capture",
-      "type": "text",
-      "text": "## 失败Init清理｜native Init完整返回即捕获\n普通/Bootstrap/Replace的同一common Init执行器、原Operation、既有native Busy。\nqualified Super::InitAbilityActorInfo完整返回\n→ CaptureReturnedAvatarActorInfoInitCleanup(原操作)。\n原pending身份/Kind Init、原allocation、原请求Owner/Avatar及ASC缓存匹配，保存完整WrittenActual。\n候选捕获先于后续caller query/Commit；不是Ready校验。",
-      "x": 0,
-      "y": 5250,
-      "width": 600,
-      "height": 490,
-      "color": "5"
-    },
-    {
-      "id": "k4-failed-init-commit-branch",
-      "type": "text",
-      "text": "## 失败Init清理｜原返回检查与Commit分支\n执行器沿原操作query前后重检，再TryCommitAvatarBindingActorInfoIdentity。\n成功Commit：丢弃失败cleanup候选，走既有Receipt/Publish规则。\n未commit失败且native完整返回：保留原失败Result.Operation，尝试RetainFailedAvatarActorInfoInitCleanup(候选)。\n预写入失败/未完整返回不签原写入Proof。",
-      "x": 710,
-      "y": 5250,
-      "width": 620,
-      "height": 450,
-      "color": "3"
-    },
-    {
-      "id": "k4-failed-init-retain",
-      "type": "text",
-      "text": "## 失败Init清理｜仅保留仍精确匹配的失败Proof\n原Context元数据等于Before、未commit为该Operation，原allocation/完整WrittenActual仍匹配。\n成员const Proof：OriginalOperation＋Before＋WrittenActual；原Init结果仍失败。\n后继真实typed/准入legacy写入退休Proof；拒绝/预写入失败不替既有实际源。清理入口不重捕或用旧Context补造。\n[[AbilitySystem/结构#失败Init原写入清理（未提交证明）|未提交来源]]",
-      "x": 1440,
-      "y": 5250,
-      "width": 620,
-      "height": 530,
-      "color": "5"
-    },
-    {
-      "id": "k4-failed-init-consume",
-      "type": "text",
-      "text": "## 失败Init清理｜核原Proof并一次消费\n调用方 → TryCleanupFailedAvatarActorInfoInit(原Operation, pureOriginalCallerQuery)。\n拒绝缺Query/无效ASC/Busy；核成员原Proof/Issuer/Before/allocation/全部实际字段，无较新commit/写入。\n进入既有单native Busy；query前后重检原源，不借工作Ready/关闭Owner门槛。\n关匹配发布许可→先消费Proof/退休旧来源及Montage→唯一qualified Super::ClearActorInfo。\nnative后失败不重新签Proof，不回滚/自动重试。",
-      "x": 2170,
-      "y": 5250,
-      "width": 700,
-      "height": 550,
-      "color": "5"
-    },
-    {
-      "id": "k4-failed-init-postcondition",
-      "type": "text",
-      "text": "## 失败Init清理｜核真实Clear后置条件\n原ASC/Before元数据、无新Proof/活动操作；allocation与其余原字段精确相同。\nOwner/Avatar/PC/Mesh/Movement、cached Owner/Avatar、实际GetAnimInstance为空；raw ActorInfo::AnimInstance与Tag按GAS保留。\n再pure原query，前后重检Cleared快照。\n全部成立→Succeeded/None、原Operation/Before，bCommitted=false、CommittedContext空。\n只证明原写入物理cleanup；无Receipt/Notice/Ready，原Init仍失败。",
-      "x": 2980,
-      "y": 5250,
-      "width": 740,
-      "height": 550,
-      "color": "1"
-    },
-    {
-      "id": "k4-failed-init-success-commit",
-      "type": "text",
-      "text": "## B成功Commit｜既有事务出口\n只有实际Commit成功才创建历史Receipt及当前发布记录，失败Proof不保留。\n按原Publish认证/通知规则执行，不从cleanup路径制造Ready。\n[[AbilitySystem/结构#单次发布与回调资源归属|既有发布规则]]",
-      "x": 710,
-      "y": 5940,
-      "width": 620,
-      "height": 320,
-      "color": "1"
+      "color": "3",
+      "height": 190
     },
     {
       "id": "k4-failed-init-no-proof",
@@ -307,8 +57,8 @@
       "x": 1440,
       "y": 5940,
       "width": 620,
-      "height": 340,
-      "color": "3"
+      "color": "3",
+      "height": 160
     },
     {
       "id": "k4-failed-init-cleanup-failure",
@@ -317,98 +67,168 @@
       "x": 2980,
       "y": 5940,
       "width": 740,
-      "height": 340,
-      "color": "3"
+      "color": "3",
+      "height": 160
+    },
+    {
+      "id": "grant",
+      "type": "text",
+      "text": "1. 状态宿主创建 ASC 与基础属性，并按 AbilitySet 授予 GA / GE。\n\n调用：CombatantState 构造 ASC/属性 → CharacterSlot::InitializeForPawnData(PawnData) → AbilitySet::GiveToAbilitySystem(ASC, Handles, Source)。",
+      "width": 385,
+      "height": 230,
+      "color": "5",
+      "x": -960,
+      "y": 343
+    },
+    {
+      "id": "request",
+      "type": "text",
+      "text": "2. Hero观察原ActionInstance：首观察先锁定Tag/deadline，再Receive取得原ID；未Ready/拒绝也不在同Action中补发。\n真实Completed/Canceled→End原ID(Released)；原H Closing/会话失效→End自身ID(Invalidated)，Closing保留native绑定/IMC及首观察。\nPlayerController::PostProcessInput→唯一Process冻结原边沿来源→InputScope内受控Try→按bNativeAccepted消费。\nremote接受不证明本地Activation；Boss Query不携玩家输入来源。",
+      "width": 385,
+      "height": 370,
+      "color": "5",
+      "x": -100,
+      "y": 273
+    },
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# AbilitySystem｜流程图\n能力请求→受控Try→原激活身份→动作与Task→原资源清理→全部调用退出后发布Completed。\nRequiredPose路径先Acquire再原生Tick Poll；失败先EndTask，再发送OnFailed，由GA决定原能力终止。\n[[GGYGO_结构_AbilitySystem.canvas|结构]] · [[AbilitySystem/结构|接口]] · [[计划_玩家普攻连段|连段说明]] · [[GGYGO_流程_原请求终止.canvas|终止]] · [[GGYGO_流程_能力仲裁.canvas|仲裁]] · [[GGYGO_流程_伤害结算.canvas|结算]]",
+      "width": 1650,
+      "height": 210,
+      "color": "6",
+      "x": -310,
+      "y": -140
+    },
+    {
+      "id": "check",
+      "type": "text",
+      "text": "3. 原生 Try 准入与 GA::CanActivateAbility（final）。\n\n每层 Can 独立评估，在原核心检查的外调前认领本次输入许可。\nActorInfo → Super::CanActivateAbility（原 GAS/BP、冷却、成本、Tag）→ ASC::IsActivationBlockedByGroup → CanActivateAbilityAdditional。\n返回前封闭本层结果；QueryOnly／嵌套 raw 无输入重试证明。\n原生前置拒绝未进 Can 时也走 Notify，先耗尽匹配许可。\n组规则见 [[GGYGO_流程_能力仲裁.canvas|仲裁子图]]。",
+      "x": 940,
+      "width": 400,
+      "height": 400,
+      "color": "5",
+      "y": 258
+    },
+    {
+      "id": "end",
+      "type": "text",
+      "text": "5. 固定Original→RequestEnd/Cancel。\nfinal End一次Cleanup(Context)→native End；派生只归还自己的原资源，Task执行自身清理。\nGA早通知→UE重置Task登记→ASC原Ended→所有实际调用/原Try退出→封存/退Busy→项目Completed。\n组空或Task Completed均不是原Notice。\n[[GGYGO_流程_原请求终止.canvas|真实时点/失败分支]]",
+      "width": 400,
+      "height": 390,
+      "color": "1",
+      "x": -100,
+      "y": 1047
+    },
+    {
+      "id": "active",
+      "type": "text",
+      "text": "4. Native NotifyAbilityActivated → GA签Original，ASC登记sequence/预留。\nActiveCount++ → final Activate核原参数，Initialize(Original)一次初始化原批次。\n原来源仍有效→Finalize终检/完成原attempt→相机/offset→Body(Original,原参数)，默认native Super/BP。\n每个外调返回重核Original；结束/Busy/来源改变不执行旧Body。派生持自己的原Task/窗口/句柄。\n[[GGYGO_流程_原请求终止.canvas|原来源与全退出]]",
+      "width": 420,
+      "height": 430,
+      "color": "1",
+      "x": 940,
+      "y": 992
+    },
+    {
+      "id": "fail",
+      "type": "text",
+      "text": "拒绝：NotifyAbilityFailed（final）。\n复制FailureTags→一次消费本层Can/原输入来源；原生前置拒绝先耗尽匹配许可。\n真实Queued且原源有效→ASC登记原Spec许可与首次等待顺序，再Super原失败反馈。\nSuper回调可释放占位；内部等待已可被真实组空消费。\nSuper返回重核原ASC/GA/ID/Tag/deadline/Policy→OnAbilityInputRetryable观察；Hero不保存等待或Queue。\nHandleAbilityFailed及客户端原路由保持；raw/Query/失效来源不借Retry许可。",
+      "width": 420,
+      "height": 490,
+      "color": "3",
+      "x": 1920,
+      "y": 242
+    },
+    {
+      "id": "ability-input-ordered-edge-flow",
+      "type": "text",
+      "width": 700,
+      "height": 670,
+      "color": "5",
+      "text": "## Process输入消费\nReceive冻结原ID/Tag/deadline及首次Spec集合，记录真实边沿；多个held来源按OR保持。\nProcess外调前捕Edges，逐Edge冻结InitialSourcesByEdge；Press A→Release A→Press B不让B进入A的Can来源。\n同边沿OR、同Spec本批最多一次Try；剩余边沿进入既有DeferredEdges，下次PostProcess消费。\nInputScope/Origin包一次受控Try；本次许可先消费，native接受才消费输入，Busy/Rejected不raw重试。\nfinal Can独立评估→final Notify真实Queued才重授原许可/等待；Query/raw不借来源。\nPendingRetries仍经原ID/Tag/deadline/Policy核对，FiniteRetry不重开窗口。\nReleased按最后held发释放，未过期Triggered tap可retry；WhileInputActive有限retry另需held。\nInvalidated不伪Released；deadline只退休有限许可/等待/Pending，不松键。\n[[AbilitySystem/结构#单次 Can 评估与输入失败来源|输入接口]]",
+      "x": 2380,
+      "y": -183
+    },
+    {
+      "id": "damage",
+      "type": "text",
+      "text": "原Owned hit→共享Builder。\nCombo显式无GE成功载荷直接Cue；Boss要求有效GE。有效Spec走GE／Execution／HealthSet元属性，并保留碰撞Cue。\n必需依赖／Builder失败不Apply/Cue：Combo正式End固定Original，Boss只拒该hit。\nHealthSet的Current目标／ASC计算／原Base提交见本图下方数值分支。\n[[GGYGO_流程_伤害结算.canvas|命中分支]] · [[Messages/结构#HealthSet 的 Current 结算|Current结算]]",
+      "width": 420,
+      "height": 360,
+      "color": "4",
+      "x": 2000,
+      "y": 992
     },
     {
       "id": "w0-original-input-subscription-flow",
       "type": "text",
       "text": "## 原输入Task订阅流程\n调用方：WaitComboInput→SetSourceStep→可选RegisterNativeCallback→ReadyForActivation；工厂/BP签名保持。native闭包按值捕原Activation、弱GA/原Task。\n① Activate外调前捕原弱ASC/Ability、Spec/key、remote/predict模式、自身handle→原桶AbilityReplicatedEventDelegate(InputPressed).Add。零key合法，只定位桶。\n② remote CallReplicatedEventDelegateIfSet返回→重取弱原Task，核开放/原订阅/来源/handle→未回放才最后SetWaitingOnRemotePlayerData；A结束不能写Waiting。\n③ HandlePress：remote GetReplicatedDataOfGenericReplicatedEvent；本地计数，predict才ServerSetReplicatedEventWithPayload→ConsumeGenericReplicatedEvent，均原Spec/key。\nX[0,65535]／Y[1,65535]整数校验保持，非法载荷诊断并消费原事件后拒绝通知。原FScopedPredictionWindow覆盖通知。\n原Consume→不可变native/载荷快照→native与捕获析构返回→弱原Task/精确原订阅重检→原OnPress BP；native结束A不发A BP。\n④ OnDestroy先关、脱native及订阅→原桶remove自身handle→Super返回→释放捕获，之后无Task访问；不Consume后继。\n必需来源非法诊断/结束自身，不从GA current补桶，不新增GA身份或调度。\n[[AbilitySystem/结构#原事件桶与输入Task订阅|订阅接口]]",
-      "x": 4150,
-      "y": 392,
       "width": 950,
-      "height": 860,
-      "color": "5"
+      "color": "5",
+      "x": 1945,
+      "y": 1422,
+      "height": 430
     },
     {
-      "id": "numeric-authority-current-target",
+      "id": "k3-play-result",
       "type": "text",
-      "text": "## 权威Current目标\nDamage／Healing／PoiseDamage：\nPreGameplayEffectExecute先调用ASC计算Current→同Current，只预检支持性；Ready不保存候选，不写资源属性。\nPre拒绝→拒绝该Modifier；接受→原GE写meta。\nPostGameplayEffectExecute清自身meta贡献，等待该原生回调返回，再重读Current／Max并按MinimumHealth与0～Max生成目标。\n权威Max下降且Current超界→TrySetCurrentValue目标为新Max。\n[[Messages/结构#HealthSet 的 Current 结算|HealthSet目标与原帧]]",
+      "text": "## 1｜Task先决契约与完整播放返回\n创建Task后、Ready前RegisterNativeCallbacks→精确token：原五普通回调＋SectionReceived／NotifyReceived＋typed OnFailed。原Activation/弱GA/原Task由调用方固定捕获。\nActivate捕原Ability/ActorInfo allocation/ASC/Mesh/Anim与Montage真实唯一Slot。\n→原Guard.AcquireActionPoseContract：ExplicitNotRequired明确普通模式；RequiredReady须有效原Ticket/失败消费者；Rejected/Unavailable或Ticket不一致→Startup失败(ID=NONE)，不播放。\n原资格有效→自身Cancel/Event订阅→TryPlayMontageWithOwnership(原参数/pureQuery)。\nASC捕源→GuardScope→完整Super.PlayMontage→Complete→复制Result并退出Scope；Accepted且真实Local/原源一致才签Playback。\nTask消费同一栈Result；失败/Superseded不清后继、不裸播放/扫描新实例或假Duration成功。\n[[AbilitySystem/结构|接口输入输出]] · [[Animation/动作姿态修正|声明与Acquire]]\n显式作者点订阅在Ready前ConfigureOriginalMontageNotify；声明、派发与清理见右侧分支。",
+      "width": 950,
+      "color": "5",
+      "x": 3320,
+      "y": 600,
+      "height": 392
+    },
+    {
+      "id": "k4publish",
+      "type": "text",
+      "text": "一次发布与GA通知流程\n1. Host在Install并公布原资源后调用PublishAvatarBindingNotice(原Receipt,pureQuery)；原Dispatching桥接Extension Ready，Hero消费typed本地H。\n2. 捕获历史副本，核对真实Proof、Pending、完整Context／LastWrite、实际ActorInfo和生命周期；每次Query外调前后重检，查询闭包不持久保存。\n3. ASC完成原认证→私有协议置唯一记录Dispatching → OnAvatarBindingNotice的唯一原生Broadcast(Receipt, Notice)。接收者仍须校验真实派发及自己的原资源；派发期间不占原生Busy。\n4. 事件后重检；仅原Init＋不同的新有效Pawn进入GA通知。同Pawn Init／Refresh／Clear不走首次出生分支。\n5. 每项原SpecHandle＋弱实例候选：Recheck → FindAbilitySpecFromHandle(..., EConsiderPending::None)＋原实例成员核对 → OnPawnAvatarSet → Recheck。已移除／待移除／脱离原Spec跳过。\n6. OnPawn后重收集Spawn Handle；每项Recheck → 查非PendingRemove原Spec并复制 → TryActivateAbilityOnSpawn：保留OnSpawn/未Active/Avatar/网络端选择，合格后一次项目ASC.TryActivateAbilityWithTerminationBoundary(Handle)；非法/非项目ASC诊断拒绝，无raw回退 → Recheck；不跨外调保留容器引用。\nNativeAccepted不等于本地Activation或Completed。GA以共同原身份与final入口执行：Initialize一次初始化原批次，原准入/相机后Body默认native Super/BP；外调返回核固定Original，结束/Busy不进入旧业务。[[AbilitySystem/结构#激活薄hook与OnSpawn受控入口|接口与门禁]]\n7. 回调内B合法接管：A返回原历史bCommitted=true＋Stale；原Proof／Context作用域仅撤A，不能清B或继续A通知。纯Query或实际字段失败同样明确关闭原许可。\n8. 最后精确重检 → 私有协议Consumed并释放当前强Proof引用，只保留派发来源元数据；IsAvatarBindingPublicationContextCurrent仍不等于全局Ready。\n9. 原凭据派发中重入：Busy／PublicationInProgress；成功消费后再发：Rejected／PublicationAlreadyConsumed。Pending／Closed／历史不能通过真实派发认证。",
       "x": 0,
-      "y": 6550,
-      "width": 700,
-      "height": 650,
-      "color": "4"
+      "width": 1850,
+      "color": "5",
+      "y": 2130,
+      "height": 390
     },
     {
-      "id": "numeric-native-base-calculation",
+      "id": "k3-original-resource",
       "type": "text",
-      "text": "## ASC capture与栈内计算\nHealthSet→TryCalculateNumericAttributeBaseForCurrentValue(原Set/属性/ExpectedCurrent/DesiredCurrent)。\n核线程/权威/注册来源/有限输入→native Capture和默认/CustomQualifies资格外调；返回重核原源。\nGGYGOAttributeCalculation::PrepareNativeAttributeCalculationChannels处理已认证快照，输出原生通道/顺序；非法Divisor/倍率/Override/非有限值→Rejected。\n通道逆序native bool ReverseEvaluate→正序native求值→IsAttributeForwardValueConfirmed核目标。\nASC重新capture实际聚合器并native正向回验；外调返回重核原宿主/Base/Current。\nHasSameAttributeAggregation比较两冻结快照；原源/资格变化→Stale。\n通过→Ready/None/有限CalculatedBase；所有临时值仅本栈存活，不调用setter。\n[[AbilitySystem/结构#Current 与 Base 数值接口|职责与输出]]",
-      "x": 850,
-      "y": 6550,
-      "width": 840,
-      "height": 700,
-      "color": "5"
+      "text": "## 2｜原资源安装与Required-only只读Poll\n原返回重检Task/Ability/ActorInfo；在途停止义务按Result.Guard清原实例。已结束Task不安装资源。\n成功→保存原Handle/Guard/ID→精确BlendOut/Ended/Section委托与配置的原NotifyBegin订阅→原scale lease→SetWaitingOnAvatar；最后外调后无成员写。\nReady返回：GA用TryGetOriginalSectionSnapshot固定实际ID/Section/Position/Rate，GA按原范围调用CMC BeginMontageActionMotion；SectionReceived报告原转段。\n仅RequiredReady启用原GameplayTasks Tick；TickTask不消费dt或求姿态，只向原Guard.PollActionPoseContract。\nPoll前后核原Task/Ability/ActorInfo/ASC/Guard；Valid继续，Failed/Invalidated→Playback失败(原ID)，不重新Acquire或静默跳过弱来源丢失。\n普通Event/Section仍核精确原实例和自身资格；票据不是播放/GA权力，CMC仍唯一胶囊执行。\n[[GGYGO_流程_玩家普攻连段.canvas|Main/End消费]] · [[Animation/动作姿态修正|姿态执行/epoch]]",
+      "width": 950,
+      "color": "4",
+      "x": 3320,
+      "y": 1297,
+      "height": 340
     },
     {
-      "id": "numeric-health-native-base-write",
+      "id": "k3-exact-clear",
       "type": "text",
-      "text": "## HealthSet提交原Base\nTrySetCurrentValue仅消费即时Ready／None；原batch未开放且原源有效才提交。\nPushExpectedAttributeChange保存本次属性来源。\nASC.SetNumericAttributeBase(Attribute, CalculatedBase)\n→GAS写有限内部Base→原聚合器dirty求值\n→PreAttributeChange应用Current边界\n→PostAttributeChange记录本次ObservedCurrent。\n原setter返回后Pop标记；不把后读GetCurrent当本次结果。",
-      "x": 1890,
-      "y": 6550,
-      "width": 740,
-      "height": 560,
-      "color": "5"
+      "text": "## 3｜原BlendOut精确Clear\n原实例携Guard回调→MatchesOriginalMontageCallback→标混出，释放自身缩放。\nTask→TryClearMontageAnimatingAbility(原Handle)。Check通过→qualified基类GA.SetCurrentMontage(null)→Local.AnimatingAbility=null→核对→退休Proof。\n旧A不匹配当前B返回Stale／原因；B停止后仍可清自己。\n不进virtual业务setter后盲清Local，不Stop／延期到技能结束。\n原BlendOut/Interrupted：原包/载荷快照→native及捕获析构返回→弱原Task、同原Guard/ActorInfo/Task资格重检→既有BP；原Task关闭不继续旧BP。\n[[AbilitySystem/结构#精确Montage播放归属|播放接口]]",
+      "width": 950,
+      "color": "1",
+      "x": 3320,
+      "y": 1920,
+      "height": 290
     },
     {
-      "id": "numeric-own-post-confirmed",
+      "id": "k3-task-original-ended",
       "type": "text",
-      "text": "## 本次Post确认\n标记确实观察到原写入、输入未拒绝且ObservedCurrent有限／匹配DesiredCurrent→本次提交成立。\nHealthSet保留原委托与结果顺序；Damage消息沿原幅度和原帧发布。\nnative回调后的嵌套治疗／direct写入是另一真实事实，不能替换本次ObservedCurrent。\n确认失败→明确诊断；只撤本帧尚未确认的Damage候选。\n[[Messages/结构#HealthSet 的 Current 结算|结果与消息消费]]",
-      "x": 2790,
-      "y": 6550,
-      "width": 680,
-      "height": 560,
-      "color": "1"
-    },
-    {
-      "id": "numeric-current-write-rejected",
-      "type": "text",
-      "text": "## 拒绝或来源失效\nPre支持性计算Rejected／Stale→该meta Modifier不进入存储。\nPost计算Rejected／Stale→不提交候选Base，明确原因。\nnative提交未确认→明确失败，不伪发本帧Damage成功消息。\n已发生的meta清理／嵌套写入保留真实结果，不宣称整GE原子回滚。\n不旁写Current、不移除Buff、不采用不可逆float回落或补偿。",
-      "x": 850,
-      "y": 7450,
-      "width": 840,
-      "height": 390,
-      "color": "3"
-    },
-    {
-      "id": "numeric-client-max-receive",
-      "type": "text",
-      "text": "## 客户端Max依赖请求\nOnRep_MaxHealth／MaxPoise或有效Max Post→RequestClientMaxReevaluation。\n本PreNetReceive固定弱Owner／ASC；请求绑定本次FNetReceiveFrame。\nSuper::PostNetReceive排空原生dirty后，先退休本次请求，再重核原源并调用ReevaluateClientMax。\n无NetReceive且native batch关闭→沿同一同步入口；来源失效／仍开放batch→明确失败。\n[[Messages/结构#客户端上限的 NetReceive 投影|复制生命周期]]",
-      "x": 0,
-      "y": 8100,
-      "width": 840,
-      "height": 520,
-      "color": "4"
-    },
-    {
-      "id": "numeric-client-same-base",
-      "type": "text",
-      "text": "## 原Base重求值\n重读实际Base／Current／Max并核有限。\nCurrent≤Max→无需投影；Current>Max→安装本次依赖来源标记。\nASC.SetNumericAttributeBase(Attribute, SameBase)\n→GAS保留原GE／预测修饰求值\n→PreAttributeChange限Current→真实Post记录。\n标记确认实际有限Current落在0～Max；失败明确诊断。\n原变化委托保留，自身投影不伪发业务消息；真实嵌套GE／direct写入继续正常配对。\n不调用权威逆算，不加Tick／Timer／RPC或第二复制调度器。",
-      "x": 1030,
-      "y": 8100,
-      "width": 840,
-      "height": 580,
-      "color": "5"
+      "text": "## 4｜自然结束、普通取消与Required失败\n自然原Ended：原Guard生命周期/ActorInfo/Task资格成立且非Interrupted→原包/载荷快照→native/捕获析构返回→原资格重检→BP Completed→自身EndTask。\n不Check已退休当前ASC归属，不要求原实例仍活动。Completed只原实例事实；GA另核Original，不授后继结束权。\n普通ExternalCancel/AbilityCancel/FailAndEndTask保持Cancelled与原Stop策略，各渠道至多一次。\nRequired失败独立路径：关闭普通Event/Section/完成入口→精确Stop原实例/释放scale→EndTask清自身订阅/Ticket→历史typed OnFailed。\nFact=原Montage/真实Slot/Stage/Diagnostic；Startup NONE，Playback确切原ID。\nUE EndTask已清Task.Ability并垃圾标记；历史发送者WeakTask.Get(true)拒RF销毁，GA核原激活/段/强Task/原资源，随后正式原End(true,true)。不能用live-Task/Guard门禁吞失败。\nnative消费者若真实结束原激活/同UObject接续，临时原End观察使旧BP不交付；无原End且历史资格成立才BP OnFailed。\nOnDestroy先关/脱包，再原AnimInstance自身NotifyBegin及Cancel/Event/实例/scale/Ticket清理；Tick标志保持到引擎退休登记，捕获释放后无旧Task写。\n普通停止仍按原Guard/ID，ASC认证且活动ID同原才CurrentMontageStop，否则仅精确本地原资源；不找当前Avatar/后继。\n[[AbilitySystem/结构#Task原实例与资源消费|Task契约]] · [[计划_玩家普攻连段|失败接收]]",
+      "width": 950,
+      "color": "1",
+      "x": 3320,
+      "y": 2450,
+      "height": 430
     },
     {
       "id": "montage-notify-configure",
       "type": "text",
       "text": "## 原作者点的pre-Ready配置\n调用方→ResolveOriginalMontageNotify(Montage,Name,OutTime,Diagnostic)。\n恰一同名stock UAnimNotify_PlayMontageNotify；原LinkedMontage／branchingpoint／含offset有限TriggerTime，无同名Window／子类／重复。\nConfigureOriginalMontageNotify(Name,Diagnostic)仅原AwaitingActivation一次；保存原Notify UObject／名字／时间。\nReady前原RegisterNativeCallbacks包提供NotifyReceived。\nActivate复核声明与消费者；失败不播放，不以Main／End／旧ASC事件替代。\n[[AbilitySystem/结构#原生 Montage 作者信号|配置与失败]]",
-      "x": 4150,
-      "y": 1450,
       "width": 930,
-      "height": 720,
-      "color": "5"
+      "color": "5",
+      "x": 4760,
+      "y": 747,
+      "height": 245
     },
     {
       "id": "montage-notify-subscribe",
@@ -417,64 +237,244 @@
       "x": 5250,
       "y": 1450,
       "width": 880,
-      "height": 650,
-      "color": "4"
+      "color": "4",
+      "height": 270
     },
     {
       "id": "montage-notify-startup-snapshot",
       "type": "text",
       "text": "## Ready后读取原位置\nGA核原Activation／StepToken／Task／资源→TryGetOriginalMontageNotifySnapshot(Fact,Position)。\n原Task／Guard／ActorInfo／声明有效→按固定ID读仍存在的原实例，位置须有限。\n输出原Montage／Mesh／ID／Name／作者TriggerTime及实际Position；false清输出。\nGA待同原Scope／CMC Handle就绪后解释非零纠正起点是否已越点；早期原信号也留在同原资源。\n不合成Notify／ASC事件、不锁业务门、不查询后继。\n[[GGYGO_流程_玩家普攻连段.canvas|GA初始化消费]]",
-      "x": 6350,
       "y": 1450,
       "width": 900,
-      "height": 750,
-      "color": "4"
+      "color": "4",
+      "x": 6680,
+      "height": 240
     },
     {
       "id": "montage-notify-authenticate",
       "type": "text",
       "text": "## 原native点→精确原来源\nUE stock BranchingPointNotify→原AnimInstance.OnPlayMontageNotifyBegin。\nOnOriginalMontageNotifyBegin核Name、原Mesh/Montage、非NONE int32 ID和有效ConfiguredNotify。\n无外调段仅一次ResolveNativeMontageNotify：payload.NotifyEvent须等于原数组唯一配置点，UObject/TriggerTime一致。\n再核CanDispatchOriginalInstanceFact的原Guard/Lifecycle/ActorInfo/Task开放、固定ID实例及有限Position。\n自然blend不要求已退休ASC当前归属；旧Task/ID拒绝。\n复制值Fact→DispatchValidatedOriginalMontageNotifyFact；不外传借用payload。",
       "x": 5250,
-      "y": 2450,
       "width": 880,
-      "height": 700,
-      "color": "5"
+      "color": "5",
+      "y": 1860,
+      "height": 260
     },
     {
       "id": "montage-notify-deliver",
       "type": "text",
       "text": "## 原包派发与消费\n前段认证完成→DispatchValidatedOriginalMontageNotifyFact捕弱原Task/Ability/ASC、原Guard与不可变包。\nNativeSnapshot.NotifyReceived.ExecuteIfBound(Fact)。\nnative和快照捕获析构完整返回→重取弱原Task、核原Ability/ASC/Guard/ActorInfo/实例，并重新解析原作者声明。\n原源仍匹配才BP NotifyReceived.Broadcast(Fact)；原Task关闭不继续旧BP，BP后无Task访问。\n公开TryGetOriginalMontageNotifySnapshot保留独立完整认证。\nGA另核原Activation/StepToken/Task/资源，事实不授GA/输入/镜头/CMC工作权。\n[[GGYGO_流程_玩家普攻连段.canvas|原资源业务门]]",
-      "x": 6350,
-      "y": 2450,
       "width": 900,
-      "height": 700,
-      "color": "1"
-    },
-    {
-      "id": "montage-notify-retire",
-      "type": "text",
-      "text": "## 原Task退休清理\n原自然Ended／取消或调用方退Task→OnDestroy。\n先关闭入口并脱原native包→原ActivatedAnimInstance.RemoveDynamic(本Task,OnOriginalMontageNotifyBegin)。\n只撤原对象／自身函数；UE动态多播无FDelegateHandle，不Clear全表、不查新AnimInstance。\n按原策略退自己的Cancel/Event／实例／scale／Ticket→Super返回→释放捕获，之后无Task写。\n晚到原payload及已退休Task不污染同资产新播放。\n[[AbilitySystem/结构#原生 Montage 作者信号|订阅寿命]]",
-      "x": 6350,
-      "y": 3420,
-      "width": 900,
-      "height": 670,
-      "color": "1"
+      "color": "1",
+      "x": 6640,
+      "y": 1860,
+      "height": 270
     },
     {
       "id": "montage-notify-rejected",
       "type": "text",
       "text": "## 原声明／来源拒绝\nResolve／Configure失败→false、清输出与Diagnostic，调用方处理原配置失败。\nActivate声明失效或缺消费者→FailAndEndTask，保持Cancelled语义，不播放。\n播放外调后声明改变→精确停原资源、重检原Task后失败。\nnative来源不符／旧ID／退休Task→不派发、不授门。\n快照不可读→false清两输出，调用方定位原资源失败。\n不借End／另一通知／float事件兜底，不恢复旧工作权。",
-      "x": 4150,
-      "y": 3420,
       "width": 930,
-      "height": 550,
-      "color": "3"
+      "color": "3",
+      "x": 4600,
+      "y": 2605,
+      "height": 235
+    },
+    {
+      "id": "montage-notify-retire",
+      "type": "text",
+      "text": "## 原Task退休清理\n原自然Ended／取消或调用方退Task→OnDestroy。\n先关闭入口并脱原native包→原ActivatedAnimInstance.RemoveDynamic(本Task,OnOriginalMontageNotifyBegin)。\n只撤原对象／自身函数；UE动态多播无FDelegateHandle，不Clear全表、不查新AnimInstance。\n按原策略退自己的Cancel/Event／实例／scale／Ticket→Super返回→释放捕获，之后无Task写。\n晚到原payload及已退休Task不污染同资产新播放。\n[[AbilitySystem/结构#原生 Montage 作者信号|订阅寿命]]",
+      "width": 900,
+      "color": "1",
+      "x": 6640,
+      "y": 2360,
+      "height": 245
+    },
+    {
+      "id": "k4-committed-cleanup-entry",
+      "type": "text",
+      "text": "## 已提交清理｜捕获原范围\nHost Release或自己已提交的失败收尾捕原H/完整Context/弱端点；Extension先Withdraw原H并同步Closing。\nClosing归还原消费者关联；Hero精确Invalidated自身ID，仍保留native输入会话。Host返栈重核原scope、重取原弱端点。\n→ CheckAvatarBindingCleanupContext(Expected, OutReason)。\n只用原Issuer/Binding/LastWrite，不从后继补权。\n[[AbilitySystem/结构#原已提交清理来源（Destroy）|来源]]",
+      "y": 4100,
+      "width": 600,
+      "color": "5",
+      "x": -440,
+      "height": 215
+    },
+    {
+      "id": "k4-committed-cleanup-actions",
+      "type": "text",
+      "text": "## 已提交清理｜原Context动作依次返回\nHost → TryCancelAvatarBindingAbilities(Expected, With/Without, pureScope)\n→ 原范围ClearAbilityInput\n→ TryRemoveAvatarBindingGameplayCues(Expected, pureScope)，仍用旧Avatar。\nCancel/Cue仅MatchCommittedCleanupContext；原native Busy中query前后/完整Super返回重检→Complete。\n不commit/Receipt/Notice；失去原scope或source即停止，不清后继。",
+      "width": 620,
+      "color": "5",
+      "x": 1830,
+      "y": 4070,
+      "height": 245
+    },
+    {
+      "id": "k4-committed-cleanup-clear",
+      "type": "text",
+      "text": "## 已提交清理｜调用方显式Clear模式\nHost捕原Host/Owner关闭事实，关闭→ClearActorInfo；正常保Owner→PreserveOwner。\n→ TryExecuteAvatarActorInfoTransaction(Clear, OutPublication)。\nquery/原操作核对→ClearAbilityInput监听者返回后写前重检→退休旧源→qualified native。\nPreserveOwner遇关闭Owner/宿主明确LifecycleClosed，不错误后换模式重试。",
+      "width": 620,
+      "color": "3",
+      "x": 2920,
+      "y": 4070,
+      "height": 230
+    },
+    {
+      "id": "k4-committed-cleanup-result",
+      "type": "text",
+      "text": "## 已提交清理｜typed Clear实际提交出口\n原Super完整返回/重检→Commit→bCommitted=true及Released Receipt。\nHost仅退自己的原H/订阅，再Publish/NotifyLocalResourcesReleased沿既有规则；失败历史不回滚后继。\nClear不重开已关闭组件宿主；cleanup query成功不等于Ready或新工作。",
+      "width": 820,
+      "color": "1",
+      "x": 4240,
+      "y": 4105,
+      "height": 160
+    },
+    {
+      "id": "k4-committed-cleanup-mode-rejected",
+      "type": "text",
+      "text": "## A模式拒绝｜LifecycleClosed\n显式PreserveOwner碰关闭Owner/组件宿主→原失败。\n调用方事先选择的ClearActorInfo是正常模式，不是失败后的替代路径；ASC不自动换Mode/排队/重试。",
+      "y": 4690,
+      "width": 620,
+      "color": "3",
+      "x": 2920,
+      "height": 190
+    },
+    {
+      "id": "k4-failed-init-capture",
+      "type": "text",
+      "text": "## 失败Init清理｜native Init完整返回即捕获\n普通/Bootstrap/Replace的同一common Init执行器、原Operation、既有native Busy。\nqualified Super::InitAbilityActorInfo完整返回\n→ CaptureReturnedAvatarActorInfoInitCleanup(原操作)。\n原pending身份/Kind Init、原allocation、原请求Owner/Avatar及ASC缓存匹配，保存完整WrittenActual。\n候选捕获先于后续caller query/Commit；不是Ready校验。",
+      "width": 600,
+      "color": "5",
+      "x": -1360,
+      "y": 5393,
+      "height": 265
+    },
+    {
+      "id": "k4-failed-init-commit-branch",
+      "type": "text",
+      "text": "## 失败Init清理｜原返回检查与Commit分支\n执行器沿原操作query前后重检，再TryCommitAvatarBindingActorInfoIdentity。\n成功Commit：丢弃失败cleanup候选，走既有Receipt/Publish规则。\n未commit失败且native完整返回：保留原失败Result.Operation，尝试RetainFailedAvatarActorInfoInitCleanup(候选)。\n预写入失败/未完整返回不签原写入Proof。",
+      "width": 620,
+      "color": "3",
+      "x": 40,
+      "y": 5393,
+      "height": 226
+    },
+    {
+      "id": "k4-failed-init-retain",
+      "type": "text",
+      "text": "## 失败Init清理｜仅保留仍精确匹配的失败Proof\n原Context元数据等于Before、未commit为该Operation，原allocation/完整WrittenActual仍匹配。\n成员const Proof：OriginalOperation＋Before＋WrittenActual；原Init结果仍失败。\n后继真实typed/准入legacy写入退休Proof；拒绝/预写入失败不替既有实际源。清理入口不重捕或用旧Context补造。\n[[AbilitySystem/结构#失败Init原写入清理（未提交证明）|未提交来源]]",
+      "x": 1440,
+      "width": 620,
+      "color": "5",
+      "y": 5344,
+      "height": 275
+    },
+    {
+      "id": "k4-failed-init-consume",
+      "type": "text",
+      "text": "## 失败Init清理｜核原Proof并一次消费\n调用方 → TryCleanupFailedAvatarActorInfoInit(原Operation, pureOriginalCallerQuery)。\n拒绝缺Query/无效ASC/Busy；核成员原Proof/Issuer/Before/allocation/全部实际字段，无较新commit/写入。\n进入既有单native Busy；query前后重检原源，不借工作Ready/关闭Owner门槛。\n关匹配发布许可→先消费Proof/退休旧来源及Montage→唯一qualified Super::ClearActorInfo。\nnative后失败不重新签Proof，不回滚/自动重试。",
+      "width": 700,
+      "color": "5",
+      "x": 3000,
+      "y": 5344,
+      "height": 280
+    },
+    {
+      "id": "k4-failed-init-postcondition",
+      "type": "text",
+      "text": "## 失败Init清理｜核真实Clear后置条件\n原ASC/Before元数据、无新Proof/活动操作；allocation与其余原字段精确相同。\nOwner/Avatar/PC/Mesh/Movement、cached Owner/Avatar、实际GetAnimInstance为空；raw ActorInfo::AnimInstance与Tag按GAS保留。\n再pure原query，前后重检Cleared快照。\n全部成立→Succeeded/None、原Operation/Before，bCommitted=false、CommittedContext空。\n只证明原写入物理cleanup；无Receipt/Notice/Ready，原Init仍失败。",
+      "width": 740,
+      "color": "1",
+      "x": 4480,
+      "y": 5342,
+      "height": 280
+    },
+    {
+      "id": "k4-failed-init-success-commit",
+      "type": "text",
+      "text": "## B成功Commit｜既有事务出口\n只有实际Commit成功才创建历史Receipt及当前发布记录，失败Proof不保留。\n按原Publish认证/通知规则执行，不从cleanup路径制造Ready。\n[[AbilitySystem/结构#单次发布与回调资源归属|既有发布规则]]",
+      "y": 5940,
+      "width": 620,
+      "color": "1",
+      "x": 40,
+      "height": 160
+    },
+    {
+      "id": "numeric-authority-current-target",
+      "type": "text",
+      "text": "## 权威Current目标\nDamage／Healing／PoiseDamage：\nPreGameplayEffectExecute先调用ASC计算Current→同Current，只预检支持性；Ready不保存候选，不写资源属性。\nPre拒绝→拒绝该Modifier；接受→原GE写meta。\nPostGameplayEffectExecute清自身meta贡献，等待该原生回调返回，再重读Current／Max并按MinimumHealth与0～Max生成目标。\n权威Max下降且Current超界→TrySetCurrentValue目标为新Max。\n[[Messages/结构#HealthSet 的 Current 结算|HealthSet目标与原帧]]",
+      "width": 700,
+      "color": "4",
+      "x": -880,
+      "y": 6760,
+      "height": 280
+    },
+    {
+      "id": "numeric-native-base-calculation",
+      "type": "text",
+      "text": "## ASC capture与栈内计算\nHealthSet→TryCalculateNumericAttributeBaseForCurrentValue(原Set/属性/ExpectedCurrent/DesiredCurrent)。\n核线程/权威/注册来源/有限输入→native Capture和默认/CustomQualifies资格外调；返回重核原源。\nGGYGOAttributeCalculation::PrepareNativeAttributeCalculationChannels处理已认证快照，输出原生通道/顺序；非法Divisor/倍率/Override/非有限值→Rejected。\n通道逆序native bool ReverseEvaluate→正序native求值→IsAttributeForwardValueConfirmed核目标。\nASC重新capture实际聚合器并native正向回验；外调返回重核原宿主/Base/Current。\nHasSameAttributeAggregation比较两冻结快照；原源/资格变化→Stale。\n通过→Ready/None/有限CalculatedBase；所有临时值仅本栈存活，不调用setter。\n[[AbilitySystem/结构#Current 与 Base 数值接口|职责与输出]]",
+      "x": 850,
+      "width": 840,
+      "color": "5",
+      "y": 6725,
+      "height": 350
+    },
+    {
+      "id": "numeric-health-native-base-write",
+      "type": "text",
+      "text": "## HealthSet提交原Base\nTrySetCurrentValue仅消费即时Ready／None；原batch未开放且原源有效才提交。\nPushExpectedAttributeChange保存本次属性来源。\nASC.SetNumericAttributeBase(Attribute, CalculatedBase)\n→GAS写有限内部Base→原聚合器dirty求值\n→PreAttributeChange应用Current边界\n→PostAttributeChange记录本次ObservedCurrent。\n原setter返回后Pop标记；不把后读GetCurrent当本次结果。",
+      "width": 740,
+      "color": "5",
+      "x": 2480,
+      "y": 6725,
+      "height": 280
+    },
+    {
+      "id": "numeric-own-post-confirmed",
+      "type": "text",
+      "text": "## 本次Post确认\n标记确实观察到原写入、输入未拒绝且ObservedCurrent有限／匹配DesiredCurrent→本次提交成立。\nHealthSet保留原委托与结果顺序；Damage消息沿原幅度和原帧发布。\nnative回调后的嵌套治疗／direct写入是另一真实事实，不能替换本次ObservedCurrent。\n确认失败→明确诊断；只撤本帧尚未确认的Damage候选。\n[[Messages/结构#HealthSet 的 Current 结算|结果与消息消费]]",
+      "width": 680,
+      "color": "1",
+      "x": 4240,
+      "y": 6725,
+      "height": 280
+    },
+    {
+      "id": "numeric-current-write-rejected",
+      "type": "text",
+      "text": "## 拒绝或来源失效\nPre支持性计算Rejected／Stale→该meta Modifier不进入存储。\nPost计算Rejected／Stale→不提交候选Base，明确原因。\nnative提交未确认→明确失败，不伪发本帧Damage成功消息。\n已发生的meta清理／嵌套写入保留真实结果，不宣称整GE原子回滚。\n不旁写Current、不移除Buff、不采用不可逆float回落或补偿。",
+      "x": 850,
+      "width": 840,
+      "color": "3",
+      "y": 7440,
+      "height": 230
+    },
+    {
+      "id": "numeric-client-same-base",
+      "type": "text",
+      "text": "## 原Base重求值\n重读实际Base／Current／Max并核有限。\nCurrent≤Max→无需投影；Current>Max→安装本次依赖来源标记。\nASC.SetNumericAttributeBase(Attribute, SameBase)\n→GAS保留原GE／预测修饰求值\n→PreAttributeChange限Current→真实Post记录。\n标记确认实际有限Current落在0～Max；失败明确诊断。\n原变化委托保留，自身投影不伪发业务消息；真实嵌套GE／direct写入继续正常配对。\n不调用权威逆算，不加Tick／Timer／RPC或第二复制调度器。",
+      "width": 840,
+      "color": "5",
+      "x": 1790,
+      "y": 7880,
+      "height": 290
+    },
+    {
+      "id": "numeric-client-max-receive",
+      "type": "text",
+      "text": "## 客户端Max依赖请求\nOnRep_MaxHealth／MaxPoise或有效Max Post→RequestClientMaxReevaluation。\n本PreNetReceive固定弱Owner／ASC；请求绑定本次FNetReceiveFrame。\nSuper::PostNetReceive排空原生dirty后，先退休本次请求，再重核原源并调用ReevaluateClientMax。\n无NetReceive且native batch关闭→沿同一同步入口；来源失效／仍开放batch→明确失败。\n[[Messages/结构#客户端上限的 NetReceive 投影|复制生命周期]]",
+      "width": 840,
+      "color": "4",
+      "x": 40,
+      "y": 7910,
+      "height": 260
     },
     {
       "id": "ability-input-group-wake-flow",
       "type": "text",
-      "x": 2030,
-      "y": 1260,
+      "x": 2480,
+      "y": 550,
       "width": 700,
       "height": 720,
       "color": "4",
@@ -501,10 +501,10 @@
     {
       "id": "e3",
       "fromNode": "check",
-      "fromSide": "right",
       "toNode": "active",
-      "toSide": "left",
-      "label": "实际NotifyActivated签Original；ActiveCount++后final Activate/Initialize"
+      "label": "实际NotifyActivated签Original；ActiveCount++后final Activate/Initialize",
+      "fromSide": "bottom",
+      "toSide": "top"
     },
     {
       "id": "e4",
@@ -517,26 +517,26 @@
     {
       "id": "e5",
       "fromNode": "active",
-      "fromSide": "bottom",
       "toNode": "end",
       "toSide": "right",
-      "label": "固定Original原结束请求；全调用退出后才发布项目Completed"
+      "label": "固定Original原结束请求；全调用退出后才发布项目Completed",
+      "fromSide": "left"
     },
     {
       "id": "e6",
       "fromNode": "active",
-      "fromSide": "bottom",
       "toNode": "damage",
-      "toSide": "top",
-      "label": "Owned窗口原hit订阅→Builder；成功载荷再请求GE/Cue"
+      "label": "Owned窗口原hit订阅→Builder；成功载荷再请求GE/Cue",
+      "fromSide": "right",
+      "toSide": "left"
     },
     {
       "id": "e7",
       "fromNode": "end",
-      "fromSide": "left",
       "toNode": "request",
       "toSide": "bottom",
-      "label": "原组仍空→ASC取等待/Queue原Retry→下一Process；外部组空只是观察"
+      "label": "原组仍空→ASC取等待/Queue原Retry→下一Process；外部组空只是观察",
+      "fromSide": "top"
     },
     {
       "id": "e8",
@@ -551,8 +551,8 @@
       "fromNode": "request",
       "fromSide": "top",
       "toNode": "ability-input-ordered-edge-flow",
-      "toSide": "top",
-      "label": "展开Receive→有序Process→本次Can来源；不增执行链"
+      "label": "展开Receive→有序Process→本次Can来源；不增执行链",
+      "toSide": "left"
     },
     {
       "id": "k3-play-source",
@@ -687,8 +687,8 @@
       "fromNode": "k4-failed-init-consume",
       "fromSide": "bottom",
       "toNode": "k4-failed-init-cleanup-failure",
-      "toSide": "left",
-      "label": "写前原Proof或pureQuery失效"
+      "label": "写前原Proof或pureQuery失效",
+      "toSide": "top"
     },
     {
       "id": "k4-cleanup-b-after-clear-failure",
@@ -701,10 +701,10 @@
     {
       "id": "w0-active-create-input-task",
       "fromNode": "active",
-      "fromSide": "top",
       "toNode": "w0-original-input-subscription-flow",
-      "toSide": "top",
-      "label": "GA创建WaitComboInput→可选RegisterNativeCallback→ReadyForActivation"
+      "label": "GA创建WaitComboInput→可选RegisterNativeCallback→ReadyForActivation",
+      "fromSide": "bottom",
+      "toSide": "left"
     },
     {
       "id": "numeric-post-asks-base-calculation",
@@ -773,10 +773,10 @@
     {
       "id": "notify-configure-native-subscribe",
       "fromNode": "montage-notify-configure",
-      "fromSide": "right",
       "toNode": "montage-notify-subscribe",
       "toSide": "left",
-      "label": "合法声明与消费者→原生播放Succeeded"
+      "label": "合法声明与消费者→原生播放Succeeded",
+      "fromSide": "bottom"
     },
     {
       "id": "notify-configure-rejected",
@@ -813,10 +813,10 @@
     {
       "id": "notify-source-rejected",
       "fromNode": "montage-notify-authenticate",
-      "fromSide": "left",
       "toNode": "montage-notify-rejected",
       "toSide": "right",
-      "label": "payload或原Task／声明／身份不符"
+      "label": "payload或原Task／声明／身份不符",
+      "fromSide": "bottom"
     },
     {
       "id": "notify-owner-task-retirement",

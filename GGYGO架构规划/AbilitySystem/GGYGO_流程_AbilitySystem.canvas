@@ -93,7 +93,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# AbilitySystem｜流程图\n能力请求→受控Try→原激活身份→动作与Task→原资源清理→全部调用退出后发布Completed。\nRequiredPose路径先Acquire再原生Tick Poll；失败先EndTask，再发送OnFailed，由GA决定原能力终止。\n[[GGYGO_结构_AbilitySystem.canvas|结构]] · [[AbilitySystem/结构|接口]] · [[计划_玩家普攻连段|连段说明]] · [[GGYGO_流程_原请求终止.canvas|终止]] · [[GGYGO_流程_能力仲裁.canvas|仲裁]] · [[GGYGO_流程_伤害结算.canvas|结算]]",
+      "text": "# AbilitySystem｜流程图\n能力请求→受控Try→原激活身份→动作与Task→原资源清理→全部调用退出后发布Completed。\nRequiredPose路径先Acquire再原生Tick Poll；失败先EndTask，再发送OnFailed，由GA决定原能力终止。\n[[GGYGO_结构_AbilitySystem.canvas|结构]] · [[AbilitySystem/结构|接口]] · [[GGYGO_流程_玩家普攻连段.canvas|连段流程]] · [[GGYGO_流程_原请求终止.canvas|终止]] · [[GGYGO_流程_能力仲裁.canvas|仲裁]] · [[GGYGO_流程_伤害结算.canvas|结算]]",
       "width": 1650,
       "height": 210,
       "color": "6",
@@ -123,7 +123,7 @@
     {
       "id": "active",
       "type": "text",
-      "text": "4. Native NotifyAbilityActivated → GA签Original，ASC登记sequence/预留。\nActiveCount++ → final Activate核原参数，Initialize(Original)一次初始化原批次。\n原来源仍有效→Finalize终检/完成原attempt→相机/offset→Body(Original,原参数)，默认native Super/BP。\n每个外调返回重核Original；结束/Busy/来源改变不执行旧Body。派生持自己的原Task/窗口/句柄。\n[[GGYGO_流程_原请求终止.canvas|原来源与全退出]]",
+      "text": "4. Native NotifyAbilityActivated → GA签Original，ASC登记sequence/预留。\nActiveCount++ → final Activate核原参数，Initialize(Original)一次初始化原激活资源。\n原来源仍有效→Finalize终检/完成原attempt→相机/offset→Body(Original,原参数)，默认native Super/BP。\n每个外调返回重核Original；结束/Busy/来源改变不执行旧Body。派生持自己的原Task/窗口/句柄。\n[[GGYGO_流程_原请求终止.canvas|原来源与全退出]]",
       "width": 420,
       "height": 430,
       "color": "1",
@@ -183,7 +183,7 @@
     {
       "id": "k4publish",
       "type": "text",
-      "text": "一次发布与GA通知流程\n1. Host在Install并公布原资源后调用PublishAvatarBindingNotice(原Receipt,pureQuery)；原Dispatching桥接Extension Ready，Hero消费typed本地H。\n2. 捕获历史副本，核对真实Proof、Pending、完整Context／LastWrite、实际ActorInfo和生命周期；每次Query外调前后重检，查询闭包不持久保存。\n3. ASC完成原认证→私有协议置唯一记录Dispatching → OnAvatarBindingNotice的唯一原生Broadcast(Receipt, Notice)。接收者仍须校验真实派发及自己的原资源；派发期间不占原生Busy。\n4. 事件后重检；仅原Init＋不同的新有效Pawn进入GA通知。同Pawn Init／Refresh／Clear不走首次出生分支。\n5. 每项原SpecHandle＋弱实例候选：Recheck → FindAbilitySpecFromHandle(..., EConsiderPending::None)＋原实例成员核对 → OnPawnAvatarSet → Recheck。已移除／待移除／脱离原Spec跳过。\n6. OnPawn后重收集Spawn Handle；每项Recheck → 查非PendingRemove原Spec并复制 → TryActivateAbilityOnSpawn：保留OnSpawn/未Active/Avatar/网络端选择，合格后一次项目ASC.TryActivateAbilityWithTerminationBoundary(Handle)；非法/非项目ASC诊断拒绝，无raw回退 → Recheck；不跨外调保留容器引用。\nNativeAccepted不等于本地Activation或Completed。GA以共同原身份与final入口执行：Initialize一次初始化原批次，原准入/相机后Body默认native Super/BP；外调返回核固定Original，结束/Busy不进入旧业务。[[AbilitySystem/结构#激活薄hook与OnSpawn受控入口|接口与门禁]]\n7. 回调内B合法接管：A返回原历史bCommitted=true＋Stale；原Proof／Context作用域仅撤A，不能清B或继续A通知。纯Query或实际字段失败同样明确关闭原许可。\n8. 最后精确重检 → 私有协议Consumed并释放当前强Proof引用，只保留派发来源元数据；IsAvatarBindingPublicationContextCurrent仍不等于全局Ready。\n9. 原凭据派发中重入：Busy／PublicationInProgress；成功消费后再发：Rejected／PublicationAlreadyConsumed。Pending／Closed／历史不能通过真实派发认证。",
+      "text": "一次发布与GA通知流程\n1. Host在Install并公布原资源后调用PublishAvatarBindingNotice(原Receipt,pureQuery)；原Dispatching桥接Extension Ready，Hero消费typed本地H。\n2. 捕获历史副本，核对真实Proof、Pending、完整Context／LastWrite、实际ActorInfo和生命周期；每次Query外调前后重检，查询闭包不持久保存。\n3. ASC完成原认证→私有协议置唯一记录Dispatching → OnAvatarBindingNotice的唯一原生Broadcast(Receipt, Notice)。接收者仍须校验真实派发及自己的原资源；派发期间不占原生Busy。\n4. 事件后重检；仅原Init＋不同的新有效Pawn进入GA通知。同Pawn Init／Refresh／Clear不走首次出生分支。\n5. 每项原SpecHandle＋弱实例候选：Recheck → FindAbilitySpecFromHandle(..., EConsiderPending::None)＋原实例成员核对 → OnPawnAvatarSet → Recheck。已移除／待移除／脱离原Spec跳过。\n6. OnPawn后重收集Spawn Handle；每项Recheck → 查非PendingRemove原Spec并复制 → TryActivateAbilityOnSpawn：保留OnSpawn/未Active/Avatar/网络端选择，合格后一次项目ASC.TryActivateAbilityWithTerminationBoundary(Handle)；非法/非项目ASC诊断拒绝，无raw回退 → Recheck；不跨外调保留容器引用。\nNativeAccepted不等于本地Activation或Completed。GA以共同原身份与final入口执行：Initialize一次初始化原激活资源，原准入/相机后Body默认native Super/BP；外调返回核固定Original，结束/Busy不进入旧业务。[[AbilitySystem/结构#激活薄hook与OnSpawn受控入口|接口与门禁]]\n7. 回调内B合法接管：A返回原历史bCommitted=true＋Stale；原Proof／Context作用域仅撤A，不能清B或继续A通知。纯Query或实际字段失败同样明确关闭原许可。\n8. 最后精确重检 → 私有协议Consumed并释放当前强Proof引用，只保留派发来源元数据；IsAvatarBindingPublicationContextCurrent仍不等于全局Ready。\n9. 原凭据派发中重入：Busy／PublicationInProgress；成功消费后再发：Rejected／PublicationAlreadyConsumed。Pending／Closed／历史不能通过真实派发认证。",
       "x": 0,
       "width": 1850,
       "color": "5",
@@ -213,7 +213,7 @@
     {
       "id": "k3-task-original-ended",
       "type": "text",
-      "text": "## 4｜自然结束、普通取消与Required失败\n自然原Ended：原Guard生命周期/ActorInfo/Task资格成立且非Interrupted→原包/载荷快照→native/捕获析构返回→原资格重检→BP Completed→自身EndTask。\n不Check已退休当前ASC归属，不要求原实例仍活动。Completed只原实例事实；GA另核Original，不授后继结束权。\n普通ExternalCancel/AbilityCancel/FailAndEndTask保持Cancelled与原Stop策略，各渠道至多一次。\nRequired失败独立路径：关闭普通Event/Section/完成入口→精确Stop原实例/释放scale→EndTask清自身订阅/Ticket→历史typed OnFailed。\nFact=原Montage/真实Slot/Stage/Diagnostic；Startup NONE，Playback确切原ID。\nUE EndTask已清Task.Ability并垃圾标记；历史发送者WeakTask.Get(true)拒RF销毁，GA核原激活/段/强Task/原资源，随后正式原End(true,true)。不能用live-Task/Guard门禁吞失败。\nnative消费者若真实结束原激活/同UObject接续，临时原End观察使旧BP不交付；无原End且历史资格成立才BP OnFailed。\nOnDestroy先关/脱包，再原AnimInstance自身NotifyBegin及Cancel/Event/实例/scale/Ticket清理；Tick标志保持到引擎退休登记，捕获释放后无旧Task写。\n普通停止仍按原Guard/ID，ASC认证且活动ID同原才CurrentMontageStop，否则仅精确本地原资源；不找当前Avatar/后继。\n[[AbilitySystem/结构#Task原实例与资源消费|Task契约]] · [[计划_玩家普攻连段|失败接收]]",
+      "text": "## 4｜自然结束、普通取消与Required失败\n自然原Ended：原Guard生命周期/ActorInfo/Task资格成立且非Interrupted→原包/载荷快照→native/捕获析构返回→原资格重检→BP Completed→自身EndTask。\n不Check已退休当前ASC归属，不要求原实例仍活动。Completed只原实例事实；GA另核Original，不授后继结束权。\n普通ExternalCancel/AbilityCancel/FailAndEndTask保持Cancelled与原Stop策略，各渠道至多一次。\nRequired失败独立路径：关闭普通Event/Section/完成入口→精确Stop原实例/释放scale→EndTask清自身订阅/Ticket→历史typed OnFailed。\nFact=原Montage/真实Slot/Stage/Diagnostic；Startup NONE，Playback确切原ID。\nUE EndTask已清Task.Ability并垃圾标记；历史发送者WeakTask.Get(true)拒RF销毁，GA核原激活/段/强Task/原资源，随后正式原End(true,true)。不能用live-Task/Guard门禁吞失败。\nnative消费者若真实结束原激活/同UObject接续，临时原End观察使旧BP不交付；无原End且历史资格成立才BP OnFailed。\nOnDestroy先关/脱包，再原AnimInstance自身NotifyBegin及Cancel/Event/实例/scale/Ticket清理；Tick标志保持到引擎退休登记，捕获释放后无旧Task写。\n普通停止仍按原Guard/ID，ASC认证且活动ID同原才CurrentMontageStop，否则仅精确本地原资源；不找当前Avatar/后继。\n[[AbilitySystem/结构#Task原实例与资源消费|Task契约]] · [[GGYGO_流程_玩家普攻连段.canvas|失败处理]]",
       "width": 950,
       "color": "1",
       "x": 3320,

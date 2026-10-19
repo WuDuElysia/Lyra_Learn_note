@@ -3,7 +3,7 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## 状态与资源归属\nSlot／BossState持久保存ASC；AbilitySet持有本次授予句柄。\nInput持有原生来源，Hero持有Action观察及原H关联；ASC持有原请求、held/queued、有限重试许可/等待和组准入。\nASC独占一个私有绑定协议；ASC执行native ActorInfo并认证源，协议保存唯一事务元数据。Source普通值不持身份或Ready。\nGA持有原激活、终止记录和招式资源；ASC认证Try／Ended见证及发布原Notice，GAS负责执行。\nTask持原Playback／Guard、订阅、scale和Ticket；Animation管姿态，CMC唯一执行胶囊XYZ。\nCombat的Owned Window负责查询/去重；GA／GE／Execution／AttributeSet结算伤害。\n同Binding Refresh可保留原End资格；旧输入/镜头/移动/播放按原源认证。\n[[计划_玩家普攻连段|连段接口]] · [[AbilitySystem/计划_原请求终止|终止接口]]",
+      "text": "## 状态与资源归属\nSlot／BossState持久保存ASC；AbilitySet持有本次授予句柄。\nInput持有原生来源，Hero持有Action观察及原H关联；ASC持有原请求、held/queued、有限重试许可/等待和组准入。\nASC独占一个私有绑定协议；ASC执行native ActorInfo并认证源，协议保存唯一事务元数据。Source普通值不持身份或Ready。\nGA持有原激活、终止记录和招式资源；ASC认证Try／Ended见证及发布原Notice，GAS负责执行。\nTask持原Playback／Guard、订阅、scale和Ticket；Animation管姿态，CMC唯一执行胶囊XYZ。\nCombat的Owned Window负责查询/去重；GA／GE／Execution／AttributeSet结算伤害。\n同Binding Refresh可保留原End资格；旧输入/镜头/移动/播放按原源认证。\n[[GGYGO_结构_玩家普攻连段.canvas|连段结构]] · [[AbilitySystem/结构#原请求终止|终止接口]]",
       "x": 0,
       "y": 1570,
       "width": 1450,
@@ -103,7 +103,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# AbilitySystem｜结构图\nASC持有输入请求、组准入、ActorInfo事务及原资源认证；GA持有原激活、终止记录和招式资源；Task持有自身播放与订阅。\n[[AbilitySystem/结构|结构文档]] · [[GGYGO_流程_AbilitySystem.canvas|执行流程]] · [[计划_玩家普攻连段|连段说明]] · [[AbilitySystem/计划_原请求终止|终止契约]] · [[GGYGO_流程_原请求终止.canvas|终止流程]] · [[GGYGO_流程_伤害结算.canvas|伤害流程]] · [[GGYGO_结构_HitImpact.canvas|命中反馈]]",
+      "text": "# AbilitySystem｜结构图\nASC持有输入请求、组准入、ActorInfo事务及原资源认证；GA持有原激活、终止记录和招式资源；Task持有自身播放与订阅。\n[[AbilitySystem/结构|结构文档]] · [[GGYGO_流程_AbilitySystem.canvas|执行流程]] · [[GGYGO_结构_玩家普攻连段.canvas|连段结构]] · [[AbilitySystem/结构#原请求终止|终止接口]] · [[GGYGO_流程_原请求终止.canvas|终止流程]] · [[GGYGO_流程_伤害结算.canvas|伤害流程]] · [[GGYGO_结构_HitImpact.canvas|命中反馈]]",
       "width": 1520,
       "height": 205,
       "color": "6",
@@ -123,7 +123,7 @@
     {
       "id": "set",
       "type": "text",
-      "text": "## UGGYGOAbilitySet\n`GiveToAbilitySystem(ASC, Handles, Source)` → 按 AttributeSet、GA、GE 顺序授予。\n`GrantedHandles::TakeFromAbilitySystem(ASC)` → 收回这次授予。",
+      "text": "## UGGYGOAbilitySet\n配置：需要授予的AttributeSet、GA、GE及等级。\nGiveToAbilitySystem(ASC, Handles, Source)：配置与原ASC/Source → 授予资源，输出GrantedHandles。\nFGGYGOAbilitySet_GrantedHandles持有该来源的授予句柄；TakeFromAbilitySystem(ASC)只收回匹配句柄的资源。",
       "width": 490,
       "height": 220,
       "color": "4",
@@ -183,7 +183,7 @@
     {
       "id": "k3-task-resource-consumer",
       "type": "text",
-      "text": "## UGGYGOAbilityTask_PlayMontageAndWaitForEvent\n持有原Ability／ActorInfo／ASC／Mesh／Anim来源与Montage唯一Slot，消费ASC单一Playback／Guard。\nRegisterNativeCallbacks在Ready前接受一次非空回调包，返回精确token；包含五普通回调、SectionReceived、NotifyReceived和OnFailed。\nTryGetOriginalSectionSnapshot输出原ID／Section／Position／Rate；作者点接口见下方。\nGA拥有原Activation、段资源及打断许可；Task事实不授工作权。\nAcquireActionPoseContract返回ExplicitNotRequired或RequiredReady及原Ticket；Required模式使用引擎TickTask只读Poll。\nOnFailed携Montage／Slot／Stage／Diagnostic和原InstanceID，是自身清理后的失败事实。\nTask管理自身监听、实例委托、缩放和Ticket；按原Guard／ID释放资源，不从当前Avatar认领后继。\n[[AbilitySystem/结构#Task原实例与资源消费|接口与资源]] · [[Animation/动作姿态修正|姿态接口]] · [[计划_玩家普攻连段|GA资源]]",
+      "text": "## UGGYGOAbilityTask_PlayMontageAndWaitForEvent\n持有原Ability／ActorInfo／ASC／Mesh／Anim来源与Montage唯一Slot，消费ASC单一Playback／Guard。\nRegisterNativeCallbacks在Ready前接受一次非空回调包，返回精确token；包含五普通回调、SectionReceived、NotifyReceived和OnFailed。\nTryGetOriginalSectionSnapshot输出原ID／Section／Position／Rate；作者点接口见下方。\nGA拥有原Activation、段资源及打断许可；Task事实不授工作权。\nAcquireActionPoseContract返回ExplicitNotRequired或RequiredReady及原Ticket；Required模式使用引擎TickTask只读Poll。\nOnFailed携Montage／Slot／Stage／Diagnostic和原InstanceID，是自身清理后的失败事实。\nTask管理自身监听、实例委托、缩放和Ticket；按原Guard／ID释放资源，不从当前Avatar认领后继。\n[[AbilitySystem/结构#Task原实例与资源消费|接口与资源]] · [[Animation/动作姿态修正|姿态接口]] · [[GGYGO_结构_玩家普攻连段.canvas|GA资源]]",
       "width": 900,
       "color": "5",
       "x": 3780,
@@ -233,7 +233,7 @@
     {
       "id": "w0-original-input-subscription",
       "type": "text",
-      "text": "## UGGYGOAbilityTask_WaitComboInput\nWaitComboInput(OwningAbility)返回未Ready Task；SetSourceStep提供来源段，OnPress输出SourceStep／RequestId。\nRegisterNativeCallback在Ready前接受一次非空FGGYGOComboInputNativeDelegate，返回FDelegateHandle；UnregisterNativeCallback只匹配原token。\nTask持有原弱ASC／Ability、Spec／PredictionKey、remote/predict模式及自身订阅；零key合法，桶身份不是GA激活身份。\nInputPressed来源于GAS原事件桶；本地预测使用原ASC预测窗口，远端整数载荷须通过范围校验。\nOnDestroy归还原桶中的自身handle与native注册包；GA负责Original、段序和原批次资源。\n[[AbilitySystem/结构#原事件桶与输入Task订阅|接口与清理]]",
+      "text": "## UGGYGOAbilityTask_WaitComboInput\nWaitComboInput(OwningAbility)返回未Ready Task；SetSourceStep提供来源段，OnPress输出SourceStep／RequestId。\nRegisterNativeCallback在Ready前接受一次非空FGGYGOComboInputNativeDelegate，返回FDelegateHandle；UnregisterNativeCallback只匹配原token。\nTask持有原弱ASC／Ability、Spec／PredictionKey、remote/predict模式及自身订阅；零key合法，桶身份不是GA激活身份。\nInputPressed来源于GAS原事件桶；本地预测使用原ASC预测窗口，远端整数载荷须通过范围校验。\nOnDestroy归还原桶中的自身handle与native注册包；GA负责Original、段序和原激活资源。\n[[AbilitySystem/结构#原事件桶与输入Task订阅|接口与清理]]",
       "width": 900,
       "color": "5",
       "x": 2500,
@@ -253,7 +253,7 @@
     {
       "id": "montage-native-notify-fact",
       "type": "text",
-      "text": "## FGGYGOMontageNotifyFact\nMontage／Mesh／int32 MontageInstanceId／NotifyName／NotifyPositionSeconds。\n时间为作者GetTriggerTime含offset，非后来回调位置；快照另给原实例实际Position。\n来源封套为原Task／Guard／ActorInfo与配置原点，不借float Magnitude或ASC CancelPoint认证。\n事实不授当前播放、原GA／输入／镜头／CMC工作权。\nGA核原Activation／StepToken／Task／资源后消费，原资源持本播放许可。\n[[计划_玩家普攻连段|GA消费者]] · [[AbilitySystem/结构#原生 Montage 作者信号|数据契约]]",
+      "text": "## FGGYGOMontageNotifyFact\nMontage／Mesh／int32 MontageInstanceId／NotifyName／NotifyPositionSeconds。\n时间为作者GetTriggerTime含offset，非后来回调位置；快照另给原实例实际Position。\n来源封套为原Task／Guard／ActorInfo与配置原点，不借float Magnitude或ASC CancelPoint认证。\n事实不授当前播放、原GA／输入／镜头／CMC工作权。\nGA核原Activation／StepToken／Task／资源后消费，原资源持本播放许可。\n[[GGYGO_结构_玩家普攻连段.canvas|GA消费者]] · [[AbilitySystem/结构#原生 Montage 作者信号|数据契约]]",
       "width": 900,
       "color": "1",
       "x": 3840,

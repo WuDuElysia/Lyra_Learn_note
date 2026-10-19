@@ -3,7 +3,7 @@
 		{
 			"id": "nav",
 			"type": "text",
-			"text": "# Character｜角色渲染流程（通用实现 / Pyrios 资产）\nBP 迁移保存/冷回读与真实 PIE 的 MID、描边接线和主光响应已验证。两项渲染自动化通过；视觉还原及退出地图观察见实现说明。\n[[GGYGO_流程_角色初始化.canvas|初始化入口]] · [[GGYGO_结构_角色与组件.canvas|结构图]] · [[Character/渲染实现|实现与验收边界]]",
+			"text": "# Character｜角色渲染运行流程\n本图说明组件运行链路；稳定契约与当前排程沿实现入口读取。\n2026-09-29 的接线/主光响应是历史机制证据，不代 Raw/P4 原图验收。\n[[GGYGO_流程_角色初始化.canvas|初始化入口]] · [[GGYGO_结构_角色与组件.canvas|结构图]] · [[Character/渲染实现|契约与两视觉线]]",
 			"x": 0,
 			"y": 0,
 			"width": 2040,
@@ -63,7 +63,7 @@
 		{
 			"id": "shader",
 			"type": "text",
-			"text": "## 4. 画面输出\n`M_Pyrois_Toon`（Unlit）读取 D/N/M/A 与 MID 参数，在 Emissive 中计算可调三段明暗、五组高光/边缘光、逐组阴影强度和 JSON MatCap；`SceneLightStrength` 限制漫反射/镜面/边缘光。编辑器静态校准来自 `Pyrios_Editor_Calibration.json`。描边壳叠加轮廓，场景物体继续使用 UE 光照。材质已在 UE 编译；MatCap 不随主光缩放，银甲仍偏亮，原版逐像素阴影和剑光特效尚缺。身体 FX 槽 `MAT_Pyrois_Body_FX01` 由资产默认材质 `MI_Pyrois_Body_FX`（父 `M_FX_DissolveMaskLayers`，AlphaComposite，三层 FX04→FX01→FX02 预乘叠加）绘制，不经过渲染组件；已编译，视觉对照待做。",
+			"text": "## 4. 画面输出\n`M_Pyrois_Toon`（Unlit）的 Custom 节点是 NapAvatarStandard `CharacterToonDeferred` Pass 的逐行移植：读 D/N/M/A 与 MatCap，按 `M.r` 分五组取浅/暗色、高光、边缘光；主光取 MID 的 `KeyLightDirectionWS`、`KeyLightColor × SceneLightStrength`，阴影取 `KeyLightVisibility`；场景级全局量来自 `Pyrios_Toon_Globals.json`。描边壳叠加轮廓，场景物体继续使用 UE 光照。SM6 编译与参数回读通过；未与游戏截图并排调色，原版逐像素阴影、后处理和剑光特效尚缺。身体 FX 槽 `MAT_Pyrois_Body_FX01` 由资产默认材质 `MI_Pyrois_Body_FX`（父 `M_FX_DissolveMaskLayers`，AlphaComposite，三层 FX04→FX01→FX02 预乘叠加）绘制，不经过渲染组件；已编译，视觉对照待做。",
 			"x": 1580,
 			"y": 350,
 			"width": 460,

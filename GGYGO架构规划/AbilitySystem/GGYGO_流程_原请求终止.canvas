@@ -3,7 +3,7 @@
     {
       "id": "ga-term-nav",
       "type": "text",
-      "text": "# 原请求终止｜GA原记录与ASC退出见证\n沿箭头查看原请求、真实调用和退出见证。GAS拥有Active／Spec／count／Task，GA持唯一原记录，ASC认证退出并发布完成。\n[[AbilitySystem/结构|结构文档]] · [[GGYGO_结构_AbilitySystem.canvas|结构图]] · [[GGYGO_流程_AbilitySystem.canvas|主流程]]",
+      "text": "# 原请求终止｜GA原记录与ASC退出见证\n原请求→ScopeLock或直接执行→原native Ended→必要调用全部退出→发布Completed。\n[[AbilitySystem/结构|结构文档]] · [[GGYGO_结构_AbilitySystem.canvas|结构图]] · [[GGYGO_流程_AbilitySystem.canvas|主流程]]",
       "x": 0,
       "y": 0,
       "width": 1760,
@@ -123,7 +123,7 @@
     {
       "id": "ga-term-migration",
       "type": "text",
-      "text": "## 原完成通知的调用方\nBoss BT匹配原Activation与同步／异步Notice，结束自己的等待。\nCombo／Boss的Initialize／Body／Context Cleanup分别管理原激活初始化、业务和原资源归还；End／Cancel由final基类执行。\nProcess／OnSpawn／Boss BT通过受控Try发起能力请求，不由完成通知自动重启。\n[[GGYGO_流程_玩家普攻连段.canvas|Combo运行流程]] · [[BossAI/结构|Boss接口]]",
+      "text": "## 原完成通知消费\nBoss BT收到同步Try结果或异步OnAbilityTerminationCompleted→匹配原Activation/Notice→解绑原等待→Finish。\n后续业务需要激活时，由Process／OnSpawn／Boss BT显式发起受控Try；完成通知不自动重启能力。\n[[GGYGO_流程_玩家普攻连段.canvas|Combo运行流程]] · [[BossAI/结构|Boss接口]]",
       "x": 900,
       "y": 5120,
       "width": 860,

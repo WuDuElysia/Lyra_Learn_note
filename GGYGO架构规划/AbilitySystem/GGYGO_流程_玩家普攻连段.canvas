@@ -123,7 +123,7 @@
     {
       "id": "combo-f-native",
       "type": "text",
-      "text": "8. native GA早数据广播\nOnGameplayAbilityEndedWithData保留实际End复制/取消参数。\n原业务资源已恢复；原Task已Finished/OwnerFinished。\nUE ActiveTasks登记此时尚未Reset，可仍含已结束原Task。\nRuntimeHit夹具严格观察恰为两原身份；不能外推所有结束路径数量。\nnative End随后遍历任务并Reset账本，再通知ASC。\n任务垃圾标记不替代实际状态检查。",
+      "text": "8. native GA结束数据广播\nOnGameplayAbilityEndedWithData保留实际End的复制／取消参数。\n项目Cleanup已返回；原Task已Finished／OwnerFinished，UE ActiveTasks此时仍可登记这些原Task。\nnative End随后遍历任务并Reset账本，再通知ASC。\n该早通知不表示完整End已经返回。",
       "x": 0,
       "y": 1630,
       "width": 450,
@@ -133,7 +133,7 @@
     {
       "id": "combo-f-completed",
       "type": "text",
-      "text": "9. ASC本地通知 → 协议Completed\nOnAbilityEnded在native账本清空后广播；replicate字段固定false，cancel保留实际值。\nCompleted须通过原请求/调用跨度门禁，固定Original/Kind/参数并恰一次。\n资源终态与native空账本分别校验，GA/ASC观察回调已退出。\n真实调用返回后，受控调用方才继续B。\nraw原激活无外层受控Try见证：可签身份/清资源，最终UnsupportedEntry且无协议Completed。\n[[AbilitySystem/计划_原请求终止|核心证明与边界]]",
+      "text": "9. ASC本地通知 → 协议Completed\nnative任务账本清空后广播OnAbilityEnded；replicate字段固定false，cancel保留实际值。\n原请求的必要调用均已退出→ASC发布恰一次Completed，保留Original／Kind与首次终止参数。\n受控调用方在真实调用返回后才可继续下一次激活。\nraw激活缺外层受控Try见证→返回UnsupportedEntry，不发布协议Completed。\n[[GGYGO_流程_原请求终止.canvas|原请求完整退出流程]]",
       "x": 530,
       "y": 1630,
       "width": 450,

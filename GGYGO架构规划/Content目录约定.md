@@ -18,6 +18,8 @@
 | `/Game/Input/` | 输入资产 | InputAction、InputMappingContext 和输入配置分层 |
 | `/Game/PhysicsMaterials/` | 物理表现 | 带表面/Gameplay Tag 的物理材质；目录已创建，资产待配置 |
 
+`Content/` 磁盘目录里只放 `.uasset/.umap`。从 Unity 导出的材质/贴图设置 JSON 等生成源数据放在 `AAADocs/Assets/<角色>/...`（Pyrios 的在 `AAADocs/Assets/Pyrios/Rendering/UnityMaterials/`）：编辑器的自动导入会把 `Content/` 里新出现的 `.json` 当成待导入资产弹窗，导入必然失败。
+
 这套结构按游戏概念组织资产。角色专属内容保留角色边界，便于后续按角色拆成 GameFeature；共享玩法内容不依赖原始导出目录的位置。`/Game/PhysicsMaterials/` 已由 AssetTools 创建，目录可以先为空，实际出现物理材质资产时再放入内容。
 
 ## 2. 当前目录结构

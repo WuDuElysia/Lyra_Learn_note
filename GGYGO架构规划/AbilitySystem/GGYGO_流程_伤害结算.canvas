@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# 伤害结算｜流程子图\n当前Player/Boss原Owned hit→共享Builder→GAS结算/Cue；调用方失败响应各归原消费者。\n[[GGYGO_结构_AbilitySystem.canvas|结构图]] · [[GGYGO_流程_战斗链路.canvas|跨模块链]] · [[AbilitySystem/计划_原请求终止|验收边界]]",
+      "text": "# 伤害结算｜流程子图\n当前Player/Boss原Owned hit→共享Builder→GAS结算/Cue；调用方失败响应各归原消费者。\n[[GGYGO_结构_AbilitySystem.canvas|结构图]] · [[GGYGO_流程_战斗链路.canvas|跨模块链]] · [[GGYGO_流程_原请求终止.canvas|原请求终止]]",
       "x": 0,
       "y": 0,
       "width": 1660,
@@ -73,7 +73,7 @@
     {
       "id": "required-hit-build-failure",
       "type": "text",
-      "text": "## 构造/必需依赖失败出口\n该hit不Apply GE、不Cue，输出与原因明确；Builder不执行能力终止或替代资源。\nCombo→RequestAbilityEnd(固定Original,true,true)，不可取消场景也正式End原动作；Boss只拒绝该hit，保留当前动作。\n原Cleanup/GA早通知/ASC/Completed全退出见[[GGYGO_流程_原请求终止.canvas|原终止链]]。\n必要Combo运行时故障行为有限验证，真实Error/Fail保留；完整Boss/正式资产/伤害数值/Cue表现/网络仍未验。",
+      "text": "## 构造/必需依赖失败出口\n该hit不Apply GE、不Cue，输出与原因明确；Builder不执行能力终止或替代资源。\nCombo→RequestAbilityEnd(固定Original,true,true)，不可取消场景也正式End原动作；Boss只拒绝该hit，保留当前动作。\n原Cleanup/GA早通知/ASC/Completed全退出见[[GGYGO_流程_原请求终止.canvas|原终止链]]。",
       "x": 0,
       "y": 864,
       "width": 850,

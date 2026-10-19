@@ -11,19 +11,9 @@
       "color": "6"
     },
     {
-      "id": "combo-s-input",
-      "type": "text",
-      "text": "## 输入请求边界\nIA_Attack采用Pressed；ASC活跃Spec InputPressed→WaitComboInput。\n任务给SourceStep/RequestId，Combo核原资源门。\n前点请求拒绝且不重播；过点新按下才按唯一Next换段。\n真实移动资格来自原Source/CMC；已held可在点开放时接管。\n激活重试归ASC/Hero，不替代段内换段。\n[[Input/结构|输入职责]]",
-      "x": 0,
-      "y": 280,
-      "width": 450,
-      "height": 300,
-      "color": "4"
-    },
-    {
       "id": "combo-s-ga",
       "type": "text",
-      "text": "## UGGYGOPlayerComboAbility\nInitialize/Body接收已签Original；段/token/请求来源与原FStepMotionResources归Combo。\nHandleMontageNotify / EnableStepInterruption：认证原点事实，唯一bInterruptionOpen归本原资源；新步关门。\nHandleInputPressed：核SourceStep/RequestId/门/Next，立即换段，不存前点输入。\nStartStep：持完整Source、原Task/CMC Handle/Scope；Section仅投影，自然须两原完成事实。\nContext Cleanup先脱门/成员再退原资源；Required失败正式End，普通Cancel保持。\n[[AbilitySystem/计划_原请求终止|原终止]]",
+      "text": "## UGGYGOPlayerComboAbility\n持有原Activation、段序／请求号、FStepMotionResources、输入Task与Owned窗口。\nInitializeAbilityActivation／ActivateAbilityBody：原激活与原生参数→初始化并执行本GA。\nStartStep(Original,Index,Position,RequestId)：原激活与配置段→该段的播放／移动资源。\nHandleMontageNotify／HandleInputPressed：原作者点事实／SourceStep和RequestId→本段的打断与接续决策。\nCleanupAbilityResourcesForTermination(Context)：原终止上下文→归还本GA资源。\n[[AbilitySystem/结构#原请求终止|基类生命周期接口]]",
       "x": 530,
       "y": 280,
       "width": 450,
@@ -33,7 +23,7 @@
     {
       "id": "combo-s-config",
       "type": "text",
-      "text": "## FGGYGOComboStep[] / 正式GA\nMontage、Main/End、MotionSlotName/Scale、InterruptionNotifyName、唯一Next、Rate、Damage/Poise与TraceShape。\n每Montage唯一精确stock原生Montage Notify点；名称Event.Montage.CancelPoint，Next=1/2/0。\nValidateComboConfiguration核必需来源、点链接/时间/唯一性；无效明确失败。\nNext=INDEX_NONE显式关闭攻击接续；InputBufferSeconds仅历史存值。\n完整End/独立Blend/旧窗口保持，无新请求不循环。",
+      "text": "## FGGYGOComboStep[] / 正式GA\n配置Montage、Main/End、MotionSlotName/Scale、InterruptionNotifyName、NextStepIndex、Rate、Damage/Poise与TraceShape。\n每Montage的作者点使用唯一精确stock原生Montage Notify；正式GA的NextStepIndex为1/2/0。\nValidateComboConfiguration：段配置→必需来源、作者点链接／时间／唯一性的有效结果或诊断。\nNextStepIndex=INDEX_NONE表示该段没有攻击接续。\nInputBufferSeconds为保留的序列化字段，不参与输入缓存。",
       "x": 1060,
       "y": 280,
       "width": 450,
@@ -61,24 +51,34 @@
       "color": "1"
     },
     {
-      "id": "combo-s-hit",
-      "type": "text",
-      "text": "## Hero MeleeTrace / Builder / GE / Cue\nHeroCharacter持MeleeTraceComponent。\n服务器TryOpenOwnedTraceWindow→签发原窗口；SubscribeWindowHit→原Window/Actor/HitResult。\nCombat唯一做采样/去重/Tick；不决策伤害/GA终止。\nCombo校验Original/段/Task/Window，再BuildHitEffectPayload→Spec与Cue数据。\n合法GE经ASC Apply→GE/Execution/AttributeSet；显式无GE只走合法Cue。\nUnsubscribeWindowHit/CloseOwnedTraceWindow精确退原资源。\n[[Combat/结构|查询契约]] · [[GGYGO_流程_伤害结算.canvas|伤害链]]",
-      "x": 0,
-      "y": 750,
-      "width": 450,
-      "height": 390,
-      "color": "4"
-    },
-    {
       "id": "combo-s-network",
       "type": "text",
-      "text": "## 强类型纠正与完成边界\nWaitComboInput给SourceStep/RequestId；ClientCorrectAbilityState(Spec,key,TargetData)只筛来源并转发。\nFGGYGOComboCorrectionData归Combo：段/位置/窗口/Revision；ReceiveAbilityCorrection核单项确切类型与范围。\nCurrentStepRequestId记录本步请求，旧接受按请求号拒回滚，支持03→01；合法不同步纠正沿StartStep(SafePosition)认证原点位置。\nRequestAbilityEnd/Cancel消费固定Original；结果历史不授后继权限。\nGA数据、ASC本地通知、Completed各有字段/时点；真实返回后受控调用方才续激活。\nraw无外层受控Try见证可清资源，但不发布协议Completed。",
+      "text": "## 强类型纠正与完成接口\nFGGYGOComboCorrectionData由Combo定义，包含段／位置／窗口／Revision；ASC只按Spec/key路由TargetData。\nReceiveAbilityCorrection：强类型载荷→本段纠正；Combo负责类型、范围及Revision校验。\nCurrentStepRequestId属于当前段请求，按请求号区分新旧接受，段序允许03→01。\nRequestAbilityEnd／Cancel：固定Original→原终止结果。\nGA结束数据、ASC本地通知与TerminationCompletedNotice分别描述各自生命周期边界。\n[[AbilitySystem/结构#原请求终止|完成接口与权限]]",
       "x": 530,
       "y": 1230,
       "width": 650,
       "height": 390,
       "color": "5"
+    },
+    {
+      "id": "combo-s-input",
+      "type": "text",
+      "text": "## 输入请求接口\nIA_Attack配置Pressed；ASC活跃Spec的InputPressed由WaitComboInput消费。\nWaitComboInput输出SourceStep／RequestId；PlayerCombo拥有段内打断许可与NextStepIndex决策。\n输入Task只提供输入事实，不持有GA打断门。\nCMC的QualifiedMovementIntent提供原Source／Scope的移动资格；Combo持有自己的资格订阅。\n激活重试的请求、许可与等待归ASC；Hero持自身Action观察与输入请求关联。\n[[Input/结构|输入职责]]",
+      "x": -300,
+      "y": 280,
+      "width": 450,
+      "height": 300,
+      "color": "4"
+    },
+    {
+      "id": "combo-s-hit",
+      "type": "text",
+      "text": "## Hero MeleeTrace / Builder / GE / Cue\nHeroCharacter持有MeleeTraceComponent；Combat拥有窗口、采样／去重与Tick。\nTryOpenOwnedTraceWindow／SubscribeWindowHit：服务器窗口请求→原Window句柄及Actor／HitResult事实。\nPlayerCombo持自己的窗口与订阅，负责原激活／段／Task／Window认证及命中响应。\nBuildHitEffectPayload：原命中与所选GE→Context、可选Spec及Cue载荷；伤害结算归GE／Execution／AttributeSet。\nUnsubscribeWindowHit／CloseOwnedTraceWindow：原句柄→只归还对应查询资源。\n[[Combat/结构|查询契约]] · [[GGYGO_流程_伤害结算.canvas|伤害流程]]",
+      "x": -260,
+      "y": 750,
+      "width": 450,
+      "height": 390,
+      "color": "4"
     }
   ],
   "edges": [
@@ -115,6 +115,14 @@
       "label": "原播放 / Guard姿态契约"
     },
     {
+      "id": "combo-se-motion",
+      "fromNode": "combo-s-ga",
+      "fromSide": "right",
+      "toNode": "combo-s-anim",
+      "toSide": "left",
+      "label": "调用原Source / CMC动作及资格接口"
+    },
+    {
       "id": "combo-se-hit",
       "fromNode": "combo-s-ga",
       "fromSide": "left",
@@ -129,14 +137,6 @@
       "toNode": "combo-s-network",
       "toSide": "left",
       "label": "持有输入任务；接收权威纠正"
-    },
-    {
-      "id": "combo-se-motion",
-      "fromNode": "combo-s-ga",
-      "fromSide": "right",
-      "toNode": "combo-s-anim",
-      "toSide": "left",
-      "label": "调用原Source / CMC动作及资格接口"
     }
   ]
 }

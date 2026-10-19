@@ -3,7 +3,7 @@
     {
       "id": "pose_nav",
       "type": "text",
-      "text": "# 动作姿态修正｜原生Slot与Required失败链\n[[Animation/动作姿态修正|算法、契约与证据]] · [[Animation/结构|模块接口]] · [[GGYGO_结构_动画与表现.canvas|结构图]] · [[GGYGO_流程_动画表现.canvas|返回主流程]]。\n上方是启动资格，中部是原生GT/worker评估，下方是原Task/GA/CMC清理。箭头标注触发或数据传递，GT发布和Task轮询沿原引擎入口，不新增调度。",
+      "text": "# 动作姿态修正｜原生Slot与Required失败链\n[[Animation/动作姿态修正|算法、契约与证据]] · [[Animation/结构|模块接口]] · [[GGYGO_结构_动画与表现.canvas|结构图]] · [[GGYGO_流程_动画表现.canvas|返回主流程]]。\n上方是启动资格，中部是原生GT/worker评估，下方是原Task/GA/CMC清理。箭头标注触发或数据传递，沿原引擎入口，不新增调度。\n2026-10-10六源Root XY归零已保存／恢复冷读和必要生产链通过；固定对齐与Source归一仍保留本图Slot／Guard，未作删除节点A/B。",
       "x": 0,
       "y": 0,
       "width": 2540,

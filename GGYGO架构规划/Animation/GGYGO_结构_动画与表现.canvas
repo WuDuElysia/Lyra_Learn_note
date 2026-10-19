@@ -93,7 +93,7 @@
     {
       "id": "combo_sources",
       "type": "text",
-      "text": "## 普攻 AnimSequence（已存在）\nNormal_01/02/03 与对应 End：60 fps，共用 Pyrios Skeleton。\n无 Notify，原生 Root Motion=false；含 RootMotion_* 曲线。\n[[Animation/普攻动画实施|资产事实与契约]]",
+      "text": "## 普攻 AnimSequence（六源已原地化）\nNormal_01/02/03及完整End：60/1，Root共同CS XY=0；Body同步减平移，保原Z／Q／S与相对姿态。\n原27条曲线未重烘焙；保存／恢复冷读与必要生产链通过，宿主退出异常历史保留。\n[[Animation/普攻动画实施#六源原地化（2026-10-10）|当前资产与边界]]",
       "x": 0,
       "y": 1920,
       "width": 440,
@@ -133,7 +133,7 @@
     {
       "id": "combo_slot_gate",
       "type": "text",
-      "text": "## 已保存的FullBody主图\n状态机→ActionPoseSlot→原LocalToCS→原CSToLocal→原Inertialization→Root。\n退役旧Slot及顶层Bip001全轴Translation Replace；保AlwaysUpdateSourcePose=true、原对齐Z=50.8019981384／Required FullBody。\nGate106只改普通WalkRun单Spine支路；主图及另24图保持。\n[[Animation/动作姿态修正|实际配置与分责]]",
+      "text": "## 保留FullBody主图／Guard\n状态机→ActionPoseSlot→原LocalToCS→原CSToLocal→原Inertialization→Root。\n六源归零后仍需原对齐Z=50.8019981384及Source／参考归一；Required FullBody保持，本轮ABP未改。\n原生读回＋公式支持保留；未删除节点做A/B／视觉验收。\n[[Animation/动作姿态修正#六源原地化与 Slot 保留条件（2026-10-10）|条件与生产证据]]",
       "x": 0,
       "y": 2380,
       "width": 440,

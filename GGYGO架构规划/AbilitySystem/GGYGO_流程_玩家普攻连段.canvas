@@ -3,7 +3,7 @@
     {
       "id": "combo-f-nav",
       "type": "text",
-      "text": "# 玩家普攻｜执行流程\n受控激活→原Task/CMC连续Main→End→作者点开启本原资源许可→真实新攻击或移动打断；无请求自然两事实收尾。\nSection与旧ComboWindow只投影；新步关门，前点输入不缓存。Required失败仍沿原Task历史事实→GA正式End。\n[[计划_玩家普攻连段|连段说明]] · [[GGYGO_结构_玩家普攻连段.canvas|结构]] · [[GGYGO_流程_AbilitySystem.canvas|GAS流程]]",
+      "text": "# 玩家普攻｜执行流程\n受控激活→原Task／CMC连续Main→End→独立攻击／移动许可→真实请求分支；无请求等原Task与CMC两完成事实。\nSection只投影；新段关闭两门。Required失败沿原Task事实→GA正式End。\n[[计划_玩家普攻连段|连段说明]] · [[GGYGO_结构_玩家普攻连段.canvas|结构]] · [[GGYGO_流程_AbilitySystem.canvas|GAS流程]]",
       "x": 0,
       "y": 0,
       "width": 2720,
@@ -23,7 +23,7 @@
     {
       "id": "combo-f-main",
       "type": "text",
-      "text": "2. StartStep(Original,i)\n退原Trace→CMC Replaced→旧Task；建立新关门资源。\nBuildSourceBindingRange(Main,End)与作者点resolver校验；原Task ConfigureOriginalMontageNotify(preReady)→Acquire/播放。\nReady原Snapshot固定ID/Position/Rate→InitializeStepMotion→CMC BeginMontageActionMotion及失败/完成观察。\n早到原点事实或合法纠正起播已过点：核原Notify快照/Scope/Handle后开门。\nRequired失败仍先清Task→历史OnFailed→正式End；watchdog不模拟运动。",
+      "text": "2. StartStep(Original,i)\n退原Trace／FX／CMC／Task，建立两门关闭的新资源。\nBuildSourceBindingRange(Main,End)→校验启用点→ConfigureOriginalMontageNotifies→Ready。\n原Snapshot固定实例／位置／速率→InitializeStepMotion→CMC BeginMontageActionMotion与原完成观察。\n早到事实／非零起播分别按名核原快照；Required失败清Task并正式End。",
       "x": 530,
       "y": 250,
       "width": 450,
@@ -43,7 +43,7 @@
     {
       "id": "combo-f-window",
       "type": "text",
-      "text": "3. 原Montage事实交付\n原AnimInstance native单点→Task NotifyReceived→HandleMontageNotify；核原Montage/Mesh/ID/名称/TriggerTime。\nEnableStepInterruption只开本原Resource门→Query/SubscribeQualifiedMovementIntent(原Scope)，已held可立即接管。\nSectionReceived仅投影；ComboWindow仅历史窗口元数据。\nHit Begin/End→OpenTraceWindow/ReleaseTraceWindow；Owned句柄仍绑定Original/段/Task。",
+      "text": "3. 原Montage事实交付\n原AnimInstance NotifyBegin→Task NotifyReceived→HandleMontageNotify，核原实例及该名字声明。\n攻击点→OpenAttackContinuation，只开攻击门。\n移动点→TryOpenMovementInterruption；实际位置到Main末端才BeginMovementInterruption→Query／Subscribe合格移动。\nSection只投影；typed Hit窗口→OpenTraceWindow／ReleaseTraceWindow。",
       "x": 1060,
       "y": 700,
       "width": 450,
@@ -53,7 +53,7 @@
     {
       "id": "combo-f-branch",
       "type": "text",
-      "text": "5. 本原资源许可的输入分支\n新攻击且门开：StartStep(Original,Next,0,RequestId)，立即替换原段；新播放重新关门。\n真实移动Qualified：原Scope/Intent逐字段重查一致，必须持原CMC Handle才可取消。\n无新请求：同一原Task/CMC继续完整Main→End，不自动循环。\n旧事实/栈只核原来源，不清后继。",
+      "text": "5. 本原资源许可分支\n攻击门开＋真实新攻击＋Next有效→StartStep(Original,Next,0,RequestId)，新段关闭两门。\n移动门开＋Qualified→重查原Scope／Intent，持原CMC Handle才可取消。\n无新请求→同一原Task／CMC继续完整Main→End。\nDisabled保持对应门关闭；旧事实／旧栈不清后继。",
       "x": 530,
       "y": 700,
       "width": 450,
@@ -103,7 +103,7 @@
     {
       "id": "combo-f-hit-normal",
       "type": "text",
-      "text": "正常命中两种明确模式\n无GE且Shared关闭：合法Cue数据，无必需Spec，跳过Apply。\n有效必需GE：SetByCaller→ASC Apply→GE/Execution/AttributeSet。\n有合法CueTag时ExecuteGameplayCue。\n应用免疫/拒绝不吞已成立命中的Cue。\n返回原动作，继续等待窗口或正常结束；不是错误兜底。",
+      "text": "正常命中\n显式无GE且Shared关闭→合法Cue数据，跳过Apply。\n必需GE每命中新Spec，快照当时攻击力及Buff。\n返回GE选择倍率模式→写DamageMultiplier；绝对模式→写Damage；削韧独立写PoiseDamage。\nASC Apply→GE／Execution／HealthSet。\n合法CueTag→ExecuteGameplayCue；免疫／拒绝仍保碰撞Cue。\n原动作继续等窗口或自然结束。",
       "x": 2180,
       "y": 700,
       "width": 540,
@@ -172,7 +172,7 @@
       "fromSide": "left",
       "toNode": "combo-f-branch",
       "toSide": "right",
-      "label": "原作者点开门 / Query及订阅真实移动"
+      "label": "原点按名开对应门；移动到Main末端再Query／Subscribe"
     },
     {
       "id": "combo-fe-next",
@@ -180,7 +180,7 @@
       "fromSide": "top",
       "toNode": "combo-f-main",
       "toSide": "bottom",
-      "label": "过点新攻击且Next有效→StartStep"
+      "label": "攻击门开＋真实新攻击＋Next有效→StartStep"
     },
     {
       "id": "combo-fe-end",
@@ -188,7 +188,7 @@
       "fromSide": "left",
       "toNode": "combo-f-end",
       "toSide": "right",
-      "label": "合格移动取消；无请求保持自然轨迹"
+      "label": "移动门开且Qualified取消；无请求走自然轨迹"
     },
     {
       "id": "combo-fe-clean",
@@ -212,7 +212,7 @@
       "fromSide": "left",
       "toNode": "combo-f-branch",
       "toSide": "top",
-      "label": "当前新请求即时核本原Resource门"
+      "label": "真实新请求即时核原AttackGate"
     },
     {
       "id": "combo-fe-correct",

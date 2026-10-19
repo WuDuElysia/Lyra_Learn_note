@@ -133,7 +133,7 @@
     {
       "id": "effect",
       "type": "text",
-      "text": "## 伤害／表现接口\nDamageExecution::Execute消费Context Origin、HitResult与捕获值，写目标元属性。\nEffectContext::Duplicate保留显式Origin。\nHitImpact提供HandleGameplayCue、OnExecute与只读ResolveImpactPresentation，持有位置／表面／粒子／声音配置。\nGameplayCueManager负责Cue加载与分发。\n伤害归GA／GE／Execution／AttributeSet；Cue只拥有反馈配置与播放职责。\n[[AbilitySystem/Cues/结构|Cue接口]] · [[GGYGO_结构_HitImpact.canvas|Cue静态关系]]",
+      "text": "## 伤害／表现接口\nComboStep持Damage／DamageMultiplier／PoiseDamage；GE的PassedInTags选择绝对输入或攻击力×倍率。\n每命中Builder创建Spec，Source快照捕获当时攻击力及Buff。\nEffectContext持HitResult与显式Origin；Duplicate保留Origin。\nExecution消费独立削韧与衰减，写元属性；HealthSet结算。\nCueManager分发，HitImpact解析与播放反馈。\n[[AbilitySystem/结构#伤害输入、Spec与属性边界|伤害契约]] · [[AbilitySystem/Cues/结构|Cue接口]]",
       "width": 490,
       "height": 330,
       "color": "1",
@@ -243,7 +243,7 @@
     {
       "id": "montage-native-notify-interface",
       "type": "text",
-      "text": "## 同一Montage Task｜作者点接口\nResolveOriginalMontageNotify(Montage,Name,OutTime,Diagnostic)：恰一stock native点；原LinkedMontage／branchingpoint及有限TriggerTime，缺／重／错类型拒绝。\nConfigureOriginalMontageNotify(Name,Diagnostic)：原AwaitingActivation、Ready前一次配置。\nTryGetOriginalMontageNotifySnapshot(Fact,Position)：固定ID原实例与同一作者声明的只读快照；false清输出，不合成通知。\nFNativeCallbacks.NotifyReceived／BP NotifyReceived：精确原点事实，自然blend原实例可送达，退休Task不能接旧点。\n持有原Notify UObject／名字／时间和原AnimInstance订阅；不存数组裸指针或Editor GUID，不持业务门／输入／CMC或第二时钟。\nOnDestroy只RemoveDynamic原对象／本Task／NotifyBegin函数。\n[[AbilitySystem/结构#原生 Montage 作者信号|接口与来源]]",
+      "text": "## 同一Montage Task的作者点接口\nResolveOriginalMontageNotifyDeclaration：资产／名字→唯一stock点的作者位置／offset／trigger，校验原链接及BranchingPoint。\nConfigureOriginalMontageNotify／Notifies：Ready前一次配置单点或非空异名集合；逐点合法才提交。\nTryGetOriginalMontageNotifySnapshotByName：名字→原固定实例的对应声明及实际位置；无名入口仅单点。\nNotifyReceived：认证原播放后给GA事实；原自然混出实例仍可交付。\nTask持声明与自身订阅，GA解释业务许可；OnDestroy精确移除原监听。\n[[AbilitySystem/结构#原生 Montage 作者信号|接口与资源]]",
       "width": 900,
       "color": "5",
       "x": 3840,
@@ -253,7 +253,7 @@
     {
       "id": "montage-native-notify-fact",
       "type": "text",
-      "text": "## FGGYGOMontageNotifyFact\nMontage／Mesh／int32 MontageInstanceId／NotifyName／NotifyPositionSeconds。\n时间为作者GetTriggerTime含offset，非后来回调位置；快照另给原实例实际Position。\n来源封套为原Task／Guard／ActorInfo与配置原点，不借float Magnitude或ASC CancelPoint认证。\n事实不授当前播放、原GA／输入／镜头／CMC工作权。\nGA核原Activation／StepToken／Task／资源后消费，原资源持本播放许可。\n[[GGYGO_结构_玩家普攻连段.canvas|GA消费者]] · [[AbilitySystem/结构#原生 Montage 作者信号|数据契约]]",
+      "text": "## FGGYGOMontageNotifyFact\nMontage／Mesh／int32 MontageInstanceId／NotifyName。\nNotifyAuthoredPositionSeconds／NotifyTriggerTimeOffsetSeconds／NotifyPositionSeconds分别为作者位置／offset／实际trigger。\n原Task按配置点认证，快照另给原实例实际位置。\n事实来源是原Task／Guard／ActorInfo及该名字声明，不签业务许可。\nGA持独立攻击／移动门，按原Activation／StepToken／Task来源消费。\n[[GGYGO_结构_玩家普攻连段.canvas|GA消费者]] · [[AbilitySystem/结构#原生 Montage 作者信号|接口契约]]",
       "width": 900,
       "color": "1",
       "x": 3840,

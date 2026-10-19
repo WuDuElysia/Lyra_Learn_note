@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Combat｜近战判定流程\n结构见 [[GGYGO_结构_Combat.canvas|结构图]]；伤害后续见 [[GGYGO_流程_伤害结算.canvas]]。\nCombo/Boss 已接 Owned。Gate79 编译成功，7烟5 Success/2 Fail；四RuntimeHit行为PASS，三条生产Error保留。完整Boss命中、正式资产/Legacy BP迁移与联机未验，见 [[Combat/结构]]。",
+      "text": "# Combat｜近战判定流程\n结构见 [[GGYGO_结构_Combat.canvas|结构图]]；伤害后续见 [[AbilitySystem/GGYGO_流程_伤害结算.canvas]]。\n认证窗口 → 原身份查询／去重／订阅 → GA 构造并提交 GE/Cue → 按原资源清理。[[Combat/结构|接口与职责]]",
       "x": 0,
       "y": 0,
       "width": 1710,
@@ -13,7 +13,7 @@
     {
       "id": "open",
       "type": "text",
-      "text": "1. 原 Combo/Boss Montage Event → Owned 开窗。\nCombo 先 ReleaseTraceWindow(Original) 退原段资源。\nBoss QueryOwnedTraceWindow：Active 重复 Begin 保去重，Inactive 才释放重开。\nTryOpenOwnedTraceWindow(Socket/Radius, 空Expected → Window) → SubscribeWindowHit(Window, Callback → token)。\n回调捕/核 Original、原 Task/Trace、窗口；失败只退自身原资源。\nLegacy 保留兼容，不接管 Owned。",
+      "text": "1. 认证 Montage Hit 窗口事实 → Owned 开窗。\nCombo 先 ReleaseTraceWindow(Original)，以 Step.TraceShape＋原 Mesh 开窗。\nBoss 用 RootTip；原窗 Active 时重复 Begin 保去重，Inactive 才释放重开。\nTryOpenOwnedTraceWindow → SubscribeWindowHit → token。\n回调捕/核 Original、声明、原 Task/Trace、窗口。\n失败由原 GA 处理，不接管 Legacy。",
       "x": 0,
       "y": 392,
       "width": 430,
@@ -23,7 +23,7 @@
     {
       "id": "baseline",
       "type": "text",
-      "text": "2. 窗口首帧只记录武器两端位置，不生成从旧动画到新动画的虚假扫掠。\n\n调用：MeleeTrace::PerformTrace 首次仅记录 Mesh::GetSocketLocation 两端，避免跨窗口虚假命中。",
+      "text": "2. ReadTraceShapeFrame 先读所有链控制点，核原 Mesh/点/拓扑及整窗预算。\n\n首帧共同保存 PreviousPoints，不 Sweep；后续帧才以上帧→本帧坐标查询，避免跨窗口虚假命中。",
       "x": 500,
       "y": 392,
       "width": 430,
@@ -33,7 +33,7 @@
     {
       "id": "sweep",
       "type": "text",
-      "text": "3. PerformTrace 按长度/半径确定分段数，逐点 SweepMultiByChannel。\n查询请求 PhysicalMaterial；需求超过 MaxTraceSegments 时关闭并告警。\n按帧间直线近似；大角度旋转仍有误差。",
+      "text": "3. 按前/本帧最大段长÷世界半径向上取整，至少1段。\n各段含端点的 Sweep 共用 MaxTraceSegments+1 预算。\nPerformTrace → SweepMultiByChannel，回填物材。\n失效/超预算关原窗；帧间直线近似，大角度旋转有误差。",
       "x": 1000,
       "y": 392,
       "width": 430,
@@ -43,7 +43,7 @@
     {
       "id": "dedupe",
       "type": "text",
-      "text": "4. 原窗内 HitActorsThisWindow 去重。\nOwned 快照订阅 → callback(OriginalWindow, Actor, Hit)。\n每次外调前核原窗/token，外调后复核；消费者另核自己的原 Activation/来源。\nB 回调关 B 开 C → 停旧分发/扫掠/回写；C 首 Tick 自建基线。\nLegacy 仅广播 OnMeleeHit；Combo/Boss 走 Owned。",
+      "text": "4. 全链共用 HitActorsThisWindow 弱引用去重。\nOwned 快照订阅 → callback(OriginalWindow, Actor, Hit)。\n外调前核原窗/token/资源，外调后复核；GA 另核原 Activation/来源。\nB 回调关 B 开 C → 停 B 分发/扫掠/回写；C 首 Tick 建基线。\nLegacy 广播 OnMeleeHit；Combo/Boss 用 Owned。",
       "x": 1500,
       "y": 392,
       "width": 430,
@@ -53,7 +53,7 @@
     {
       "id": "ge",
       "type": "text",
-      "text": "5. Combo/Boss 核原身份、Trace/窗口及权威；同一 HitResult → BuildHitEffectPayload。\nCombo 显式无GE可Cue；Boss须GE/有效必需Spec。伤害由GAS结算。\nCombo 必需 GE/Builder 故障 → RequestAbilityEnd(Original, true, true)。\nBoss 构造失败只拒绝该 hit；有效载荷的 GE 免疫/应用拒绝不吞碰撞 Cue。\n有限验证见 [[Combat/结构]]。",
+      "text": "5. GA 核原身份/Trace/窗口/权威。\n同次 HitResult＋原 Avatar 命中时位置 → BuildHitEffectPayload。\nGA 配置数值并提交 GE/Cue，GAS 结算。\nCombo 显式无GE可Cue；必需GE/Builder失败 → RequestAbilityEnd(Original, true, true)。\nBoss 要求GE/Spec，构造失败仅拒绝该 hit。\n有效 GE 免疫/拒绝仍按碰撞 Cue 策略。",
       "x": 1500,
       "y": 918,
       "width": 430,
@@ -63,7 +63,7 @@
     {
       "id": "close",
       "type": "text",
-      "text": "6. HitWindowEnd/换段/原终止 → GA 清自己的原窗。\nCombo ReleaseTraceWindow；Boss CloseOriginalTraceWindow。\n先脱成员 → UnsubscribeWindowHit(原token) → CloseOwnedTraceWindow(原H)。\nCleanupAbilityResourcesForTermination(Context) 匹配原批次；旧H不关后继。\n组件 Deactivate/OnUnregister/EndPlay/内部失败 → 私有 CloseCurrentTraceWindow。\nCombat 停 Tick/清基线/去重；GA 仍清任务/位移/表现资源。\nLegacy End 仅兼容；独立 EndPlay 动态未验。",
+      "text": "6. 匹配声明的 HitWindowEnd/换段/原终止 → GA 清自己的原窗。\nCombo ReleaseTraceWindow；Boss CloseOriginalTraceWindow。\n先脱成员 → 退原token → 关原H；旧身份不清后继。\nCleanupAbilityResourcesForTermination(Context) 核原批次并归还自身其他资源。\n组件 Deactivate/OnUnregister/EndPlay/内部失败 → CloseCurrentTraceWindow。\n停 Tick、清 Shape/借用资源/基线/去重；Legacy End 仅管 Legacy。",
       "x": 1000,
       "y": 972,
       "width": 430,

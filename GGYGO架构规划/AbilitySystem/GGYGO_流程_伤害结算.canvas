@@ -33,7 +33,7 @@
     {
       "id": "effect",
       "type": "text",
-      "text": "3. 原GA命中门禁→选本次GE→BuildHitEffectPayload。\n同次HitResult先AddHitResult再AddOrigin；原Source/Target、Spec扩展及Cue初始化外调后重核。\nCombo显式无GE成功：Context/Cue；Boss要求有效GE。有效必需GE成功：Spec及反馈载荷。\n失败false/空输出，不降级Cue或换GE。",
+      "text": "3. 原GA核Owned命中→选择GE→BuildHitEffectPayload。\n先AddHitResult再写Origin；每命中新Spec快照当时Source属性及Buff，扩展外调后重核原来源。\nCombo无GE为显式Context／Cue模式；必需GE复核返回Spec模式，写绝对值或倍率、独立削韧→ASC Apply。\n构造失败返回false／空输出→原失败出口。",
       "x": 960,
       "y": 351,
       "width": 410,
@@ -43,7 +43,7 @@
     {
       "id": "execute",
       "type": "text",
-      "text": "4. DamageExecution 捕获源输出和目标承受属性，写 Damage / PoiseDamage 元属性。\n\n物理材质来自 Context；距离取显式 Origin→HitResult.ImpactPoint。没有 HitResult 时距离为 0，不读取 EffectCauser 的当前坐标。",
+      "text": "4. GE PassedInTags选择DamageExecution输入：\n绝对：SBC Damage优先，缺键取Source快照。\n倍率：攻击力快照×SBC DamageMultiplier。\n削韧独立；冲突／缺失／非法输入不新增输出。\n可用AbilitySource给材质／Origin→Impact距离衰减；无接口系数1，无Hit距离0。\n合法输入→Damage／PoiseDamage元属性。\n[[AbilitySystem/结构#伤害输入、Spec与属性边界|输入契约]]",
       "x": 1450,
       "y": 351,
       "width": 420,

@@ -13,7 +13,7 @@
     {
       "id": "combo-s-ga",
       "type": "text",
-      "text": "## UGGYGOPlayerComboAbility\n持有原Activation、段序／请求号、FStepMotionResources、输入Task与Owned窗口。\nInitializeAbilityActivation／ActivateAbilityBody：原激活与原生参数→初始化并执行本GA。\nStartStep(Original,Index,Position,RequestId)：原激活与配置段→该段的播放／移动资源。\nHandleMontageNotify／HandleInputPressed：原作者点事实／SourceStep和RequestId→本段的打断与接续决策。\nCleanupAbilityResourcesForTermination(Context)：原终止上下文→归还本GA资源。\n[[AbilitySystem/结构#原请求终止|基类生命周期接口]]",
+      "text": "## UGGYGOPlayerComboAbility\n持原Activation、段序／请求号、FStepMotionResources、Task和Owned窗口。\nStartStep(Original,Index,Position,RequestId)：原激活与段配置→播放／移动／FX资源。\nHandleMontageNotify按名解释独立AttackGate／MovementGate；HandleInputPressed消费真实新请求。\n攻击点只接续；移动许可须到Main实际末端。\nCleanupAbilityResourcesForTermination(Context)：原终止上下文→释放匹配资源。\n[[AbilitySystem/结构#原请求终止|生命周期接口]]",
       "x": 530,
       "y": 280,
       "width": 450,
@@ -23,7 +23,7 @@
     {
       "id": "combo-s-config",
       "type": "text",
-      "text": "## FGGYGOComboStep[] / 正式GA\n配置Montage、Main/End、MotionSlotName/Scale、InterruptionNotifyName、NextStepIndex、Rate、Damage/Poise与TraceShape。\n每Montage的作者点使用唯一精确stock原生Montage Notify；正式GA的NextStepIndex为1/2/0。\nValidateComboConfiguration：段配置→必需来源、作者点链接／时间／唯一性的有效结果或诊断。\nNextStepIndex=INDEX_NONE表示该段没有攻击接续。\nInputBufferSeconds为保留的序列化字段，不参与输入缓存。",
+      "text": "## FGGYGOComboStep[]／生产GA\nMontage、Main／End、MotionSlotName／Scale、NextStepIndex与PlayRate。\nInterruptionMode／InterruptionNotifyName管攻击；MovementInterruptionMode／NotifyName管移动；启用点须异名。\nDamage／DamageMultiplier／PoiseDamage、TraceShape及FX为段配置。\nValidateComboConfiguration：配置→来源／点／数值有效结果或诊断。\nDisabled关闭对应门；Next=NONE无攻击接续；InputBufferSeconds仅存序列化值。",
       "x": 1060,
       "y": 280,
       "width": 450,
@@ -33,7 +33,7 @@
     {
       "id": "combo-s-task",
       "type": "text",
-      "text": "## Montage Task / WaitComboInput\nCombo持原Task/native token；输入Task给真实SourceStep/RequestId，不存GA门。\nConfigureOriginalMontageNotify：preReady固定唯一原点；ResolveOriginalMontageNotify校验配置。\nNotifyReceived(FGGYGOMontageNotifyFact)：原Montage/Mesh/实例ID/名称/作者TriggerTime；可交付原自然blend。\nTryGetOriginalMontageNotifySnapshot：原点与实际位置；Section另有原快照/事实，无dt游标。\nTask持原Playback/Guard/scale/Ticket/订阅，精确退自身资源；Required历史OnFailed与普通回调保持。\n[[AbilitySystem/结构|Task契约]]",
+      "text": "## Montage／输入／FX Task\nGA持各原Task与token；WaitComboInput给SourceStep／RequestId。\nConfigureOriginalMontageNotifies：Ready前配置启用的异名点。\nNotifyReceived给原Mesh／Montage／整数实例及作者／trigger；ByName快照给对应点与实际位置。\nMontage Task持Playback／Guard／scale／Ticket及订阅；GA持两门和FX Task。\nTask退自身资源；原失败事实交GA正式结束。\n[[AbilitySystem/结构#原生 Montage 作者信号|Task接口]]",
       "x": 530,
       "y": 750,
       "width": 450,
@@ -73,7 +73,7 @@
     {
       "id": "combo-s-hit",
       "type": "text",
-      "text": "## Hero MeleeTrace / Builder / GE / Cue\nHeroCharacter持有MeleeTraceComponent；Combat拥有窗口、采样／去重与Tick。\nTryOpenOwnedTraceWindow／SubscribeWindowHit：服务器窗口请求→原Window句柄及Actor／HitResult事实。\nPlayerCombo持自己的窗口与订阅，负责原激活／段／Task／Window认证及命中响应。\nBuildHitEffectPayload：原命中与所选GE→Context、可选Spec及Cue载荷；伤害结算归GE／Execution／AttributeSet。\nUnsubscribeWindowHit／CloseOwnedTraceWindow：原句柄→只归还对应查询资源。\n[[Combat/结构|查询契约]] · [[GGYGO_流程_伤害结算.canvas|伤害流程]]",
+      "text": "## MeleeTrace／Builder／GE／Cue\nHero持MeleeTraceComponent；Combat持窗口、采样及去重。\nTryOpenOwnedTraceWindow／SubscribeWindowHit：查询配置→Window及Actor／HitResult事实。\nGA持窗口和订阅，核原激活／段／Task／Window。\nBuilder每命中创建Spec；GA按返回GE模式写绝对值或倍率、独立削韧，再经ASC应用。\nUnsubscribeWindowHit／CloseOwnedTraceWindow归还原查询资源。\n[[Combat/结构|查询契约]] · [[GGYGO_流程_伤害结算.canvas|伤害流程]]",
       "x": -260,
       "y": 750,
       "width": 450,

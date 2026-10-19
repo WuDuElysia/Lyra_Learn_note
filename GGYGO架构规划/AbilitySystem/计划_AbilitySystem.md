@@ -312,9 +312,11 @@ PreGameplayEffectExecute只做本次支持性预检，不保存Base候选。Post
 
 ## 6. GE 层
 
-### 当前Builder契约（E14-B/C：已编译，必要行为有限验收）
+### 当前Builder与伤害输入契约
 
 `BuildHitEffectPayload`保留bool接口：显式空DamageEffectClass是正常Context/Cue模式；非空必需GE须有有效Spec/Def/Context与原Ability/Source/Target。MakeOutgoingSpec、ApplyAbilityTags、BP_EditSpecValues及Cue初始化外调后重核原来源，只全部成功才赋输出；失败false/空输出并定位诊断，不降级无GE。Combo命中期间必需依赖或Builder失败直接RequestAbilityEnd(Original,true,true)，CanBeCanceled=false也不改为Cancel→End；Boss要求有效GE，失败保留拒绝该hit的响应。正常Spec应用免疫/拒绝仍可碰撞Cue。Gate79正常无GE/有效GE与两故障中止行为有限通过，真实Error/Fail及Shared资产失效/底层MakeOutgoingSpec失败/正式资产网络未验边界保留。
+
+当前GE机制包含显式绝对输入和攻击力×倍率；字段、拒绝条件、每命中新Spec与Buff快照归属见[[AbilitySystem/结构#伤害输入、Spec与属性边界|伤害接口]]，实际调用见[[GGYGO_流程_伤害结算.canvas|伤害流程]]。普通攻击的生产数值与自然结束结果统一见[[计划_实施状态#普攻生产链检查点|当前检查点]]；该结果不关闭本计划Current／Base、自定义资格、NetReceive或其它衰减分支的剩余验收。
 
 原本认为没有可抄的，实际上有三个值得抄：
 
@@ -326,7 +328,8 @@ GGYGO 需要的 GE 分类（都是编辑器里的蓝图资产，代码侧只提�
 
 | 分类 | 用途 | 归属 |
 |---|---|---|
-| 伤害 / 治疗 | 走 `GGYGODamageExecution`，用 `SetByCaller` 传数值 | `UGGYGOGameData`（15.4） |
+| 伤害 | DamageExecution按实际GE配置消费绝对输入或攻击力快照×独立倍率，削韧独立 | 共享GE由GameData持有，Override归施加能力 |
+| 治疗 | 治疗GE写Healing元属性，由HealthSet结算 | 共享配置或施加能力 |
 | 硬直 / 受击 | 施加 `Restriction.*` Tag + 持续时间，动作游戏的核心 | 施加它的能力 |
 | 削韧 / 破防 | 韧性属性的消耗与恢复 | 施加它的能力 |
 | 冷却 | GAS 原生的 `CooldownGameplayEffectClass` | 能力自己 |

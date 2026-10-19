@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Combat｜结构图\n窗口、跨帧扫掠与命中输出。[[Combat/结构|结构文档]] · [[GGYGO_流程_Combat.canvas|运行流程]]\nCombo/Boss 已接 Owned；Gate79 编译成功，7烟5 Success/2 Fail、四Case行为PASS。Legacy BP/正式资产/网络与完整Boss命中未验。",
+      "text": "# Combat｜结构图\n窗口、跨帧扫掠与命中输出。[[Combat/结构|结构文档]] · [[GGYGO_流程_Combat.canvas|运行流程]]\nGA 持原资源；Combat 管查询／去重／Owned 订阅，GAS 管能力生命周期与伤害结算。",
       "x": 0,
       "y": 0,
       "width": 1540,
@@ -13,7 +13,7 @@
     {
       "id": "ga",
       "type": "text",
-      "text": "## PlayerCombo / BossMelee\n原 Montage Event → Owned 窗口。\nGA 保存 Original、原 Trace、window/token。\nCombo：OpenTraceWindow / ReleaseTraceWindow。\nBoss：查询原窗，重复 Begin 保留去重。\n原回调核 Activation/来源/窗口；CleanupAbilityResourcesForTermination(Context) 释放自身原批次。\n[[AbilitySystem/结构|GAS权威]] · [[BossAI/结构]]",
+      "text": "## PlayerCombo / BossMelee\n认证 Montage Hit 窗口 → Owned 开窗。\nGA 保存 Original、原 Trace、window/token。\nCombo：Step.TraceShape＋原 Mesh。\nBoss：RootTip；Active 重复 Begin 保去重。\n回调核 Activation/声明/Task/原窗；CleanupAbilityResourcesForTermination(Context) 归还自身原资源。\n[[AbilitySystem/结构|GAS权威]] · [[BossAI/结构]]",
       "x": 0,
       "y": 270,
       "width": 430,
@@ -23,7 +23,7 @@
     {
       "id": "trace",
       "type": "text",
-      "text": "## UGGYGOMeleeTraceComponent\n`BeginTraceWindow` / `EndTraceWindow`：仅 Legacy。\n`TryOpenOwnedTraceWindow`：Socket/Radius、Expected → Out；原身份开/替换。\n`CloseOwnedTraceWindow(H)` → 只关原窗。\n`QueryOwnedTraceWindow(H)` → Active/Inactive/失败。\n`SubscribeWindowHit(H, Callback)` → 原身份回调/token。\n`UnsubscribeWindowHit(token)` → 精确退订。\n`PerformTrace` → 球扫/PhysicalMaterial。",
+      "text": "## UGGYGOMeleeTraceComponent\nBegin/EndTraceWindow：仅 Legacy。\nShape/原Mesh 预检 → TryOpenOwnedTraceWindow；Expected → Out。\nRootTip 参数也进入同一开窗机制。\nCloseOwnedTraceWindow(H) → 只关原窗。\nQueryOwnedTraceWindow(H) → 当前资格。\nSubscribeWindowHit(H, Callback) → 回调/token。\nUnsubscribeWindowHit(token) → 精确退订。\nPerformTrace → 球扫/PhysicalMaterial。",
       "x": 550,
       "y": 270,
       "width": 460,
@@ -33,7 +33,7 @@
     {
       "id": "mesh",
       "type": "text",
-      "text": "## SkeletalMesh Socket / TraceChannel\nStartSocket、EndSocket 定义判定线段；TraceRadius 与碰撞通道决定扫掠体。",
+      "text": "## FGGYGOMeleeTraceShape / TraceChannel\nRootTip：一链两点；SocketChains：至少一链，各取相邻点。\nSocket/Bone 来自角色原主 Mesh。\n各链 WorldRadiusCm 为固定世界厘米。\nTraceChannel 决定碰撞，查询忽略 Owner。",
       "x": 1110,
       "y": 260,
       "width": 430,
@@ -43,7 +43,7 @@
     {
       "id": "memory",
       "type": "text",
-      "text": "## 唯一窗口机制\nuint64 WindowSerial：成功开窗递增、不复用。\nbIsTracing：活动；关窗不增 serial。\nPreviousStart/End：首帧基线。\nHitActorsThisWindow：弱引用去重。\n组件 Tick：唯一扫掠执行。\n来源/订阅随原窗清理，不建第二状态机。",
+      "text": "## 唯一窗口机制\nWindowSerial＋bIsTracing：原窗身份。\nActiveShape：原配置快照。\nWindowMesh/Asset/World：借用资源弱身份。\nPreviousPoints：全链上帧基线。\nHitActorsThisWindow：跨链弱引用去重。\n组件 Tick 执行；关窗统一退订/清理。",
       "x": 550,
       "y": 670,
       "width": 460,
@@ -53,7 +53,7 @@
     {
       "id": "gas",
       "type": "text",
-      "text": "## AbilitySystem / Physics\n原身份核验 → 共享命中载荷 → GA/GE/Cue。\nCombo 依赖失败结束原动作；Boss 拒绝该 hit。\nHitResult 携请求的物理材质；Trace 不依赖 GAS。\n[[AbilitySystem/结构]] · [[Physics/结构]]",
+      "text": "## GA → Builder / GE / Cue\n同次 HitResult＋原 Avatar 命中时位置 → Builder。\nGA 校验数值并提交 GE/Cue；GAS 结算。\nCombo 依赖失败结束原动作；Boss 拒绝该 hit。\n物材随 HitResult 返回；Trace 不依赖 GAS。\n[[AbilitySystem/结构]] · [[Physics/结构]]",
       "x": 1110,
       "y": 690,
       "width": 430,
@@ -63,7 +63,7 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## 原窗口消费与清理契约\nCombo/Boss 已消费 Owned：保存原 Activation/Trace/窗口/token；命中前核原来源和 QueryOwnedTraceWindow。消费者资源记录不是另一份活动窗口权威，Activation/结束仍归 GAS。\n原 native hit 传 OriginalWindow、Actor、HitResult；分发快照订阅并逐项核原窗/token。回调关 B 开 C 立即停 B 分发/扫掠/回写，C 自建首基线。\nGA Cleanup 匹配原 Context，先脱自身原资源，再 UnsubscribeWindowHit(原token)/CloseOwnedTraceWindow(原H)；失效不借当前来源清后继。组件生命周期/内部失败仍用私有 CloseCurrentTraceWindow，统一退订、停 Tick、清基线/去重。\nLegacy Begin/End/OnMeleeHit 保留兼容，Legacy/Owned 不接管，Owned 不复播全局事件。C++ 已接线不代表 Legacy BP/正式资产迁移或网络完成。",
+      "text": "## 原窗口消费与清理契约\nCombo/Boss 保存原 Activation/Trace/窗口/token；命中前核原来源及 QueryOwnedTraceWindow。消费者资源记录不是另一份活动窗口权威，Activation/结束仍归 GAS。\n原 native hit 传 OriginalWindow、Actor、HitResult；快照订阅并逐项核原窗/token/资源。B 回调关 B 开 C 立即停 B 分发/扫掠/回写，C 自建首基线。\nGA Cleanup 匹配原 Context，先脱自身原资源，再 UnsubscribeWindowHit(原token)/CloseOwnedTraceWindow(原H)；旧身份不清后继。组件生命周期/内部失败用 CloseCurrentTraceWindow，统一退订、停 Tick、清 Shape/借用资源/基线/去重。\nLegacy Begin/End/OnMeleeHit 保留兼容；Legacy/Owned 不接管，Owned 不复播全局事件。",
       "x": 0,
       "y": 1000,
       "width": 1450,
@@ -78,7 +78,7 @@
       "fromSide": "right",
       "toNode": "trace",
       "toSide": "left",
-      "label": "原 Montage Event → Owned 开窗／精确释放"
+      "label": "认证 Hit 窗口事实 → Owned 开窗／精确释放"
     },
     {
       "id": "e2",

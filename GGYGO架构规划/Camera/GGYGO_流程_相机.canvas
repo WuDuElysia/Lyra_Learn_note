@@ -103,11 +103,11 @@
     {
       "id": "provider-ready",
       "type": "text",
-      "text": "Ready：Hero 的两个真实入口先调用 ConsumeLocalCameraProviderReady。\nDataAvailable→DataInitialized（在 InputComponent 空值 guard 前）；InitializePlayerInput（在代次/释放资源前）。\n原 Hero/Pawn/PC/World/LP/Extension/PawnData/Camera/Manager 验证后 → ActivateCameraEvaluation。\n原身份丢失才停止旧回调尾部；镜头失败明确诊断，原上下文有效时输入初始化继续。\n未就绪按真实生命周期返回，不轮询；重复 Ready 不调用 Restart，也不新增 Ready 权威状态。",
+      "text": "Ready：Hero 的两个真实入口先调用 ConsumeLocalCameraProviderReady。\nDataAvailable→DataInitialized（在 InputComponent 空值 guard 前）；InitializePlayerInput（在代次/释放资源前）。\n原 Hero/Pawn/PC/World/LP/Extension/PawnData/Camera/Manager 验证后 → ActivateCameraEvaluation。\n原身份丢失才停止旧回调尾部；镜头失败明确诊断，原上下文有效时输入初始化继续。\n未就绪按真实生命周期返回，不轮询；重复 Ready 不调用 Restart，也不新增 Ready 权威状态。\nRunning 时只有准入 PC 当前附身的新 Pawn（切人）能重新准入，其它来源拒绝。",
       "x": 970,
       "y": 230,
       "width": 920,
-      "height": 200,
+      "height": 220,
       "color": "4"
     },
     {

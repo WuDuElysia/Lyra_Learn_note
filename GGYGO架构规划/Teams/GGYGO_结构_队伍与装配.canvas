@@ -43,7 +43,7 @@
     {
       "id": "squad",
       "type": "text",
-      "text": "## UGGYGOSquadComponent\nPS唯一队伍：Roster意图 / Slots成员 / ActiveSlotIndex出战；服务器上每槽位一条运行记录（Benched/Active/Lingering/Exiting、续放与退场Spec）。\n`SetRoster(Data[])` → bool，权威未装配；终止拒绝。\n`RegisterSlot`借用；private `RegisterCreatedSlot`接原创建责任，true不保证Possess；登记时订阅槽位ASC的`OnAbilityEnded`。\n`SwitchToSlot(Index, Source)` → bool：取得换出决定 → 取消/补发释放 → 控制交接 → 新队员进场或切回 → 旧队员留场或退场。\n`ServerRequestSwitchToSlot(Index)` 客户端请求；`GetMemberState(Index)` 服务器查询。\n`DestroySquad` / `EndPlay` / `OnComponentDestroyed`共用原责任消费者，并退订、撤回本组件施加的Tag。\n[[Teams/结构#换人：留场、退场与进场|换人接口与流程]]",
+      "text": "## UGGYGOSquadComponent\nPS唯一队伍：Roster意图 / Slots成员 / ActiveSlotIndex出战；服务器上每槽位一条运行记录（Benched/Active/Lingering/Exiting、续放与退场Spec）。\n`SetRoster(Data[])` → bool，权威未装配；终止拒绝。\n`RegisterSlot`借用；private `RegisterCreatedSlot`接原创建责任，true不保证Possess；登记时订阅槽位ASC的`OnAbilityEnded`。\n`SwitchToSlot(Index, Source)` → bool：取得换出决定 → 取消/补发释放 → 控制交接 → 新队员进场或切回 → 旧队员留场或退场。\n`ServerRequestSwitchToSlot(Index)` / `ServerRequestSwitchToAdjacentSlot(±1)`（PC 换人键）客户端请求；`GetMemberState(Index)` 服务器查询。\n`DestroySquad` / `EndPlay` / `OnComponentDestroyed`共用原责任消费者，并退订、撤回本组件施加的Tag。\n[[Teams/结构#换人：留场、退场与进场|换人接口与流程]]",
       "x": 600,
       "y": 565,
       "width": 500,

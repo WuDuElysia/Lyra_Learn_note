@@ -73,7 +73,7 @@
     {
       "id": "remote",
       "type": "text",
-      "text": "## 远端名单与接口边界\n服务器远端PC没有LP → 正常Unconfigured → Experience默认名单。\n客户端磁盘名单上报RPC尚未接入，不由服务器代读或把非法来源降级默认。\n换人请求经`ServerRequestSwitchToSlot`；项目中尚无输入或蓝图接到它。编成UI及切人CD/消耗未接入。\nCreated true只交付原创建责任，Destroy接受只退休请求义务，不证明物理完成。\n留场与进退场的联机、正式进退场资产需独立验证。\n[[计划_队伍与装配#9.0 当前实施状态与后续门禁（2026-09-30）|后续范围与证据]]",
+      "text": "## 远端名单与接口边界\n服务器远端PC没有LP → 正常Unconfigured → Experience默认名单。\n客户端磁盘名单上报RPC尚未接入，不由服务器代读或把非法来源降级默认。\n换人请求经`ServerRequestSwitchToSlot`（序号）或`ServerRequestSwitchToAdjacentSlot(±1)`（PC 换人键，默认 Z／C，服务器选相邻可出战位置）。编成UI及切人CD/消耗未接入。\nCreated true只交付原创建责任，Destroy接受只退休请求义务，不证明物理完成。\n留场与进退场的联机、正式进退场资产需独立验证。\n[[计划_队伍与装配#9.0 当前实施状态与后续门禁（2026-09-30）|后续范围与证据]]",
       "x": 0,
       "y": 1680,
       "width": 440,

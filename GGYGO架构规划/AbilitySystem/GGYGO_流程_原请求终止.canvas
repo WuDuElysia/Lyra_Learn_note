@@ -3,334 +3,110 @@
     {
       "id": "ga-term-nav",
       "type": "text",
-      "text": "# 原请求终止｜GA原记录与ASC退出见证\n原请求→ScopeLock或直接执行→原native Ended→必要调用全部退出→发布Completed。\n[[AbilitySystem/结构|结构文档]] · [[GGYGO_结构_AbilitySystem.canvas|结构图]] · [[GGYGO_流程_AbilitySystem.canvas|主流程]]",
+      "text": "# AbilitySystem｜激活与结束流程\nGAS持实际Active/Spec/count/Task与原生执行；GA只持当前激活身份与自己的资源；外部等待订阅原生OnAbilityEnded。\n[[GGYGO_结构_AbilitySystem.canvas|结构]] · [[AbilitySystem/结构#原请求终止|接口]] · [[GGYGO_流程_AbilitySystem.canvas|主流程]] · [[GGYGO_流程_玩家普攻连段.canvas|连段流程]]",
       "x": 0,
       "y": 0,
-      "width": 1760,
-      "height": 260,
+      "width": 2300,
+      "height": 170,
       "color": "6"
     },
     {
-      "id": "ga-term-activation",
+      "id": "life-try",
       "type": "text",
-      "text": "## 1｜受控Try与原生身份分离\nProcess/OnSpawn/Boss BT→TryActivateAbilityWithTerminationBoundary(Handle,AllowRemote)，只一次native Try及完整尾部。\n实际NotifyActivated由GA签Original；只有本次受控Can/原来源匹配才认证外层Try来源，raw/Query不借权。\nActiveCount++后final Activate：Initialize→原准入/相机→Body，外调后核Original；结束/Busy/来源改变则无旧Body。\nResult是原接受/历史，remote-only可无本地Activation；Capture按ResourceWork核原完整Context/LastWrite/来源，不补造或续签身份。",
+      "text": "## 1｜请求激活\nProcess（玩家输入）／OnSpawn／Boss BT → ASC `TryActivateAbility(Handle)`；GameplayEvent → 原生 `TriggerAbilityFromGameplayEvent`。\nfinal `CanActivateAbility`：原生检查 → ReturnPending期间拒绝输入发起的Try → 组仲裁 → `CanActivateAbilityAdditional`。\n失败 → final `NotifyAbilityFailed`：输入缓冲认领来源，GroupQueued／SwitchReturnPending登记重试许可。",
       "x": 0,
-      "y": 350,
-      "width": 700,
-      "height": 430,
-      "color": "4"
+      "y": 260,
+      "width": 520,
+      "height": 330
     },
     {
-      "id": "ga-term-request",
+      "id": "life-issue",
       "type": "text",
-      "text": "## 2｜请求这次原激活结束\n原持有者→RequestAbilityEnd(Original,ReplicateEnd,WasCancelled)，或RequestAbilityCancel(Original,ReplicateCancel)。\n私有Termination核原实例/serial/Spec/key/allocation；ASC认证当前已提交同Binding完整快照及原ASC/Owner/Avatar。\n合法Refresh可留原End资格，不续旧资源工作；换Binding/后继拒旧身份。\n核可结束性；Cancel另核CanBeCanceled，End不走Cancel替代。\nPreActivate身份早于ActiveCount++，不证明此时可End。重复请求保留首次Context，异源/失效明确拒绝，无新激活排队。",
-      "x": 0,
-      "y": 880,
-      "width": 700,
-      "height": 430,
+      "text": "## 2｜签发激活身份\n原生PreActivate → `ASC::NotifyAbilityActivated` → GA `IssueActivation`（ASC、Spec、ActivationKey、Serial），开始组准入尝试并登记组，然后才广播原生激活回调。",
+      "x": 556,
+      "y": 260,
+      "width": 520,
+      "height": 330,
       "color": "5"
     },
     {
-      "id": "ga-term-snapshot",
+      "id": "life-body",
       "type": "text",
-      "text": "## 3｜GA 唯一首次原记录\nBeginOriginalTermination 固定 Activation/Termination、请求种类与首次复制/取消参数。\n在 Cancel 广播/清理前保存原 camera 接收者/token，CaptureMontagePlaybackOwnership 捕既有原播放历史。Succeeded 或明确 NoOwnedPlayback；其他失败不替换当前资源。\n只持原义务和实际退出依赖，不复制 GAS Active/count，不重捕获。",
-      "x": 0,
-      "y": 1410,
-      "width": 700,
-      "height": 430,
+      "text": "## 3｜final ActivateAbility\n`InitializeAbilityActivation(Original)` → 组终裁 `FinalizeAbilityGroupAdmission` → 相机接管与镜头微调 → `ActivateAbilityBody`（默认触发蓝图激活事件）。任一步结束了本次激活，后续不再执行。",
+      "x": 1112,
+      "y": 260,
+      "width": 520,
+      "height": 330
+    },
+    {
+      "id": "life-request",
+      "type": "text",
+      "text": "## 4｜请求结束\nGA业务、Task回调、Squad换人或外部调用 → `RequestAbilityEnd(Original, …)` / `RequestAbilityCancel(Original, …)`。\n→ Accepted／NotCurrent／NotCancelable；原生ScopeLock期间延后，执行时重核Original，不作用于后继。原生Cancel同样进入final EndAbility。",
+      "x": 1668,
+      "y": 260,
+      "width": 520,
+      "height": 330
+    },
+    {
+      "id": "life-cleanup",
+      "type": "text",
+      "text": "## 5｜final EndAbility\n锁内交给原生排队；正式结束时先 `CleanupAbilityResourcesForTermination(Context{Original, bWasCancelled})`（派生归还Task／窗口／Mesh／CMC，基类归还相机接管），再原生End；清理期间重复结束不执行。",
+      "x": 2224,
+      "y": 260,
+      "width": 520,
+      "height": 330
+    },
+    {
+      "id": "life-ended",
+      "type": "text",
+      "text": "## 6｜结束广播\n`ASC::NotifyAbilityEnded`：GA退役激活身份 → 摘除组登记 → 原生减ActiveCount并广播`OnAbilityEnded` → 组空时唤醒排队输入并广播`OnAbilityGroupFreed`。\nBoss BT、Editor观察、Squad按Spec匹配消费；广播内重激活得到新身份。",
+      "x": 2780,
+      "y": 260,
+      "width": 520,
+      "height": 330,
       "color": "5"
-    },
-    {
-      "id": "ga-term-lock",
-      "type": "text",
-      "text": "## 4｜原生ScopeLock分支\nResumeOriginalTermination重核原来源。\n无锁：统一final End/Cancel及原dispatcher持实际调用跨度/Busy。\n有锁：DeferOriginalTermination→native WaitingToExecute，一次绑定原记录的continuation，返回Deferred/ScopeLocked。\n不加Tick、timer、自动重启或第二队列。",
-      "x": 0,
-      "y": 1940,
-      "width": 700,
-      "height": 430,
-      "color": "3"
-    },
-    {
-      "id": "ga-term-continuation",
-      "type": "text",
-      "text": "## 5｜消费同一个原继续\n解锁 → 原 continuation 重核原来源，按首次参数恢复，不重捕获。\n解锁发生在原虚调用内：仅标原继续 ready；原调用返回后消费。不是第二调度器。\nCancel 已广播时只继续原 End，不再广播 Cancel。已使用的继续再次遭锁明确失败，不无限重排。\n后继/移除/来源失效不会借此执行当前资源。",
-      "x": 900,
-      "y": 1940,
-      "width": 860,
-      "height": 430,
-      "color": "3"
-    },
-    {
-      "id": "ga-term-execute",
-      "type": "text",
-      "text": "## 6｜一次Context清理与native End\nfinal Cancel先固定原资源再native取消广播；final End一次CleanupAbilityResourcesForTermination(Context)后一次Super::EndAbility。\n默认归还原camera；Combo/Boss脱原成员、native订阅、Owned窗口、原World timer并恢复Mesh/prerequisite，Boss另归还CMC原句柄。\nTaskOwnerEnded由原Task清监听/播放/scale；GA捕获不接管播放器。外调后重核原来源，不清后继。",
-      "x": 0,
-      "y": 2470,
-      "width": 700,
-      "height": 430,
-      "color": "5"
-    },
-    {
-      "id": "ga-term-native-ended",
-      "type": "text",
-      "text": "## 7B｜UE账本退休与ASC原Ended\nGA早数据通知返回→native清IsActive、处理原Task→ActiveTasks.Reset→ASC::NotifyAbilityEnded。\nASC原OnAbilityEnded的ReplicateEnd固定false，因Notify没有该输入；WasCancelled仍是原取消参数。\nObserveOriginalNativeEnd核原记录、原End作用域、Spec与真实来源。原Ended是必要见证，End尾部仍未返回，不据inactive补Completed。\n原早回调若撤销Binding，Termination目的认证失败→ActivationChanged；native已End的历史保留，不补Completed。",
-      "x": 0,
-      "y": 3000,
-      "width": 700,
-      "height": 430,
-      "color": "1"
-    },
-    {
-      "id": "ga-term-return",
-      "type": "text",
-      "text": "## 8｜实际调用退出义务\nSuper::EndAbility返回，final End作用域及原dispatcher见证实际返回；Cancel另等native/自身外层退出。\n实际Activate跨度及关联原Try仍可持原记录OpenDispatches/OpenTry，均未退出就不发布。\nGAS原Active/count不迁入记录；不能据GA/ASC通知或当前资源制造完整返回。",
-      "x": 0,
-      "y": 3530,
-      "width": 700,
-      "height": 430,
-      "color": "5"
-    },
-    {
-      "id": "ga-term-try-exit",
-      "type": "text",
-      "text": "## 9｜相关原 Try 完整退出\nASC RegisterOriginalTerminationTryDependencies 只登记匹配原 Activation 的栈帧，指向 GA 同一记录。\nnative Try 全部尾部返回 → 先解除原栈链接 → 再释放 OpenTry 依赖。\n仍有原 End/Cancel/Try 依赖时不发布；没有依赖也不能替代缺少的必要返回见证。",
-      "x": 0,
-      "y": 4060,
-      "width": 700,
-      "height": 430,
-      "color": "4"
-    },
-    {
-      "id": "ga-term-publish",
-      "type": "text",
-      "text": "## 10｜先封存、释放，再通知\n原 Ended＋native End/完整虚返回＋Cancel 返回＋相关 Try 退出全部满足。\nASC TryPublishOriginalTerminationCompleted：\n①复制原 Context，封存同步原结果槽；\n②清原依赖、退原记录及匹配 provenance，释放 Busy；\n③OnAbilityTerminationCompleted 广播原 Notice。\n回调后不写原状态，后继不覆盖原结果。",
-      "x": 0,
-      "y": 4590,
-      "width": 700,
-      "height": 430,
-      "color": "1"
-    },
-    {
-      "id": "ga-term-facts",
-      "type": "text",
-      "text": "## 原完成历史的消费\nNotice保存首次Original Activation／Termination及参数，非当前idle或后继End权限。\nBoss BT消费同步Try结果或异步匹配Notice，先解绑原等待再Finish；业务核原来源后显式新请求。\nTask自然Completed只描述原实例，项目Completed只描述原能力完整退出。",
-      "x": 0,
-      "y": 5120,
-      "width": 700,
-      "height": 430,
-      "color": "6"
-    },
-    {
-      "id": "ga-term-migration",
-      "type": "text",
-      "text": "## 原完成通知消费\nBoss BT收到同步Try结果或异步OnAbilityTerminationCompleted→匹配原Activation/Notice→解绑原等待→Finish。\n后续业务需要激活时，由Process／OnSpawn／Boss BT显式发起受控Try；完成通知不自动重启能力。\n[[GGYGO_流程_玩家普攻连段.canvas|Combo运行流程]] · [[BossAI/结构|Boss接口]]",
-      "x": 900,
-      "y": 5120,
-      "width": 860,
-      "height": 430,
-      "color": "3"
-    },
-    {
-      "id": "ga-term-failed",
-      "type": "text",
-      "text": "## 明确失败出口\n异源、失效、不可结束／取消、原Montage捕获失败或必要Ended／返回见证缺失 → Rejected／Stale／Failed及真实Reason。\n重复请求不改变首次参数；失败不认领当前资源，不清后继，不回滚已发生的原生动作。\n操作结果不能由bool或当前inactive补造。",
-      "x": 900,
-      "y": 880,
-      "width": 860,
-      "height": 430,
-      "color": "3"
-    },
-    {
-      "id": "ga-term-unsupported",
-      "type": "text",
-      "text": "## 缺少完成见证的入口\nraw非虚Try／CallActivate来源：Original和原资源Cleanup可以成立；缺受控Try外层返回来源 → UnsupportedEntry，无协议Completed。\nfinal End／Cancel仅见证自身跨度，不证明raw外层Try退出。\nPendingRemove／锁内native teardown缺少必要退出见证时，匹配Context只清原资源，不补完成或增加continuation。",
-      "x": 900,
-      "y": 3530,
-      "width": 860,
-      "height": 430,
-      "color": "3"
-    },
-    {
-      "id": "ga-term-e14",
-      "type": "text",
-      "text": "## Builder失败与消费者响应\n显式空GE为正常Context／Cue模式；非空必需Spec失败 → false／空输出／诊断，不施加该hit的GE或Cue。\nCombo依赖／Builder故障 → 固定Original正式End(true,true)，包括不可取消场景；Boss只拒该hit并保留动作。\n有效Spec被免疫／拒绝后的碰撞Cue按消费者政策执行。\n[[GGYGO_流程_伤害结算.canvas|命中分支]]",
-      "x": 900,
-      "y": 4590,
-      "width": 860,
-      "height": 430,
-      "color": "6"
-    },
-    {
-      "id": "ga-term-ga-early-ended",
-      "type": "text",
-      "text": "## 7A｜GA原生早数据通知\nSuper::EndAbility → OnGameplayAbilityEndedWithData，携原ReplicateEnd／WasCancelled；广播后清实例委托。\n原项目资源清理已执行；原Task结束与UE ActiveTasks登记退休是不同阶段，native随后处理Task并Reset数组。\n此时尚未完整退出End，不据早通知启动同实例后继。\nGA回调全部返回 → 继续native End。",
-      "x": 900,
-      "y": 2470,
-      "width": 860,
-      "height": 430,
-      "color": "1"
     }
   ],
   "edges": [
     {
-      "id": "ga-term-e-activation-request",
-      "fromNode": "ga-term-activation",
-      "fromSide": "bottom",
-      "toNode": "ga-term-request",
-      "toSide": "top",
-      "label": "活跃时复制可认证原 Activation；不从历史推当前存活"
-    },
-    {
-      "id": "ga-term-e-request-snapshot",
-      "fromNode": "ga-term-request",
-      "fromSide": "bottom",
-      "toNode": "ga-term-snapshot",
-      "toSide": "top",
-      "label": "原身份与原生前置条件通过，首次安装原记录"
-    },
-    {
-      "id": "ga-term-e-snapshot-lock",
-      "fromNode": "ga-term-snapshot",
-      "fromSide": "bottom",
-      "toNode": "ga-term-lock",
-      "toSide": "top",
-      "label": "取消广播前的首次参数与原资源已固定"
-    },
-    {
-      "id": "ga-term-e-lock-defer",
-      "fromNode": "ga-term-lock",
+      "id": "life-e0",
+      "fromNode": "life-try",
       "fromSide": "right",
-      "toNode": "ga-term-continuation",
+      "toNode": "life-issue",
       "toSide": "left",
-      "label": "ScopeLock>0：唯一原生 continuation，Deferred"
+      "label": "Can通过"
     },
     {
-      "id": "ga-term-e-lock-execute",
-      "fromNode": "ga-term-lock",
-      "fromSide": "bottom",
-      "toNode": "ga-term-execute",
-      "toSide": "top",
-      "label": "无锁且原来源有效：统一final End/Cancel"
-    },
-    {
-      "id": "ga-term-e-defer-execute",
-      "fromNode": "ga-term-continuation",
-      "fromSide": "bottom",
-      "toNode": "ga-term-execute",
-      "toSide": "right",
-      "label": "原解锁/外层返回后消费原继续，不重复 Cancel 广播"
-    },
-    {
-      "id": "ga-term-e-execute-ended",
-      "fromNode": "ga-term-execute",
+      "id": "life-e1",
+      "fromNode": "life-issue",
       "fromSide": "right",
-      "toNode": "ga-term-ga-early-ended",
+      "toNode": "life-body",
       "toSide": "left",
-      "label": "原Cleanup完成→native GA早数据广播"
+      "label": "PreActivate"
     },
     {
-      "id": "ga-term-e-ended-return",
-      "fromNode": "ga-term-native-ended",
-      "fromSide": "bottom",
-      "toNode": "ga-term-return",
-      "toSide": "top",
-      "label": "原Ended已认证，继续等待native/final End/Cancel实际退出"
-    },
-    {
-      "id": "ga-term-e-return-try",
-      "fromNode": "ga-term-return",
-      "fromSide": "bottom",
-      "toNode": "ga-term-try-exit",
-      "toSide": "top",
-      "label": "原虚调用返回，剩余相关 Try 依赖仍阻止完成"
-    },
-    {
-      "id": "ga-term-e-try-publish",
-      "fromNode": "ga-term-try-exit",
-      "fromSide": "bottom",
-      "toNode": "ga-term-publish",
-      "toSide": "top",
-      "label": "相关原 Try 完整退出且必要原返回见证齐备"
-    },
-    {
-      "id": "ga-term-e-publish-facts",
-      "fromNode": "ga-term-publish",
-      "fromSide": "bottom",
-      "toNode": "ga-term-facts",
-      "toSide": "top",
-      "label": "封存/释放后发布原 Notice；没有自动激活边"
-    },
-    {
-      "id": "ga-term-e-facts-migration",
-      "fromNode": "ga-term-facts",
+      "id": "life-e2",
+      "fromNode": "life-body",
       "fromSide": "right",
-      "toNode": "ga-term-migration",
+      "toNode": "life-request",
       "toSide": "left",
-      "label": "原调用方匹配完成事实，结束自己的等待或提出显式新请求"
+      "label": "业务运行"
     },
     {
-      "id": "ga-term-e-request-failed",
-      "fromNode": "ga-term-request",
+      "id": "life-e3",
+      "fromNode": "life-request",
       "fromSide": "right",
-      "toNode": "ga-term-failed",
+      "toNode": "life-cleanup",
       "toSide": "left",
-      "label": "原身份/前置条件失败，未接受为新原记录"
+      "label": "精确Original"
     },
     {
-      "id": "ga-term-e-snapshot-failed",
-      "fromNode": "ga-term-snapshot",
+      "id": "life-e4",
+      "fromNode": "life-cleanup",
       "fromSide": "right",
-      "toNode": "ga-term-failed",
-      "toSide": "bottom",
-      "label": "必需原 Montage capture 失败，输出真实失败"
-    },
-    {
-      "id": "ga-term-e-defer-failed",
-      "fromNode": "ga-term-continuation",
-      "fromSide": "right",
-      "toNode": "ga-term-failed",
-      "toSide": "right",
-      "label": "原来源失效或继续再次遭锁，不重排"
-    },
-    {
-      "id": "ga-term-e-return-unsupported",
-      "fromNode": "ga-term-return",
-      "fromSide": "right",
-      "toNode": "ga-term-unsupported",
+      "toNode": "life-ended",
       "toSide": "left",
-      "label": "原激活缺受控Try外层来源，不把final自身退出补成raw外层见证"
-    },
-    {
-      "id": "ga-term-e-defer-unsupported",
-      "fromNode": "ga-term-continuation",
-      "fromSide": "bottom",
-      "toNode": "ga-term-unsupported",
-      "toSide": "top",
-      "label": "锁内移除：必要native teardown退出见证缺失"
-    },
-    {
-      "id": "ga-term-e-e14-migration",
-      "fromNode": "ga-term-e14",
-      "fromSide": "bottom",
-      "toNode": "ga-term-migration",
-      "toSide": "top",
-      "label": "共享构造拒绝；Combo原动作End、Boss拒hit，业务响应分别归属"
-    },
-    {
-      "id": "ga-term-e-ga-early-asc-ended",
-      "fromNode": "ga-term-ga-early-ended",
-      "fromSide": "bottom",
-      "toNode": "ga-term-native-ended",
-      "toSide": "right",
-      "label": "GA原回调退出→native处理/Reset Task登记→ASC原通知"
-    },
-    {
-      "id": "ga-term-native-ended-source-changed",
-      "fromNode": "ga-term-native-ended",
-      "fromSide": "right",
-      "toNode": "ga-term-failed",
-      "toSide": "right",
-      "label": "原Ended来源认证失败→ActivationChanged；不生成Completed"
+      "label": "原生End广播"
     }
   ]
 }

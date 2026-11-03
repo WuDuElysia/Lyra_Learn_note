@@ -33,7 +33,7 @@
 		{
 			"id": "hero",
 			"type": "text",
-			"text": "## UGGYGOHeroComponent\n`DetermineCameraMode()` → 覆盖类／默认类。\n`SetAbilityCameraMode(Class,Spec)` → 代次。\n`ClearAbilityCameraMode(Spec,generation)` → 撤销。\n`ConsumeLocalCameraProviderReady(Pawn,Entry)`\n原身份 Ready → Activate；重复不 Restart。\n镜头结果与输入结果分开。\n`ConsumeLocalAbilitySystemNotice`\n原订阅／typed H → 清原归属资源，保护后继。\nEndPlay 归还自身资源、解绑模式委托。\n[[Input/结构#Hero本地ASC身份订阅与原H清理|Input 原 H 合同]]\n[[Camera/结构#解绑协调与后继保护|解绑边界]]",
+			"text": "## UGGYGOHeroComponent\n`DetermineCameraMode()` → 覆盖类／默认类。\n`SetAbilityCameraMode(Class,Spec)` → 代次。\n`ClearAbilityCameraMode(Spec,generation)` → 撤销。\n`ConsumeLocalCameraProviderReady(Pawn,Entry)`\n原身份 Ready → Activate；重复不 Restart。\n镜头结果与输入结果分开。\n`ConsumeLocalAbilitySystemNotice(Notice)`\nReleased → 退役所属输入；无后继时复位镜头。\nEndPlay 归还自身资源、解绑模式委托。\n[[Input/结构#Hero本地ASC身份订阅与原H清理|Input 订阅合同]]\n[[Camera/结构#解绑协调与后继保护|解绑边界]]",
 			"x": 500,
 			"y": 300,
 			"width": 420,
@@ -113,7 +113,7 @@
 		{
 			"id": "contract",
 			"type": "text",
-			"text": "## 状态归属与发布契约\nGA 持有原资源凭证；Hero 持有 Spec＋generation 并消费原 typed H。\nCameraComponent 持有 Offset 单槽 token、碰撞恢复比例及 Stack；Stack 持有模式池／活动栈；ThirdPerson 持本模式侧移／弱来源键，声明期望视角与保护请求；CMC 独占移动事实与资格。\nPrepared 和 Commit 输出只活在单次调用；Manager 的准入／原身份／确认资格不复制持久 POV。\nLocalPlayer 只读取原关联与确认资格，用局部 scratch 运行原生投影并复核；不 Activate／Restart，不持有第二 Cache 或帧调度器。\nNotActivated／Stopped 的两个原生更新入口不写 Cache；Stopped＋confirmed 可继续只读最后有效视图。\n受控 DoUpdate 失败保持两帧原生 POV、时间戳和附加 PP；内部模式进度及任意 Setter／modifier 副作用不承诺整体回滚。\nRunning 摄影入口保持原生 Fill 行为，作用域外 POV setter 仍拒绝发布，时间戳按原生规则处理。\n非法 dt／类／配置／穿透参数明确失败；合法 dt0、半径0、恢复0和混合时间0按正常配置解释。\n[[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复子图]] · [[GGYGO_流程_相机模式求值.canvas|模式求值子图]]",
+			"text": "## 状态归属与发布契约\nGA 持有原资源凭证；Hero 持有 Spec＋generation 并消费 PawnExtension 的 Ready／Released。\nCameraComponent 持有 Offset 单槽 token、碰撞恢复比例及 Stack；Stack 持有模式池／活动栈；ThirdPerson 持本模式侧移／弱来源键，声明期望视角与保护请求；CMC 独占移动事实与资格。\nPrepared 和 Commit 输出只活在单次调用；Manager 的准入／原身份／确认资格不复制持久 POV。\nLocalPlayer 只读取原关联与确认资格，用局部 scratch 运行原生投影并复核；不 Activate／Restart，不持有第二 Cache 或帧调度器。\nNotActivated／Stopped 的两个原生更新入口不写 Cache；Stopped＋confirmed 可继续只读最后有效视图。\n受控 DoUpdate 失败保持两帧原生 POV、时间戳和附加 PP；内部模式进度及任意 Setter／modifier 副作用不承诺整体回滚。\nRunning 摄影入口保持原生 Fill 行为，作用域外 POV setter 仍拒绝发布，时间戳按原生规则处理。\n非法 dt／类／配置／穿透参数明确失败；合法 dt0、半径0、恢复0和混合时间0按正常配置解释。\n[[GGYGO_流程_相机覆盖恢复.canvas|覆盖恢复子图]] · [[GGYGO_流程_相机模式求值.canvas|模式求值子图]]",
 			"x": 0,
 			"y": 1660,
 			"width": 1450,
@@ -133,7 +133,7 @@
 		{
 			"id": "pawnext",
 			"type": "text",
-			"text": "## UGGYGOPawnExtensionComponent\n本地 ASC 身份 Notice（Ready / Refreshed / Released）\n经原 Extension 订阅送至 Hero。\nHero 匹配原订阅/H；只清其所属资源，保护后继。\n宿主/共享 ASC 解绑责任仍由 Extension 持有。\n[[Combatants/结构|宿主解绑]]\n[[Input/结构#Hero本地ASC身份订阅与原H清理|Input 原 H 合同]]",
+			"text": "## UGGYGOPawnExtensionComponent\n本地 ASC 订阅（Ready / Released）\n经 FGGYGOLocalASCSubscription 送至 Hero。\nHero 只退役关联同一资源的输入；镜头复位受后继保护。\n宿主绑定与释放由 Host 编排。\n[[Combatants/结构|宿主绑定]]\n[[Input/结构#Hero本地ASC身份订阅与原H清理|Input 订阅合同]]",
 			"x": 0,
 			"y": 1260,
 			"width": 390,
@@ -266,7 +266,7 @@
 			"fromSide": "right",
 			"toNode": "hero",
 			"toSide": "bottom",
-			"label": "typed H Notice；原订阅匹配与后继保护"
+			"label": "Ready／Released；只退所属资源，后继保护"
 		},
 		{
 			"id": "e13",

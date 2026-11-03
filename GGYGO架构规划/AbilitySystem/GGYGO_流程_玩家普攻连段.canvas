@@ -13,7 +13,7 @@
     {
       "id": "combo-f-start",
       "type": "text",
-      "text": "1. 受控 Try → 原激活\nTryActivateAbilityWithTerminationBoundary(Spec)返回Accepted和Original。\nInitializeAbilityActivation / ActivateAbilityBody接收同一来源。\n校验配置/Avatar、Super/Commit/Task Ready。\n每次外调返回复核Original/段/原Task。\n首次激活键不作下一段请求。",
+      "text": "1. TryActivateAbility → 原激活\nASC TryActivateAbility(Spec)；PreActivate签发Original（CaptureCurrentActivation可读）。\nInitializeAbilityActivation / ActivateAbilityBody接收同一来源。\n校验配置/Avatar、Super/Commit/Task Ready。\n每次外调返回复核Original/段/原Task。\n首次激活键不作下一段请求。",
       "x": 0,
       "y": 250,
       "width": 450,
@@ -133,7 +133,7 @@
     {
       "id": "combo-f-completed",
       "type": "text",
-      "text": "9. ASC本地通知 → 协议Completed\nnative任务账本清空后广播OnAbilityEnded；replicate字段固定false，cancel保留实际值。\n原请求的必要调用均已退出→ASC发布恰一次Completed，保留Original／Kind与首次终止参数。\n受控调用方在真实调用返回后才可继续下一次激活。\nraw激活缺外层受控Try见证→返回UnsupportedEntry，不发布协议Completed。\n[[GGYGO_流程_原请求终止.canvas|原请求完整退出流程]]",
+      "text": "9. ASC本地通知 → 协议Completed\nnative任务账本清空后广播OnAbilityEnded；replicate字段固定false，cancel保留实际值。\n原请求的必要调用均已退出→ASC发布恰一次Completed，保留Original／Kind与首次终止参数。\n受控调用方在真实调用返回后才可继续下一次激活。\n结束后由原生OnAbilityEnded通知外部等待方，不另发布完成协议。\n[[GGYGO_流程_原请求终止.canvas|原请求完整退出流程]]",
       "x": 530,
       "y": 1630,
       "width": 450,

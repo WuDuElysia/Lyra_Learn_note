@@ -53,7 +53,7 @@
     {
       "id": "combo-s-network",
       "type": "text",
-      "text": "## 强类型纠正与完成接口\nFGGYGOComboCorrectionData由Combo定义，包含段／位置／窗口／Revision；ASC只按Spec/key路由TargetData。\nReceiveAbilityCorrection：强类型载荷→本段纠正；Combo负责类型、范围及Revision校验。\nCurrentStepRequestId属于当前段请求，按请求号区分新旧接受，段序允许03→01。\nRequestAbilityEnd／Cancel：固定Original→原终止结果。\nGA结束数据、ASC本地通知与TerminationCompletedNotice分别描述各自生命周期边界。\n[[AbilitySystem/结构#原请求终止|完成接口与权限]]",
+      "text": "## 强类型纠正与完成接口\nFGGYGOComboCorrectionData由Combo定义，包含段／位置／窗口／Revision；ASC只按Spec/key路由TargetData。\nReceiveAbilityCorrection：强类型载荷→本段纠正；Combo负责类型、范围及Revision校验。\nCurrentStepRequestId属于当前段请求，按请求号区分新旧接受，段序允许03→01。\nRequestAbilityEnd／Cancel：固定Original→原终止结果。\nGA结束数据与ASC的原生OnAbilityEnded分别描述各自生命周期边界。\n[[AbilitySystem/结构#原请求终止|完成接口与权限]]",
       "x": 530,
       "y": 1230,
       "width": 650,

@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Teams｜结构图\n持久编队与公开接口；箭头说明持有、继承、数据或调用。\n[[Teams/结构|结构文档]] · [[计划_队伍与装配|设计与边界]] · [[GGYGO_流程_队伍与装配.canvas|装配与切换流程]]\nCreator管未交付、Squad管已交付原责任、Host管绑定；ASC/GA管能力，Hero/ASC管输入，PC执行控制。\n切人只保同步原请求快照；最后提交唯一出战索引，不迁移Slot/ASC状态。",
+      "text": "# Teams｜结构图\n持久编队与公开接口；箭头说明持有、继承、数据或调用。\n[[Teams/结构|结构文档]] · [[计划_队伍与装配|设计与边界]] · [[GGYGO_流程_队伍与装配.canvas|装配与切换流程]]\nCreator管未交付、Squad管已交付原责任与队员场上状态、Host管绑定；GA决定换出去留，ASC/Hero管输入，PC执行控制。\n换人不迁移Slot/ASC状态；留场队员可见、不可受击，进退场由GA承载。",
       "x": 0,
       "y": 0,
       "width": 1690,
@@ -33,7 +33,7 @@
     {
       "id": "pc",
       "type": "text",
-      "text": "## PlayerController / LocalPlayer\nPC::`UnPossess` / `Possess`执行权威控制，void不证明成功；Teams读回双向控制后才提交索引。\n`PostProcessInput` → 当前ASC输入。\nLP::`TryGetSquadPresets` → 唯一缓存 / 明确错误，失效不重载替代。\nPC编辑Exec消费保存bool，接受不等于落盘。\n[[Teams/结构#C12 切人退出与原生控制契约|C12契约]] · [[Input/结构|输入]]",
+      "text": "## PlayerController / LocalPlayer\nPC::`UnPossess` / `Possess`执行权威控制，void不证明成功；Teams读回双向控制后才写出战索引。镜头随原生ViewTarget。\n`PostProcessInput` → 当前ASC输入。\nLP::`TryGetSquadPresets` → 唯一缓存 / 明确错误，失效不重载替代。\nPC编辑Exec消费保存bool，接受不等于落盘。\n[[Teams/结构#换人：留场、退场与进场|换人接口与流程]] · [[Input/结构|输入]]",
       "x": 600,
       "y": 1150,
       "width": 500,
@@ -43,11 +43,11 @@
     {
       "id": "squad",
       "type": "text",
-      "text": "## UGGYGOSquadComponent\nPS唯一队伍：Roster意图 / Slots成员 / ActiveSlotIndex出战。\n`SetRoster(Data[])` → bool，权威未装配；终止拒绝。\n`RegisterSlot`借用；private `RegisterCreatedSlot`接原创建责任，true不保证Possess。\n`SwitchToSlot(Index)` → bool：旧ASC退出 → 旧输入 → 原生控制读回 → 最后索引/广播。\n栈上原弱对象/双方Context + 同步重入护栏；外调重检，不签发Ready或保存GA集合。\n`DestroySquad` / `EndPlay` / `OnComponentDestroyed`共用原责任消费者。\n终止先关名单，借用不Destroy；不直接写ActorInfo或解绑。\n[[Teams/结构#C12 切人退出与原生控制契约|切人接口与失败边界]]",
+      "text": "## UGGYGOSquadComponent\nPS唯一队伍：Roster意图 / Slots成员 / ActiveSlotIndex出战；服务器上每槽位一条运行记录（Benched/Active/Lingering/Exiting、续放与退场Spec）。\n`SetRoster(Data[])` → bool，权威未装配；终止拒绝。\n`RegisterSlot`借用；private `RegisterCreatedSlot`接原创建责任，true不保证Possess；登记时订阅槽位ASC的`OnAbilityEnded`。\n`SwitchToSlot(Index, Source)` → bool：取得换出决定 → 取消/补发释放 → 控制交接 → 新队员进场或切回 → 旧队员留场或退场。\n`ServerRequestSwitchToSlot(Index)` 客户端请求；`GetMemberState(Index)` 服务器查询。\n`DestroySquad` / `EndPlay` / `OnComponentDestroyed`共用原责任消费者，并退订、撤回本组件施加的Tag。\n[[Teams/结构#换人：留场、退场与进场|换人接口与流程]]",
       "x": 600,
       "y": 565,
       "width": 500,
-      "height": 510,
+      "height": 560,
       "color": "5"
     },
     {
@@ -63,17 +63,17 @@
     {
       "id": "base",
       "type": "text",
-      "text": "## CombatantState / ASC / GA\nHost持ASC/属性/Avatar，协调原绑定关闭。\nASC唯一写ActorInfo、执行共享能力退出：\n`TryExitAbilitiesForAvatarSwitch` → 原取消Completed。\n`CheckAvatarSwitchAbilitiesExited` → 当前Ready。\nGA默认Cancel / 显式ContinueInBackground，持原生命周期/资源。\nAttach/Detach走Host；Destroyed/EndPlay在Super前关闭原H/Context。\n[[Combatants/结构|Host]] · [[Teams/结构#C12 切人退出与原生控制契约|ASC/GA契约]]",
+      "text": "## CombatantState / ASC / GA\nHost持ASC/属性/Avatar，`AttachAvatar`绑定；换人不重绑。\nGA::`OnAvatarSwitchOut(Context)` → Cancel / ContinueOnField（默认读AvatarExitPolicy）。\nGA::`NotifyOwnerControlLost/Regained` → 蓝图事件。\nASC::`ReleaseHeldInputForControlLoss` → 真实释放后清输入；ReturnPending拦输入发起的新激活。\n`UGGYGOSquadTransitionAbility` 由SwitchIn/SwitchOut事件触发，播Montage后结束。\n[[Combatants/结构|Host]] · [[Teams/结构#换人：留场、退场与进场|换人接口与流程]]",
       "x": 1270,
       "y": 215,
       "width": 420,
-      "height": 350,
+      "height": 380,
       "color": "4"
     },
     {
       "id": "pawn",
       "type": "text",
-      "text": "## Character / PawnExtension / Hero\n`SetPawnData`注入原Pawn配置；Extension getter只返回真实Ready ASC，不拥有ASC。\nCharacter::`UnPossessed`先Super，再`HandleControllerChanged` → Host合法Refresh。\nC12旧Hero::`ReleasePlayerInput`退自身绑定/来源/请求，旧ASC::`ClearAbilityInput`退GAS held/队列。\n各一次、每步重检原请求；不制造物理松/按，不解绑ASC或重放后继。\n[[Character/结构|Extension]] · [[Input/结构|Hero输入]]",
+      "text": "## Character / PawnExtension / Hero\n`SetPawnData`注入原Pawn配置；Extension的本地订阅给出Ready ASC，不拥有ASC。\nCharacter::`UnPossessed`先Super，再`HandleControllerChanged` → Refresh ActorInfo。\n换出时旧Hero::`ReleasePlayerInput`退自身绑定/来源/请求；按住输入的真实释放由ASC先补发。\nCMC读`State.SwitchReturnPending`停住locomotion；留场时Squad打开`bRunPhysicsWithNoController`。\n[[Character/结构|Extension]] · [[Input/结构|Hero输入]]",
       "x": 1270,
       "y": 1070,
       "width": 420,
@@ -134,7 +134,7 @@
       "fromSide": "right",
       "toNode": "slot",
       "toSide": "left",
-      "label": "持有Slots；读回原绑定并请求Slot ASC退出"
+      "label": "持有Slots；读回原绑定，订阅槽位ASC能力结束"
     },
     {
       "id": "e4",

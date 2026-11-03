@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Boss 选招｜流程子图\n配置/选招专项已通过；受控Try/原Completed消费者已编译。普通Mesh A→完整返回→B有限通过，严格raw重入失败保留；正式BT战斗/资产/网络待验。\n[[GGYGO_流程_BossAI.canvas|返回主流程]] · [[GGYGO_结构_BossAI.canvas|结构图]] · [[BossAI/结构|完整契约]] · [[计划_BOSSAI|设计与验收]]",
+      "text": "# Boss 选招｜流程子图\n配置/选招专项已通过；BT以TryActivateAbility＋原生OnAbilityEnded等待。普通Mesh A→完整返回→B有限通过，严格raw重入失败保留；正式BT战斗/资产/网络待验。\n[[GGYGO_流程_BossAI.canvas|返回主流程]] · [[GGYGO_结构_BossAI.canvas|结构图]] · [[BossAI/结构|完整契约]] · [[计划_BOSSAI|设计与验收]]",
       "x": 0,
       "y": 0,
       "width": 1940,
@@ -43,7 +43,7 @@
     {
       "id": "request",
       "type": "text",
-      "text": "4. ActivateAbility::ExecuteTask 消费请求。\nConsumeActionSelection核对原Set/Phase/\nASC/Tag/Class/Spec/Avatar，再清黑板。\n先订阅OnAbilityTerminationCompleted，\nTryActivateAbilityWithTerminationBoundary\n只提交原Handle，不按Class换Spec。\n保存Result的固定Original；同步历史已封存。\n未取得可等待原身份→清自身等待并失败。",
+      "text": "4. ActivateAbility::ExecuteTask 消费请求。\nConsumeActionSelection核对原Set/Phase/\nASC/Tag/Class/Spec/Avatar，再清黑板。\n先订阅原生OnAbilityEnded，\nTryActivateAbility只提交原Handle，不按Class换Spec。\nTry内已结束→直接返回Succeeded/Failed。\nTry失败→清自身等待并失败。",
       "x": 1480,
       "y": 351,
       "width": 460,
@@ -53,7 +53,7 @@
     {
       "id": "execute",
       "type": "text",
-      "text": "5A. Accepted → 固定Original。\n同步读原完成历史；异步\nHandleTerminationCompleted匹配原Completed。\nCleanupBinding→原正常Succeeded/取消Failed，\n再FinishLatentTask；不以End广播冒充完成。\n[[BossAI/结构|GA原资源链]]；正式BT动态未验。",
+      "text": "5A. Try成功且未结束 → InProgress。\n异步HandleAbilityEnded按Spec匹配结束。\nCleanupBinding→原正常Succeeded/取消Failed，\n再FinishLatentTask；结束广播即完成事实。\n[[BossAI/结构|GA原资源链]]；正式BT动态未验。",
       "x": 1480,
       "y": 824,
       "width": 420,

@@ -23,7 +23,7 @@
     {
       "id": "trace",
       "type": "text",
-      "text": "## UGGYGOMeleeTraceComponent\nBegin/EndTraceWindow：仅 Legacy。\nShape/原Mesh 预检 → TryOpenOwnedTraceWindow；Expected → Out。\nRootTip 参数也进入同一开窗机制。\nCloseOwnedTraceWindow(H) → 只关原窗。\nQueryOwnedTraceWindow(H) → 当前资格。\nSubscribeWindowHit(H, Callback) → 回调/token。\nUnsubscribeWindowHit(token) → 精确退订。\nPerformTrace → 球扫/PhysicalMaterial。",
+      "text": "## UGGYGOMeleeTraceComponent\n只有原生 Owned 窗口；蓝图只读 IsTracing。\nShape/原Mesh 预检 → TryOpenOwnedTraceWindow；Expected → Out。\nRootTip 参数也进入同一开窗机制。\nCloseOwnedTraceWindow(H) → 只关原窗。\nQueryOwnedTraceWindow(H) → 当前资格。\nSubscribeWindowHit(H, Callback) → 回调/token。\nUnsubscribeWindowHit(token) → 精确退订。\nPerformTrace → 球扫/PhysicalMaterial。",
       "x": 550,
       "y": 270,
       "width": 460,
@@ -63,7 +63,7 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## 原窗口消费与清理契约\nCombo/Boss 保存原 Activation/Trace/窗口/token；命中前核原来源及 QueryOwnedTraceWindow。消费者资源记录不是另一份活动窗口权威，Activation/结束仍归 GAS。\n原 native hit 传 OriginalWindow、Actor、HitResult；快照订阅并逐项核原窗/token/资源。B 回调关 B 开 C 立即停 B 分发/扫掠/回写，C 自建首基线。\nGA Cleanup 匹配原 Context，先脱自身原资源，再 UnsubscribeWindowHit(原token)/CloseOwnedTraceWindow(原H)；旧身份不清后继。组件生命周期/内部失败用 CloseCurrentTraceWindow，统一退订、停 Tick、清 Shape/借用资源/基线/去重。\nLegacy Begin/End/OnMeleeHit 保留兼容；Legacy/Owned 不接管，Owned 不复播全局事件。",
+      "text": "## 原窗口消费与清理契约\nCombo/Boss 保存原 Activation/Trace/窗口/token；命中前核原来源及 QueryOwnedTraceWindow。消费者资源记录不是另一份活动窗口权威，Activation/结束仍归 GAS。\n原 native hit 传 OriginalWindow、Actor、HitResult；快照订阅并逐项核原窗/token/资源。B 回调关 B 开 C 立即停 B 分发/扫掠/回写，C 自建首基线。\nGA Cleanup 匹配原 Context，先脱自身原资源，再 UnsubscribeWindowHit(原token)/CloseOwnedTraceWindow(原H)；旧身份不清后继。组件生命周期/内部失败用 CloseCurrentTraceWindow，统一退订、停 Tick、清 Shape/借用资源/基线/去重。\n没有无身份开窗入口或全局命中事件；命中只发给原窗口订阅。",
       "x": 0,
       "y": 1000,
       "width": 1450,

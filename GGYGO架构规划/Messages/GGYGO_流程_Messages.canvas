@@ -93,7 +93,7 @@
     {
       "id": "calculate-current",
       "type": "text",
-      "text": "## TrySetCurrentValue → ASC换算/提交\n输入meta清理后目标，或权威Max下调目标。\nTryCalculateNumericAttributeBaseForCurrentValue(this, Attribute, ExpectedCurrent, DesiredCurrent)。\nReady/None → SetNumericAttributeBase(CalculatedBase) → 原Post保存本标记的实际值。\nOwnPost确认本次目标；随后native重入改变Current不改写此事实。\n[[Messages/结构#HealthSet 的 Current 结算|Current契约]]",
+      "text": "## TrySetCurrentValue → 反算/提交\n输入meta清理后目标，或权威Max下调目标。\nGGYGOAttributeBase::CalculateBaseForCurrent(ASC, this, Attribute, ExpectedCurrent, DesiredCurrent)。\nReady/None → SetNumericAttributeBase(CalculatedBase) → 原Post保存本标记的实际值。\nOwnPost确认本次目标；随后native重入改变Current不改写此事实。\n[[Messages/结构#HealthSet 的 Current 结算|Current契约]]",
       "x": 1180,
       "y": 540,
       "width": 490,

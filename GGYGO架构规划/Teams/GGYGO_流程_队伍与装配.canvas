@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Teams｜流程图\n服务器准备 / 责任交付 / 切人 / 原资源终止；橙色含来源分支、拒绝及接口边界。\nHandleStartingNewPlayer或原GF Session就绪 → SpawnSquadForPlayer；原Context外调后重检。\n[[GameFeature/结构|启动门禁]] · [[GGYGO_结构_队伍与装配.canvas|结构图]] · [[Teams/结构|实际契约]] · [[计划_队伍与装配|设计与证据]]\n切人：能力退出 → 旧输入退役 → 原生控制读回 → 最后索引/广播；Created接收历史与终止请求不等于物理清理。",
+      "text": "# Teams｜流程图\n服务器准备 / 责任交付 / 换人 / 原资源终止；橙色含来源分支、拒绝及接口边界。\nHandleStartingNewPlayer或原GF Session就绪 → SpawnSquadForPlayer；原Context外调后重检。\n[[GameFeature/结构|启动门禁]] · [[GGYGO_结构_队伍与装配.canvas|结构图]] · [[Teams/结构|实际契约]] · [[计划_队伍与装配|设计与证据]]\n换人：换出决定 → 取消与补发释放 → 控制交接 → 新队员进场或切回 → 旧队员留场或退场；Created接收历史与终止请求不等于物理清理。",
       "x": 0,
       "y": 0,
       "width": 2360,
@@ -33,7 +33,7 @@
     {
       "id": "pawns",
       "type": "text",
-      "text": "## 3. 准备Pawn与绑定请求\n`SpawnSquadMember(Context, PawnData, SpawnTransform, OutActors)` → native bool；pre-spawn捕获OriginalPawn，Owner=原PC。\nTransform来自步骤1实际Root；PawnClass须为CharacterBase子类，原Extension有效。\n`SetPawnData`后重检原Pawn / Extension / 配置；false仍暴露原产物。\n原Slot / Pawn有效才`AttachAvatar`（void）；Host唯一协调，Creator不复制绑定 / 清理。\n外调重检原Context；Created接收前移出原对，交付期间Creator关闭不消费这对。",
+      "text": "## 3. 准备Pawn与绑定请求\n`SpawnSquadMember(Context, PawnData, SpawnTransform, OutActors)` → native bool；pre-spawn捕获OriginalPawn，Owner=原PC。\nTransform来自步骤1实际Root；PawnClass须为CharacterBase子类，原Extension有效。\n`SetPawnData`后重检原Pawn / Extension / 配置；false仍暴露原产物。\n原Slot / Pawn有效才`AttachAvatar`（不消费返回值）；Host唯一协调，Creator不复制绑定 / 清理。\n外调重检原Context；Created接收前移出原对，交付期间Creator关闭不消费这对。",
       "x": 1240,
       "y": 405,
       "width": 440,
@@ -53,27 +53,27 @@
     {
       "id": "switch",
       "type": "text",
-      "text": "## 6. C12 SwitchToSlot(Index)\n唯一PS/Squad/PC、双方绑定/真实Ready、目标无控制/非死亡；固定原Context，拒绝重入。\n旧ASC::`TryExitAbilitiesForAvatarSwitch`全量预检/原Cancel真Completed → `CheckAvatarSwitchAbilitiesExited`当前Ready。\n旧Hero释放 → 重检 → 旧ASC退输入 → 重检。\n原PC UnPossess → 合法Host Refresh/读回 → `DeactivateSlot(旧)` → `ActivateSlot(新)`。\n原PC Possess新 → 实际双向控制/绑定/能力读回 → 最后索引/广播 → 重检。\n失配即false，不恢复旧GA/held或自动附身；Next/Previous不重试另一目标。\n[[Teams/结构#C12 切人退出与原生控制契约|接口、政策与失败分支]]",
+      "text": "## 6. SwitchToSlot(Index, Source)\n唯一PS/Squad/PC、双方绑定、目标非当前/有Avatar/未死亡、无Controller；同步重入拒绝。\n旧队员每个活动GA::`OnAvatarSwitchOut` → 有不可取消的Cancel则整次拒绝（无副作用）。\n登记续放 → `RequestAbilityCancel`其余 → ASC补发释放 → 续放GA `OnOwnerControlLost` → Hero释放 → UnPossess。\nPossess新 → 写索引。Benched：显示/碰撞/行走 → 发SwitchIn。Lingering/Exiting：取消退场 → 解除OffField → 有续放加ReturnPending → `OnOwnerControlRegained`。\n旧队员加OffField：有续放 → Lingering；否则发SwitchOut，无退场GA则立即隐藏。广播。\n外调改变布局即停止并报Error，不恢复已发生效果。[[Teams/结构#换人：留场、退场与进场|换人接口与流程]]",
       "x": 1860,
       "y": 1680,
       "width": 500,
-      "height": 500,
+      "height": 560,
       "color": "1"
     },
     {
       "id": "persist",
       "type": "text",
-      "text": "## 待命的原Slot状态\nDeactivate隐藏/关碰撞/停移动；Slot/ASC/Avatar不重建，GE/CD/属性仍保有。\n默认Cancel退出；显式Continue（含不可取消）不挡切人。\nsameBinding Refresh只保原End，不续授ResourceWork/输入/控制/镜头/位移。\n复制各司其职：Actor相关性、Mixed的GE信息、属性条件。\n健康四量COND_None，Combat基础三量COND_OwnerOnly。\n[[计划_队伍与装配#9.3 D1 采纳的布局：Slot 持有 ASC 的三层结构|宿主与复制]]",
+      "text": "## 留场 / 退场 / 待命\nLingering/Exiting：可见、有碰撞、无Controller仍执行技能位移；`State.OffField`＋服务器免伤，MeleeTrace跳过。\n槽位ASC `OnAbilityEnded`：续放清空 → 发SwitchOut退场；退场GA全部结束 → 解除OffField、隐藏/关碰撞/停移动 → Benched。\n切回仍在续放：ReturnPending拦输入发起的新激活与移动，按下进缓冲；续放清空后移除并重试一次。\nSlot/ASC/Avatar不重建，GE/CD/属性仍保有。\n[[计划_队伍与装配#9.3 D1 采纳的布局：Slot 持有 ASC 的三层结构|宿主与复制]]",
       "x": 1240,
       "y": 1680,
       "width": 440,
-      "height": 430,
+      "height": 470,
       "color": "4"
     },
     {
       "id": "remote",
       "type": "text",
-      "text": "## 远端名单与接口边界\n服务器远端PC没有LP → 正常Unconfigured → Experience默认名单。\n客户端磁盘名单上报RPC尚未接入，不由服务器代读或把非法来源降级默认。\n编成UI及切人GA/CD/消耗尚未接入；组件切人使用现有公开入口。\nCreated true只交付原创建责任，Destroy接受只退休请求义务，不证明物理完成。\nContinue只保原End；携带资源、正式资产和联机需独立验证。\n[[计划_队伍与装配#9.0 当前实施状态与后续门禁（2026-09-30）|后续范围与证据]]",
+      "text": "## 远端名单与接口边界\n服务器远端PC没有LP → 正常Unconfigured → Experience默认名单。\n客户端磁盘名单上报RPC尚未接入，不由服务器代读或把非法来源降级默认。\n换人请求经`ServerRequestSwitchToSlot`；项目中尚无输入或蓝图接到它。编成UI及切人CD/消耗未接入。\nCreated true只交付原创建责任，Destroy接受只退休请求义务，不证明物理完成。\n留场与进退场的联机、正式进退场资产需独立验证。\n[[计划_队伍与装配#9.0 当前实施状态与后续门禁（2026-09-30）|后续范围与证据]]",
       "x": 0,
       "y": 1680,
       "width": 440,
@@ -133,7 +133,7 @@
     {
       "id": "termination-host",
       "type": "text",
-      "text": "## 9. 原Slot原生生命周期 → Host关闭\n原Slot继承CombatantState，Destroyed/EndPlay在Super前共用Close（H3），覆盖BeginPlay前及owner-only。\nHost消费原H/已提交Context：原Release或ASC认证后真实Clear/Publish，不重捕后继。\nGM/Squad终止消费者不持H/Context、不直接解绑/取消GA；Host协调、ASC执行。普通C12另请求公开能力退出/输入退役。\nDestroy接受不保证物理Clear/发布；Busy/失败诊断保留。\n普通切人不触发本绑定关闭链；原生销毁请求与真实Clear/发布分别读回。\n[[Combatants/结构#Host生命周期关闭（H3）|Host H3]] · [[Teams/结构#原始创建资源的唯一终止链（08-05b）|终止契约]]",
+      "text": "## 9. 原Slot原生生命周期 → Host关闭\n原Slot继承CombatantState，Destroyed/EndPlay在Super前调用CloseAvatarBinding（重复调用无操作）。\n关闭后拒绝新绑定；服务器清复制Avatar，释放当前Avatar并ClearActorInfo；绑定进行中关闭则由进行中的流程收尾。\nGM/Squad终止消费者不直接解绑/取消GA；Host编排，ASC执行原生ActorInfo。普通换人不经此链。\nDestroy接受不保证物理清理完成；失败诊断保留。\n[[Combatants/结构#绑定与释放顺序|Host 绑定与释放]] · [[Teams/结构#原始创建资源的唯一终止链（08-05b）|终止契约]]",
       "x": 1660,
       "y": 2450,
       "width": 700,
@@ -172,7 +172,7 @@
       "fromSide": "bottom",
       "toNode": "switch",
       "toSide": "top",
-      "label": "首位/后续请求同一C12入口"
+      "label": "首位/后续请求同一SwitchToSlot入口"
     },
     {
       "id": "e5",

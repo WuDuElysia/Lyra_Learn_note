@@ -33,7 +33,7 @@
     {
       "id": "pose_native_play",
       "type": "text",
-      "text": "## RequiredReady→原生播放\nTask持原ticket，Ready前配置作者点／登记NotifyReceived与OnFailed，再TryPlayMontageWithOwnership。\n原Handle／Guard认证播放；ticket不代播放身份。\nGA按原snapshot申请Main→End同一CMC句柄。\n[[Animation/普攻动画实施#作者单点信号配置|作者点接缝]]",
+      "text": "## RequiredReady→原生播放\nTask持原ticket，Ready前配置作者点／登记NotifyReceived与OnFailed，再经ASC PlayAbilityMontage播放。\n原Playback／Guard认证播放；ticket不代播放身份。\nGA按原snapshot申请Main→End同一CMC句柄。\n[[Animation/普攻动画实施#作者单点信号配置|作者点接缝]]",
       "x": 1240,
       "y": 330,
       "width": 600,

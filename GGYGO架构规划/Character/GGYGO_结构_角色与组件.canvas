@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Character｜结构图\nHost选择Avatar；ASC执行事务/认证发布，唯一管能力输入等待许可；Extension唯一持本地H。\nBase仅typed Notice接线；Health唯一持DeathState与五token；Hero管原输入会话/H关联，CMC执行移动。\n[[Character/结构|结构文档]] · [[GGYGO_流程_角色初始化.canvas|流程图]]",
+      "text": "# Character｜结构图\nHost选择Avatar并编排绑定（原生InitAbilityActorInfo）；ASC唯一管能力输入等待许可；Extension记录当前资源并广播Ready/Released。\nHealth、Hero、CMC、LocomotionFX各自订阅Extension；Health唯一持DeathState与五token；Hero管输入会话，CMC执行移动。\n[[Character/结构|结构文档]] · [[GGYGO_流程_角色初始化.canvas|流程图]]",
       "x": 0,
       "y": 0,
       "width": 1500,
@@ -13,7 +13,7 @@
     {
       "id": "host",
       "type": "text",
-      "text": "## 外部宿主：AGGYGOCombatantState\nRequestAvatarBinding(原端点,H,Context)\n→Initialize／Release／Refresh实际步骤历史。\nHost选择/公布Avatar，持ASC与基础属性集。\nDestroyed/EndPlay先关闭准入，清原资源。\n已提交Context与失败Init Operation由ASC分别认证。\n[[Combatants/结构|宿主契约]] · [[Teams/结构]] · [[BossAI/结构]]",
+      "text": "## 外部宿主：AGGYGOCombatantState\nAttachAvatar(Pawn) → 释放旧Avatar → InitAbilityActorInfo(宿主, Pawn) → Extension广播Ready。\nHost持ASC与基础属性集，选择并复制Avatar；Destroyed/EndPlay关闭生命周期。\nReleaseAvatarBinding(ExpectedAvatar)：只释放仍是当前的Avatar。\n[[Combatants/结构|宿主契约]] · [[Teams/结构]] · [[BossAI/结构]]",
       "x": 0,
       "y": 240,
       "width": 390,
@@ -33,17 +33,17 @@
     {
       "id": "character",
       "type": "text",
-      "text": "## AGGYGOCharacterBase / HeroCharacter\nPawn持Extension／Health／CMC；玩家另持Hero。\nPostInitializeComponents Super后先装原记录，再RegisterLocalAbilitySystemNoticeAndCall。\n记录仅三weak身份/token/退休；晚token归原Extension，不存H/ASC/Set/Context/Ready。\nConsume：Ready/Refreshed→Health Init/Refresh；Released原H→Uninit；Closing合法返回，不清Health。\nEndPlay/BeginDestroy退原token，真实新BeginPlay可重开；Health独立清五token。\n[[Character/结构#Base原订阅与typed消费（已编码，未编译）|接口与资源机制]]",
+      "text": "## AGGYGOCharacterBase / HeroCharacter\nPawn持Extension／Health／CMC；玩家另持Hero。\nPossessedBy／UnPossessed／OnRep_Controller → Extension HandleControllerChanged → RefreshAbilityActorInfo。\n不转发绑定通知：Health、Hero、CMC、LocomotionFX各自订阅Extension。\n[[Character/结构#PawnExtension 本地 ASC 订阅|本地订阅]]",
       "x": 510,
       "y": 330,
       "width": 430,
-      "height": 400,
+      "height": 260,
       "color": "5"
     },
     {
       "id": "extension",
       "type": "text",
-      "text": "## UGGYGOPawnExtensionComponent\nSetPawnData→配置；三入口请求Host。\nGetter仅原H真实Ready；唯一持本地H。\nWithdraw撤槽；EndPlay先关准入→一次Closing。\nClosing空Context，外调前消费义务；不授原生成功。\nEndPlay只Release捕获H；关闭Released不广播。",
+      "text": "## UGGYGOPawnExtensionComponent\nSetPawnData→配置；InitState协调。\nHandleAbilitySystemBound(ASC)→记录资源并广播Ready；HandleAbilitySystemReleased→先清资源再广播Released。\nGetCurrentLocalAbilitySystemResource／IsLocalAbilitySystemResourceReady：当前资源句柄。\n死亡销毁前经宿主接口请求释放。",
       "x": 1050,
       "y": 260,
       "width": 430,
@@ -53,7 +53,7 @@
     {
       "id": "health",
       "type": "text",
-      "text": "## UGGYGOHealthComponent\nInitializeWithLocalAbilitySystemResource\n(Extension,H,PublishedContext,OutError)\n→验本Pawn/真实Ready/HealthSet，安装原记录。\nRefreshLocalAbilitySystemResource→同H认证新Context。\nUninitializeFromLocalAbilitySystemResource(H,OutError)\n→精确退休原记录；不RequireReady。\nDeathState唯一归Health；数值归HealthSet。\n旧BP共用机制；无H/未Ready/身份不符明确拒绝。",
+      "text": "## UGGYGOHealthComponent\n自己订阅Extension。\nReady→InitializeWithLocalAbilitySystemResource(Extension, Resource, OutError)：验本Pawn/当前Ready/HealthSet，绑定五委托、投影死亡状态并广播初值。\nReleased／资源替换→UninitializeFromLocalAbilitySystemResource(Resource, OutError)：只释放同一资源的记录。\nDeathState唯一归Health；数值归HealthSet。\nInitializeWithAbilitySystem／UninitializeFromAbilitySystem为BP入口，正常流程不需调用。",
       "x": 1050,
       "y": 580,
       "width": 430,
@@ -63,7 +63,7 @@
     {
       "id": "hero",
       "type": "text",
-      "text": "## UGGYGOHeroComponent（玩家）\nInitializePlayerInput→绑定/会话；H关联请求。\nClosing→原SourceASC End原ID；保留绑定/IMC/Action锁存。\n等待/重试归ASC；DetermineCameraMode→仲裁。\nSet/ClearAbilityCameraMode→原Spec所有权。\n[[Input/结构|Input]] · [[Movement/结构|Movement]] · [[Camera/结构|Camera]]",
+      "text": "## UGGYGOHeroComponent（玩家）\nInitializePlayerInput→绑定/会话；Ready资源关联到会话。\nReleasePlayerInput→按来源结束本会话请求，再归还绑定/IMC。\n等待/重试归ASC；DetermineCameraMode→仲裁。\nSet/ClearAbilityCameraMode→原Spec所有权。\n[[Input/结构|Input]] · [[Movement/结构|Movement]] · [[Camera/结构|Camera]]",
       "x": 510,
       "y": 800,
       "width": 430,
@@ -103,11 +103,11 @@
     {
       "id": "contract",
       "type": "text",
-      "text": "## 资源所有权与跨模块合同\nHost选择/公布Avatar；ASC唯一签Binding、执行ActorInfo事务并认证Publication，管理输入等待许可。\nExtension唯一持H及Installed/Ready；Install只装配，Ready须真实Dispatching。每H Closing义务外调前消费一次，不建第二准入状态。\nBase只持通知token：Ready/Refreshed/Released接Health，Closing合法返回；Health唯一持DeathState与原H/Context/HealthSet/五token。\nHero管原Action/native会话/H关联与镜头；Closing仅精确End原SourceASC请求，保留绑定/IMC/锁存。移动执行归CMC，能力授予归Host。\n跨Host先原Release成功→新Initialize；Closing不证明Cancel/Clear成功。关闭Released不广播，各消费者仍自行退原资源。InitState不授ASC Ready。\n[[Character/结构#ASC 本地资源四阶段接口（L1）|本地合同]] · [[Combatants/结构|Host边界]]",
+      "text": "## 资源所有权与跨模块合同\nHost选择Avatar并编排绑定，ActorInfo只经原生Init/ClearActorInfo；ASC不保存绑定事务。\nExtension记录当前资源并广播Ready/Released；订阅者各自消费并清自己的资源。\nHealth唯一持DeathState与五token；Hero管输入会话与镜头，会话退役时按来源结束请求；移动执行归CMC，能力授予归Host。\n跨Host须先由原宿主释放；换人不重绑。InitState不授ASC Ready。\n[[Character/结构#PawnExtension 本地 ASC 订阅|本地订阅]] · [[Combatants/结构|Host边界]]",
       "x": 0,
       "y": 1600,
       "width": 1450,
-      "height": 300,
+      "height": 240,
       "color": "6"
     },
     {
@@ -133,31 +133,31 @@
     {
       "id": "local-asc-resource",
       "type": "text",
-      "text": "## Extension 本地 ASC 资源（L1）\n原weak ASC/Pawn＋ASC Binding→opaque H；不签Binding。\nInstallLocalAbilitySystemResources(ASC,Pawn,Context)→Installed未Ready。\nWithdrawLocalAbilitySystemResources(H)→撤槽/未Installed→一次Closing；无native写入。\nClosing原H/空Context；EndPlay先关准入再发，义务外调前消费。\nNotifyLocalResourcesReleased(H)→原H一次通知；关闭Failed/LifecycleClosed，不广播。\nNotifyLocalResourcesReady(H,Receipt)→真实Dispatching认证Ready/Refresh。\nGetCurrentLocalAbilitySystemResource→槽快照，不授权。\nIsLocalAbilitySystemResourceInstalled/Ready(H)→装配/可用查询。\nRegisterLocalAbilitySystemNoticeAndCall / Unregister…(Handle)→精确订阅/Ready回放/移除。\n旧两无参通知已退役；Closing不证明Cancel/Clear或Released成功。\n[[Character/结构#ASC 本地资源四阶段接口（L1）|完整合同]] · [[AbilitySystem/结构|ASC权威]]",
+      "text": "## FGGYGOLocalASCSubscription\nSubscribe(Extension, Callback)：订阅即回放当前Ready。\n重复Ready不回调；Released只发给已消费同一资源的订阅。\n分发前复制订阅表；Ready分发中资源被替换则停止。\nGetReadyASC／GetConsumedResource：已消费且仍就绪的ASC／资源。\nUnsubscribe：退订；订阅者自己负责撤回其它资源。\n[[Character/结构#PawnExtension 本地 ASC 订阅|本地订阅]] · [[AbilitySystem/结构#Avatar 绑定|ASC]]",
       "x": 1580,
       "y": 230,
       "width": 470,
-      "height": 570,
+      "height": 330,
       "color": "5"
     },
     {
       "id": "host-request-port",
       "type": "text",
-      "text": "## IGGYGOAvatarBindingHostInterface\nRequestAvatarBinding(Request)→栈上真实Result/Steps。\n原weak Host／ASC／Pawn／Extension＋Context／opaque H；Initialize空H，Release/Refresh原H与记录Context。\nASC组件GetOwner固定端口，不猜可变ActorInfo Owner。\nH1：CheckAvatarBindingCleanupContext(原提交Context)认证原清理来源；关闭原Host/Owner显式ClearActorInfo，正常PreserveOwner。\nH2：TryCleanupFailedAvatarActorInfoInit(原Operation,纯原scope)清未提交Init残留；Init仍失败，无Receipt/Notice/Ready。\n权限由ASC认证；Host只记实际Steps，无第二Ready。跨Host旧释放→新绑定，失败未绑定不回滚。\n原清理资格不等于新工作准入；步骤历史不授后继清理权。\n[[Character/结构#Host原生请求接口（已定义，生产迁移中）|接口定义]] · [[AbilitySystem/结构|清理契约]]",
+      "text": "## IGGYGOAvatarBindingHostInterface\nReleaseAvatarBinding(ExpectedAvatar)：只在ExpectedAvatar仍是宿主当前Avatar时释放；已被替换的旧Pawn不处理。\nPawnExtension在死亡销毁前调用。取得ASC走IAbilitySystemInterface。\n[[Character/结构#宿主释放端口|接口]]",
       "x": 1580,
       "y": 1260,
       "width": 470,
-      "height": 570,
+      "height": 250,
       "color": "4"
     },
     {
       "id": "health-original-resource-record",
       "type": "text",
-      "text": "## Health唯一原资源记录\nFAbilitySystemResource：原Health/Pawn/Extension弱身份、H、ASC/HealthSet弱引用、认证Context、五token、退休标记。\n五lambda只捕原记录；每事件入口复制当时Context。同H Refresh更新认证Context，不重绑或重放UI初值。\nRetireOriginalResource→先退休/摘自身原槽，再向原Set五token精确Remove；失效Set不替换。\n入口/作用前/仍有后续操作的UI／Tag／GameplayEvent／GE返栈复核原记录/H/Set/Context；删去六处无后续作用的末尾复核。旧安装失败不清同H合法后继。\nBase Closing合法返回，不提前清Health；Health EndPlay/OnUnregister独立清理，不等Released。DeathState归Health，数值归HealthSet，不签Binding/Ready。\n晚装配只投影既有DeathState的Tag，不重播死亡事件；解绑不清死亡Tag，不隐式复活。\n[[Character/结构#Health原资源与五委托（已编码，未编译）|接口与关键实现]]",
+      "text": "## Health订阅与五委托\n自己订阅PawnExtension（游戏世界中OnRegister与BeginPlay各尝试一次）。\nReady → 绑定HealthSet五委托并保存token；Released或资源替换 → 只移除自己的token。\nOutOfHealth在服务器上要求Spec，发Event.Death；变化经Health动态委托给UI/蓝图。\nDeathState归Health，数值归HealthSet；晚绑定只投影既有DeathState的Tag，不重播死亡事件；解绑不清死亡Tag，不隐式复活。\n[[Character/结构#Health 订阅与五委托|接口]]",
       "x": 2170,
       "y": 230,
       "width": 720,
-      "height": 650,
+      "height": 330,
       "color": "5"
     },
     {
@@ -178,7 +178,7 @@
       "fromSide": "right",
       "toNode": "extension",
       "toSide": "left",
-      "label": "Host调用Install／Withdraw／真实发布通知"
+      "label": "Host绑定后HandleAbilitySystemBound；释放中HandleAbilitySystemReleased"
     },
     {
       "id": "e2",
@@ -202,7 +202,7 @@
       "fromSide": "right",
       "toNode": "health",
       "toSide": "left",
-      "label": "拥有Health；typed消费→Initialize/Refresh/Uninitialize原资源"
+      "label": "拥有Health；Health自己订阅Extension"
     },
     {
       "id": "e5",
@@ -210,7 +210,7 @@
       "fromSide": "left",
       "toNode": "character",
       "toSide": "right",
-      "label": "Ready/Refreshed原H/Context；Released原H；Closing空Context→Base合法返回"
+      "label": "Character不转发Ready/Released；订阅者直接订阅Extension"
     },
     {
       "id": "e6",
@@ -274,7 +274,7 @@
       "fromSide": "right",
       "toNode": "local-asc-resource",
       "toSide": "left",
-      "label": "唯一持原H；Host已调用，Health/Base已消费"
+      "label": "持有订阅表；Ready/Released分发给各订阅"
     },
     {
       "id": "e-host-request-port",
@@ -282,7 +282,7 @@
       "fromSide": "right",
       "toNode": "host-request-port",
       "toSide": "left",
-      "label": "实现Request端口；消费H1/H2原清理权限"
+      "label": "实现ReleaseAvatarBinding(ExpectedAvatar)端口"
     },
     {
       "id": "e-health-original-record",
@@ -290,7 +290,7 @@
       "fromSide": "right",
       "toNode": "health-original-resource-record",
       "toSide": "left",
-      "label": "唯一持有原记录与五委托，替代裸ASC/Set缓存"
+      "label": "唯一持有订阅与五委托token，不缓存裸ASC/Set"
     },
     {
       "id": "e-health-local-certification",
@@ -298,7 +298,7 @@
       "fromSide": "left",
       "toNode": "local-asc-resource",
       "toSide": "right",
-      "label": "只读认证原H/Context；不复制Binding/Ready权威"
+      "label": "经订阅取得Ready资源；只释放同一资源的记录"
     },
     {
       "id": "e-extension-pawn-data-initialization-scope",

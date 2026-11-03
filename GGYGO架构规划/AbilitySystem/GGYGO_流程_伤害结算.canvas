@@ -13,7 +13,7 @@
     {
       "id": "window",
       "type": "text",
-      "text": "1. 原Montage Event→GA核Original/原Task/事件来源。\nTryOpenOwnedTraceWindow(Socket/Radius,Expected→Out)→SubscribeWindowHit(原Window,Callback→token)。\nGA闭包捕Original/原窗口/段资源，保存自身token；收尾精确退订/关闭，Legacy兼容入口由Combat说明。",
+      "text": "1. 原Montage Event→GA核Original/原Task/事件来源。\nTryOpenOwnedTraceWindow(Socket/Radius,Expected→Out)→SubscribeWindowHit(原Window,Callback→token)。\nGA闭包捕Original/原窗口/段资源，保存自身token；收尾精确退订/关闭。",
       "x": 0,
       "y": 351,
       "width": 390,
@@ -23,7 +23,7 @@
     {
       "id": "trace",
       "type": "text",
-      "text": "2. Combat TickComponent→PerformTrace。\n原窗口内跨帧球扫、取PhysicalMaterial、去重→typed hit(原Window,Actor,HitResult)。\n每次原订阅外调后重核窗口，关B开C即退出B旧尾/基线写回；Owned不广播Legacy全局OnMeleeHit。",
+      "text": "2. Combat TickComponent→PerformTrace。\n原窗口内跨帧球扫、取PhysicalMaterial、去重→typed hit(原Window,Actor,HitResult)。\n每次原订阅外调后重核窗口，关B开C即退出B旧尾/基线写回；命中只发给原窗口订阅。",
       "x": 470,
       "y": 351,
       "width": 410,

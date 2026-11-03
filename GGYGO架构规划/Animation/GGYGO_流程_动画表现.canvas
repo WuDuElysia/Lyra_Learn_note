@@ -83,7 +83,7 @@
     {
       "id": "combo_entry",
       "type": "text",
-      "text": "## GA/Task启动原播放\nGA BuildSourceBindingRange(Main,End)，新资源关门。\nTask Ready前ConfigureOriginalMontageNotify／登记NotifyReceived与OnFailed→TryPlayMontageWithOwnership。\n原snapshot申请CMC句柄；早期点／非零起点经原NotifySnapshot复核再开放。\n[[Animation/普攻动画实施#作者单点信号配置|配置]]",
+      "text": "## GA/Task启动原播放\nGA BuildSourceBindingRange(Main,End)，新资源关门。\nTask Ready前ConfigureOriginalMontageNotify／登记NotifyReceived与OnFailed→ASC PlayAbilityMontage。\n原snapshot申请CMC句柄；早期点／非零起点经原NotifySnapshot复核再开放。\n[[Animation/普攻动画实施#作者单点信号配置|配置]]",
       "x": 0,
       "y": 1430,
       "width": 430,

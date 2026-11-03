@@ -87,7 +87,7 @@
       "y": 1280,
       "width": 460,
       "height": 340,
-      "text": "## 8. Combat消费窗口（待联合验收）\nGA → BeginTraceWindow(StartSocket, EndSocket, Radius)。\n同窗口去重，命中交GA应用GE；结束/中断关闭。\nSocket随Prop1动画运动，不能从无轨道HitBox推断开关。\n[[Combat/结构|判定职责]]",
+      "text": "## 8. Combat消费窗口（待联合验收）\nBossMelee → TryOpenOwnedTraceWindow(StartSocket, EndSocket, Radius) → SubscribeWindowHit。\n同窗口去重，命中交GA应用GE；结束/中断关闭。\nSocket随Prop1动画运动，不能从无轨道HitBox推断开关。\n[[Combat/结构|判定职责]]",
       "color": "1"
     },
     {

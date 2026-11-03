@@ -13,7 +13,7 @@
     {
       "id": "open",
       "type": "text",
-      "text": "1. 认证 Montage Hit 窗口事实 → Owned 开窗。\nCombo 先 ReleaseTraceWindow(Original)，以 Step.TraceShape＋原 Mesh 开窗。\nBoss 用 RootTip；原窗 Active 时重复 Begin 保去重，Inactive 才释放重开。\nTryOpenOwnedTraceWindow → SubscribeWindowHit → token。\n回调捕/核 Original、声明、原 Task/Trace、窗口。\n失败由原 GA 处理，不接管 Legacy。",
+      "text": "1. 认证 Montage Hit 窗口事实 → Owned 开窗。\nCombo 先 ReleaseTraceWindow(Original)，以 Step.TraceShape＋原 Mesh 开窗。\nBoss 用 RootTip；原窗 Active 时重复 Begin 保去重，Inactive 才释放重开。\nTryOpenOwnedTraceWindow → SubscribeWindowHit → token。\n回调捕/核 Original、声明、原 Task/Trace、窗口。\n失败由原 GA 处理。",
       "x": 0,
       "y": 392,
       "width": 430,
@@ -43,7 +43,7 @@
     {
       "id": "dedupe",
       "type": "text",
-      "text": "4. 全链共用 HitActorsThisWindow 弱引用去重。\nOwned 快照订阅 → callback(OriginalWindow, Actor, Hit)。\n外调前核原窗/token/资源，外调后复核；GA 另核原 Activation/来源。\nB 回调关 B 开 C → 停 B 分发/扫掠/回写；C 首 Tick 建基线。\nLegacy 广播 OnMeleeHit；Combo/Boss 用 Owned。",
+      "text": "4. 全链共用 HitActorsThisWindow 弱引用去重。\nOwned 快照订阅 → callback(OriginalWindow, Actor, Hit)。\n外调前核原窗/token/资源，外调后复核；GA 另核原 Activation/来源。\nB 回调关 B 开 C → 停 B 分发/扫掠/回写；C 首 Tick 建基线。\n命中只发给原窗口订阅（Combo/Boss）。",
       "x": 1500,
       "y": 392,
       "width": 430,
@@ -63,7 +63,7 @@
     {
       "id": "close",
       "type": "text",
-      "text": "6. 匹配声明的 HitWindowEnd/换段/原终止 → GA 清自己的原窗。\nCombo ReleaseTraceWindow；Boss CloseOriginalTraceWindow。\n先脱成员 → 退原token → 关原H；旧身份不清后继。\nCleanupAbilityResourcesForTermination(Context) 核原批次并归还自身其他资源。\n组件 Deactivate/OnUnregister/EndPlay/内部失败 → CloseCurrentTraceWindow。\n停 Tick、清 Shape/借用资源/基线/去重；Legacy End 仅管 Legacy。",
+      "text": "6. 匹配声明的 HitWindowEnd/换段/原终止 → GA 清自己的原窗。\nCombo ReleaseTraceWindow；Boss CloseOriginalTraceWindow。\n先脱成员 → 退原token → 关原H；旧身份不清后继。\nCleanupAbilityResourcesForTermination(Context) 核原批次并归还自身其他资源。\n组件 Deactivate/OnUnregister/EndPlay/内部失败 → CloseCurrentTraceWindow。\n停 Tick、清 Shape/借用资源/基线/去重。",
       "x": 1000,
       "y": 972,
       "width": 430,

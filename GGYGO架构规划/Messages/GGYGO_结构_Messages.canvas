@@ -73,7 +73,7 @@
     {
       "id": "asc-current-calculation",
       "type": "text",
-      "text": "## UGGYGOAbilitySystemComponent\nTryCalculateNumericAttributeBaseForCurrentValue\n输入原Set、Attribute、ExpectedCurrent、DesiredCurrent。\n输出Ready/Rejected/Stale＋Reason；仅Ready/None提供有限CalculatedBase。\n原生资格、唯一逆解与正向回验；计算本身不写属性。\nSetNumericAttributeBase → 原生聚合/属性回调。\n[[AbilitySystem/结构|ASC接口归属]]",
+      "text": "## GGYGOAttributeBase\nCalculateBaseForCurrent\n输入ASC、原Set、Attribute、ExpectedCurrent、DesiredCurrent。\n输出Ready/Rejected/Stale＋Reason；仅Ready/None提供有限CalculatedBase。\n原生资格、唯一逆解与正向回验；计算本身不写属性。\nSetNumericAttributeBase → 原生聚合/属性回调。\n[[AbilitySystem/结构|ASC接口归属]]",
       "x": -620,
       "y": 300,
       "width": 490,

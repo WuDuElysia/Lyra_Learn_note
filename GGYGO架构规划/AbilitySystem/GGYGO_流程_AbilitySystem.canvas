@@ -103,7 +103,7 @@
     {
       "id": "w0-original-input-subscription-flow",
       "type": "text",
-      "text": "## 原输入Task订阅流程\n调用方：WaitComboInput→SetSourceStep→可选RegisterNativeCallback→ReadyForActivation；工厂/BP签名保持。native闭包按值捕原Activation、弱GA/原Task。\n① Activate外调前捕原弱ASC/Ability、Spec/key、remote/predict模式、自身handle→原桶AbilityReplicatedEventDelegate(InputPressed).Add。零key合法，只定位桶。\n② remote CallReplicatedEventDelegateIfSet返回→重取弱原Task，核开放/原订阅/来源/handle→未回放才最后SetWaitingOnRemotePlayerData；A结束不能写Waiting。\n③ HandlePress：remote GetReplicatedDataOfGenericReplicatedEvent；本地计数，predict才ServerSetReplicatedEventWithPayload→ConsumeGenericReplicatedEvent，均原Spec/key。\nX[0,65535]／Y[1,65535]整数校验保持，非法载荷诊断并消费原事件后拒绝通知。原FScopedPredictionWindow覆盖通知。\n原Consume→不可变native/载荷快照→native与捕获析构返回→弱原Task/精确原订阅重检→原OnPress BP；native结束A不发A BP。\n④ OnDestroy先关、脱native及订阅→原桶remove自身handle→Super返回→释放捕获，之后无Task访问；不Consume后继。\n必需来源非法诊断/结束自身，不从GA current补桶，不新增GA身份或调度。\n[[AbilitySystem/结构#原事件桶与输入Task订阅|订阅接口]]",
+      "text": "## 原输入 Task 运输与派发\nWaitComboInput → SetSourceStep → RegisterNativeCallback(请求,InitialUnavailable) → ReadyForActivation。\nActivate 捕原 ASC／Ability／Spec／key／Activation；本地订阅 InputPressed，远端订阅 TargetDataSet／TargetDataCancelled。\n远端 CallReplicatedTargetDataDelegatesIfSet → 重核原 Task；Initial 尚未收到才 SetWaitingOnRemotePlayerData。\n本地真实 Press → CaptureStepInputRequest；真实段首 → SubmitEntryFact → 原预测窗口运输 typed TargetData。\nHandleTargetData 复制 owned 请求 → 仅消费仍是原对象集合的缓存 → 核原激活／字段／顺序。\n首次有效 Initial → bInitialReceived → ClearWaitingOnRemotePlayerData；续击必须已有 Initial 且请求号递增。\n原 native 通知返回 → 重核原 Task／订阅 → BP OnPress；InitialUnavailable 只通知原激活。\nOnDestroy 先关闭并脱回调，再从原桶移除自身 handle；不消费后继数据。\n[[AbilitySystem/结构#原事件桶与输入Task订阅|订阅接口]]",
       "width": 950,
       "color": "5",
       "x": 1945,

@@ -1,0 +1,106 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# FX｜发布与资源结构\n[[FX/结构|结构与接口]] · [[FX/GGYGO_流程_远端FX.canvas|远端流程]]\n边表示持有、调用或传递数据。",
+      "x": 0,
+      "y": -220,
+      "width": 1720,
+      "height": 150,
+      "color": "4"
+    },
+    {
+      "id": "holders",
+      "type": "text",
+      "text": "## 原资源持有者\nMontageActionResources 持能力窗口 lease；LocomotionFXComponent 持普通移动 lease。\nPublishMontageFX／PublishLocomotionFX：原事实 → 认证发布 → lease 或诊断。\nPrepareClose／DispatchClose：原 lease → 关闭与派发。",
+      "x": 0,
+      "y": 0,
+      "width": 520,
+      "height": 300,
+      "color": "4"
+    },
+    {
+      "id": "host",
+      "type": "text",
+      "text": "## MontageFXReplicationComponent\nCombatantState 默认组件，与 ASC 同属 Owner。\n持 State 与 PublicationOwner。\nOnRep_State 接收活动快照；MulticastTerminal 接收可靠终态。\nFindForASC：ASC → 原 Owner 的 FX 宿主。",
+      "x": 600,
+      "y": 0,
+      "width": 520,
+      "height": 300,
+      "color": "4"
+    },
+    {
+      "id": "owner",
+      "type": "text",
+      "text": "## MontageFXPublicationOwner\n拥有发布键、关闭状态、本地资源事实和远端 generation。\nReceiveState／ReceiveTerminal → 调和原键资源。\nCanRestore(key,generation) → 原资源许可。\nRemoteDestroyed → 精确归还；Shutdown → 残留 Abort。",
+      "x": 1200,
+      "y": 0,
+      "width": 520,
+      "height": 300,
+      "color": "4"
+    },
+    {
+      "id": "values",
+      "type": "text",
+      "text": "## 复制数据\nRecord：Occurrence、BeginServerTime、Avatar／Mesh／System、变换、Normal／Abort 停止策略、seek 步长与预算。\nState：Revision 与 ActiveRecords。\nTerminal：Occurrence、CloseRevision、Reason。",
+      "x": 600,
+      "y": 420,
+      "width": 520,
+      "height": 300,
+      "color": "4"
+    },
+    {
+      "id": "remote",
+      "type": "text",
+      "text": "## RemoteMontageFXComponent\n拥有原 Niagara Controller 和实例配置。\n服务器 BeginServerTime 是目标年龄基准；Controller Age 是实际模拟进度。\n原 Solo Tick 推进；场景代理接收渲染状态。\n活尾仍属原组件，generation 隔离旧实例清理。",
+      "x": 1200,
+      "y": 420,
+      "width": 520,
+      "height": 300,
+      "color": "4"
+    }
+  ],
+  "edges": [
+    {
+      "id": "h-host",
+      "fromNode": "holders",
+      "fromSide": "right",
+      "toNode": "host",
+      "toSide": "left",
+      "label": "请求发布原窗口／完成区间"
+    },
+    {
+      "id": "host-owner",
+      "fromNode": "host",
+      "fromSide": "right",
+      "toNode": "owner",
+      "toSide": "left",
+      "label": "持有并注册 Publisher"
+    },
+    {
+      "id": "host-values",
+      "fromNode": "host",
+      "fromSide": "bottom",
+      "toNode": "values",
+      "toSide": "top",
+      "label": "复制 State／Terminal"
+    },
+    {
+      "id": "owner-remote",
+      "fromNode": "owner",
+      "fromSide": "bottom",
+      "toNode": "remote",
+      "toSide": "top",
+      "label": "持有当前远端资源"
+    },
+    {
+      "id": "values-remote",
+      "fromNode": "values",
+      "fromSide": "right",
+      "toNode": "remote",
+      "toSide": "left",
+      "label": "提供原播放参数和服务器起点"
+    }
+  ]
+}

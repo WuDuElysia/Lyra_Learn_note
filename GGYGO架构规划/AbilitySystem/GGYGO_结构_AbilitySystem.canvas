@@ -173,7 +173,7 @@
     {
       "id": "w0-original-input-subscription",
       "type": "text",
-      "text": "## UGGYGOAbilityTask_WaitComboInput\nWaitComboInput(OwningAbility)返回未Ready Task；SetSourceStep提供来源段，OnPress输出SourceStep／RequestId。\nRegisterNativeCallback在Ready前接受一次非空FGGYGOComboInputNativeDelegate，返回FDelegateHandle；UnregisterNativeCallback只匹配原token。\nTask持有原弱ASC／Ability、Spec／PredictionKey、remote/predict模式及自身订阅；零key合法，桶身份不是GA激活身份。\nInputPressed来源于GAS原事件桶；本地预测使用原ASC预测窗口，远端整数载荷须通过范围校验。\nOnDestroy归还原桶中的自身handle与native注册包；GA负责Original、段序和原激活资源。\n[[AbilitySystem/结构#原事件桶与输入Task订阅|接口与清理]]",
+      "text": "## UGGYGOAbilityTask_WaitComboInput\n持有原弱 ASC／Ability、Spec／PredictionKey、Activation 与自身订阅；GA 拥有段序和许可。\nWaitComboInput(Ability,InitialRoute) → 未 Ready Task；SetSourceStep → 来源段。\nRegisterNativeCallback(owned 请求,InitialUnavailable) → 原注册 token；注销只匹配原 token。\nSubmitEntryFact(Request,Fact) → 认证并运输真实段首。\n本地订阅 InputPressed；远端订阅强类型 TargetData／Cancelled。首次 Initial 验收后不再等待必需远端数据。\nOnDestroy 归还自身订阅和回调，不消费后继。\n[[AbilitySystem/结构#原事件桶与输入Task订阅|接口与清理]]",
       "width": 900,
       "color": "5",
       "x": 2500,

@@ -1,0 +1,150 @@
+{
+  "nodes": [
+    {
+      "id": "nav",
+      "type": "text",
+      "text": "# FX｜远端恢复与收尾流程\n[[FX/结构|接口与归属]] · [[FX/GGYGO_结构_FX.canvas|结构图]]",
+      "x": 0,
+      "y": -200,
+      "width": 2320,
+      "height": 130,
+      "color": "4"
+    },
+    {
+      "id": "receive",
+      "type": "text",
+      "text": "## 接收复制\nOnRep_State → ReceiveState。\n读取原活动记录和引用映射。\n没有活动键：不创建、不补播。",
+      "x": 0,
+      "y": 0,
+      "width": 520,
+      "height": 300,
+      "color": "4"
+    },
+    {
+      "id": "create",
+      "type": "text",
+      "text": "## 调和原键\nPublisher 核 Avatar／Mesh 与本地资源归属 → 创建对应 generation 的远端组件。\n引用暂未就绪则等待原调和入口。\n旧 Avatar 资源退役，旧回调不能归还新 generation。",
+      "x": 600,
+      "y": 0,
+      "width": 520,
+      "height": 300,
+      "color": "4"
+    },
+    {
+      "id": "seek",
+      "type": "text",
+      "text": "## 原 Tick 追赶\nCanRestore(key,generation) → 服务器时间减 BeginServerTime。\n先隐藏 → SetDesiredAge → Super::TickComponent → 原 Controller 完成并读实际 Age。\n原步长／预算、材质和实例状态参与准入。",
+      "x": 1200,
+      "y": 0,
+      "width": 520,
+      "height": 300,
+      "color": "4"
+    },
+    {
+      "id": "show",
+      "type": "text",
+      "text": "## 同帧显示\n实际 Age 与目标相差小于原步长，Controller／材质就绪 → 恢复原渲染值并提交场景代理。\n下一原 Tick 继续 DesiredAge；再次落后就隐藏。",
+      "x": 1800,
+      "y": 0,
+      "width": 520,
+      "height": 300,
+      "color": "4"
+    },
+    {
+      "id": "terminal",
+      "type": "text",
+      "text": "## 原终态／持有者关闭\nMulticastTerminal → ReceiveTerminal，或原资源关闭。\nReleasePresentation 按 Normal／Abort 的 StopMode 停止。\n未 reached → DestroyImmediately。",
+      "x": 600,
+      "y": 450,
+      "width": 520,
+      "height": 300,
+      "color": "4"
+    },
+    {
+      "id": "tail",
+      "type": "text",
+      "text": "## 有效活尾\n已 reached 且策略保尾 → 恢复 OriginalAgeMode、SetDesiredAge 清 seek、恢复原渲染值。\nStopComponent 停止继续发射；同一 Solo Tick 推进存量尾粒子。",
+      "x": 1200,
+      "y": 450,
+      "width": 520,
+      "height": 300,
+      "color": "4"
+    },
+    {
+      "id": "done",
+      "type": "text",
+      "text": "## 原组件结束\n原 Niagara 自然完成或策略直接销毁 → 退原组件／资源。\nRemoteDestroyed(key,generation) 只影响原代次；新代理同键实例继续独立推进。",
+      "x": 1800,
+      "y": 450,
+      "width": 520,
+      "height": 300,
+      "color": "4"
+    }
+  ],
+  "edges": [
+    {
+      "id": "r-c",
+      "fromNode": "receive",
+      "fromSide": "right",
+      "toNode": "create",
+      "toSide": "left",
+      "label": "仍有活动记录"
+    },
+    {
+      "id": "c-s",
+      "fromNode": "create",
+      "fromSide": "right",
+      "toNode": "seek",
+      "toSide": "left",
+      "label": "原引用与播放配置有效"
+    },
+    {
+      "id": "s-v",
+      "fromNode": "seek",
+      "fromSide": "right",
+      "toNode": "show",
+      "toSide": "left",
+      "label": "实际进度和依赖就绪"
+    },
+    {
+      "id": "v-s",
+      "fromNode": "show",
+      "fromSide": "bottom",
+      "toNode": "seek",
+      "toSide": "bottom",
+      "label": "下一原 Tick"
+    },
+    {
+      "id": "c-t",
+      "fromNode": "create",
+      "fromSide": "bottom",
+      "toNode": "terminal",
+      "toSide": "top",
+      "label": "对应键收到关闭"
+    },
+    {
+      "id": "t-tail",
+      "fromNode": "terminal",
+      "fromSide": "right",
+      "toNode": "tail",
+      "toSide": "left",
+      "label": "已 reached 且 StopMode 保留尾粒子"
+    },
+    {
+      "id": "tail-d",
+      "fromNode": "tail",
+      "fromSide": "right",
+      "toNode": "done",
+      "toSide": "left",
+      "label": "自然完成"
+    },
+    {
+      "id": "t-d",
+      "fromNode": "terminal",
+      "fromSide": "bottom",
+      "toNode": "done",
+      "toSide": "bottom",
+      "label": "立即销毁策略／未 reached"
+    }
+  ]
+}

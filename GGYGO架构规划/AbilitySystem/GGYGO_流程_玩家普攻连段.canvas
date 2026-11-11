@@ -33,7 +33,7 @@
     {
       "id": "combo-f-input",
       "type": "text",
-      "text": "4. WaitComboInput→HandleInputPressed\n真实新按下带SourceStep/RequestId，服务器先消费原GAS事件。\n核Original/当前段/递增号/本原资源门。\n门关闭或Next=NONE：RejectRequest，不存Pending、不在过点重播。\n门开且Next有效：一次真实新请求进入即时换段分支。",
+      "text": "4. WaitComboInput → HandleStepInputRequest\n真实 Initial／Press 和段首事实 → 原 ASC 认证的 owned 请求。\n服务器消费原 TargetData；有效 Initial 清远端等待。\n核 Original／来源段／递增号／本原资源许可。\n门关闭或 Next=NONE → 拒绝，不存 Pending；门开且 Next 有效 → 新请求换段。",
       "x": 1060,
       "y": 250,
       "width": 450,
@@ -63,7 +63,7 @@
     {
       "id": "combo-f-end",
       "type": "text",
-      "text": "6. 原动作取消 / 自然收尾\nQualified复核一致→CancelMontageActionMotionForMovement(原Handle,Intent)→退休门→End(Original,true,true)。\n无请求：原BlendOut→NotifyMontageActionNaturalBlendOut；Task Completed→ReleaseMontageActionMotion(Completed)有限drain。\nCMC AfterMovement末贡献消费→原Handle完成事实。TryCompleteStepMotion两事实齐全才自然End(Authority,false)。",
+      "text": "6. 原动作取消／自然收尾\n合格移动意图 → CancelMontageActionMotionForMovement → 退原资源并结束 GA。\n原生 GA Cancel → Task 清理；PlayerCombo 不接回 native OnCancelled 重入 Cancel。\n无请求：原 BlendOut 认证末段；Task Completed → ReleaseMontageActionMotion(Completed) 有限 drain。\nCMC AfterMovement 消费末贡献 → 原 Handle 完成；两事实齐全才自然结束。权威 End 到达立即归还原预测资源。",
       "x": 0,
       "y": 700,
       "width": 450,

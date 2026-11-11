@@ -1,7 +1,7 @@
 {
 	"nodes":[
 		{"id":"action-nav","type":"text","text":"# 动作曲线｜原Montage XYZ与明确Profile模式\n原Task／Main→End来源 → CMC同一RMS／native时间 → 胶囊物理；作者点授权、混出、Task完成与贡献消费分别认证。\n[[Movement/动作曲线执行|契约与证据]] · [[Movement/结构]] · [[Movement/GGYGO_流程_移动与位移.canvas|主流程]]","x":0,"y":0,"width":1800,"height":150,"color":"6"},
-		{"id":"action-scope","type":"text","text":"## 实际验证与剩余边界\n完成须同一Activation／StepToken／Task／Handle／Source；OwnerSync输入Scope不是动作ID。\nactive Montage=None、BlendOut或Release成功不代表胶囊最后贡献已消费。\nNotifyNatural在消费完成前核原live实例；瞬时移除实例的其他混出配置须明确兼容。\nPose只修身体余量；胶囊执行与鞋底几何分别验收，碰撞不走追补链。\n[[Movement/计划_移动与动作位移#15. 当前实现：复杂度收口与职责拆分|本轮有限门禁／历史失败／未验范围]]","x":490,"y":1050,"width":1410,"height":360,"color":"6"},
+		{"id":"action-scope","type":"text","text":"## 完成判定与来源拒绝\n回调到达 → 核同一 Activation／StepToken／Task／Handle／Source；异源拒绝。\nBlendOut 或 Release 成功 → 保留原末段，等待实际贡献消费。\n有效 Authority End → 立即归还原预测资源。\n原 Task 与 CMC 两完成事实齐全 → GA 自然结束。\nPose 只修身体余量；碰撞结果归原生 CMC，不追补未受阻的资产终点。","x":490,"y":1050,"width":1410,"height":360,"color":"6"},
 		{"id":"action-author","type":"text","text":"## 原资产与离线业务生产\nPyrios原Sequence含累计RootMotion_PosX/Y/Z；Animation依原Montage／FullBody建立完整Main→End绑定。\nMontage作者单点Name=Event.Montage.CancelPoint；完整End与末帧混出／独立时长归资产，原Sequence保留。\nKevin离线业务生产保持独立模式；原曲线唯一来源，缺失明确拒绝。","x":-205,"y":240,"width":410,"height":300,"color":"4"},
 		{"id":"action-profile","type":"text","text":"## 原SourceBinding／业务Profile\n当前普攻：原Montage／Slot／有序Sections／Segments；Task给原实例／位置／固定速率。\nMapMontageInterval同次完整验证，Movement核执行曲线一次；逐源／loop差分PosXYZ；私有native末端量化认证完整源末帧，raw身份不变。\nnative动画RootMotion互斥；业务Profile另配CV／Duration／Scale，地面XY，无错误替代。","x":695,"y":240,"width":410,"height":350,"color":"4"},
 		{"id":"action-ga","type":"text","text":"## GA／原Task编排\nGA持原Activation／StepToken／Task／Handle，Main→End同一轨迹。\n原Task Point事实 → HandleMontageNotify → EnableStepInterruption；新播放关门。\n过点QueryQualifiedMovementIntent／SubscribeQualifiedMovementIntent原Scope；Held／新Press须合格，原Handle不换。\n移动精确取消后结束GA／重置；新攻击由GA接续，Section不授门。\n自然等TaskCompleted＋MotionCompleted；必需Pose失效中止。\n[[AbilitySystem/结构]] · [[Animation/结构]]","x":-205,"y":630,"width":410,"height":380,"color":"5"},
@@ -11,7 +11,7 @@
     {
       "id": "action-native-task-facts",
       "type": "text",
-      "text": "## 原Task：混出与播放完成\n原非Interrupted OnBlendOut → NotifyMontageActionNaturalBlendOut(原Handle,InstanceId)。\nCMC核配置末段auto-blend窗口；原native尾区间继续，不通知MotionCompleted。\n原OnCompleted → ReleaseMontageActionMotion(原Handle,Completed)，仅接受有界Drain。\nGA记TaskCompleted，等待原MotionCompleted；原Interrupted／Cancelled精确中止。\n混出触发与时长读Montage配置，无额外播放时钟。",
+      "text": "## 原 Task：混出与播放完成\n非 Interrupted OnBlendOut → NotifyMontageActionNaturalBlendOut(Handle,InstanceId)。\n核原实例、配置末段与 native 夹点 → 同一 RMS 继续有限时间，不提前通知完成。\nOnCompleted → ReleaseMontageActionMotion(Handle,Completed)；原 GA 仍有效才接受有界 drain。\nGA 记 TaskCompleted，等原 MotionCompleted；Interrupted／Cancelled 精确中止。\n混出触发与时长来自原 Montage 配置。",
       "x": -205,
       "y": 1580,
       "width": 550,

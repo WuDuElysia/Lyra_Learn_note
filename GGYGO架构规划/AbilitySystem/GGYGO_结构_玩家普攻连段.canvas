@@ -13,7 +13,7 @@
     {
       "id": "combo-s-ga",
       "type": "text",
-      "text": "## UGGYGOPlayerComboAbility\n持原Activation、段序／请求号、FStepMotionResources、Task和Owned窗口。\nStartStep(Original,Index,Position,RequestId)：原激活与段配置→播放／移动／FX资源。\nHandleMontageNotify按名解释独立AttackGate／MovementGate；HandleInputPressed消费真实新请求。\n攻击点只接续；移动许可须到Main实际末端。\nCleanupAbilityResourcesForTermination(Context)：原终止上下文→释放匹配资源。\n[[AbilitySystem/结构#原请求终止|生命周期接口]]",
+      "text": "## UGGYGOPlayerComboAbility\n持原Activation、段序／请求号、FStepMotionResources、Task和Owned窗口。\nStartStep(Original,Index,Position,RequestId)：原激活与段配置→播放／移动／FX资源。\nHandleMontageNotify按名解释独立AttackGate／MovementGate；HandleInputPressed消费真实新请求。\nAttackGate与MovementGate为独立许可；攻击门对应接续，移动门受Main实际末端约束。\nCleanupAbilityResourcesForTermination(Context)：原终止上下文→释放匹配资源。\n[[AbilitySystem/结构#原请求终止|生命周期接口]]",
       "x": 530,
       "y": 280,
       "width": 450,
@@ -73,7 +73,7 @@
     {
       "id": "combo-s-hit",
       "type": "text",
-      "text": "## MeleeTrace／Builder／GE／Cue\nHero持MeleeTraceComponent；Combat持窗口、采样及去重。\nTryOpenOwnedTraceWindow／SubscribeWindowHit：查询配置→Window及Actor／HitResult事实。\nGA持窗口和订阅，核原激活／段／Task／Window。\nBuilder每命中创建Spec；GA按返回GE模式写绝对值或倍率、独立削韧，再经ASC应用。\nUnsubscribeWindowHit／CloseOwnedTraceWindow归还原查询资源。\n[[Combat/结构|查询契约]] · [[GGYGO_流程_伤害结算.canvas|伤害流程]]",
+      "text": "## MeleeTrace／Builder／GE／Cue\nHero持MeleeTraceComponent；Combat持窗口、采样及去重。\nTryOpenOwnedTraceWindow／SubscribeWindowHit：查询配置→Window及Actor／HitResult事实。\nGA持窗口和订阅，核原激活／段／Task／Window。\nBuildHitEffectPayload提供独立命中Spec；GA拥有GE模式及绝对值／倍率、削韧配置，ASC提供Spec应用接口。\nUnsubscribeWindowHit／CloseOwnedTraceWindow归还原查询资源。\n[[Combat/结构|查询契约]] · [[GGYGO_流程_伤害结算.canvas|伤害流程]]",
       "x": -260,
       "y": 750,
       "width": 450,

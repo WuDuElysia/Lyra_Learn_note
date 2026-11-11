@@ -13,7 +13,7 @@
     {
       "id": "k4exec",
       "type": "text",
-      "text": "## 同一ASC｜Avatar绑定\nInitAbilityActorInfo覆盖：Owner或Avatar变化时先清输入；检测到新Pawn Avatar时通知能力实例并尝试OnSpawn激活。\nClearActorInfo覆盖：清输入后原生清除。\n绑定流程（释放旧Avatar：取消能力、清输入、移除Cue、回到Owner-only、广播Released；再Init新Pawn并广播Ready）由Host编排。\n[[AbilitySystem/结构#Avatar 绑定|绑定]] · [[Combatants/结构|Host]]",
+      "text": "## 同一ASC｜Avatar绑定\nInitAbilityActorInfo(Owner, Avatar)：绑定端点输入→更新ActorInfo；端点变化使输入失效，新Pawn Avatar关联能力实例通知与OnSpawn激活。\nClearActorInfo：清除输入与原生ActorInfo。\nHost拥有绑定事务，ASC的ActorInfo持有Owner／Avatar，PawnExtension发布Ready／Released。\n[[AbilitySystem/结构#Avatar 绑定|绑定]] · [[Combatants/结构|Host]]",
       "y": 2080,
       "width": 730,
       "color": "5",
@@ -33,7 +33,7 @@
     {
       "id": "host",
       "type": "text",
-      "text": "## 持久状态宿主\nSlot／BossState持有ASC；Host选择Avatar，释放旧Avatar后调用原生`InitAbilityActorInfo(宿主, 新Pawn)`。\nPawnExtension以本地订阅发布Ready/Released；Health／Hero／CMC／LocomotionFX各自订阅。\n换人不重绑，见[[Teams/结构#换人：留场、退场与进场|Teams]]。\n[[Combatants/结构|Host接口]]",
+      "text": "## 持久状态宿主\nSlot／BossState持有ASC；Host拥有Avatar选择与绑定事务，通过`InitAbilityActorInfo(宿主, Pawn)`设置ASC的Owner／Avatar关系。\nPawnExtension以本地订阅发布Ready/Released；Health／Hero／CMC／LocomotionFX各自订阅。\n换人不重绑，见[[Teams/结构#换人：留场、退场与进场|Teams]]。\n[[Combatants/结构|Host接口]]",
       "color": "4",
       "x": -1440,
       "y": 630,
@@ -53,7 +53,7 @@
     {
       "id": "asc",
       "type": "text",
-      "text": "## UGGYGOAbilitySystemComponent\nReceive／End／EndFromSource／ProcessAbilityInput／ClearAbilityInput：公开入口，委托输入缓冲。\nNotifyAbilityFailed（final）先由缓冲认领输入来源并登记真实Queued或SwitchReturnPending许可，再走原生反馈；OnAbilityInputRetryable仅观察。\nIsActivationBlockedByGroup提供准入查询；FinalizeAbilityGroupAdmission执行终检，ActiveAbilitiesByGroup是权威组登记。\nNotifyAbilityActivated／Ended：签发与退役GA激活身份，维护组登记。\nReleaseHeldInputForControlLoss：换出时补发真实释放。\nClientCorrectAbilityState只路由纠正；绑定只经原生Init／ClearActorInfo。",
+      "text": "## UGGYGOAbilitySystemComponent\nReceive／End／EndFromSource／ProcessAbilityInput／ClearAbilityInput：公开入口，委托输入缓冲。\nNotifyAbilityFailed（final）委托输入缓冲认领失败来源、登记真实Queued或SwitchReturnPending许可，并提供原生失败反馈；OnAbilityInputRetryable是观察接口。\nIsActivationBlockedByGroup提供准入查询；FinalizeAbilityGroupAdmission执行终检，ActiveAbilitiesByGroup是权威组登记。\nNotifyAbilityActivated／Ended：签发与退役GA激活身份，维护组登记。\nReleaseHeldInputForControlLoss：换出时补发真实释放。\nClientCorrectAbilityState只路由纠正；绑定只经原生Init／ClearActorInfo。",
       "width": 490,
       "height": 570,
       "color": "5",
@@ -73,7 +73,7 @@
     {
       "id": "effect",
       "type": "text",
-      "text": "## 伤害／表现接口\nComboStep持Damage／DamageMultiplier／PoiseDamage；GE的PassedInTags选择绝对输入或攻击力×倍率。\n每命中Builder创建Spec，Source快照捕获当时攻击力及Buff。\nEffectContext持HitResult与显式Origin；Duplicate保留Origin。\nExecution消费独立削韧与衰减，写元属性；HealthSet结算。\nCueManager分发，HitImpact解析与播放反馈。\n[[AbilitySystem/结构#伤害输入、Spec与属性边界|伤害契约]] · [[AbilitySystem/Cues/结构|Cue接口]]",
+      "text": "## 伤害／表现接口\nComboStep持Damage／DamageMultiplier／PoiseDamage；GE的PassedInTags选择绝对输入或攻击力×倍率。\nBuildHitEffectPayload提供独立命中Spec；Spec持有创建时的Source属性快照，包含生效Buff。\nEffectContext持HitResult与显式Origin；Duplicate保留Origin。\nExecution消费独立削韧与衰减，写元属性；HealthSet结算。\nCueManager分发，HitImpact解析与播放反馈。\n[[AbilitySystem/结构#伤害输入、Spec与属性边界|伤害契约]] · [[AbilitySystem/Cues/结构|Cue接口]]",
       "width": 490,
       "height": 330,
       "color": "1",
@@ -103,7 +103,7 @@
     {
       "id": "attribute-current-base-calculation",
       "type": "text",
-      "text": "## GGYGOAttributeBase｜Current → Base计算\nCalculateBaseForCurrent(ASC, ExpectedAttributeSet, Attribute, ExpectedCurrent, DesiredCurrent)\n输入：ASC、原Set、注册FGameplayAttributeData属性、实际Current和目标Current；游戏线程／权威端。\n输出FGGYGOAttributeBaseCalculationResult；不写属性或决定业务边界。\n经ASC公开接口做实时capture、默认/CustomQualifies外调、重新capture及原Set/ASC/Owner/Base/Current/资格认证。\nGGYGOAttributeCalculation处理已认证栈值；原生临时通道不持GE或依赖，不要求持久属性Avatar Ready。\nHealthSet唯一拥有Current目标、边界、Base提交与OwnPost结果。\n[[AbilitySystem/结构#Current 与 Base 数值接口|输入、输出与职责]]",
+      "text": "## GGYGOAttributeBase｜Current → Base计算\nCalculateBaseForCurrent(ASC, ExpectedAttributeSet, Attribute, ExpectedCurrent, DesiredCurrent)\n输入：ASC、原Set、注册FGameplayAttributeData属性、实际Current和目标Current；游戏线程／权威端。\n输出FGGYGOAttributeBaseCalculationResult；不写属性或决定业务边界。\nGGYGOAttributeBase负责ASC公开capture、默认/CustomQualifies资格查询，以及原Set/ASC/Owner/Base/Current/资格认证。\nGGYGOAttributeCalculation处理已认证栈值；原生临时通道不持GE或依赖，不要求持久属性Avatar Ready。\nHealthSet唯一拥有Current目标、边界、Base提交与OwnPost结果。\n[[AbilitySystem/结构#Current 与 Base 数值接口|输入、输出与职责]]",
       "width": 660,
       "height": 600,
       "color": "5",
@@ -208,7 +208,7 @@
       "width": 660,
       "height": 330,
       "color": "4",
-      "text": "## ASC私有协作者\nFGGYGOAbilityInputBuffer：请求、按住聚合、有序边沿、组排队／SwitchReturnPending重试许可、每帧消费、ReleaseHeldInputForControlLoss。\nFGGYGOAbilityStepInputRouter：分段输入来源认证、Initial运输、TargetData RPC经ASC转原生实现。\n两者由ASC以TUniquePtr独占，普通C++对象，只在ASC调用时执行，无Tick。\n[[AbilitySystem/结构#单次 Can 评估与输入失败来源|输入契约]]"
+      "text": "## ASC私有协作者\nFGGYGOAbilityInputBuffer：请求、按住聚合、有序边沿、组排队／SwitchReturnPending重试许可、每帧消费、ReleaseHeldInputForControlLoss。\nFGGYGOAbilityStepInputRouter：分段输入来源认证、Initial运输、TargetData RPC经ASC转原生实现。\n两者由ASC以TUniquePtr独占，普通C++对象，只在ASC调用时执行，无Tick。\nInputBuffer 的输入尝试来源与 Can 层级随同步调用栈存活。\n[[AbilitySystem/结构#单次 Can 评估与输入失败来源|输入契约]]"
     },
     {
       "id": "attribute-calculation-stateless",
@@ -340,14 +340,14 @@
       "fromSide": "top",
       "toNode": "k3-task-resource-consumer",
       "toSide": "top",
-      "label": "派生GA持原Task/包token；Ready前Register，Context精确脱包/归还原Task"
+      "label": "派生GA持有原Montage Task及native回调包token"
     },
     {
       "id": "ga-owns-input-native-subscription",
       "fromNode": "ga",
       "toNode": "w0-original-input-subscription",
       "toSide": "left",
-      "label": "Combo持原InputTask/token；闭包捕Original，Context精确注销/TaskOwnerEnded",
+      "label": "Combo持有原InputTask及订阅token，闭包关联原Activation",
       "fromSide": "right"
     },
     {

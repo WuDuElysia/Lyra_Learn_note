@@ -3,7 +3,7 @@
     {
       "id": "k4flow",
       "type": "text",
-      "text": "Avatar 绑定流程（Lyra 式，由 Host 编排）\n1. 服务器 `AttachAvatar(NewPawn)` 或客户端 `OnRep_AvatarPawn` → `BindAvatar`：绑定进行中再请求 → Reentrant；同一 Pawn → AlreadyBound；宿主关闭、Pawn 无效、宿主死亡、Pawn 已绑别处 → 对应拒绝。\n2. 释放旧 Avatar：取消能力（保留 `Ability.Behavior.SurvivesDeath`）→ 清输入 → 移除全部 Cue → ActorInfo 回到 Owner-only（宿主关闭时 `ClearActorInfo`）→ 旧 Pawn 的 Extension 广播 Released。\n3. `InitAbilityActorInfo(宿主, 新Pawn)`：ASC 覆盖在端点变化时清输入，新 Pawn Avatar 通知能力实例并尝试 OnSpawn。订阅新 Pawn 的 `OnEndPlay／OnDestroyed`，服务器写 `AvatarPawn`。\n4. 新 Pawn 的 Extension 广播 Ready，本地订阅（Hero、CMC、Health、LocomotionFX）各自消费；订阅时回放 Ready，重复 Ready 不回调。\nController 变化只 `RefreshAbilityActorInfo`；换人不重绑。[[Combatants/结构|Host]] · [[AbilitySystem/结构#Avatar 绑定|接口]]",
+      "text": "Avatar 绑定流程（Host 编排）\n1. 服务器 `AttachAvatar(NewPawn)` 或客户端 `OnRep_AvatarPawn` → `BindAvatar`：绑定进行中再请求 → Reentrant；同一 Pawn → AlreadyBound；宿主关闭、Pawn 无效、宿主死亡、Pawn 已绑别处 → 对应拒绝。\n2. 释放旧 Avatar：取消能力（保留 `Ability.Behavior.SurvivesDeath`）→ 清输入 → 移除全部 Cue → ActorInfo 回到 Owner-only（宿主关闭时 `ClearActorInfo`）→ 旧 Pawn 的 Extension 广播 Released。\n3. `InitAbilityActorInfo(宿主, 新Pawn)`：ASC 覆盖在端点变化时清输入，新 Pawn Avatar 通知能力实例并尝试 OnSpawn。订阅新 Pawn 的 `OnEndPlay／OnDestroyed`，服务器写 `AvatarPawn`。\n4. 新 Pawn 的 Extension 广播 Ready，本地订阅（Hero、CMC、Health、LocomotionFX）各自消费；订阅时回放 Ready，重复 Ready 不回调。\nController 变化只 `RefreshAbilityActorInfo`；换人不重绑。[[Combatants/结构|Host]] · [[AbilitySystem/结构#Avatar 绑定|接口]]",
       "x": 0,
       "y": 1750,
       "width": 1850,
@@ -43,7 +43,7 @@
     {
       "id": "check",
       "type": "text",
-      "text": "3. 原生 Try 准入与 GA::CanActivateAbility（final）。\n\n每层 Can 独立评估，在原核心检查的外调前认领本次输入许可。\nActorInfo → Super::CanActivateAbility（原 GAS/BP、冷却、成本、Tag）→ ASC::IsActivationBlockedByGroup → CanActivateAbilityAdditional。\n返回前封闭本层结果；QueryOnly／嵌套 raw 无输入重试证明。\n原生前置拒绝未进 Can 时也走 Notify，先耗尽匹配许可。\n组规则见 [[GGYGO_流程_能力仲裁.canvas|仲裁子图]]。",
+      "text": "3. 原生 Try → GA::CanActivateAbility（final）。\n\n进入 Can 作用域记录层级，返栈时恢复。\nActorInfo → 原生 GAS/BP、冷却、成本、Tag → 输入换人回场门 → 组准入 → CanActivateAbilityAdditional。\n输入 Try 的直接 Can 可读输入来源；其内部的 raw Try／查询没有该许可。\nCan 返回后原生通知成功或失败；只有回到输入 Try 进入层级的通知能认领原来源。\n组规则见 [[GGYGO_流程_能力仲裁.canvas|仲裁子图]]。",
       "x": 940,
       "width": 400,
       "height": 400,
@@ -86,7 +86,7 @@
       "width": 700,
       "height": 670,
       "color": "5",
-      "text": "## Process输入消费\n入口：AbilityInputBlocked或ActorInfo不可用→清空；SwitchReturnPending登记过且标签已移除→唤醒一次等待。\nReceive冻结原ID/Tag/deadline及首次Spec集合，记录真实边沿；多个held来源按OR保持。\nProcess外调前捕Edges，逐Edge冻结InitialSourcesByEdge；Press A→Release A→Press B不让B进入A的Can来源。\n同边沿OR、同Spec本批最多一次Try；剩余边沿进入既有DeferredEdges，下次PostProcess消费。\n输入尝试作用域包一次TryActivateAbility；本次许可先消费，激活才消费请求。\nfinal Can独立评估→final Notify带GroupQueued或SwitchReturnPending才重授原许可/等待；Query/raw不借来源。\nPendingRetries仍经原ID/Tag/deadline/Policy核对，FiniteRetry不重开窗口。\nReleased按最后held发释放，未过期Triggered tap可retry；WhileInputActive有限retry另需held。\nInvalidated不伪Released；deadline只退休有限许可/等待/Pending，不松键。\n[[AbilitySystem/结构#单次 Can 评估与输入失败来源|输入接口]]",
+      "text": "## Process输入消费\n入口：AbilityInputBlocked或ActorInfo不可用→清空；SwitchReturnPending登记过且标签已移除→唤醒一次等待。\nReceive冻结原ID/Tag/deadline及首次Spec集合，记录真实边沿；多个held来源按OR保持。\nProcess外调前捕Edges，逐Edge冻结InitialSourcesByEdge；Press A→Release A→Press B不让B进入A的Can来源。\n同边沿合并来源；每次Process每个Spec至多一次Try，剩余边沿经DeferredEdges留到下次PostProcess。\n输入尝试作用域包一次TryActivateAbility；本次许可先消费，激活才消费请求。\nCan 作用域记录嵌套层级；返至输入 Try 的进入层级后，Notify 才认领该来源。\n带 GroupQueued／SwitchReturnPending 的失败在原生反馈前登记原许可，反馈后广播仍有效的重试通知。\nPendingRetries仍经原ID/Tag/deadline/Policy核对，FiniteRetry不重开窗口。\nReleased按最后held发释放，未过期Triggered tap可retry；WhileInputActive有限retry另需held。\nInvalidated不伪Released；deadline只退休有限许可/等待/Pending，不松键。\n[[AbilitySystem/结构#单次 Can 评估与输入失败来源|输入接口]]",
       "x": 2380,
       "y": -183
     },
@@ -372,7 +372,7 @@
       "fromSide": "bottom",
       "toNode": "k3-original-resource",
       "toSide": "top",
-      "label": "Succeeded才有ASC签发原Playback；其它只保留本次失败历史"
+      "label": "Succeeded且来源有效→取得Playback；否则返回播放失败结果"
     },
     {
       "id": "k3-source-clear",
@@ -532,7 +532,7 @@
       "fromSide": "top",
       "toNode": "ability-input-ordered-edge-flow",
       "toSide": "bottom",
-      "label": "Queue合法原Retry→既有下一Process；本批等待已消费"
+      "label": "提交合法Retry→下一次Process；本次唤醒的等待已消费"
     }
   ]
 }

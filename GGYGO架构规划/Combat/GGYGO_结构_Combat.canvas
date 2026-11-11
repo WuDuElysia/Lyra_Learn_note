@@ -69,8 +69,9 @@
       "width": 1450,
       "height": 300,
       "color": "6"
-    }
-  ],
+    },
+{"id": "area-projectile-query", "type": "text", "x": 1700, "y": 270, "width": 560, "height": 490, "color": "5", "text": "## FGGYGOCombatHitQuery\nOpen(Authority Source, IgnoredActors) → 原查询实例；GA 窗口或弹体寿命持有。\nOverlapSphere／Box(世界几何) → 原 FOverlapResult；不造接触点／法线。\nSweepSphere(原移动段, 半径) → 去重 Actor 的完整 FHitResult＋独立 OutBlockingHit。\nTouch→Block 不受伤害去重吞掉，原弹体据阻挡销毁；同 Actor 只结算一次。\nClose 幂等归还来源／忽略表／去重。\n无 Tick、委托、位移或伤害提交。\n[[Combat/结构|查询接口与验证]]"}
+],
   "edges": [
     {
       "id": "e1",
@@ -103,6 +104,8 @@
       "toNode": "gas",
       "toSide": "top",
       "label": "Owned 原窗口命中 → Combo/Boss 原身份消费"
-    }
-  ]
+    },
+{"id": "nav-query", "fromNode": "nav", "fromSide": "right", "toNode": "area-projectile-query", "toSide": "top", "label": "范围／弹体查询分支"},
+{"id": "query-gas", "fromNode": "area-projectile-query", "fromSide": "bottom", "toNode": "gas", "toSide": "right", "label": "原 GA 消费事实并结算"}
+]
 }

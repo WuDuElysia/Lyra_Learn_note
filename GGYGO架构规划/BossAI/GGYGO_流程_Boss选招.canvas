@@ -3,7 +3,7 @@
     {
       "id": "nav",
       "type": "text",
-      "text": "# Boss 选招｜流程子图\n配置/选招专项已通过；BT以TryActivateAbility＋原生OnAbilityEnded等待。普通Mesh A→完整返回→B有限通过，严格raw重入失败保留；正式BT战斗/资产/网络待验。\n[[GGYGO_流程_BossAI.canvas|返回主流程]] · [[GGYGO_结构_BossAI.canvas|结构图]] · [[BossAI/结构|完整契约]] · [[计划_BOSSAI|设计与验收]]",
+      "text": "# Boss 选招与原 GAS 等待\nKevin 正式 P3 单机 BT 已覆盖 11 个攻击入口、50% 阶段切换与胜利；完整 Dash_F 追击另有受影响复验。网络／Cook 和历史强制重入矩阵未验。\n[[GGYGO_流程_BossAI.canvas|主流程]] · [[GGYGO_结构_BossAI.canvas|结构]] · [[BossAI/计划_Kevin_DemonBattle战斗接入|Kevin 配置与证据]]",
       "x": 0,
       "y": 0,
       "width": 1940,

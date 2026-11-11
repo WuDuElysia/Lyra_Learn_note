@@ -7,7 +7,7 @@
       "y": 0,
       "width": 1570,
       "height": 200,
-      "text": "# Kevin战斗动画｜生成与运行接缝\n完整链接、8项Python及3项Animation安全自动化通过；RootMotion加强断言冷启动复测通过。资产生成及命中验收待执行。\n[[Animation/Kevin战斗动画实施|接口与窗口]] · [[Animation/资产生产安全|保护与失败边界]] · [[Animation/结构|结构文档]] · [[GGYGO_流程_动画表现.canvas|主流程]]",
+      "text": "# Kevin 战斗动画｜生成与运行接缝\n26 份派生、19 技能／5 表现 Montage 与 ABP 已保存读回；正式单机战斗及受影响画面已验。网络／Cook 未验。\n[[Animation/Kevin战斗动画实施|完整接口和边界]] · [[Animation/资产生产安全|生产保护]] · [[BossAI/计划_Kevin_DemonBattle战斗接入|正式入口]]",
       "color": "6"
     },
     {
@@ -17,7 +17,7 @@
       "y": 300,
       "width": 430,
       "height": 300,
-      "text": "## 1. 只读源证据\n审计79份FBX/JSON → 75有效、4空。\n无HitWindow/事件导出；55条独立Montage候选，其余保留状态/姿态/测试。\nWeapon全顶点权重1 → Bip001 Prop1。\n审计脚本不读写人工配置。",
+      "text": "## 1. 只读来源\n79 份 FBX／JSON：75 有效、4 空。\n原游戏 HitWindow／伤害时点未知。\n武器刚性绑定 Bip001-Prop1；\n窗口和技能组合由项目设计。",
       "color": "4"
     },
     {
@@ -27,7 +27,7 @@
       "y": 300,
       "width": 460,
       "height": 330,
-      "text": "## 2. 人工资产配置\nBH3_Kevin_Combat_Montage_Config.json\n片段/派生覆盖、Slot、混合、窗口与ABP路径。\nIce01=45–55帧；Ice02=8–24帧，均manual_candidate。\nIce02是Prop1动画离手扫剑，无独立弹体系统；其他53条无伤害窗口。",
+      "text": "## 2. 作者配置\nBH3_Kevin_Combat_Montage_Config.json\n明确片段、Slot、组合、窗口与声音。\n多段 AirChain 保留完整轨迹。\nFly_Loop 末帧是纯表现静止等待；\nDash_F 保留完整约 1.07 秒／7.11 m。",
       "color": "4"
     },
     {
@@ -37,7 +37,7 @@
       "y": 300,
       "width": 460,
       "height": 330,
-      "text": "## 3. Movement派生资产准备\nGGYGO.BuildKevinMotionAssets audit/build\n先核验类型/所有权/脏包/磁盘及骨轨曲线基线；差异即停止。\n已有输出保留，build仅创建缺失项。\nAnimation读取InPlace，RootMotion=false。\n[[Movement/结构|唯一执行胶囊位移]]",
+      "text": "## 3. 派生与位移\nKevinMotionAssetBuilder 生成原地序列；\n累计 XYZ 保留给 CMC，禁用 RootMotion。\n原始素材只读，不清零技能 Z。\nFlying 释放后 CMC 原生重力下降；\n[[Movement/结构|CMC 唯一执行胶囊]]",
       "color": "4"
     },
     {
@@ -47,7 +47,7 @@
       "y": 780,
       "width": 430,
       "height": 350,
-      "text": "## 4. BuildMontage（未执行）\nGGYGO.BuildKevinCombatAssets [配置路径]\n已有：只读核验片段/Slot/Section/窗口，保留人工Notify和混合。\n缺失：创建单次完整片段、Main→None及GameplayEventWindow。\n脏包/未知来源/差异 → 失败保留。仅保存新建对象。",
+      "text": "## 4. Montage 作者入口\nKevinCombatAssetBuilder 生成技能／表现。\n窗口和组合按配置严格校验。\n只保存明确创建／授权更新的目标；\n脏包、未知资源或无效配置明确拒绝。\n不 SaveAll，不覆盖已有人工图。",
       "color": "5"
     },
     {
@@ -57,7 +57,7 @@
       "y": 780,
       "width": 460,
       "height": 350,
-      "text": "## 5. BuildSockets（待验收）\n核验LOD0武器section刚性绑定Prop1。\n已有完整自有端点：核验父骨/线段，保留位置。\n两端缺失：参考局部点→PCA两端；半组/异常：停止。\nmesh-only KevinWeaponTraceStart/End。\n报告实际端点；GA配置TraceRadius。",
+      "text": "## 5. 实际武器端点\nLOD0 武器几何与 Prop1 参考变换\n→ KevinWeaponTraceStart／End。\nGA 配置世界半径，Animation 发布窗。\n不是从 HitBox 名称推导判定。",
       "color": "5"
     },
     {
@@ -67,7 +67,7 @@
       "y": 780,
       "width": 460,
       "height": 350,
-      "text": "## 6. BuildAnimBP（待执行）\n已有：核验骨架、编译状态、Slot存在，保留人工图，不编译/保存。\nSlot存在不证明有效输出链。\n缺失：StandBy→DefaultSlot→Output，CompileBlueprint成功才保存。\nAnimation维护图；Combat引用。\n初版无完整移动状态机。",
+      "text": "## 6. ABP 表现\n待机／Slot、Falling 末帧等待、Die\n由 KevinBossAnimBlueprintAuthor 接线。\nFly_Loop 全骨骼复制最后一帧；\nHealth 死亡状态由 ABP 唯一播 Die。\n已有图输出保护回归通过。",
       "color": "5"
     },
     {
@@ -77,7 +77,7 @@
       "y": 1280,
       "width": 430,
       "height": 340,
-      "text": "## 7. GA播放与Montage事件（待运行验收）\nGA的AttackMontage引用派生Ice Montage。\nGameplayEventWindow → Event.Montage.HitWindowBegin/End。\n动画只提供姿态/窗口，不持有伤害或移动权威。\n[[BossAI/结构|GA生命周期接缝]]",
+      "text": "## 7. 原 GA／CMC\nMontage 完成 → 归还 Flying\n→ 原生重力 → 真实 Landed\n→ LandingRecovery 纯表现 → 原 GA 结束。\n表现不代替落地，不执行合成下降。\n[[BossAI/结构|GA 资源与 BP 流程]]",
       "color": "1"
     },
     {
@@ -87,7 +87,7 @@
       "y": 1280,
       "width": 460,
       "height": 340,
-      "text": "## 8. Combat消费窗口（待联合验收）\nBossMelee → TryOpenOwnedTraceWindow(StartSocket, EndSocket, Radius) → SubscribeWindowHit。\n同窗口去重，命中交GA应用GE；结束/中断关闭。\nSocket随Prop1动画运动，不能从无轨道HitBox推断开关。\n[[Combat/结构|判定职责]]",
+      "text": "## 8. Combat 查询\n近战 Owned Trace，范围球／盒，弹体段扫。\n原窗口／弹体寿命去重；GA／GE 结算。\n物理阻挡与伤害去重分开。\n正常结束、取消和死亡归还原资源。\n[[Combat/结构|实际查询接口]]",
       "color": "1"
     },
     {
@@ -97,7 +97,7 @@
       "y": 1280,
       "width": 460,
       "height": 340,
-      "text": "## 验证出口\nSaved/Codex/kevin_combat_asset_report.json\nsuccess / status / saved_this_run；验证通过不等于本次保存。\n失败保留已有内容；部分新建保存失败须人工处理后重试。\n安全自动化已通过，待生产资产回读；再验派生动画+胶囊、扫剑和取消。",
+      "text": "## 验证与限制\nAnimation_Read：轨迹／姿态／窗口读回。\nR6：正式 BT 两阶段、胜利、真实落地。\nR7：静止目标前完整 Dash_F 分段接近。\nR9／Visual_Fire_Air：主要画面已查看。\n隔离复拍不代替自动选招；网络、Cook、\n性能及设备试听未验。",
       "color": "3"
     }
   ],

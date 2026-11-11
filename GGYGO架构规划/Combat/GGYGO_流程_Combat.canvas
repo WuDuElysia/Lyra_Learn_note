@@ -69,8 +69,9 @@
       "width": 430,
       "height": 390,
       "color": "1"
-    }
-  ],
+    },
+{"id": "area-projectile-flow", "type": "text", "x": 2070, "y": 392, "width": 560, "height": 490, "color": "5", "text": "## 范围／弹体独立入口\nGA 作者窗或原生 ProjectileMovement 段\n→ 原 Query OverlapSphere／Box／SweepSphere。\n有效几何 → 物理查询 → Actor 去重事实；\nSweep 另保留不去重的原阻挡 Hit。\n→ GA 构造 GE／Cue；原弹体遇 Block 销毁。\n同段／跨段同 Actor Touch→Block：\n只结算一次，后续 Block 仍销毁弹体。\n非法输入：空结果／空阻挡＋原因；\n原 GA 清理 Close，不影响后继实例。\n[[Combat/结构|完整接口]]"}
+],
   "edges": [
     {
       "id": "e1",
@@ -119,6 +120,8 @@
       "toNode": "sweep",
       "toSide": "right",
       "label": "原窗口仍活动才继续；失效退出"
-    }
-  ]
+    },
+{"id": "nav-area-query", "fromNode": "nav", "fromSide": "right", "toNode": "area-projectile-flow", "toSide": "top", "label": "范围窗／原生弹体段"},
+{"id": "area-query-ge", "fromNode": "area-projectile-flow", "fromSide": "bottom", "toNode": "ge", "toSide": "right", "label": "去重命中由原 GA 结算"}
+]
 }

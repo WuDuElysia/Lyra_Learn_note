@@ -33,11 +33,11 @@
     {
       "id": "character",
       "type": "text",
-      "text": "## AGGYGOCharacterBase / HeroCharacter\nPawn持Extension／Health／CMC；玩家另持Hero。\nPossessedBy／UnPossessed／OnRep_Controller → Extension HandleControllerChanged → RefreshAbilityActorInfo。\n不转发绑定通知：Health、Hero、CMC、LocomotionFX各自订阅Extension。\n[[Character/结构#PawnExtension 本地 ASC 订阅|本地订阅]]",
+      "text": "## AGGYGOCharacterBase / HeroCharacter\nPawn持Extension／Health／CMC；玩家另持Hero。\nPossessedBy／UnPossessed／OnRep_Controller → Extension HandleControllerChanged → RefreshAbilityActorInfo。\n不转发绑定通知：Health、Hero、CMC、LocomotionFX各自订阅Extension。\n[[Character/结构#PawnExtension 本地 ASC 订阅|本地订阅]]\nHealth.OnDeathFinished → 下一帧 K2_HandleDeathFinished：共享角色蓝图决定去留，true 表示已处理；未配置报错。\nUninitAndDestroy：各端释放自身 ASC 关联并隐藏；服务器解除控制、设置 0.1 秒 LifeSpan。\n[[Character/结构#死亡结束后的 Pawn 处理|共享模板与死亡处理]]",
       "x": 510,
       "y": 330,
       "width": 430,
-      "height": 260,
+      "height": 420,
       "color": "5"
     },
     {

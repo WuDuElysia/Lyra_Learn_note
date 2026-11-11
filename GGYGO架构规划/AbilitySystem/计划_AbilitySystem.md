@@ -308,7 +308,7 @@ PreGameplayEffectExecute只做本次支持性预检，不保存Base候选。Post
 - ClientMaxNetReceive实际覆盖：有／无Max聚合器的原PreNetReceive→OnRep→PostNetReceive批次，Current300随Max下降到150而Base100／原GE保持；延后期间不早发委托；同步OnRep后的真实嵌套direct写入仍发PoiseBreak；后续空receive不重放请求。
 - 本次未验证双端真实网络传输／延迟／预测组合、多通道与自定义资格组合、所有不可逆或数值极值、正式资产／完整战斗表现。客户端叶使用原生复制生命周期夹具，不冒称双端联机验收；原R4失败及早期严格红测保留，不由本两叶推导关闭。
 
-实际证据：[R5原生冒烟报告](F:/ue_project/GGYGO/Saved/AutomationReports/GGYGO_Gate103_R5_Closure_Smoke_20261006_MCP.json)、[构建日志](F:/ue_project/GGYGO/Saved/Logs/GGYGO_Gate103_R5_Closure_Build_20261006.log)。HealthSet结果与消息来源的详细记录由Messages的既有Module_Repair_13_Validation.md维护，不复制新摘要。结构与流程图仅描述当前接口和真实链路，不记录本检查点统计。
+实际证据：[R5原生冒烟报告](F:/ue_project/GGYGO/Saved/AutomationReports/GGYGO_Gate103_R5_Closure_Smoke_20261006_MCP.json)、[构建日志](F:/ue_project/GGYGO/Saved/Logs/GGYGO_Gate103_R5_Closure_Build_20261006.log)。HealthSet结果与消息来源的原详细验证记录已删除，历史以 Git 为准，不复制新摘要。结构与流程图仅描述当前接口和真实链路，不记录本检查点统计。
 
 ## 6. GE 层
 

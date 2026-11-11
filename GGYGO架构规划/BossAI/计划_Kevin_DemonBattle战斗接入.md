@@ -111,7 +111,7 @@ raw非虚Try/CallActivate也可在真实NotifyActivated签原身份并清理资�
 
 本轮Boss证据为项目`Saved/AutomationReports/ComplexityAuditSmoke_20261008_1/index.json`中的NormalLifecycle与两条行为PASS记录；共享构建见`Saved/Logs/ComplexityAuditBuild_20261008_2.log`、`_3.log`。首轮17叶13 Success/4 Fail的原报告保留；其余失败修正后的五叶定向复测全Success不扩大本模块验收范围。联机/Cook/视觉/性能与正式Kevin实战仍未验，不标全部Kevin技能或Boss实战完成。
 
-前序Gate79七叶整体5 Success/2 Fail/0 Warning、exit1保持历史事实；局部有限接受不改写Gate71/75/77/78历史失败或原诊断。历史证据集中在项目 `AAADocs/Modules/CombatActions/Module_Repair_04_Validation.md` 与各模块验证记录；不在本计划复制逐次日志。
+前序Gate79七叶整体5 Success/2 Fail/0 Warning、exit1保持历史事实；局部有限接受不改写Gate71/75/77/78历史失败或原诊断。原各模块验证记录已删除，历史证据历史以 Git 为准；不在本计划复制逐次日志。
 
 ### 历史准备检查点（本批未重新资产回读）
 

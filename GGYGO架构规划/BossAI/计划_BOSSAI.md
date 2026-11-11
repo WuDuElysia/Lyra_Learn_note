@@ -616,7 +616,7 @@ EventGraph。
 
 [[System/结构|System]]独占预载与共享快照，GA不新增资产加载、重试或跨帧缓存。类可用后由[[AbilitySystem/结构|共享载荷构建接口]]执行`BuildHitEffectPayload`；当前必需GE Spec构造失败只拒绝该hit伤害/Cue，不套玩家Combo整动作故障End。有效载荷在GE免疫/拒绝应用时仍允许碰撞Cue。CMC唯一执行位移，Animation管窗口语义，Combat查询/去重，原资源按Context清理；详见[[BossAI/结构#原激活与资源收尾（当前契约）|Boss消费者当前契约]]。上节通用能力基类仍为计划。
 
-统筹第15次GGYGOEditor完整构建Succeeded（6 actions/22.10秒）；常规原47项Success，但新增`GGYGO.Input.Fixture.LocalSessionReady`为1 Fail，不是48/48。尚无Boss选择/命中矩阵专项动态证明；实际蓝图默认值回读、PIE与专用服务器/cook继续待验。第15次日志/自动化JSON及本项目`AAADocs/Modules/BossAI/Module_Repair_14b_Validation.md`记录证据。15F结构图与主流程已按独立租约同步实际选择/校验/命中边界并冻结；Boss选择/命中矩阵仍未专项动态验证。
+统筹第15次GGYGOEditor完整构建Succeeded（6 actions/22.10秒）；常规原47项Success，但新增`GGYGO.Input.Fixture.LocalSessionReady`为1 Fail，不是48/48。尚无Boss选择/命中矩阵专项动态证明；实际蓝图默认值回读、PIE与专用服务器/cook继续待验。第15次日志/自动化JSON记录证据（原项目验证记录已删除，历史以 Git 为准）。15F结构图与主流程已按独立租约同步实际选择/校验/命中边界并冻结；Boss选择/命中矩阵仍未专项动态验证。
 
 ### 9.2.2 当前共同GAS生命周期迁移与验收
 
@@ -624,7 +624,7 @@ BossMelee已从派生原生Activate/End覆盖迁到 `InitializeAbilityActivation
 
 B1已先订阅原Completed再受控Try，保存原Result/Original，以原历史正常/取消判定结果；Abort只撤自身等待。核心raw边界是缺受控Try外层返回见证，而非任意直接End/Cancel不受支持；raw原身份仍可Cleanup，UnsupportedEntry不发布协议Completed。详细资源与调用顺序见[[BossAI/结构#原激活与资源收尾（当前契约）|当前契约]]及[[GGYGO_流程_Boss选招.canvas|选招流程]]。
 
-本批源码已编译；Gate73/79 `GGYGO.BossAI.Melee.NormalLifecycle` 均Success/0E0W，只证明合成A原Mesh/Cleanup/Completed→请求与通知完整返回→受控B（不同Original）→正常恢复。Gate71原 `EndReentry` Fail/4E/0W及完整严格raw/helper/8断言保留，Busy拒绝广播内立即重开，不改成通过。当前本批有限接受不等于阶段C的正式新DLL战斗、N0 Montage/Notify、Trace/GE/watchdog/CMC、B1生产BT、Kevin资产或PIE/网络/专用服务器/cook已验；旧2026-09-17竖切仅是历史证据。记录见 `AAADocs/Modules/BossAI/Module_Repair_14b_Validation.md`。
+本批源码已编译；Gate73/79 `GGYGO.BossAI.Melee.NormalLifecycle` 均Success/0E0W，只证明合成A原Mesh/Cleanup/Completed→请求与通知完整返回→受控B（不同Original）→正常恢复。Gate71原 `EndReentry` Fail/4E/0W及完整严格raw/helper/8断言保留，Busy拒绝广播内立即重开，不改成通过。当前本批有限接受不等于阶段C的正式新DLL战斗、N0 Montage/Notify、Trace/GE/watchdog/CMC、B1生产BT、Kevin资产或PIE/网络/专用服务器/cook已验；旧2026-09-17竖切仅是历史证据。原验证记录已删除，历史以 Git 为准。
 
 ### 9.3 优先级建议
 
@@ -821,7 +821,7 @@ Content/Abilities/Boss/<BossId>/
 - [ ] PIE/世界卸载的Encounter EndPlay派发；当前无BeginPlay夹具显式调用真实EndPlay，不以Destroy替代此门禁。
 - [ ] 联机/专用服务器的Encounter生命周期与复制验证。
 
-14b的调用顺序为清引用/记录 → StopLogic → UnPossess → DetachAvatar → 只销毁创建对象，详见[[GGYGO_流程_BossAI.canvas|主流程]]及[[BossAI/结构|接口职责]]。第13次门禁证据：项目`Saved/Logs/ModuleRepairBuildGate_20260930_13.log`完整构建Succeeded、25.49秒、UHT写入12份生成文件、6 actions；`Saved/AutomationReports/ModuleRepairGate_20260930_13/index.json`项目47/47、succeededWithWarnings/failed/notRun均0、totalDuration为0.472851783秒，两项Encounter各Success且errors/warnings0，UE进程exit0由统筹报告。旧RootMotionBake预期拒绝与启动诊断不视为项目测试失败。项目详细记录见`AAADocs/Modules/BossAI/Module_Repair_14b_Validation.md`；E9源码/专项自动化通过，完整动态验收仍有上列缺口。两张Canvas已按独立租约同步完整构建/两项专项通过并再冻结；真实BT/PIE/联机仍未验，最新门禁以本节和验证记录为准。完整形态切换、目标/仇恨、Kevin接线保持后续范围。
+14b的调用顺序为清引用/记录 → StopLogic → UnPossess → DetachAvatar → 只销毁创建对象，详见[[GGYGO_流程_BossAI.canvas|主流程]]及[[BossAI/结构|接口职责]]。第13次门禁证据：项目`Saved/Logs/ModuleRepairBuildGate_20260930_13.log`完整构建Succeeded、25.49秒、UHT写入12份生成文件、6 actions；`Saved/AutomationReports/ModuleRepairGate_20260930_13/index.json`项目47/47、succeededWithWarnings/failed/notRun均0、totalDuration为0.472851783秒，两项Encounter各Success且errors/warnings0，UE进程exit0由统筹报告。旧RootMotionBake预期拒绝与启动诊断不视为项目测试失败。原项目详细验证记录已删除，历史以 Git 为准；E9源码/专项自动化通过，完整动态验收仍有上列缺口。两张Canvas已按独立租约同步完整构建/两项专项通过并再冻结；真实BT/PIE/联机仍未验，最新门禁以本节和验证记录为准。完整形态切换、目标/仇恨、Kevin接线保持后续范围。
 
 ### 阶段 D：目标、仇恨与移动
 

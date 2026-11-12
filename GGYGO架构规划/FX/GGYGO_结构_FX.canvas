@@ -13,7 +13,7 @@
     {
       "id": "holders",
       "type": "text",
-      "text": "## 原资源持有者\nMontageActionResources 持能力窗口 lease；LocomotionFXComponent 持普通移动 lease。\nPublishMontageFX／PublishLocomotionFX：原事实 → 认证发布 → lease 或诊断。\nPrepareClose／DispatchClose：原 lease → 关闭与派发。",
+      "text": "## 原资源持有者\nMontageActionResources 持能力窗口 lease；LocomotionFXComponent 持普通移动 lease。\nResolveAttachment：动作默认值＋单元覆盖 → 本地附着与发布变换。\nPublishMontageFX／PublishLocomotionFX：原事实 → 认证发布 → lease 或拒绝。\nPrepareClose／DispatchClose：原 lease → 关闭及派发。",
       "x": 0,
       "y": 0,
       "width": 520,
@@ -43,7 +43,7 @@
     {
       "id": "values",
       "type": "text",
-      "text": "## 复制数据\nRecord：Occurrence、BeginServerTime、Avatar／Mesh／System、变换、Normal／Abort 停止策略、seek 步长与预算。\nState：Revision 与 ActiveRecords。\nTerminal：Occurrence、CloseRevision、Reason。",
+      "text": "## 复制值数据\nRecord：Occurrence、BeginServerTime、Avatar／Mesh／System、解析后的 Socket／Transform、Normal／Abort 停止策略、seek 步长和预算。\nState：Revision ＋ ActiveRecords。\nTerminal：Occurrence、CloseRevision、Reason。",
       "x": 600,
       "y": 420,
       "width": 520,

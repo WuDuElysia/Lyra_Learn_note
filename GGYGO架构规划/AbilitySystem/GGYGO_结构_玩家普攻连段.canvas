@@ -13,7 +13,7 @@
     {
       "id": "combo-s-ga",
       "type": "text",
-      "text": "## UGGYGOPlayerComboAbility\n持原Activation、段序／请求号、FStepMotionResources、Task和Owned窗口。\nStartStep(Original,Index,Position,RequestId)：原激活与段配置→播放／移动／FX资源。\nHandleMontageNotify按名解释独立AttackGate／MovementGate；HandleInputPressed消费真实新请求。\nAttackGate与MovementGate为独立许可；攻击门对应接续，移动门受Main实际末端约束。\nCleanupAbilityResourcesForTermination(Context)：原终止上下文→释放匹配资源。\n[[AbilitySystem/结构#原请求终止|生命周期接口]]",
+      "text": "## UGGYGOPlayerComboAbility\n持原Activation、段序／请求号、FStepMotionResources、Task和Owned窗口。\nStartStep(Original,Index,Position,RequestId)：原激活与段配置→播放／移动／FX资源。\nHandleMontageNotify按名解释独立AttackGate／MovementGate；HandleInputPressed消费真实新请求。\nAttackGate与MovementGate为独立许可；攻击门对应接续，移动门等待原实例到达作者移动点。\nCleanupAbilityResourcesForTermination(Context)：原终止上下文→释放匹配资源。\n[[AbilitySystem/结构#原请求终止|生命周期接口]]",
       "x": 530,
       "y": 280,
       "width": 450,

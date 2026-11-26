@@ -43,7 +43,7 @@
     {
       "id": "combo-f-window",
       "type": "text",
-      "text": "3. 原Montage事实交付\n原AnimInstance NotifyBegin→Task NotifyReceived→HandleMontageNotify，核原实例及该名字声明。\n攻击点→OpenAttackContinuation，只开攻击门。\n移动点→TryOpenMovementInterruption；实际位置到Main末端才BeginMovementInterruption→Query／Subscribe合格移动。\nSection只投影；typed Hit窗口→OpenTraceWindow／ReleaseTraceWindow。",
+      "text": "3. 原Montage事实交付\n原AnimInstance NotifyBegin→Task NotifyReceived→HandleMontageNotify，核原实例及该名字声明。\n攻击点→OpenAttackContinuation，只开攻击门。\n移动点→TryOpenMovementInterruption；实际位置到作者移动点才BeginMovementInterruption→Query／Subscribe合格移动。\nSection只投影；typed Hit窗口→OpenTraceWindow／ReleaseTraceWindow。",
       "x": 1060,
       "y": 700,
       "width": 450,
@@ -172,7 +172,7 @@
       "fromSide": "left",
       "toNode": "combo-f-branch",
       "toSide": "right",
-      "label": "原点按名开对应门；移动到Main末端再Query／Subscribe"
+      "label": "原点按名开对应门；移动到作者时点再Query／Subscribe"
     },
     {
       "id": "combo-fe-next",
